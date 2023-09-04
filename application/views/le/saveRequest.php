@@ -1,0 +1,147 @@
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://cloud.tinymce.com/stable/tinymce.min.js"></script>
+<script>tinymce.init({ selector:'textarea' });</script>
+<div class="row">
+    <div class="col-lg-12">
+        <section class="panel">
+            <header class="panel-heading">
+                Save Request 
+            </header>
+            
+            <div class="panel-body">
+                <div class="form">
+                    <form class="cmxform form-horizontal " action="<?php echo base_url()?>le/doSaveRequest" method="post" enctype="multipart/form-data">
+                            <input type="text" name="id" value="<?=base64_encode($task->id)?>" hidden="">
+                            
+                            <div class="form-group">
+                            <label class="col-lg-3 control-label" for="role name"></label>
+                            <div class="col-lg-6" id="LeadData">
+                    <table class="table table-striped table-hover table-bordered" id="">
+                        <thead>
+                            <tr>
+                                <th colspan="2">PM</th>
+                                <td colspan="2"><?=$this->admin_model->getAdmin($task->created_by)?></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                             <?php
+                            if($task->job_id == 0){
+                                $product_line = $task->product_line;
+                                $source_language = $task->source_language;
+                                $target_language = $task->target_language;
+                            } else{
+                                $jobData = $this->projects_model->getJobData($task->job_id);
+                                $priceListData = $this->projects_model->getJobPriceListData($jobData->price_list);
+                                $product_line = $priceListData->product_line;
+                                $source_language = $priceListData->source;
+                                $target_language = $priceListData->target;
+                            }
+                            ?>
+                                <tr>
+                                    <td>Task Code</td>
+                                    <td>LE-<?=$task->id?></td>
+                                    <td>Task Name</td>
+                                    <td><?=$task->subject?></td>
+                                </tr>
+                                <tr>
+                                    <td>Task Type</td>
+                                    <td><?=$this->admin_model->getLETaskType($task->task_type)?></td>
+                                    <td>Product line</td>
+                                    <td><?php echo $this->customer_model->getProductLine($product_line);?></td>
+                                </tr>
+                                <tr>
+                                    <td>Source Language</td>
+                                    <td><?=$this->admin_model->getLanguage($source_language)?></td>
+                                    <td>Target Language</td>
+                                    <td><?=$this->admin_model->getLanguage($target_language)?></td>
+                                </tr>
+                                <tr>
+                                    <td>Subject Matter</td>
+                                    <td><?php echo $this->admin_model->getLESubject($task->subject_matter);?></td>
+                                    <td>File Attachment</td>
+                                    <td colspan="3"><?php if(strlen($task->file) > 1){ ?><a href="<?=base_url()?>assets/uploads/leRequest/<?=$task->file?>" target="_blank">Click Here</a><?php } ?></td>
+                                </tr>
+                                <?php if(is_numeric($task->linguist) && is_numeric($task->deliverable)){ ?>
+                                <tr>
+                                    <td>Linguist Format</td>
+                                    <td><?php echo $this->admin_model->getLeFormat($task->linguist);?></td>
+                                    <td>Deliverable Format</td>
+                                    <td><?php echo $this->admin_model->getLeFormat($task->deliverable);?></td>
+                                </tr> 
+                            <?php }else{ ?>
+                            <tr>
+                                <td>Linguist Format</td>
+                                <td><?=$task->linguist ?></td>
+                                <td>Deliverable Format</td>
+                                <td><?=$task->deliverable ?></td>
+                            </tr>
+                            <?php } ?>  
+                                 <tr>
+                                    <td>Unit</td>
+                                    <td><?php echo $this->admin_model->getUnit($task->unit);?></td>
+                                    <td>Volume</td>
+                                    <td><?=$task->volume?></td>
+                                </tr>
+                                
+                                <tr>
+                                    <td>Complexicty</td>
+                                    <td><?=$this->projects_model->getLeComplexicty($task->complexicty);?></td>
+                                    <td>Rate</td>
+                                    <td><?= $this->projects_model->calculateLeRequestRate($task->task_type,$task->linguist,$task->deliverable,$task->complexicty,$task->volume);?></td>
+                                </tr>
+                                <tr>
+                                    <td>Start Delivery</td>
+                                    <td><?=$task->start_date?></td>
+                                    <td>Delivery Date</td>
+                                    <td><?=$task->delivery_date?></td>
+                                </tr>
+                                <tr>
+                                    <td>Request Date</td>
+                                    <td><?=$task->created_at?></td>
+                                    <td>Status</td>
+                                    <td><?=$this->projects_model->getTranslationTaskStatus($task->status)?></td>
+                                </tr>
+                                <tr>
+                                    <td>Created By</td>
+                                    <td><?=$this->admin_model->getAdmin($task->created_by)?></td>
+                                    <td>Task Started At</td>
+                                    <td><?=$task->created_at?></td>
+                                </tr>  
+                                <tr>
+                                    <td>Instructions</td>
+                                    <td colspan="3"><?=$task->insrtuctions?></td>
+                                </tr> 
+                        </tbody>
+                    </table>
+                                </div>
+                            </div>
+                             
+                             <!-- Enter your comment -->
+                             <div class="form-group">
+                                <label class="col-sm-3 control-label">Action</label>
+                                <div class="col-sm-6">
+                                    <select name="status" onchange="translationAction()" class="form-control m-b" id="status" required />
+                                            <option disabled="disabled" value="" selected="">-- Select Action --</option>
+                                            <option value="2">Accept</option>
+                                            <option value="5">Update</option>
+                                            <option value="0">Reject</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="comment">
+                                
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-lg-offset-3 col-lg-6">
+                                    <input class="btn btn-primary" type="submit" name="submit" value="Save Changes">
+                                    <a href="<?php echo base_url()?>le" class="btn btn-default" type="button">Cancel</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
