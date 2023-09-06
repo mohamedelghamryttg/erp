@@ -1236,11 +1236,11 @@ class PerformanceManagment extends CI_Controller
         $file_type = "vnd.ms-excel";
         $file_ending = "xls";
         // Check Permission ..
-        $check = $this->admin_model->checkPermission($this->role, 184);
+        $check = $this->admin_model->checkPermission($this->role, 193);
         if ($check) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
-            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 184);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 193);
             $data['emp_id'] = $this->emp_id;
             //body ..
             $arr2 = array();
@@ -1345,7 +1345,7 @@ class PerformanceManagment extends CI_Controller
             } else {
                 $data['kpis'] = $this->hr_model->AllKpiScore($data['permission'], 1);
             }
-
+            
             header("Content-Type: application/$file_type");
             header("Content-Disposition: attachment; filename=AllKpiScore.$file_ending");
             header("Pragma: no-cache");

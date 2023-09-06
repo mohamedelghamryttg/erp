@@ -43,6 +43,7 @@
                     <thead>
                         <tr>
                             <th>Employee Name</th>
+                            <th>Function</th>
                             <th>Year</th>
                             <th>Month</th>
                             <th>Score%</th>
@@ -57,6 +58,7 @@
                              $score = $score_data->sum;                           
                            ?>     <tr> 
                                 <td><?php echo $this->hr_model->getEmployee($row->emp_id); ?></td>
+                                <td ><?= $this->automation_model->getEmpDep($row->emp_id); ?></td>
                                 <td><?php echo $this->hr_model->getYear($row->year); ?></td>
                                 <td><?php echo $this->accounting_model->getMonth($row->month); ?></td>
                                 <td><span class="label label-square label-<?=$this->hr_model->performanceMatrix($score,$row->year)['color']?>"><?=  number_format((float)$score, 2, '.', '') ?>%</span></td>
