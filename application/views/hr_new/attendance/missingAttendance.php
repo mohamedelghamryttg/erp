@@ -13,7 +13,7 @@
                     <?php  } ?>
                     <?php if($this->session->flashdata('error')){ ?>
                         <div class="alert alert-danger col-lg-12" role="alert">
-                            <span class="fa fa-warning"></span>
+                            <span class="la la-warning icon-lg"></span>
                             <span><strong><?=$this->session->flashdata('error')?></strong></span>
                         </div>
                      <?php  } ?>

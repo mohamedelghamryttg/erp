@@ -2432,7 +2432,7 @@ class Hr_model extends CI_Model
 
     public function sendRejectTimeSheetMail($data)
     {
-        $from = "falaqsystem@thetranslationgate.com";
+        $from = "erp@aixnexus.com";
         $mailTo = "asmaa.saafan@thetranslationgate.com";
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";

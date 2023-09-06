@@ -1559,6 +1559,7 @@ class Hr extends CI_Controller
             $checkSameLocation = $this->db->query("SELECT * FROM attendance_log  WHERE USRID = " . $userData . " AND location = " . $_POST['location'] . " AND TNAKEY = " . $_POST['TNAKEY'] . " AND SRVDT like'" . date("Y-m-d") . "%' ORDER BY id DESC LIMIT 1")->row();
             if ($checkSameLocation > 0 && $_POST['TNAKEY'] != 2) {
                 $error = "Attendance Already Exists ...";
+                $error .= "<br/>".$this->hr_model->getTnakeyType($checkSameLocation->TNAKEY)." : ".$checkSameLocation->SRVDT." ( ".$this->hr_model->getLocationType($checkSameLocation->location)." )";
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "hr/attendance");
             } else {
@@ -2388,6 +2389,7 @@ class Hr extends CI_Controller
             $checkSameLocation = $this->db->query("SELECT * FROM attendance_log  WHERE USRID = " . $userData . " AND location = " . $_POST['location'] . " AND TNAKEY = " . $_POST['TNAKEY'] . " AND SRVDT like'" . date_format($date, 'Y-m-d') . "%' ORDER BY id DESC LIMIT 1")->row();
             if ($checkSameLocation > 0) {
                 $error = "Attendance Already Exists ...";
+                $error .= "<br/>".$this->hr_model->getTnakeyType($checkSameLocation->TNAKEY)." : ".$checkSameLocation->SRVDT." ( ".$this->hr_model->getLocationType($checkSameLocation->location)." )";
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "hr/missingAttendance");
             } else {
@@ -2465,6 +2467,7 @@ class Hr extends CI_Controller
             $checkSameLocation = $this->db->query("SELECT * FROM attendance_log  WHERE USRID = " . $_POST['emp_id'] . " AND location = " . $_POST['location'] . " AND TNAKEY = " . $_POST['TNAKEY'] . " AND SRVDT like'" . date_format($date, 'Y-m-d') . "%' ORDER BY id DESC LIMIT 1")->row();
             if ($checkSameLocation > 0) {
                 $error = "Attendance Already Exists ...";
+                $error .= "<br/>".$this->hr_model->getTnakeyType($checkSameLocation->TNAKEY)." : ".$checkSameLocation->SRVDT." ( ".$this->hr_model->getLocationType($checkSameLocation->location)." )";
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "hr/missingAttendance");
             } else {
@@ -2552,6 +2555,7 @@ class Hr extends CI_Controller
             $checkSameLocation = $this->db->query("SELECT * FROM attendance_log  WHERE USRID = " . $record->USRID . " AND location = " . $_POST['location'] . " AND TNAKEY = " . $_POST['TNAKEY'] . " AND SRVDT like'" . date_format($date, 'Y-m-d') . "%' ORDER BY id DESC LIMIT 1")->row();
             if ($checkSameLocation > 0) {
                 $error = "Attendance Already Exists ...";
+                $error .= "<br/>".$this->hr_model->getTnakeyType($checkSameLocation->TNAKEY)." : ".$checkSameLocation->SRVDT." ( ".$this->hr_model->getLocationType($checkSameLocation->location)." )";
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "hr/missingAttendance");
             } else {

@@ -59,7 +59,7 @@
     <?php } ?>
     <?php if ($this->session->flashdata('error')) { ?>
         <div class="alert alert-danger" role="alert">
-            <span class="fa fa-warning"></span>
+            <span class="la la-warning icon-lg"></span>
             <span><strong><?= $this->session->flashdata('error') ?></strong></span>
         </div>
     <?php } if ($this->admin_model->checkIfUserIsManager($this->user) || ($this->role == 1 or $this->role == 21 or $this->role == 31 or $this->role == 46 )) { ?>
