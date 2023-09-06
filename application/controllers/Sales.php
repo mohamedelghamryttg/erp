@@ -1802,167 +1802,124 @@ class Sales extends CI_Controller
         $this->load->view('sales/exportProjects.php', $data);
     }
 
-    public function businessReviews()
-    {
+    public function businessReviews(){
         // Check Permission ..
-        $check = $this->admin_model->checkPermission($this->role, 108);
-        if ($check) {
-            //header ..
-            $data['group'] = $this->admin_model->getGroupByRole($this->role);
-            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 108);
-            //body ..
-            $data['user'] = $this->user;
-            $data['brand'] = $this->brand;
-
-            $scren_var = ['id', 'customer', 'created_by', 'type', 'date_from', 'date_to', 'region'];
-            if (rtrim($_SERVER['HTTP_REFERER'] ?? '', '/') != base_url('sales/businessReviews')) {
-                for ($i = 0; $i < count($scren_var); $i++) {
-                    $this->session->unset_userdata($scren_var[$i]);
-                    $data[$scren_var[$i]] = "";
-                }
-            }
-
-            $limit = 9;
-            $offset = $data['page'] = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
-
-            $config['base_url'] = base_url('sales/businessReviews');
-            $config['uri_segment'] = 3;
-            $config['display_pages'] = TRUE;
-            $config['per_page'] = $limit;
-            // $config['total_rows'] = $count;
-            $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
-            $config['full_tag_close'] = "</ul>";
-            $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
-            $config['num_tag_close'] = '</li>';
-            $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
-            $config['cur_tag_close'] = "</li>";
-            $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-            $config['next_tagl_close'] = "</span></li>";
-            $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-            $config['prev_tagl_close'] = "</span></li>";
-            $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-            $config['first_tagl_close'] = "</li>";
-            $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-            $config['last_tagl_close'] = "</li>";
-            $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
-            $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
-            $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
-            $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
-            $config['num_links'] = 5;
-            $config['show_count'] = TRUE;
-
-            $data['page'] = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
-            $arr2 = $arr1 = array();
-
-            //***********//
-            if ($this->input->post('search')) {
-                $data['id'] = $this->input->post('id');
-                $data['customer'] = $this->input->post('customer');
-                $data['created_by'] = $this->input->post('created_by');
-                $data['type'] = $this->input->post('type');
-                $data['date_from'] = $this->input->post('date_from') ? date("Y-m-d", strtotime($this->input->post('date_from'))) : '';
-                $data['date_to'] = $this->input->post('date_to') ? date("Y-m-d", strtotime($this->input->post('date_to'))) : '';
-                $data['region'] = $this->input->post('region');
-
-                for ($i = 0; $i < count($scren_var); $i++) {
-                    if (!empty($data[$scren_var[$i]])) {
-                        $this->session->set_userdata($scren_var[$i], $data[$scren_var[$i]]);
-                    } else {
-                        $this->session->unset_userdata($scren_var[$i]);
-                    }
-
-                }
-                //********************//
-            } elseif ($this->input->post('submitReset')) {
-
-                for ($i = 0; $i < count($scren_var); $i++) {
-                    $this->session->unset_userdata($scren_var[$i]);
-                    $data[$scren_var[$i]] = "";
-                }
-
-                //**********************//
-            }
-            for ($i = 0; $i < count($scren_var); $i++) {
-                $data[$scren_var[$i]] = $this->session->userdata($scren_var[$i]);
-            }
-
-            //**********************//
-
-            $id = $data['id'];
-            $customer = $data['customer'];
-            $created_by = $data['created_by'];
-            $type = $data['type'];
-            $date_from = $data['date_from'];
-            $date_to = $data['date_to'];
-            $region = $data['region'];
-
-            //**********************//
-            if (!empty($id)) {
-                $data['id'] = $id;
-                array_push($arr2, 0);
-                array_push($arr1, "id = '$id'");
-
-            }
-            if (!empty($customer)) {
-                $data['customer'] = $customer;
-                array_push($arr2, 1);
-                array_push($arr1, "customer = '$customer'");
-            }
-            if (!empty($created_by)) {
-                $data['created_by'] = $created_by;
-                array_push($arr2, 2);
-                array_push($arr1, "created_by = '$created_by'");
-
-            }
-            if (!empty($type)) {
-                $data['type'] = $type;
-                array_push($arr2, 3);
-                array_push($arr1, "type = '$type'");
-
-            }
-            if (!empty($date_from) && !empty($date_to)) {
-                $data['date_from'] = $date_from;
-                $data['date_to'] = $date_to;
-                array_push($arr2, 4);
-                array_push($arr1, "created_at BETWEEN '$date_from' AND '$date_to' ");
-
-            }
-            if (!empty($region)) {
-                $data['region'] = $region;
-                array_push($arr2, 5);
-                array_push($arr1, "c.region = '$region'");
-
-            }
-            //************************//
-            $arr_1_cnt = count($arr2);
-            $arr3 = array();
-            for ($i = 0; $i < $arr_1_cnt; $i++) {
-                array_push($arr3, $arr1[$i]);
-            }
-            $arr4 = implode(" and ", $arr3);
-
-            if ($arr_1_cnt > 0) {
-                $data['business'] = $this->sales_model->AllbusinessReviewsPages($data['permission'], $this->user, $this->brand, $arr4, $limit, $offset);
-                $count = $this->sales_model->AllbusinessReviews($data['permission'], $this->user, $this->brand, $arr4)->num_rows();
-            } else {
-                $data['business'] = $this->sales_model->AllbusinessReviewsPages($data['permission'], $this->user, $this->brand, '1', $limit, $offset);
-                $count = $this->sales_model->AllbusinessReviews($data['permission'], $this->user, $this->brand, '1')->num_rows();
-
-            }
-            $data['total_rows'] = $count;
-
-            $config['total_rows'] = $count;
-            $this->pagination->initialize($config);
-
-            // //Pages ..
-            $this->load->view('includes_new/header.php', $data);
-            $this->load->view('sales_new/businessReviews.php');
-            $this->load->view('includes_new/footer.php');
-        } else {
-            echo "You have no permission to access this page";
-        }
-
-    }
+         $check = $this->admin_model->checkPermission($this->role,108);
+         if($check){
+             //header ..
+             $data['group'] = $this->admin_model->getGroupByRole($this->role);
+             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role,108);
+             //body ..
+             $data['user'] = $this->user;
+ 
+             if(isset($_GET['search'])){
+                 $arr2 = array();
+                 if(isset($_REQUEST['id'])){
+                     $id = $_REQUEST['id'];
+                     if(!empty($id)){ array_push($arr2,0); }
+                 }else{
+                     $id = "";
+                 }
+                 if(isset($_REQUEST['customer'])){
+                     $customer = $_REQUEST['customer'];
+                     if(!empty($customer)){ array_push($arr2,1); }
+                 }else{
+                     $customer = "";
+                 }
+                 if(isset($_REQUEST['created_by'])){
+                     $created_by = $_REQUEST['created_by'];
+                     if(!empty($created_by)){ array_push($arr2,2); }
+                 }else{
+                     $created_by = "";
+                 }
+                 if(isset($_REQUEST['type'])){
+                     $type = $_REQUEST['type'];
+                     if(!empty($type)){ array_push($arr2,3); }
+                 }else{
+                     $type = "";
+                 }
+                 if(isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])){
+                     $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
+                     $date_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
+                     if(!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])){ array_push($arr2,4); }
+                 }else{
+                     $date_from = "";
+                     $date_to = "";
+                 }
+                 if(isset($_REQUEST['region'])){
+                     $region = $_REQUEST['region'];
+                     if(!empty($region)){ array_push($arr2,5); }
+                 }else{
+                     $region = "";
+                 }
+                 // print_r($arr2);
+                 $cond1 = "id = '$id'";           
+                 $cond2 = "customer = '$customer'";      
+                 $cond3 = "created_by = '$created_by'";    
+                 $cond4 = "type = '$type'";
+                 $cond5 = "created_at BETWEEN '$date_from' AND '$date_to'"; 
+                 $cond6 = "c.region = '$region'";
+                 $arr1 = array($cond1,$cond2,$cond3,$cond4,$cond5,$cond6);
+                 $arr_1_cnt = count($arr2);
+                 $arr3 = array();
+                 for($i=0; $i<$arr_1_cnt; $i++ ){
+                 array_push($arr3,$arr1[$arr2[$i]]);
+                 }
+                 $arr4 = implode(" and ",$arr3);
+                 //print_r($arr4);     
+                 if($arr_1_cnt > 0){
+                     $data['business'] = $this->sales_model->AllbusinessReviews($data['permission'],$this->user,$this->brand,$arr4);
+                 }else{
+                     $data['business'] = $this->sales_model->AllbusinessReviewsPages($data['permission'],$this->user,$this->brand,9,0);
+                 }
+             }else{
+                 $limit = 9;
+                 $offset = $this->uri->segment(3);
+                 if($this->uri->segment(3) != NULL)
+                 {
+                     $offset = $this->uri->segment(3);
+                 }else{
+                     $offset = 0;
+                 }
+                 $count = $this->sales_model->AllbusinessReviews($data['permission'],$this->user,$this->brand,$this->brand,1)->num_rows();
+                 $config['base_url']= base_url('sales/businessReviews');
+                 $config['uri_segment'] = 3;
+                 $config['display_pages']= TRUE;
+                 $config['per_page']  = $limit;
+                 $config['total_rows'] = $count;
+                   $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
+                   $config['full_tag_close'] ="</ul>";
+                   $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
+                   $config['num_tag_close'] = '</li>';
+                   $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
+                   $config['cur_tag_close'] = "</li>";
+                   $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
+                   $config['next_tagl_close'] = "</span></li>";
+                   $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
+                   $config['prev_tagl_close'] = "</span></li>";
+                   $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
+                   $config['first_tagl_close'] = "</li>";
+                   $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
+                   $config['last_tagl_close'] = "</li>";
+                   $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
+                   $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
+                   $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
+                   $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
+                   $config['num_links'] = 5;
+                   $config['show_count'] = TRUE;
+                   $this->pagination->initialize($config);                
+                 
+                 $data['business'] = $this->sales_model->AllbusinessReviewsPages($data['permission'],$this->user,$this->brand,$limit,$offset);
+             }
+ 
+             //Pages ..
+             $this->load->view('includes_new/header.php',$data);
+             $this->load->view('sales_new/businessReviews.php');
+             $this->load->view('includes_new/footer.php'); 
+         }else{
+             echo "You have no permission to access this page";
+         }
+     }
 
     public function exportBusinessReviews()
     {
@@ -2809,4 +2766,3 @@ background-color: #FFFFCC;
         }
     }
 }
-?>

@@ -22,7 +22,6 @@ class Projects_model extends CI_Model
             $data = $this->db->query(" SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand,(SELECT IF ((SELECT count(*) from job where project_id = p.id) = (SELECT count(*) from job where project_id = p.id AND status = '1'), 1, 0)) AS closed FROM `project` AS p WHERE " . $filter . " HAVING brand = '$brand' AND " . $having . " ORDER BY id DESC ");
         } elseif ($permission->view == 2) {
             $data = $this->db->query(" SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand,(SELECT IF ((SELECT count(*) from job where project_id = p.id) = (SELECT count(*) from job where project_id = p.id AND status = '1'), 1, 0)) AS closed FROM `project` AS p WHERE " . $filter . " AND created_by = '$user' HAVING brand = '$brand' AND " . $having . " ORDER BY id DESC ");
-
         }
         return $data;
     }
@@ -334,7 +333,6 @@ class Projects_model extends CI_Model
                           </div>
                 </body>
                 </html>');
-
         } else if ($brand == 3) {
             $config = array(
                 'protocol' => 'smtp',
@@ -472,7 +470,6 @@ class Projects_model extends CI_Model
                           </div>
                 </body>
                 </html>');
-
         } else if ($brand == 2) {
             $config = array(
                 'protocol' => 'smtp',
@@ -944,7 +941,6 @@ class Projects_model extends CI_Model
                           </div>
                 </body>
                 </html>';
-
         } else if ($brand == 3) {
             $config = array(
                 'protocol' => 'smtp',
@@ -1220,7 +1216,6 @@ class Projects_model extends CI_Model
                           </div>
                 </body>
                 </html>';
-
         } elseif ($brand == 11) {
             $config = array(
                 'protocol' => 'smtp',
@@ -2111,7 +2106,6 @@ class Projects_model extends CI_Model
                                       </div>
                             </body>
                             </html>';
-
         }
         //echo $msg;
         $this->email->message($msg);
@@ -2180,7 +2174,6 @@ class Projects_model extends CI_Model
         } elseif ($status == 9) {
             echo "Heads Up ( Marked as Not Available )";
         }
-
     }
 
     public function selectJobStatus($select = "")
@@ -2365,43 +2358,36 @@ class Projects_model extends CI_Model
     public function AllTasks($permission, $user, $brand, $filter)
     {
         if ($permission->view == 1) {
-            $sql = " SELECT j.*,l.source,l.target,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand FROM job_task AS j 
-            LEFT OUTER JOIN job AS p on j.job_id = p.id
-            LEFT OUTER JOIN job_price_list AS l on l.id = p.price_list
-            WHERE job_id <> 0 AND " . $filter . " HAVING brand = '$brand' order by id desc ";
-            $data = $this->db->query($sql);
+            $data = $this->db->query(" SELECT j.*,l.source,l.target,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand FROM job_task AS j 
+                LEFT OUTER JOIN job AS p on j.job_id = p.id
+                LEFT OUTER JOIN job_price_list AS l on l.id = p.price_list
+                WHERE job_id <> 0 AND " . $filter . " HAVING brand = '$brand' order by id desc ");
         } elseif ($permission->view == 2) {
-            $sql = " SELECT j.*,l.source,l.target,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand FROM job_task AS j 
-            LEFT OUTER JOIN job AS p on j.job_id = p.id
-            LEFT OUTER JOIN job_price_list AS l on l.id = p.price_list
-            WHERE j.created_by = '$user' AND job_id <> 0 AND " . $filter . " HAVING brand = '$brand' order by id desc ";
-            $data = $this->db->query($sql);
+            $data = $this->db->query(" SELECT j.*,l.source,l.target,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand FROM job_task AS j 
+                LEFT OUTER JOIN job AS p on j.job_id = p.id
+                LEFT OUTER JOIN job_price_list AS l on l.id = p.price_list
+                WHERE j.created_by = '$user' AND job_id <> 0 AND " . $filter . " HAVING brand = '$brand' order by id desc ");
         }
-
         return $data;
     }
 
 
-    public function AllTasksPages($permission, $user, $brand, $filter, $limit, $offset)
+    public function AllTasksPages($permission, $user, $brand, $limit, $offset)
     {
         if ($permission->view == 1) {
-            $sql = " SELECT j.*,l.source,l.target,l.rate,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand FROM job_task AS j 
-            LEFT OUTER JOIN job AS p on j.job_id = p.id
-            LEFT OUTER JOIN job_price_list AS l on l.id = p.price_list
-            WHERE job_id <> 0 AND " . $filter . "
-            HAVING brand = '$brand' ORDER BY id DESC LIMIT $limit OFFSET $offset ";
-            $data = $this->db->query($sql);
+            $data = $this->db->query(" SELECT j.*,l.source,l.target,l.rate,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand FROM job_task AS j 
+                LEFT OUTER JOIN job AS p on j.job_id = p.id
+                LEFT OUTER JOIN job_price_list AS l on l.id = p.price_list
+                WHERE project_id <> 0
+                HAVING brand = '$brand' ORDER BY id DESC LIMIT $limit OFFSET $offset ");
         } elseif ($permission->view == 2) {
-            $sql = "SELECT j.*,l.source,l.target,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand FROM job_task AS j 
-            LEFT OUTER JOIN job AS p on j.job_id = p.id
-            LEFT OUTER JOIN job_price_list AS l on l.id = p.price_list
-            WHERE j.created_by = '$user' AND job_id <> 0 AND " . $filter . " HAVING brand = '$brand' ORDER BY id DESC LIMIT $limit OFFSET $offset ";
-            $data = $this->db->query($sql);
+            $data = $this->db->query("SELECT j.*,l.source,l.target,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand FROM job_task AS j 
+                LEFT OUTER JOIN job AS p on j.job_id = p.id
+                LEFT OUTER JOIN job_price_list AS l on l.id = p.price_list
+                WHERE j.created_by = '$user' AND job_id <> 0 HAVING brand = '$brand' ORDER BY id DESC LIMIT $limit OFFSET $offset ");
         }
-
         return $data;
     }
-
 
     public function sendRejectMail($data, $pm, $opportunity)
     {
@@ -2496,7 +2482,6 @@ class Projects_model extends CI_Model
         $this->email->set_header('Reply-To', $pmMail);
         $this->email->set_mailtype('html');
         $this->email->send();
-
     }
 
     public function AllCustomerJobs($permission, $user, $brand)
@@ -2594,7 +2579,6 @@ class Projects_model extends CI_Model
         } elseif ($status == 9) {
             echo '<span class="badge badge-danger p-2" style="background-color: #FF5733">Heads Up ( Marked as Not Available )</span>';
         }
-
     }
 
     public function newDtpTasks($brand)
@@ -3257,7 +3241,6 @@ class Projects_model extends CI_Model
 
         if (strlen($file) > 1) {
             $fileMsg = 'Check the attachment file <a href="' . base_url() . 'assets/uploads/leRequest/' . $file . '" target="_blank">Click Here ..</a>';
-
         } else {
             $fileMsg = '';
         }
@@ -3390,7 +3373,6 @@ class Projects_model extends CI_Model
 
         if (strlen($file) > 1) {
             $fileMsg = 'Check the attachment file <a href="' . base_url() . 'assets/uploads/translationRequest/' . $file . '" target="_blank">Click Here ..</a>';
-
         } else {
             $fileMsg = '';
         }
@@ -3468,7 +3450,6 @@ class Projects_model extends CI_Model
 
         if (strlen($file) > 1) {
             $fileMsg = 'Check the attachment file <a href="' . base_url() . 'assets/uploads/dtpRequest/' . $file . '" target="_blank">Click Here ..</a>';
-
         } else {
             $fileMsg = '';
         }
@@ -4495,7 +4476,6 @@ class Projects_model extends CI_Model
             $data = $this->db->query(" SELECT * FROM `pm_conversion_request` WHERE brand = '$brand' AND created_by ='$user' AND " . $filter . " ORDER BY id DESC ");
         }
         return $data;
-
     }
 
     public function AllPmConversionRequestPages($permission, $user, $brand, $limit, $offset)
@@ -4629,21 +4609,21 @@ class Projects_model extends CI_Model
 
     public function activeCustomersDaily($file, $brand)
     {
-  	$config = array(
-			'protocol' => 'smtp',
-			'smtp_host' => 'email-smtp.us-west-2.amazonaws.com',
-			'smtp_port' => 25,
-			'smtp_user' => 'erp@aixnexus.com',
-			'smtp_pass' => 'EXoYlsum6Do@',
-			'charset' => 'utf-8',
-			'validate' => TRUE,
-			'wordwrap' => TRUE,
-		);
+        $config = array(
+            'protocol' => 'smtp',
+            'smtp_host' => 'email-smtp.us-west-2.amazonaws.com',
+            'smtp_port' => 25,
+            'smtp_user' => 'erp@aixnexus.com',
+            'smtp_pass' => 'EXoYlsum6Do@',
+            'charset' => 'utf-8',
+            'validate' => TRUE,
+            'wordwrap' => TRUE,
+        );
         $this->load->library('email', $config);
         $this->email->set_newline("\r\n");
         $fileName = base_url() . 'assets/uploads/active_customers_report/' . $file;
         $this->email->attach($fileName);
-            $this->email->from("erp@aixnexus.com");
+        $this->email->from("erp@aixnexus.com");
         // $this->email->to("mohamed.elshehaby@thetranslationgate.com");
         $this->email->to("mohammad@thetranslationgate.com, shehab@thetranslationgate.com, sam-spocs@thetranslationgate.com, zeinab.moustafa@thetranslationgate.com, sabeeh.mohamed@thetranslationgate.com , maged.abdelmoniem@thetranslationgate.com,lobna.abdou@thetranslationgate.com");
         $this->email->cc("dev@thetranslationgate.com");
@@ -4665,17 +4645,17 @@ class Projects_model extends CI_Model
 
     public function activeCustomersWeekly($file, $brand)
     {
-      
-	$config = array(
-			'protocol' => 'smtp',
-			'smtp_host' => 'email-smtp.us-west-2.amazonaws.com',
-			'smtp_port' => 25,
-			'smtp_user' => 'erp@aixnexus.com',
-			'smtp_pass' => 'EXoYlsum6Do@',
-			'charset' => 'utf-8',
-			'validate' => TRUE,
-			'wordwrap' => TRUE,
-		);
+
+        $config = array(
+            'protocol' => 'smtp',
+            'smtp_host' => 'email-smtp.us-west-2.amazonaws.com',
+            'smtp_port' => 25,
+            'smtp_user' => 'erp@aixnexus.com',
+            'smtp_pass' => 'EXoYlsum6Do@',
+            'charset' => 'utf-8',
+            'validate' => TRUE,
+            'wordwrap' => TRUE,
+        );
         $date = date("Y-m-d");
         $week_date = date("Y-m-d", strtotime("-7 days"));
         $this->load->library('email', $config);
@@ -4705,15 +4685,15 @@ class Projects_model extends CI_Model
     public function activeCustomersMonthly($file, $brand)
     {
         $config = array(
-			'protocol' => 'smtp',
-			'smtp_host' => 'email-smtp.us-west-2.amazonaws.com',
-			'smtp_port' => 25,
-			'smtp_user' => 'erp@aixnexus.com',
-			'smtp_pass' => 'EXoYlsum6Do@',
-			'charset' => 'utf-8',
-			'validate' => TRUE,
-			'wordwrap' => TRUE,
-		);
+            'protocol' => 'smtp',
+            'smtp_host' => 'email-smtp.us-west-2.amazonaws.com',
+            'smtp_port' => 25,
+            'smtp_user' => 'erp@aixnexus.com',
+            'smtp_pass' => 'EXoYlsum6Do@',
+            'charset' => 'utf-8',
+            'validate' => TRUE,
+            'wordwrap' => TRUE,
+        );
         $date = date("Y-m-d");
         $month_date = date("Y-m-d", strtotime("-1 month"));
         $this->load->library('email', $config);
@@ -4723,7 +4703,7 @@ class Projects_model extends CI_Model
         $this->email->from("erp@aixnexus.com");
         $this->email->to("mohamed.elghamry@thetranslationgate.com");
         // $this->email->to("mohammad@thetranslationgate.com, shehab@thetranslationgate.com, sam-spocs@thetranslationgate.com, zeinab.moustafa@thetranslationgate.com");
-         $this->email->cc("dev@thetranslationgate.com");
+        $this->email->cc("dev@thetranslationgate.com");
         $this->email->subject("Monthly Active Customers - " . $brand);
         $message = '<!DOCTYPE ><html dir=ltr>
                     <head>
@@ -4855,7 +4835,6 @@ class Projects_model extends CI_Model
         $this->email->set_header('Reply-To', $pmMail);
         $this->email->set_mailtype('html');
         $this->email->send();
-
     }
 
     public function sendVendorResponseMail($id, $brand, $status)
@@ -4896,7 +4875,6 @@ class Projects_model extends CI_Model
             $subject = "Nexus || Task Confirmed: " . $data['row']->subject;
 
             $message = $this->load->view("projects_new/emails/job_confirmed.php", $data, true);
-
         }
 
         $this->email->subject($subject);
@@ -4904,7 +4882,6 @@ class Projects_model extends CI_Model
         $this->email->set_header('Reply-To', $pmMail);
         $this->email->set_mailtype('html');
         $this->email->send();
-
     }
     public function getTaskLoggerStatus($status)
     {
@@ -5040,9 +5017,7 @@ class Projects_model extends CI_Model
                 $this->email->cc($pmMail . ', Vendormanagement@Columbuslang.com');
             }
             $this->email->send();
-
         }
-
     }
 
     public function sendVendorListCancelTaskMail($id, $user, $brand)
@@ -5092,7 +5067,6 @@ class Projects_model extends CI_Model
             }
             $this->email->send();
         }
-
     }
 
     public function getVendorOfferStatus($status = "")
@@ -5204,7 +5178,6 @@ class Projects_model extends CI_Model
             }
         }
         return $data;
-
     }
 
     public function CheckCloseRelatedTasks($job_id, $task_id, $task_type)
@@ -5339,7 +5312,6 @@ class Projects_model extends CI_Model
                 //end file check
 
                 $this->db->update('dtp_request', $data, array('id' => $task['id']));
-
             }
         }
     }
@@ -5636,7 +5608,6 @@ class Projects_model extends CI_Model
                 $attachment = '';
             }
             $subject = "New DTP 'Heads Up' Request # DTP-" . $id . " - " . $requestData->task_name;
-
         }
         $pmMail = $this->db->get_where('users', array('id' => $requestData->created_by))->row()->email;
         $pmManagerEmail = self::getUserManagerEmail($requestData->created_by);
@@ -5700,7 +5671,6 @@ class Projects_model extends CI_Model
         $this->email->set_header('Reply-To', $pmMail);
         $this->email->set_mailtype('html');
         $this->email->send();
-
     }
 
     public function TranslationRequestsPlan($brand)

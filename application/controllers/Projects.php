@@ -1823,162 +1823,137 @@ class Projects extends CI_Controller
             //body ..
             $data['user'] = $this->user;
             $data['brand'] = $this->brand;
-
-            $scren_var = ['code', 'vendor', 'created_by', 'task_type', 'date_from', 'date_to', 'status', 'source', 'target'];
-
-            if (rtrim($_SERVER['HTTP_REFERER'??''], '/') != base_url('projects/allTasks')) {
-                for ($i = 0; $i < count($scren_var); $i++) {
-                    $this->session->unset_userdata($scren_var[$i]);
-                    $data[$scren_var[$i]] = "";
-                }
-            }
-
-            $limit = 9;
-            $offset = $data['page'] = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
-
-            $config['base_url'] = base_url('projects/allTasks');
-            $config['uri_segment'] = 3;
-            $config['display_pages'] = TRUE;
-            $config['per_page'] = $limit;
-            // $config['total_rows'] = $count;
-            $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
-            $config['full_tag_close'] = "</ul>";
-            $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
-            $config['num_tag_close'] = '</li>';
-            $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
-            $config['cur_tag_close'] = "</li>";
-            $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-            $config['next_tagl_close'] = "</span></li>";
-            $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-            $config['prev_tagl_close'] = "</span></li>";
-            $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-            $config['first_tagl_close'] = "</li>";
-            $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-            $config['last_tagl_close'] = "</li>";
-            $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
-            $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
-            $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
-            $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
-            $config['num_links'] = 5;
-            $config['show_count'] = TRUE;
-
-            $data['page'] = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
-            $arr2 = $arr1 = array();
-            $data['offset'] = $offset;
-            //***********//
-            if ($this->input->post('search')) {
-                $data['code'] = $this->input->post('code');
-                $data['vendor'] = $this->input->post('vendor');
-                $data['created_by'] = $this->input->post('created_by');
-                $data['task_type'] = $this->input->post('task_type');
-                $data['date_from'] = $this->input->post('date_from') ? date("Y-m-d", strtotime($this->input->post('date_from'))) : '';
-                $data['date_to'] = $this->input->post('date_to') ? date("Y-m-d", strtotime($this->input->post('date_to'))) : '';
-                $data['status'] = $this->input->post('status');
-                $data['source'] = $this->input->post('source');
-                $data['target'] = $this->input->post('target');
-
-                for ($i = 0; $i < count($scren_var); $i++) {
-                    if (!empty($data[$scren_var[$i]])) {
-                        $this->session->set_userdata($scren_var[$i], $data[$scren_var[$i]]);
-                    } else {
-                        $this->session->unset_userdata($scren_var[$i]);
+            if (isset($_GET['search'])) {
+                $arr2 = array();
+                if (isset($_REQUEST['code'])) {
+                    $code = $_REQUEST['code'];
+                    if (!empty($code)) {
+                        array_push($arr2, 0);
                     }
-
+                } else {
+                    $code = "";
                 }
-                //********************//
-            } elseif ($this->input->post('submitReset')) {
-
-                for ($i = 0; $i < count($scren_var); $i++) {
-                    $this->session->unset_userdata($scren_var[$i]);
-                    $data[$scren_var[$i]] = "";
+                if (isset($_REQUEST['vendor'])) {
+                    $vendor = $_REQUEST['vendor'];
+                    if (!empty($vendor)) {
+                        array_push($arr2, 1);
+                    }
+                } else {
+                    $vendor = "";
                 }
-
-                //**********************//
-            }
-            for ($i = 0; $i < count($scren_var); $i++) {
-                $data[$scren_var[$i]] = $this->session->userdata($scren_var[$i]);
-            }
-
-            //**********************//
-
-            $code = $data['code'];
-            $vendor = $data['vendor'];
-            $created_by = $data['created_by'];
-            $task_type = $data['task_type'];
-            $date_from = $data['date_from'];
-            $date_to = $data['date_to'];
-            $status = $data['status'];
-            $source = $data['source'];
-            $target = $data['target'];
-
-            if (!empty($code)) {
-                $data['code'] = $code;
-                array_push($arr2, 0);
-                array_push($arr1, "j.code LIKE '%" . $code . "%'");
-            }
-            if (!empty($vendor)) {
-                $data['vendor'] = $vendor;
-                array_push($arr2, 1);
-                array_push($arr1, "j.vendor = '$vendor'");
-            }
-            if (!empty($created_by)) {
-                $data['created_by'] = $created_by;
-                array_push($arr2, 2);
-                array_push($arr1, "j.created_by = '$created_by'");
-
-            }
-            if (!empty($task_type)) {
-                $data['task_type'] = $task_type;
-                array_push($arr2, 3);
-                array_push($arr1, "j.task_type = '$task_type'");
-
-            }
-            if (!empty($date_from) && !empty($date_to)) {
-                $data['date_from'] = $date_from;
-                $data['date_to'] = $date_to;
-                array_push($arr2, 4);
-                array_push($arr1, "j.created_at BETWEEN '$date_from' AND '$date_to' ");
-
-            }
-            if (!empty($status)) {
-                $data['status'] = $status;
-                array_push($arr2, 5);
-                array_push($arr1, "j.status = '$status'");
-
-            }
-            if (!empty($source)) {
-                $data['source'] = $source;
-                array_push($arr2, 6);
-                array_push($arr1, "l.source = '$source'");
-
-            }
-            if (!empty($target)) {
-                $data['target'] = $target;
-                array_push($arr2, 7);
-                array_push($arr1, "l.target = '$target'");
-
-            }
-            //************************//
-            $arr_1_cnt = count($arr2);
-            $arr3 = array();
-            for ($i = 0; $i < $arr_1_cnt; $i++) {
-                array_push($arr3, $arr1[$i]);
-            }
-            $arr4 = implode(" and ", $arr3);
-
-
-            if ($arr_1_cnt > 0) {
-                $data['task'] = $this->projects_model->AllTasksPages($data['permission'], $this->user, $this->brand, $arr4, $limit, $offset);
-                $count = $this->projects_model->AllTasks($data['permission'], $this->user, $this->brand, $arr4)->num_rows();
+                if (isset($_REQUEST['task_type'])) {
+                    $task_type = $_REQUEST['task_type'];
+                    if (!empty($task_type)) {
+                        array_push($arr2, 2);
+                    }
+                } else {
+                    $task_type = "";
+                }
+                if (isset($_REQUEST['status'])) {
+                    $status = $_REQUEST['status'];
+                    if (!empty($status)) {
+                        if ($status == 3) {
+                            $status = 0;
+                        }
+                        array_push($arr2, 3);
+                    }
+                } else {
+                    $status = "";
+                }
+                if (isset($_REQUEST['source'])) {
+                    $source = $_REQUEST['source'];
+                    if (!empty($source)) {
+                        array_push($arr2, 4);
+                    }
+                } else {
+                    $source = "";
+                }
+                if (isset($_REQUEST['target'])) {
+                    $target = $_REQUEST['target'];
+                    if (!empty($target)) {
+                        array_push($arr2, 5);
+                    }
+                } else {
+                    $target = "";
+                }
+                if (isset($_REQUEST['created_by'])) {
+                    $created_by = $_REQUEST['created_by'];
+                    if (!empty($created_by)) {
+                        array_push($arr2, 6);
+                    }
+                } else {
+                    $created_by = "";
+                }
+                if (isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])) {
+                    $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
+                    $date_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
+                    if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
+                        array_push($arr2, 7);
+                    }
+                } else {
+                    $date_from = "";
+                    $date_to = "";
+                }
+                // print_r($arr2);
+                $cond1 = "j.code LIKE '%$code%'";
+                $cond2 = "j.vendor = '$vendor'";
+                $cond3 = "j.task_type = '$task_type'";
+                $cond4 = "j.status = '$status'";
+                $cond5 = "l.source = '$source'";
+                $cond6 = "l.target = '$target'";
+                $cond7 = "j.created_by = '$created_by'";
+                $cond8 = "j.created_at BETWEEN '$date_from' AND '$date_to'";
+                $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5, $cond6, $cond7, $cond8);
+                $arr_1_cnt = count($arr2);
+                $arr3 = array();
+                for ($i = 0; $i < $arr_1_cnt; $i++) {
+                    array_push($arr3, $arr1[$arr2[$i]]);
+                }
+                $arr4 = implode(" and ", $arr3);
+                // print_r($arr4);     
+                if ($arr_1_cnt > 0) {
+                    $data['task'] = $this->projects_model->AllTasks($data['permission'], $this->user, $this->brand, $arr4);
+                } else {
+                    $data['task'] = $this->projects_model->AllTasksPages($data['permission'], $this->user, $this->brand, 9, 0);
+                }
             } else {
-                $data['task'] = $this->projects_model->AllTasksPages($data['permission'], $this->user, $this->brand, '1', $limit, $offset);
-                $count = $this->projects_model->AllTasks($data['permission'], $this->user, $this->brand, '1')->num_rows();
+                $limit = 9;
+                $offset = $this->uri->segment(3);
+                if ($this->uri->segment(3) != NULL) {
+                    $offset = $this->uri->segment(3);
+                } else {
+                    $offset = 0;
+                }
+                $count = $this->projects_model->AllTasks($data['permission'], $this->user, $this->brand, $this->brand, 1)->num_rows();
+                $config['base_url'] = base_url('projects/AllTasks');
+                $config['uri_segment'] = 3;
+                $config['display_pages'] = TRUE;
+                $config['per_page'] = $limit;
+                $config['total_rows'] = $count;
+                $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
+                $config['full_tag_close'] = "</ul>";
+                $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
+                $config['num_tag_close'] = '</li>';
+                $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
+                $config['cur_tag_close'] = "</li>";
+                $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
+                $config['next_tagl_close'] = "</span></li>";
+                $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
+                $config['prev_tagl_close'] = "</span></li>";
+                $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
+                $config['first_tagl_close'] = "</li>";
+                $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
+                $config['last_tagl_close'] = "</li>";
+                $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
+                $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
+                $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
+                $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
+                $config['num_links'] = 5;
+                $config['show_count'] = TRUE;
+                $this->pagination->initialize($config);
+
+                $data['task'] = $this->projects_model->AllTasksPages($data['permission'], $this->user, $this->brand, $limit, $offset);
             }
-
-            $data['total_rows'] = $count;
-            $config['total_rows'] = $count;
-            $this->pagination->initialize($config);
-
             // //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('projects_new/AllTasks.php');
@@ -5830,4 +5805,4 @@ class Projects extends CI_Controller
         }
     }
 
-} ?>
+}

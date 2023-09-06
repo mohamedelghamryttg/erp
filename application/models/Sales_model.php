@@ -778,7 +778,6 @@ class Sales_model extends CI_Model
              ON p.id = j.project_id LEFT OUTER JOIN customer_leads AS r ON p.lead = r.id WHERE " . $filter . " HAVING brand = '$brand' " . " ORDER BY ID DESC ";
 
             $data = $this->db->query($sql);
-
         } elseif ($permission->view == 2) {
             $sql = " SELECT j.*, p.name AS project_name,p.code AS project_code,p.customer,p.lead,p.product_line,p.opportunity,r.region,
             (SELECT brand FROM customer WHERE customer.id = p.customer) AS brand FROM job AS j LEFT OUTER JOIN project AS p 
@@ -925,34 +924,35 @@ class Sales_model extends CI_Model
         mail($mailTo, $subject, $message, $headers);
     }
 
-    public function AllbusinessReviewsPages($permission, $user, $brand, $filter, $limit, $offset)
+    public function AllbusinessReviews($permission, $user, $brand, $filter)
     {
         if ($permission->view == 1) {
-            $sql = "SELECT l.*,(SELECT brand FROM customer WHERE customer.id = l.customer) AS brand FROM `sales_business_reviews` AS l WHERE " . $filter . " HAVING brand = '$brand' ORDER BY ID DESC  LIMIT $limit OFFSET $offset";
-            $data = $this->db->query($sql);
+            $data = $this->db->query("SELECT l.*,(SELECT brand FROM customer WHERE customer.id = l.customer) AS brand FROM `sales_business_reviews` AS l WHERE " . $filter . " HAVING brand = '$brand' ORDER BY ID DESC ");
         } elseif ($permission->view == 2) {
             if ($this->role == 2) {
-                $data = $this->db->query(" SELECT l.*,(SELECT brand FROM customer WHERE customer.id = l.customer) AS brand,(SELECT COUNT(*) FROM customer_pm WHERE customer_pm.lead = l.lead AND customer_pm.pm = '$user') AS total FROM `sales_business_reviews` AS l WHERE " . $filter . " HAVING brand = '$brand' AND total > 0 ORDER BY ID DESC  LIMIT $limit OFFSET $offset");
+                $data = $this->db->query(" SELECT l.*,(SELECT brand FROM customer WHERE customer.id = l.customer) AS brand,(SELECT COUNT(*) FROM customer_pm WHERE customer_pm.lead = l.lead AND customer_pm.pm = '$user') AS total FROM `sales_business_reviews` AS l WHERE " . $filter . " HAVING brand = '$brand' AND total > 0 ORDER BY ID DESC ");
             } elseif ($this->role == 3 || $this->role == 29) {
-                $data = $this->db->query(" SELECT l.*,(SELECT brand FROM customer WHERE customer.id = l.customer) AS brand FROM `sales_business_reviews` AS l WHERE " . $filter . " AND created_by = '$user' HAVING brand = '$brand' ORDER BY ID DESC  LIMIT $limit OFFSET $offset");
+                $data = $this->db->query(" SELECT l.*,(SELECT brand FROM customer WHERE customer.id = l.customer) AS brand FROM `sales_business_reviews` AS l WHERE " . $filter . " AND created_by = '$user' HAVING brand = '$brand' ORDER BY ID DESC ");
             }
         }
         return $data;
     }
 
-    public function AllbusinessReviews($permission, $user, $brand, $filter)
+    public function AllbusinessReviewsPages($permission, $user, $brand, $limit, $offset)
     {
         if ($permission->view == 1) {
-            $data = $this->db->query("SELECT l.*,(SELECT brand FROM customer WHERE customer.id = l.customer) AS brand FROM `sales_business_reviews` AS l WHERE " . $filter . " HAVING brand = '$brand' ");
+            $data = $this->db->query("SELECT l.*,(SELECT brand FROM customer WHERE customer.id = l.customer) AS brand FROM `sales_business_reviews` AS l HAVING brand = '$brand' ORDER BY ID DESC LIMIT $limit OFFSET $offset");
         } elseif ($permission->view == 2) {
             if ($this->role == 2) {
-                $data = $this->db->query(" SELECT l.*,(SELECT brand FROM customer WHERE customer.id = l.customer) AS brand,(SELECT COUNT(*) FROM customer_pm WHERE customer_pm.lead = l.lead AND customer_pm.pm = '$user') AS total FROM `sales_business_reviews` AS l WHERE " . $filter . " HAVING brand = '$brand' AND total > 0 ");
+                $data = $this->db->query(" SELECT l.*,(SELECT brand FROM customer WHERE customer.id = l.customer) AS brand,(SELECT COUNT(*) FROM customer_pm WHERE customer_pm.lead = l.lead AND customer_pm.pm = '$user') AS total FROM `sales_business_reviews` AS l HAVING brand = '$brand' AND total > 0 ORDER BY ID DESC LIMIT $limit OFFSET $offset");
             } elseif ($this->role == 3 || $this->role == 29) {
-                $data = $this->db->query(" SELECT l.*,(SELECT brand FROM customer WHERE customer.id = l.customer) AS brand FROM `sales_business_reviews` AS l WHERE " . $filter . " AND created_by = '$user' HAVING brand = '$brand' ");
+                $data = $this->db->query(" SELECT l.*,(SELECT brand FROM customer WHERE customer.id = l.customer) AS brand FROM `sales_business_reviews` AS l WHERE created_by = '$user' HAVING brand = '$brand' ORDER BY ID DESC LIMIT $limit OFFSET $offset");
             }
         }
+
         return $data;
     }
+
 
     public function SelectSlaReason($id = "")
     {
@@ -1251,7 +1251,7 @@ class Sales_model extends CI_Model
         }
     }
 
-   public function AllLostOpportunity($permission, $user, $filter, $brand)
+    public function AllLostOpportunity($permission, $user, $filter, $brand)
     {
         if ($permission->view == 1) {
             $data = $this->db->query("SELECT s.*,l.region,l.country FROM sales_lost_opportunity AS s LEFT OUTER JOIN customer_leads AS l ON l.id = s.lead WHERE " . $filter . " HAVING brand = '$brand' ORDER BY ID DESC ");
@@ -1354,7 +1354,5 @@ class Sales_model extends CI_Model
         }
 
         return $outpt;
-
     }
-
 }
