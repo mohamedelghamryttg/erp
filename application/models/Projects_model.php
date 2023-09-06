@@ -190,7 +190,6 @@ class Projects_model extends CI_Model
 
         $vendor = $this->vendor_model->getVendorData($row->vendor);
         $mailTo = $vendor->email;
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
         $subject = "New Vendor Task : " . $row->subject;
 
 
@@ -625,7 +624,7 @@ class Projects_model extends CI_Model
             $this->email->from($pmMail);
             // replace my mail by pm manger it is just for testing
             $this->email->to($mailTo);
-            $this->email->cc($pmMail . ', Vendormanagement@Columbuslang.com, Projectmanagement@columbuslang.com');
+            $this->email->cc($pmMail . ', vendormanagement@columbuslang.com, projectmanagement@columbuslang.com');
             $this->email->subject($subject);
             // $msg = $this->load->view('admin/mail','',TRUE);
             if (strlen($row->file) > 1) {
@@ -799,7 +798,6 @@ class Projects_model extends CI_Model
 
         $vendor = $this->vendor_model->getVendorData($row->vendor);
         $mailTo = $vendor->email;
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
         $subject = "Updated Vendor Task : " . $row->subject;
 
         if ($brand == 1) {
@@ -1233,7 +1231,7 @@ class Projects_model extends CI_Model
             $this->email->from($pmMail);
             // replace my mail by pm manger it is just for testing
             $this->email->to($mailTo);
-            $this->email->cc($pmMail . ', Vendormanagement@Columbuslang.com');
+            $this->email->cc($pmMail . ', vendormanagement@columbuslang.com');
             $this->email->subject($subject);
 
             if (strlen($row->file) > 1) {
@@ -1371,7 +1369,6 @@ class Projects_model extends CI_Model
 
         $vendor = $this->vendor_model->getVendorData($row->vendor);
         $mailTo = $vendor->email;
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
         $subject = "Vendor VPO : " . $row->subject;
         $total = $row->count * $row->rate;
 
@@ -1567,7 +1564,6 @@ class Projects_model extends CI_Model
             $this->email->to($mailTo);
             $this->email->subject($subject);
             $this->email->cc($pmMail . ', vm@europelocalize.com');
-            $headers .= "Cc: 'vm@europelocalize.com" . "\r\n";
             $msg = '<!DOCTYPE html>
                 <html lang="en">
                 <head>
@@ -1912,7 +1908,7 @@ class Projects_model extends CI_Model
             $this->email->to($mailTo);
             $this->email->subject($subject);
 
-            $this->email->cc($pmMail . ', Vendormanagement@Columbuslang.com, Projectmanagement@columbuslang.com, invoices@columbuslang.com');
+            $this->email->cc($pmMail . ', vendormanagement@columbuslang.com, projectmanagement@columbuslang.com, invoices@columbuslang.com');
             $msg = '<!DOCTYPE html>
                             <html lang="en">
                             <head>
@@ -2693,7 +2689,6 @@ class Projects_model extends CI_Model
         return $data;
     }
 
-
     public function AllTranslationPm($permission, $user, $brand, $filter)
     {
 
@@ -2946,7 +2941,6 @@ class Projects_model extends CI_Model
         $pmMail = $this->db->get_where('users', array('id' => $requestData->created_by))->row()->email;
         $pmManagerEmail = self::getUserManagerEmail($requestData->created_by);
         $mailTo = "le@thetranslationgate.com";
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
         if (strlen($requestData->file) > 1) {
             $attachment = '<a href="' . $this->projects_model->getTaskFileLinkForM("assets/uploads/leRequest/", $requestData->file, $requestData->start_after_type) . '">Click Here</a>';
         } else {
@@ -3054,7 +3048,6 @@ class Projects_model extends CI_Model
         } else {
             $mailTo = "dtp@thetranslationgate.com";
         }
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -3143,7 +3136,6 @@ class Projects_model extends CI_Model
         $pmMail = $this->db->get_where('users', array('id' => $requestData->created_by))->row()->email;
         $pmManagerEmail = self::getUserManagerEmail($requestData->created_by);
         $mailTo = "translation.allocators@thetranslationgate.com";
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -3230,7 +3222,6 @@ class Projects_model extends CI_Model
         $requestData = $this->db->get_where('le_request', array('id' => $id))->row();
         $mailTo = $this->db->get_where('users', array('id' => $requestData->created_by))->row()->email;
         $LE = $this->db->get_where('users', array('id' => $this->user))->row()->email;
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -3306,7 +3297,6 @@ class Projects_model extends CI_Model
         $user = $this->db->get_where('users', array('id' => $userId))->row();
         $mailTo = $user->email;
         $from = $this->db->get_where('users', array('id' => $this->user))->row()->email;
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -3361,7 +3351,6 @@ class Projects_model extends CI_Model
         $requestData = $this->db->get_where('translation_request', array('id' => $id))->row();
         $mailTo = $this->db->get_where('users', array('id' => $requestData->created_by))->row()->email;
         $translation = $this->db->get_where('users', array('id' => $this->user))->row()->email;
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -3438,7 +3427,6 @@ class Projects_model extends CI_Model
         $requestData = $this->db->get_where('dtp_request', array('id' => $id))->row();
         $mailTo = $this->db->get_where('users', array('id' => $requestData->created_by))->row()->email;
         $DTP = $this->db->get_where('users', array('id' => $this->user))->row()->email;
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -3516,7 +3504,6 @@ class Projects_model extends CI_Model
         $jobData = $this->db->get_where('le_request_job', array('id' => $id))->row();
         $pmMail = $this->db->get_where('users', array('id' => $jobData->created_by))->row()->email;
         $mailTo = $this->db->get_where('users', array('id' => $jobData->le))->row()->email;
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -3582,7 +3569,6 @@ class Projects_model extends CI_Model
         $jobData = $this->db->get_where('dtp_request_job', array('id' => $id))->row();
         $pmMail = $this->db->get_where('users', array('id' => $jobData->created_by))->row()->email;
         $mailTo = $this->db->get_where('users', array('id' => $jobData->dtp))->row()->email;
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -3648,7 +3634,6 @@ class Projects_model extends CI_Model
         $jobData = $this->db->get_where('translation_request_job', array('id' => $id))->row();
         $pmMail = $this->db->get_where('users', array('id' => $jobData->created_by))->row()->email;
         $mailTo = $this->db->get_where('users', array('id' => $jobData->translator))->row()->email;
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -3715,7 +3700,6 @@ class Projects_model extends CI_Model
         $mailTo = "le@thetranslationgate.com";
         $pmMail = $this->db->get_where('users', array('id' => $this->user))->row()->email;
         $pmManagerEmail = self::getUserManagerEmail();
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -3770,7 +3754,6 @@ class Projects_model extends CI_Model
         $mailTo = "translation.allocator@thetranslationgate.com";
         $pmMail = $this->db->get_where('users', array('id' => $this->user))->row()->email;
         $pmManagerEmail = self::getUserManagerEmail();
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -3831,7 +3814,6 @@ class Projects_model extends CI_Model
         }
         $pmMail = $this->db->get_where('users', array('id' => $this->user))->row()->email;
         $pmManagerEmail = self::getUserManagerEmail();
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -3906,7 +3888,6 @@ class Projects_model extends CI_Model
         $mailTo = "translation.allocator@thetranslationgate.com";
         $pmMail = $this->db->get_where('users', array('id' => $this->user))->row()->email;
         $pmManagerEmail = self::getUserManagerEmail();
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -3967,7 +3948,6 @@ class Projects_model extends CI_Model
         }
         $pmMail = $this->db->get_where('users', array('id' => $this->user))->row()->email;
         $pmManagerEmail = self::getUserManagerEmail();
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -4022,7 +4002,6 @@ class Projects_model extends CI_Model
         $mailTo = "le@thetranslationgate.com";
         $pmMail = $this->db->get_where('users', array('id' => $this->user))->row()->email;
         $pmManagerEmail = self::getUserManagerEmail();
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -4082,7 +4061,6 @@ class Projects_model extends CI_Model
         $requestData = $this->db->get_where('translation_request', array('id' => $id))->row();
         $mailTo = $mailTO;
         $mailFrom = $this->db->get_where('users', array('id' => $this->user))->row()->email;
-        // $mailTo = "mohamed.elshehaby@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
@@ -4420,6 +4398,7 @@ class Projects_model extends CI_Model
     {
         // $pm = $this->db->get_where('users',array('role'=>2,'brand'=>$brand))->result();
         $pm = $this->db->query(" SELECT * FROM users WHERE (role = '2' OR role = '29' OR role = '16') AND brand = '$this->brand' AND status = '1' ")->result();
+        $data = '';
         foreach ($pm as $pm) {
             if ($pm->id == $id) {
                 $data .= "<option value='" . $pm->employees_id . "' selected='selected'>" . $pm->user_name . "</option>";
@@ -4500,7 +4479,7 @@ class Projects_model extends CI_Model
     public function selectConversionTaskType($id = "")
     {
         $task_type = $this->db->get('pm_conversion_task_type')->result();
-        $data = "";
+        $data = '';
         foreach ($task_type as $task_type) {
             if ($task_type->id == $id) {
                 $data .= "<option value='" . $task_type->id . "' selected='selected'>" . $task_type->name . "</option>";
@@ -4515,12 +4494,10 @@ class Projects_model extends CI_Model
     {
         $requestData = $this->db->get_where('pm_conversion_request', array('id' => $id))->row();
         $mailTo = $this->db->get_where('users', array('id' => $requestData->created_by))->row()->email;
-        //$mailTo = "mohamed.elshehaby@thetranslationgate.com";  
         $mailFrom = "le-conversion@thetranslationgate.com";
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        $headers .= "Cc: mohamed.elshehaby@thetranslationgate.com" . "\r\n";
         $headers .= 'From: ' . $mailFrom . "\r\n";
         $msgData = "";
         $subject = "Conversion Request Updated: " . $id;
@@ -4590,7 +4567,6 @@ class Projects_model extends CI_Model
         $this->email->attach($fileName);
         $this->email->from("falaqsystem@thetranslationgate.com");
         $this->email->to("tarek.seif@thetranslationgate.com");
-        $this->email->cc("mohamed.elshehaby@thetranslationgate.com");
         $this->email->subject("Late Delivery Jobs - " . date("Y-m-d H:i:s"));
         $message = '<!DOCTYPE ><html dir=ltr>
                     <head>
@@ -4602,7 +4578,7 @@ class Projects_model extends CI_Model
                     </body>
                     </html>';
         $this->email->message($message);
-        $this->email->set_header('Reply-To', "mohamed.elshehaby@thetranslationgate.com");
+
         $this->email->set_mailtype('html');
         $this->email->send();
     }
@@ -4624,7 +4600,6 @@ class Projects_model extends CI_Model
         $fileName = base_url() . 'assets/uploads/active_customers_report/' . $file;
         $this->email->attach($fileName);
         $this->email->from("erp@aixnexus.com");
-        // $this->email->to("mohamed.elshehaby@thetranslationgate.com");
         $this->email->to("mohammad@thetranslationgate.com, shehab@thetranslationgate.com, sam-spocs@thetranslationgate.com, zeinab.moustafa@thetranslationgate.com, sabeeh.mohamed@thetranslationgate.com , maged.abdelmoniem@thetranslationgate.com,lobna.abdou@thetranslationgate.com");
         $this->email->cc("dev@thetranslationgate.com");
         $this->email->subject("Daily Active Customers - " . $brand);
@@ -4645,7 +4620,6 @@ class Projects_model extends CI_Model
 
     public function activeCustomersWeekly($file, $brand)
     {
-
         $config = array(
             'protocol' => 'smtp',
             'smtp_host' => 'email-smtp.us-west-2.amazonaws.com',
@@ -4725,7 +4699,7 @@ class Projects_model extends CI_Model
     public function selectCustomerEmails($id = "")
     {
         $emails = $this->db->get('customer_email')->result();
-        $data = "";
+        $data = '';
         foreach ($emails as $emails) {
             if ($emails->id == $id) {
                 $data .= "<option value='" . $emails->email . "' selected='selected'>" . $emails->email . "</option>";
@@ -4739,6 +4713,7 @@ class Projects_model extends CI_Model
     public function selectCommission($id = "", $brand = "")
     {
         $commission = $this->db->get_where('commission', array('brand' => $brand))->result();
+        $data = '';
         foreach ($commission as $commission) {
             if ($commission->id == $id) {
                 $data .= "<option value='" . $commission->id . "' selected='selected'>" . $commission->name . "</option>";
@@ -4772,7 +4747,7 @@ class Projects_model extends CI_Model
     public function selectDTPAllocator($id = "")
     {
         $dtp = $this->db->get_where('users', array('role' => 24, 'brand' => $this->brand))->result();
-        $data = "";
+        $data = '';
         foreach ($dtp as $dtp) {
             if ($dtp->id == $id) {
                 $data .= "<option value='" . $dtp->id . "' selected='selected'>" . $dtp->user_name . "</option>";
@@ -5413,7 +5388,7 @@ class Projects_model extends CI_Model
     public function selectTTGBranchName($id = "")
     {
         $branch = $this->db->get('ttg_branch')->result();
-        $data = "";
+        $data = '';
         foreach ($branch as $branch) {
             if ($branch->id == $id) {
                 $data .= "<option value='" . $branch->id . "' selected='selected'>" . $branch->name . "</option>";
@@ -5885,5 +5860,220 @@ class Projects_model extends CI_Model
         }
 
         return $link;
+    }
+    // get progress by start & end date 
+    public function getProjectProgress($project_id)
+    {
+        // get project jobs (start date / last date as end date)
+        date_default_timezone_set("Africa/Cairo");
+        $first = $this->db->order_by('start_date', 'ASC')->get_where('job', array('project_id' => $project_id))->row();
+        $last = $this->db->order_by('delivery_date', 'DESC')->get_where('job', array('project_id' => $project_id))->row();
+        $start_date = new DateTime($first->start_date);
+        $end_date = new DateTime($last->delivery_date);
+        $current_date = new DateTime();
+        //$total = $start_date->diff($end_date);
+        $total = date_diff($start_date, $end_date);
+        if ($current_date > $start_date) {
+            $interval = date_diff($start_date, $current_date);
+            $interval_hours = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
+        } else {
+            $interval_hours = 0;
+        }
+
+        $total_hours = ($total->days * 24 * 60) + ($total->h * 60) + $total->i;
+        // if ($project_id == '39217') {
+        //     var_dump($start_date);
+        //     var_dump($current_date);
+        //     var_dump($interval->days * 24 * 60);
+        //     var_dump($interval->h * 60);
+        //     die;
+        // }
+        if ($total_hours > 0) {
+            $progress = $interval_hours * 100 / $total_hours;
+            $progress = $progress >= 100 ? 100 : round($progress, 0);
+        } else {
+            $progress = 0;
+        }
+        return $progress;
+    }
+
+    // Client Pm
+
+    public function AllClientPms($permission, $filter)
+    {
+        if ($permission->view == 1) {
+            $data = $this->db->query(" SELECT * FROM `client_pm` WHERE " . $filter . "  ORDER BY id DESC ");
+        }
+        return $data;
+    }
+
+    public function AllClientPmsPages($permission, $limit, $offset)
+    {
+        if ($permission->view == 1) {
+            $data = $this->db->query("SELECT * FROM `client_pm` ORDER BY id DESC LIMIT $limit OFFSET $offset ");
+        }
+        return $data;
+    }
+
+    public function selectClientPM($customer, $id = '')
+    {
+        $pms = $this->db->get_where('client_pm', array('customer_id' => $customer))->result();
+        $data = '';
+        foreach ($pms as $row) {
+            if ($row->id == $id) {
+                $data .= "<option value='" . $row->id . "' selected='selected'>" . $row->name . "<b> (" . $row->email . ")<b></option>";
+            } else {
+                $data .= "<option value='" . $row->id . "'>" . $row->name . "<b> (" . $row->email . ")</b></option>";
+            }
+        }
+        return $data;
+    }
+
+    public function getClientPM($id)
+    {
+        $data = '';
+        $pm = $this->db->get_where('client_pm', array('id' => $id))->row();
+        if (!empty($pm))
+            $data = $pm->name . "(" . $pm->email . ")";
+        return $data;
+    }
+
+    public function getQCTypeByService($service)
+    {
+        $data = '';
+        $row = $this->db->get_where('services', array('id' => $service))->row();
+        if (!empty($row))
+            $data = $row->qclog;
+        return $data;
+    }
+
+    public function getQCCatName($id)
+    {
+        $data = '';
+        $row = $this->db->get_where('qcchklist_cat', array('id' => $id))->row();
+        if (!empty($row))
+            $data = $row->name;
+        return $data;
+    }
+
+    public function checkJobQC($job_id)
+    {
+        $data = false;
+        $row = $this->db->get_where('job_qc', array('job_id' => $job_id))->row();
+        if (!empty($row))
+            $data = true;
+        return $data;
+    }
+
+    public function sendJobsOverDueQC($mailData, $jobList)
+    {
+        $mailTo = $mailData->qmemail ?? '';
+        $subject = $mailData->qmemailsub ?? '';
+        $mailBody = $mailData->qmemaildesc ?? '';
+
+        $config = array(
+            'protocol' => 'smtp',
+            'smtp_host' => 'email-smtp.us-west-2.amazonaws.com',
+            'smtp_port' => 25,
+            'smtp_user' => 'AKIARCWPPYXV6IPKFDTQ',
+            'smtp_pass' => 'BHAaMA9R+c6HT7kw3CF6PnlfabN+u5C99ZuouuwKm7vF',
+            'charset' => 'utf-8',
+            'validate' => TRUE,
+            'wordwrap' => TRUE,
+        );
+        $this->load->library('email', $config);
+        $this->email->set_newline("\r\n");
+        $this->email->from("falaqsystem@thetranslationgate.com");
+        $this->email->to($mailTo);
+        $this->email->subject($subject);
+        $message = '<!DOCTYPE html>
+                     <html lang="en">
+                     <head>
+                         <meta charset="utf-8">
+                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                         <meta name="description" content="">
+                         <meta name="author" content="">
+                         <link rel="shortcut icon" href="' . base_url() . 'assets/images/favicon.png">
+                         <title>Falaq| Site Manager</title>
+                         <style>
+                         body {
+                             font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+                             font-size: 14px;
+                             line-height: 1.428571429;
+                             color: #333;
+                         }
+                         section#unseen
+                         {
+                             overflow: scroll;
+                             width: 100%
+                         }
+                         th{
+                           border: 1px solid;
+                         }
+                         td {
+                           border: 1px solid;
+                         }
+                         </style>
+                         <!--Core js-->
+                     </head>
+ 
+                     <body>                        
+                          <p>' . $mailBody . '</p>
+                          <p>' . $jobList . '</p>
+                         <p>Thank You!</p>
+                     </body>
+                     </html>';
+        //echo $message;
+        $this->email->message($message);
+        $this->email->set_mailtype('html');
+        if ($this->email->send()) {
+            echo $this->email->print_debugger();
+            return true;
+        }
+    }
+
+    public function checkJobEvaluationTasks($job_id)
+    {
+        $data = false;
+        $tasks = $this->db->get_where('job_task', array('job_id' => $job_id))->result();
+        if (empty($tasks))
+            $data = true;
+        else {
+            foreach ($tasks as $task) {
+                $row = $this->db->get_where('task_evaluation', array('job_id' => $job_id, 'task_id' => $task->id, 'pm_ev_type!=' => 'null'))->row();
+                if (!empty($row))
+                    $data = true;
+            }
+        }
+        return $data;
+    }
+
+    public function checkTaskEvaluationExists($task_id)
+    {
+        $data = false;
+        $row = $this->db->get_where('task_evaluation', array('task_id' => $task_id, 'pm_ev_type!=' => 'null'))->row();
+        if (!empty($row))
+            $data = true;
+
+        return $data;
+    }
+
+    public function getPmSetup($brand_id)
+    {
+        $data = false;
+        $row = $this->db->get_where('pm_setup', array('brand' => $brand_id))->row();
+        if (!empty($row))
+            $data = $row;
+
+        return $data;
+    }
+    public function VendorBlockSetup($brand_id)
+    {
+        $data = 0;
+        $row = $this->db->get_where('pm_setup', array('brand' => $brand_id))->row();
+        if (!empty($row))
+            $data = !empty($row->block_v_no) ? $row->block_v_no : 0;
+
+        return $data;
     }
 }

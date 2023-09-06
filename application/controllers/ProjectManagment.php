@@ -14,8 +14,7 @@ class ProjectManagment extends CI_Controller
         $this->role = $this->session->userdata('role');
         $this->user = $this->session->userdata('id');
         $this->brand = $this->session->userdata('brand');
-    	$this->emp_id = $this->session->userdata('emp_id');
-
+        $this->emp_id = $this->session->userdata('emp_id');
     }
     public function index()
     {
@@ -167,13 +166,9 @@ class ProjectManagment extends CI_Controller
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 65);
             //body ..
-
             $data['project'] = base64_decode($_GET['t']);
-
             $data['user'] = $this->user;
-
             $data['project_data'] = $this->projects_model->getProjectData($data['project']);
-            // $data['job_data'] = $this->projects_model->getJobData($data['job']);
             $data['job'] = $this->projects_model->projectJobs($data['permission'], $this->user, $data['project']);
             $data['tasks'] = $this->projects_model->projectTasks($data['permission'], $this->user, $data['project']);
             $data['tasks_offers'] = $this->projects_model->projectTasksOffers($data['permission'], $this->user, $data['project']);
@@ -181,6 +176,7 @@ class ProjectManagment extends CI_Controller
             $data['le_request'] = $this->projects_model->projectLeRequest($data['permission'], $this->user, $data['project']);
             $data['dtp_request'] = $this->projects_model->projectDTPRequest($data['permission'], $this->user, $data['project']);
 
+            $data['pm_setup'] = $this->projects_model->getPmSetup($this->brand);
 
             // //Pages ..
             $this->load->view('includes/header.php', $data);
@@ -399,7 +395,6 @@ class ProjectManagment extends CI_Controller
                         //  new email to all vendors
                         $this->projects_model->sendToVendorList($insert_id, $this->user, $this->brand);
                     }
-
                 }
                 $true = "Task Added Successfully ...";
                 $this->session->set_flashdata('true', $true);
@@ -442,9 +437,7 @@ class ProjectManagment extends CI_Controller
         if ($check) {
             $price_list = $_POST['price_list'];
             $project_id = base64_decode($_POST['project_id']);
-
             if (isset($_POST['price_list'])) {
-
                 $price_list = $_POST['price_list'];
             } else {
                 $error = "Failed To Add Project, Please make sure to select from price list ...";
@@ -456,7 +449,6 @@ class ProjectManagment extends CI_Controller
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "ProjectManagment/projectJobs?t=" . base64_encode($project_id));
             }
-
 
             $row = $this->sales_model->getPriceListData($price_list);
             $job_price['product_line'] = $row->product_line;
@@ -490,6 +482,7 @@ class ProjectManagment extends CI_Controller
             $data['created_by'] = $this->user;
             $data['created_at'] = date("Y-m-d H:i:s");
             $data['job_type'] = $_POST['job_type'];
+            $data['client_pm_id'] = $_POST['client_pm_id'];
             if ($_FILES['file']['size'] != 0) {
                 //$config['file']['upload_path']          = './assets/uploads/vendors/';
                 $config['file']['upload_path'] = './assets/uploads/jobFile/';
@@ -509,7 +502,6 @@ class ProjectManagment extends CI_Controller
                     $data['job_file_name'] = $_FILES['file']['name'];
                 }
             }
-            // var_dump($_FILES['attached_email']);
             if ($_FILES['attached_email']['size'] != 0 && $_POST['job_type'] == 1) {
                 //$config['file']['upload_path']          = './assets/uploads/vendors/';
                 $config['file']['upload_path'] = './assets/uploads/jobFile/';
@@ -690,6 +682,7 @@ class ProjectManagment extends CI_Controller
             $data['delivery_date'] = $_POST['delivery_date'];
             $data['code'] = $this->projects_model->updateJobCode($project_id, $price_list, $id);
             $data['job_type'] = $_POST['job_type'];
+            $data['client_pm_id'] = $_POST['client_pm_id'];
             $this->admin_model->addToLoggerUpdate('job', 67, 'id', $id, 0, 0, $this->user);
 
             if ($_FILES['attached_email']['size'] != 0 && $_POST['job_type'] == 1) {
@@ -752,7 +745,6 @@ class ProjectManagment extends CI_Controller
             if ($checkPo) {
                 if ($_FILES['cpo_file']['size'] != 0) {
                     $config['cpo_file']['upload_path'] = './assets/uploads/cpo/';
-                    //$config['cpo_file']['upload_path']          = './assets/uploads/cpo/';
                     $config['cpo_file']['encrypt_name'] = TRUE;
                     $config['cpo_file']['allowed_types'] = 'zip|rar';
                     $config['cpo_file']['max_size'] = 500000;
@@ -778,7 +770,6 @@ class ProjectManagment extends CI_Controller
                         $jobData['closed_by'] = $this->user;
                         $this->admin_model->addToLoggerUpdate('job', 65, 'id', $id, 0, 0, $this->user);
                         if ($this->db->update('job', $jobData, array('id' => $id))) {
-
                         } else {
                             $error = "Failed To Close Job : " . $id . " ...";
                             $this->session->set_flashdata('error', $error);
@@ -810,13 +801,13 @@ class ProjectManagment extends CI_Controller
     {
         $job = base64_decode($_GET['t']);
         $po = base64_decode($_GET['p']);
-        $poData = $this->projects_model->getJobPoData($row->po);
+        $poData = $this->projects_model->getJobPoData($po);
         if ($poData->verified != 1) {
             $jobData['status'] = 0;
+            $jobData['po'] = null;
             $this->admin_model->addToLoggerUpdate('job', 65, 'id', $job, 0, 0, $this->user);
             if ($this->db->update('job', $jobData, array('id' => $job))) {
                 $this->admin_model->addToLoggerDelete('po', 65, 'id', $po, 0, 0, $this->user);
-                // $this->db->delete('po',array('id'=>$po));
                 $true = "Job Re-opened Successfully ...";
                 $this->session->set_flashdata('true', $true);
                 redirect($_SERVER['HTTP_REFERER']);
@@ -836,7 +827,7 @@ class ProjectManagment extends CI_Controller
     {
         $job = base64_decode($_GET['t']);
         $po = base64_decode($_GET['p']);
-        $poData = $this->projects_model->getJobPoData($row->po);
+        $poData = $this->projects_model->getJobPoData($po);
         if ($poData->verified != 1) {
             $jobData['status'] = 0;
             $jobData['po'] = null;
@@ -966,6 +957,15 @@ class ProjectManagment extends CI_Controller
             $project_id = $this->db->get_where('job', array('id' => $job))->row()->project_id;
             $this->admin_model->addToLoggerDelete('job_task', 69, 'id', $id, 0, 0, $this->user);
             if ($this->db->delete('job_task', array('id' => $id))) {
+                // vendor
+                $this->db->delete('task_evaluation', array('task_id' => $id));
+                $block_setup = $this->projects_model->VendorBlockSetup($this->brand);
+                $vendor_count = $this->db->get_where('task_evaluation', array('vendor_id' => $_POST['vendor_id'], 'pm_ev_type' => 2))->num_rows();
+                $dataVendor['ev_block_count'] = $vendor_count;
+                $dataVendor['ev_block'] = ($vendor_count >= $block_setup) ? 1 : 0;
+                $this->db->update('vendor', $dataVendor, array('id' => $_POST['vendor_id']));
+                // end vendor
+
                 $true = "Task Deleted Successfully ...";
                 $this->session->set_flashdata('true', $true);
                 redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
@@ -1038,7 +1038,6 @@ class ProjectManagment extends CI_Controller
             $data['status'] = 1;
             if ($_FILES['file']['size'] != 0) {
                 $config['file']['upload_path'] = './assets/uploads/translationRequest/';
-                // $config['file']['upload_path']          = '/var/www/html/assets/uploads/translationRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
                 $config['file']['max_size'] = 10000;
@@ -1177,9 +1176,7 @@ class ProjectManagment extends CI_Controller
             $error = "There's Something Wrong , Please try Again !!";
             $this->session->set_flashdata('error', $error);
             redirect($_SERVER['HTTP_REFERER']);
-
         }
-
     }
 
     public function pmConfirm()
@@ -1224,7 +1221,6 @@ class ProjectManagment extends CI_Controller
                 redirect($_SERVER['HTTP_REFERER']);
             }
         }
-
     }
 
     public function viewTask()
@@ -1318,7 +1314,6 @@ class ProjectManagment extends CI_Controller
             $data['status'] = 1;
             if ($_FILES['file']['size'] != 0) {
                 $config['file']['upload_path'] = './assets/uploads/leRequest/';
-                // $config['file']['upload_path']          = '/var/www/html/assets/uploads/leRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
                 $config['file']['max_size'] = 10000;
@@ -1402,7 +1397,6 @@ class ProjectManagment extends CI_Controller
 
             if ($_FILES['file']['size'] != 0) {
                 $config['file']['upload_path'] = './assets/uploads/dtpRequest/';
-                // $config['file']['upload_path']          = '/var/www/html/assets/uploads/dtpRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
                 $config['file']['max_size'] = 10000;
@@ -1504,7 +1498,6 @@ class ProjectManagment extends CI_Controller
             $this->session->set_flashdata('error', $error);
             redirect(base_url() . "ProjectManagment/projectJobs?t=" . $_POST['project_id']);
         }
-
     }
 
     public function closeJobNew()
@@ -1524,7 +1517,6 @@ class ProjectManagment extends CI_Controller
                     $jobData['closed_by'] = $this->user;
                     $this->admin_model->addToLoggerUpdate('job', 65, 'id', $id, 0, 0, $this->user);
                     if ($this->db->update('job', $jobData, array('id' => $id))) {
-
                     } else {
                         $error = "Failed To Close Job : " . $id . " ...";
                         $this->session->set_flashdata('error', $error);
@@ -1535,7 +1527,6 @@ class ProjectManagment extends CI_Controller
                 $true = "Job Closed Successfully ...";
                 $this->session->set_flashdata('true', $true);
                 redirect(base_url() . "ProjectManagment/projectJobs?t=" . $_POST['project_id']);
-
             } else {
                 $error = "Jobs Total Revenue > PO Amount,Please Check ...";
                 $this->session->set_flashdata('error', $error);
@@ -1584,7 +1575,6 @@ class ProjectManagment extends CI_Controller
             $data['status'] = 1;
             if ($_FILES['file']['size'] != 0) {
                 $config['file']['upload_path'] = './assets/uploads/translationRequest/';
-                // $config['file']['upload_path']          = '/var/www/html/assets/uploads/translationRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
                 $config['file']['max_size'] = 10000;
@@ -1685,7 +1675,6 @@ class ProjectManagment extends CI_Controller
                     $true = "Task Confirmed Successfully ...";
                     $this->session->set_flashdata('true', $true);
                     redirect(base_url() . "projectManagment");
-
                 } else {
                     $error = "There's Something Wrong , Please try Again !!";
                     $this->session->set_flashdata('error', $error);
@@ -1699,7 +1688,6 @@ class ProjectManagment extends CI_Controller
         } else {
             echo "You have no permission to access this page";
         }
-
     }
 
     public function editProject()
@@ -3246,7 +3234,6 @@ class ProjectManagment extends CI_Controller
             $data['comment'] = $_POST['comment'];
             if ($_FILES['file']['size'] != 0) {
                 $config['file']['upload_path'] = './assets/uploads/dtpRequest/';
-                // $config['file']['upload_path']          = '/var/www/html/assets/uploads/dtpRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
                 $config['file']['max_size'] = 1000000000;
@@ -3322,7 +3309,6 @@ class ProjectManagment extends CI_Controller
             $data['insrtuctions'] = $_POST['insrtuctions'];
             if ($_FILES['file']['size'] != 0) {
                 $config['file']['upload_path'] = './assets/uploads/dtpRequest/';
-                // $config['file']['upload_path']          = '/var/www/html/assets/uploads/dtpRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
                 $config['file']['max_size'] = 10000;
@@ -3398,7 +3384,6 @@ class ProjectManagment extends CI_Controller
             $data['comment'] = $_POST['comment'];
             if ($_FILES['file']['size'] != 0) {
                 $config['file']['upload_path'] = './assets/uploads/translationRequest/';
-                // $config['file']['upload_path']          = '/var/www/html/assets/uploads/translationRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
                 $config['file']['max_size'] = 1000000000;
@@ -3462,7 +3447,6 @@ class ProjectManagment extends CI_Controller
             $data['comment'] = $_POST['comment'];
             if ($_FILES['file']['size'] != 0) {
                 $config['file']['upload_path'] = './assets/uploads/leRequest/';
-                // $config['file']['upload_path']          = '/var/www/html/assets/uploads/leRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
                 $config['file']['max_size'] = 1000000000;
@@ -3537,7 +3521,6 @@ class ProjectManagment extends CI_Controller
             $data['status'] = 1;
             if ($_FILES['file']['size'] != 0) {
                 $config['file']['upload_path'] = './assets/uploads/leRequest/';
-                // $config['file']['upload_path']          = '/var/www/html/assets/uploads/leRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
                 $config['file']['max_size'] = 10000;
@@ -3902,7 +3885,6 @@ class ProjectManagment extends CI_Controller
             $data['status'] = 1;
             if ($_FILES['file']['size'] != 0) {
                 $config['file']['upload_path'] = './assets/uploads/leRequest/';
-                // $config['file']['upload_path']          = '/var/www/html/assets/uploads/leRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
                 $config['file']['max_size'] = 100000;
@@ -4263,7 +4245,6 @@ class ProjectManagment extends CI_Controller
                     } else {
                         $data['job'] = $this->projects_model->AllLEPm($data['permission'], $this->user, 0, 1);
                     }
-
                 } elseif ($data['report'] == 3) {
                     header("Content-Disposition: attachment; filename=InHouseReportBYTranslation.$file_ending");
                     header("Pragma: no-cache");
@@ -4312,7 +4293,6 @@ class ProjectManagment extends CI_Controller
                     } else {
                         $data['job'] = $this->projects_model->AllTranslationPm($data['permission'], $this->user, 0, 1);
                     }
-
                 }
             }
             //Pages ..
@@ -4320,7 +4300,6 @@ class ProjectManagment extends CI_Controller
         } else {
             echo "You have no permission to access this page";
         }
-
     }
 
     public function pmoReport()
@@ -4446,7 +4425,6 @@ class ProjectManagment extends CI_Controller
             //Pages ..
 
             $this->load->view('projects/exportPmoCustomer.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -4729,7 +4707,6 @@ class ProjectManagment extends CI_Controller
             //Pages ..
 
             $this->load->view('projects/exportPmoCustomerPm.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -4878,7 +4855,6 @@ class ProjectManagment extends CI_Controller
                         $data_file = $this->file_upload->data();
                         $data['attachment'] = $data_file['file_name'];
                         $data['link'] = " ";
-
                     }
                 } else {
                     $error = "You should upload attachment";
@@ -4888,7 +4864,6 @@ class ProjectManagment extends CI_Controller
             } elseif ($data['attachment_type'] == 2) {
                 $data['attachment'] = " ";
                 $data['link'] = $_POST['link'];
-
             }
 
             ///
@@ -4970,7 +4945,6 @@ class ProjectManagment extends CI_Controller
             } elseif ($data['attachment_type'] == 2) {
                 $data['attachment'] = " ";
                 $data['link'] = $_POST['link'];
-
             }
 
             ///
@@ -5104,7 +5078,6 @@ class ProjectManagment extends CI_Controller
                 $data['pm_conversion_requests'] = $this->projects_model->AllPmConversionRequestPages($data['permission'], $this->user, $this->brand, 9, 0);
             }
             $this->load->view('projects/exportPmConversionRequest.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -5398,7 +5371,6 @@ class ProjectManagment extends CI_Controller
                     $handover_resources['created_by'] = $this->user;
                     $handover_resources['created_at'] = date("Y-m-d H:i:s");
                     if ($this->db->insert('handover_resources', $handover_resources)) {
-
                     } else {
                         $error = "Failed To Add Vendor Sheet ...";
                         $this->session->set_flashdata('error', $error);
@@ -5414,7 +5386,6 @@ class ProjectManagment extends CI_Controller
                 $error = "Failed To Add Handover ...";
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "projects/handover");
-
             }
             //print_r($data);
         } else {
@@ -5488,7 +5459,6 @@ class ProjectManagment extends CI_Controller
                     $handover_resources['created_by'] = $this->user;
                     $handover_resources['created_at'] = date("Y-m-d H:i:s");
                     if ($this->db->insert('handover_resources', $handover_resources)) {
-
                     } else {
                         $error = "Failed To Add Vendor Sheet ...";
                         $this->session->set_flashdata('error', $error);
@@ -5826,7 +5796,6 @@ class ProjectManagment extends CI_Controller
         $this->load->view('includes_new/header.php');
         $this->load->view('projects_new/pm_new.php');
         $this->load->view('includes_new/footer.php');
-
     }
 
     // add task feedback
@@ -5854,7 +5823,6 @@ class ProjectManagment extends CI_Controller
             } else {
                 echo "You Can't Add Feedback, This Task isn't 'Delivered' ";
             }
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -5891,16 +5859,448 @@ class ProjectManagment extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
-    //  view rate in view task page -- done
-    //  view this page if task status is comfirmed from pm side -- done
 
-    //    if task is test(service_type) view new input to select pass / fail -- done
+    /* Client Pm Functions */
+    public function listClientPm()
+    {
+        // Check Permission ..        
+        $check = $this->admin_model->checkPermission($this->role, 233);
+        if ($check) {
+            //header ..
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 233);
+            //body ..
+            $data['user'] = $this->user;
 
-    // inputs (Quality, Communication, Price) / comment -- done
+            if (isset($_GET['search'])) {
+                $arr2 = array();
+                if (isset($_REQUEST['name'])) {
+                    $data['name'] = $name = $_REQUEST['name'];
+                    if (!empty($name)) {
+                        array_push($arr2, 0);
+                    }
+                } else {
+                    $name = "";
+                }
+                if (isset($_REQUEST['email'])) {
+                    $data['email'] = $email = $_REQUEST['email'];
+                    if (!empty($email)) {
+                        array_push($arr2, 1);
+                    }
+                } else {
+                    $email = "";
+                }
+                if (isset($_REQUEST['customer'])) {
+                    $data['customer'] = $customer = $_REQUEST['customer'];
+                    if (!empty($customer)) {
+                        array_push($arr2, 2);
+                    }
+                } else {
+                    $customer = "";
+                }
 
-    // vm side 
-    // view in vendor profile total feedback "star count"
-    // & every feedback & comments &  task pass / fail for test tasks 
-    // for test tasks 
+                $cond1 = "name LIKE '%$name%'";
+                $cond2 = "email LIKE '%$email%'";
+                $cond3 = "customer_id = '$customer'";
+                $arr1 = array($cond1, $cond2, $cond3);
+                $arr_1_cnt = count($arr2);
+                $arr3 = array();
+                for ($i = 0; $i < $arr_1_cnt; $i++) {
+                    array_push($arr3, $arr1[$arr2[$i]]);
+                }
+                $arr4 = implode(" and ", $arr3);
 
+                if ($arr_1_cnt <= 0) {
+                    $arr4 = 1;
+                }
+                $data['clientPms'] = $this->projects_model->AllClientPms($data['permission'], $arr4);
+                $data['total_rows'] = $data['clientPms']->num_rows();
+            } else {
+                $limit = 20;
+                $offset = $this->uri->segment(3);
+                if ($this->uri->segment(3) != NULL) {
+                    $offset = $this->uri->segment(3);
+                } else {
+                    $offset = 0;
+                }
+                $count = $this->projects_model->AllClientPms($data['permission'], 1)->num_rows();
+                $baseUrl = base_url('projectManagment/listClientPm');
+                $config = $this->admin_model->paginationConfig($baseUrl, $limit, $count);
+                $this->pagination->initialize($config);
+
+                $data['clientPms'] = $this->projects_model->AllClientPmsPages($data['permission'], $limit, $offset);
+                $data['total_rows'] = $count;
+            }
+            // //Pages ..
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('projectManagment/client_pm/listClientPm.php');
+            $this->load->view('includes_new/footer.php');
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
+    public function addClientPm()
+    {
+        // Check Permission ..
+        $check = $this->admin_model->checkPermission($this->role, 233);
+        if ($check) {
+            //header ..
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 233);
+            //body ..
+            $data['pm'] = $this->user;
+            $data['brand'] = $this->brand;
+            //Pages ..
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('projectManagment/client_pm/addClientPm.php');
+            $this->load->view('includes_new/footer.php');
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
+
+    public function doAddClientPm()
+    {
+        // Check Permission ..
+        $check = $this->admin_model->checkPermission($this->role, 233);
+        if ($check) {
+            $last_code = $this->db->select_max('code')->get('client_pm')->row()->code;
+            $data['code'] = $last_code ? $last_code + 1 : "00001";
+            $data['customer_id'] = $_POST['customer'];
+            $data['name'] = $_POST['name'];
+            $data['email'] = $_POST['email'];
+            $data['created_by'] = $this->user;
+            $data['created_at'] = date("Y-m-d H:i:s");
+            $job = $_POST['job'] ?? '0';
+            $check_email = $this->db->get_where('client_pm', array('email' => $_POST['email']))->num_rows();
+            if ($check_email == 0) {
+                if ($this->db->insert('client_pm', $data)) {
+                    if ($job == 1) {
+                        $cpm_id = $this->db->insert_id();
+                        $response['status'] = "success";
+                        $response['id'] = $cpm_id;
+                        $response['text'] = $data['name'] . " (" . $_POST['email'] . ")";
+                        echo json_encode($response);
+                    } else {
+                        $true = "The data has been added successfully ...";
+                        $this->session->set_flashdata('true', $true);
+                        redirect(base_url() . "projectManagment/listClientPm");
+                    }
+                } else {
+                    $error = "Failed To Add PM ...";
+                    $this->session->set_flashdata('error', $error);
+                    redirect(base_url() . "projectManagment/listClientPm");
+                }
+            } else {
+                if ($job == 1) {
+                    $response['status'] = "error";
+                    echo json_encode($response);
+                } else {
+                    $error = "This Email Already Exists...";
+                    $this->session->set_flashdata('error', $error);
+                    redirect($_SERVER['HTTP_REFERER']);
+                }
+            }
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
+
+    public function editClientPm()
+    {
+        // Check Permission ..
+        $check = $this->admin_model->checkPermission($this->role, 233);
+        if ($check) {
+            //header ..
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 233);
+            //body ..
+            $id = base64_decode($_GET['p']);
+            $data['client_pm'] = $this->db->get_where('client_pm', array('id' => $id))->row();
+            $data['pm'] = $this->user;
+            $data['brand'] = $this->brand;
+            //Pages ..
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('projectManagment/client_pm/editClientPm.php');
+            $this->load->view('includes_new/footer.php');
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
+
+    public function doEditClientPm()
+    {
+        // Check Permission ..
+        $check = $this->admin_model->checkPermission($this->role, 233);
+        if ($check) {
+            $id = $_POST['id'];
+            $data['customer_id'] = $_POST['customer'];
+            $data['name'] = $_POST['name'];
+            $data['email'] = $_POST['email'];
+            // check email exists & not connected to any job
+            $check_email = $this->db->get_where('client_pm', array('email' => $_POST['email'], 'id !=' => $id))->num_rows();
+            $check_job = $this->db->get_where('job', array('client_pm_id' => $id))->num_rows();
+            if ($check_job == 0) {
+                if ($check_email == 0) {
+                    if ($this->db->update('client_pm', $data, array('id' => $id))) {
+                        $true = "Data Updated Successfully ...";
+                        $this->session->set_flashdata('true', $true);
+                        redirect(base_url() . "projectManagment/listClientPm");
+                    } else {
+                        $error = "Failed To Edit PM ...";
+                        $this->session->set_flashdata('error', $error);
+                        redirect(base_url() . "projectManagment/listClientPm");
+                    }
+                } else {
+                    $error = "This Email Already Exists...";
+                    $this->session->set_flashdata('error', $error);
+                    redirect($_SERVER['HTTP_REFERER']);
+                }
+            } else {
+                $error = "Failed To Edit Data, Pm Is Already Connected To Jobs";
+                $this->session->set_flashdata('error', $error);
+                redirect($_SERVER['HTTP_REFERER']);
+            }
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
+
+    public function deleteClientPm()
+    {
+        // Check Permission ..
+        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 233);
+        if ($permission->delete == 1) {
+            $id = base64_decode($_GET['p']);
+            $check_job = $this->db->get_where('job', array('client_pm_id' => $id))->num_rows();
+            if ($check_job == 0) {
+                $this->admin_model->addToLoggerDelete('client_pm', 233, 'id', $id, 0, 0, $this->user);
+                if ($this->db->delete('client_pm', array('id' => $id))) {
+                    $true = "Data Deleted Successfully ...";
+                    $this->session->set_flashdata('true', $true);
+                    redirect(base_url() . "projectManagment/listClientPm");
+                } else {
+                    $error = "Failed To Delete ...";
+                    $this->session->set_flashdata('error', $error);
+                    redirect(base_url() . "projectManagment/listClientPm");
+                }
+            } else {
+                $error = "Failed To Delete, Pm Is Already Connected To Jobs";
+                $this->session->set_flashdata('error', $error);
+                redirect($_SERVER['HTTP_REFERER']);
+            }
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
+    public function doAddJobQC()
+    {
+        $check = $this->admin_model->checkPermission($this->role, 67);
+        if ($check) {
+
+            // check if alreday exists
+            $job_qc = $this->db->get_where('job_qc', array('job_id' => $_POST['job_id']))->row();
+            $project_id = $_POST['project_id'] ? base64_encode($_POST['project_id']) : base64_encode($job_qc->project_id);
+            $job_id = $data['job_id'] = $_POST['job_id'];
+            if (empty($job_qc)) {
+                $data['project_id'] = $_POST['project_id'];
+                $data['service_id'] = $_POST['service_id'];
+                $qc_type = $data['qc_type'] = $_POST['qc_type'];
+                if ($qc_type == 1 || $qc_type == 3) {
+                    if ($_FILES['file']['size'] != 0) {
+                        //$config['file']['upload_path']          = './assets/uploads/jobQc/';
+                        $config['file']['upload_path'] = './assets/uploads/jobQc/';
+                        $config['file']['encrypt_name'] = TRUE;
+                        $config['file']['allowed_types'] = 'zip|rar';
+                        $config['file']['max_size'] = 20000000;
+                        $config['file']['max_width'] = 1024;
+                        $config['file']['max_height'] = 768;
+                        $this->load->library('upload', $config['file'], 'file_upload');
+                        if (!$this->file_upload->do_upload('file')) {
+                            $error = $this->file_upload->display_errors();
+                            $this->session->set_flashdata('error', $error);
+                            redirect(base_url() . "ProjectManagment/projectJobs?t=" . $project_id);
+                        } else {
+                            $data_file = $this->file_upload->data();
+                            $data['file'] = $data_file['file_name'];
+                        }
+                    }
+                }
+                if ($qc_type == 2 || $qc_type == 3) {
+                    for ($i = 1; $i <= 30; $i++) {
+                        $data["logcheck$i"] = $_POST["label_logcheck$i"];
+                        $data["logcheck_value$i"] = $_POST["logcheck$i"];
+                    }
+                    for ($i = 31; $i <= 35; $i++) {
+                        $x = $i - 30;
+                        $data["logcheck$i"] = $_POST["label_logcheckn$x"];
+                        $data["logcheck_value$i"] = $_POST["logcheckn$x"];
+                    }
+                }
+                $data['created_by'] = $this->user;
+                $data['created_at'] = date("Y-m-d H:i:s");
+                //                print_r($data);
+                //                print_r($_POST);exit();
+                if ($this->db->insert('job_qc', $data)) {
+
+                    $true = "Data Added Successfully ...";
+                    $this->session->set_flashdata('true', $true);
+                    redirect(base_url() . "ProjectManagment/projectJobs?t=" . $project_id);
+                } else {
+                    $error = "Failed To Data Job ...";
+                    $this->session->set_flashdata('error', $error);
+                    redirect(base_url() . "ProjectManagment/projectJobs?t=" . $project_id);
+                }
+            } else {
+                // do edit 
+                if ($_FILES['file']['size'] != 0) {
+                    //$config['file']['upload_path']          = './assets/uploads/jobQc/';
+                    $config['file']['upload_path'] = './assets/uploads/jobQc/';
+                    $config['file']['encrypt_name'] = TRUE;
+                    $config['file']['allowed_types'] = 'zip|rar';
+                    $config['file']['max_size'] = 20000000;
+                    $config['file']['max_width'] = 1024;
+                    $config['file']['max_height'] = 768;
+                    $this->load->library('upload', $config['file'], 'file_upload');
+                    if (!$this->file_upload->do_upload('file')) {
+                        $error = $this->file_upload->display_errors();
+                        $this->session->set_flashdata('error', $error);
+                        redirect(base_url() . "ProjectManagment/projectJobs?t=" . $project_id);
+                    } else {
+                        $data_file = $this->file_upload->data();
+                        $data['file'] = $data_file['file_name'];
+                        // delete old one 
+                        $old_path = $job_qc->file;
+                        unlink('./assets/uploads/jobQc/' . $old_path);
+                        // unlink('./assets/uploads/jobQc/' . $old_path);
+                    }
+                }
+
+                if (!empty($_POST['qc_type'])) {
+                    $data['project_id'] = $_POST['project_id'];
+                    $data['service_id'] = $_POST['service_id'];
+                    $qc_type = $data['qc_type'] = $_POST['qc_type'];
+                }
+                if ($job_qc->qc_type == 2 || $job_qc->qc_type == 3) {
+                    for ($i = 1; $i <= 30; $i++) {
+                        $data["logcheck$i"] = $_POST["label_logcheck$i"];
+                        $data["logcheck_value$i"] = $_POST["logcheck$i"];
+                    }
+                    for ($i = 31; $i <= 35; $i++) {
+                        $x = $i - 30;
+                        $data["logcheck$i"] = $_POST["label_logcheckn$x"];
+                        $data["logcheck_value$i"] = $_POST["logcheckn$x"];
+                    }
+                }
+                $data['updated_by'] = $this->user;
+                $data['updated_at'] = date("Y-m-d H:i:s");
+                $this->admin_model->addToLoggerUpdate('job_qc', 65, 'id', $job_qc->id, 1, 1, $this->user);
+                if ($this->db->update('job_qc', $data, array('job_id' => $job_id))) {
+                    $true = "Data Edited Successfully ...";
+                    $this->session->set_flashdata('true', $true);
+                    redirect(base_url() . "ProjectManagment/projectJobs?t=" . $project_id);
+                } else {
+                    $error = "Failed To Edit Data ...";
+                    $this->session->set_flashdata('error', $error);
+                    redirect(base_url() . "ProjectManagment/projectJobs?t=" . $project_id);
+                }
+            }
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
+
+    public function sendJobsOverDueQC()
+    {
+        $cuurnetDate = date("Y-m-d");
+        $jobList = '<table class="table" style="border: 1px solid;width: 100%;text-align: center"><thead><tr><td>#</td><td>Job ID</td><td>Code</td><td>PM</td><td>Delivery Date</td></tr></thead>';
+        $mailData = $data = $this->db->query(" SELECT qmemail,qmemailsub, qmemaildesc FROM `pm_setup`")->row();
+        $jobs = $this->db->order_by('id', 'DESC')->get_where('job', array('qc_flag' => 0, 'status' => 0, 'delivery_date < ' => $cuurnetDate))->result();
+        if (count($jobs) > 0) {
+            foreach ($jobs as $k => $row) {
+                $jobList .= "<tr><td>" . ++$k . "</td><td>$row->id</td><td>$row->code</td><td>" . $this->admin_model->getAdmin($row->created_by) . "</td><td>$row->delivery_date</td></tr>";
+            }
+        } else {
+            $jobList .= '<tr><td colspan="5">No Data Found</td></tr>';
+        }
+        $jobList .= '</table>';
+
+        if ($this->projects_model->sendJobsOverDueQC($mailData, $jobList)) {
+            $data['job_flag'] = 1;
+            foreach ($jobs as $row) {
+                $this->db->update('job', $data, array('id' => $row->id));
+            }
+        }
+    }
+
+    public function doAddVendorEvaluation()
+    {
+        $check = $this->admin_model->checkPermission($this->role, 67);
+        if ($check) {
+            // check if alreday exists
+            //            print_r($_POST);exit();
+            $task_id = $data['task_id'] = $_POST['task_id'];
+            $project_id = base64_encode($_POST['project_id']);
+            $data['project_id'] = $_POST['project_id'];
+            $data['job_id'] = $_POST['job_id'];
+            $data['vendor_id'] = $_POST['vendor_id'];
+            $data['pm_ev_select'] = $_POST['pm_ev_select'];
+            $data['pm_ev_type'] = ($_POST['pm_ev_select'] < 5) ? 2 : 1;
+            $data['pm_note'] = $_POST['pm_note'];
+            for ($i = 1; $i <= 6; $i++) {
+                $data["pm_ev_text$i"] = $_POST["pm_ev_text$i"] ?? null;
+                $data["pm_ev_val$i"] = $_POST["pm_ev_val$i"] ?? null;
+                if ($data["pm_ev_text$i"] == null)
+                    $data["pm_ev_val$i"] = null;
+                else
+                    $data["pm_ev_val$i"] = $_POST["pm_ev_val$i"] ?? 0;
+            }
+            $task_ev = $this->db->get_where('task_evaluation', array('task_id' => $_POST['task_id']))->row();
+
+            if (empty($task_ev)) {
+                $data['pm_ev_created_at'] = date("Y-m-d H:i:s");
+                if ($this->db->insert('task_evaluation', $data)) {
+                    // vendor
+                    $block_setup = $this->projects_model->VendorBlockSetup($this->brand);
+                    $vendor_count = $this->db->get_where('task_evaluation', array('vendor_id' => $_POST['vendor_id'], 'pm_ev_type' => 2))->num_rows();
+                    $dataVendor['ev_block_count'] = $vendor_count;
+                    $dataVendor['ev_block'] = ($vendor_count >= $block_setup) ? 1 : 0;
+                    $this->db->update('vendor', $dataVendor, array('id' => $_POST['vendor_id']));
+                    // end vendor
+                    $true = "Data Added Successfully ...";
+                    $this->session->set_flashdata('true', $true);
+                    redirect(base_url() . "ProjectManagment/projectJobs?t=" . $project_id);
+                } else {
+                    $error = "Failed To Data Job ...";
+                    $this->session->set_flashdata('error', $error);
+                    redirect(base_url() . "ProjectManagment/projectJobs?t=" . $project_id);
+                }
+            } else {
+                // do edit 
+
+                if ($task_ev->pm_ev_type == null)
+                    $data['pm_ev_created_at'] = date("Y-m-d H:i:s");
+                $id = $task_ev->id;
+                $this->admin_model->addToLoggerUpdate('task_evaluation', 65, 'id', $id, 1, 1, $this->user);
+                if ($this->db->update('task_evaluation', $data, array('id' => $id))) {
+                    // vendor
+                    $block_setup = $this->projects_model->VendorBlockSetup($this->brand);
+                    $vendor_count = $this->db->get_where('task_evaluation', array('vendor_id' => $_POST['vendor_id'], 'pm_ev_type' => 2))->num_rows();
+                    $dataVendor['ev_block_count'] = $vendor_count;
+                    $dataVendor['ev_block'] = ($vendor_count >= $block_setup) ? 1 : 0;
+                    $this->db->update('vendor', $dataVendor, array('id' => $_POST['vendor_id']));
+                    // end vendor
+                    $true = "Data Saved Successfully ...";
+                    $this->session->set_flashdata('true', $true);
+                    redirect(base_url() . "ProjectManagment/projectJobs?t=" . $project_id);
+                } else {
+                    $error = "Failed To Edit Data ...";
+                    $this->session->set_flashdata('error', $error);
+                    redirect(base_url() . "ProjectManagment/projectJobs?t=" . $project_id);
+                }
+            }
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
 }

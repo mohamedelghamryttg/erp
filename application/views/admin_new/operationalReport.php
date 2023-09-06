@@ -29,8 +29,7 @@
           <h3 class="card-title">Date Filter</h3>
         </div>
 
-        <form class="form" id="report" action="<?php echo base_url() ?>admin/languages" method="get"
-          enctype="multipart/form-data">
+        <form class="form" id="report" action="<?php echo base_url() ?>admin/languages" method="get" enctype="multipart/form-data">
           <div class="card-body">
 
             <div class="form-group row">
@@ -95,15 +94,10 @@
               <div class="row">
                 <div class="col-lg-2"></div>
                 <div class="col-lg-10">
-                  <button class="btn btn-success mr-2" name="search"
-                    onclick="var e2 = document.getElementById('report'); e2.action='<?= base_url() ?>admin/operationalReport'; e2.submit();"
-                    type="submit">Search</button>
-                  <button class="btn btn-secondary"
-                    onclick="var e2 = document.getElementById('report'); e2.action='<?= base_url() ?>admin/exportOperationalReport'; e2.submit();"
-                    name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export To
+                  <button class="btn btn-success mr-2" name="search" onclick="var e2 = document.getElementById('report'); e2.action='<?= base_url() ?>admin/operationalReport'; e2.submit();" type="submit">Search</button>
+                  <button class="btn btn-secondary" onclick="var e2 = document.getElementById('report'); e2.action='<?= base_url() ?>admin/exportOperationalReport'; e2.submit();" name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export To
                     Excel</button>
-                  <a href="<?= base_url() ?>admin/operationalReport" class="btn btn-warning"><i
-                      class="la la-trash"></i>Clear Filter</a>
+                  <a href="<?= base_url() ?>admin/operationalReport" class="btn btn-warning"><i class="la la-trash"></i>Clear Filter</a>
 
                 </div>
               </div>
@@ -133,9 +127,9 @@
             </thead>
             <tbody>
               <?php
-              if (count($languages->num_rows()) > 0) {
+              if ($languages->num_rows() > 0) {
                 foreach ($languages->result() as $row) {
-                  ?>
+              ?>
                   <tr class="">
                     <td>
                       <?php echo $row->id; ?>
@@ -159,20 +153,19 @@
 
                     <td>
                       <?php if ($permission->delete == 1) { ?>
-                        <a href="<?php echo base_url() ?>admin/deleteLanguage/<?php echo $row->id ?>" title="delete" class=""
-                          onclick="return confirm('Are you sure you want to delete this user?');">
+                        <a href="<?php echo base_url() ?>admin/deleteLanguage/<?php echo $row->id ?>" title="delete" class="" onclick="return confirm('Are you sure you want to delete this user?');">
                           <i class="fa fa-times text-danger text"></i> Delete
                         </a>
                       <?php } ?>
                     </td>
                   </tr>
-                  <?php
+                <?php
                 }
               } else {
                 ?>
-              <tr>
-                <td colspan="7">There is no Languages to list</td>
-              </tr>
+                <tr>
+                  <td colspan="7">There is no Languages to list</td>
+                </tr>
               <?php
               }
               ?>
