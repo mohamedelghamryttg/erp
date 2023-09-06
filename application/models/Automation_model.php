@@ -77,8 +77,8 @@ class Automation_model extends CI_Model
     public function getTicketStatus($status)
     {
 
-        $statusArray = ['0' => "New", '1' => "Opened", '2' => "In Progress", '3' => "Closed"];
-        $statusColor = ['0' => "success", '1' => "info", '2' => "warning", '3' => "dark"];
+        $statusArray = ['0' => "New", '1' => "Opened", '2' => "In Progress", '3' => "Closed",'4' => "Pending",'5'=>"Cancelled"];
+        $statusColor = ['0' => "success", '1' => "dark-50", '2' => "info", '3' => "dark",'4'=>"warning",'5'=>"danger"];
         $data['status'] = $statusArray[$status];
         $data['color'] = $statusColor[$status];
         return $data;

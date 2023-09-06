@@ -78,11 +78,21 @@ class Automation extends CI_Controller
                 } else {
                     $type = "";
                 }
+                 if (isset($_REQUEST['id'])) {
+                    $id = $_REQUEST['id'];
+                    if (!empty($id)) {
+                        array_push($arr2, 4);
+                        $data['id'] = $id;
+                    }
+                } else {
+                    $id = "";
+                }
                 $cond1 = "date_format(created_at, '%m') LIKE '%$month%'";
                 $cond2 = "emp_id LIKE '%$employee_name%'";
                 $cond3 = "emp_id IN ($empIds)";
                 $cond4 = "ticket_type = '$type'";
-                $arr1 = array($cond1, $cond2, $cond3, $cond4);
+                $cond5 = "id = '$id'";
+                $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5);
                 $arr_1_cnt = count($arr2);
                 $arr3 = array();
                 for ($i = 0; $i < $arr_1_cnt; $i++) {
@@ -96,8 +106,11 @@ class Automation extends CI_Controller
                 }
                 $data['total_rows'] = $data['tickets']->num_rows();
                 $data['total_new'] = $this->automation_model->TicketsCount($data['permission'], $arr4, 0);
+                $data['total_open'] = $this->automation_model->TicketsCount($data['permission'], $arr4, 1);
                 $data['total_progress'] = $this->automation_model->TicketsCount($data['permission'], $arr4, 2);
                 $data['total_closed'] = $this->automation_model->TicketsCount($data['permission'], $arr4, 3);
+                $data['total_pending'] = $this->automation_model->TicketsCount($data['permission'], $arr4, 4);
+                $data['total_cancelled'] = $this->automation_model->TicketsCount($data['permission'], $arr4, 5);
             } else {
                 $limit = 20;
                 $offset = $this->uri->segment(3);
@@ -137,8 +150,11 @@ class Automation extends CI_Controller
                 $data['tickets'] = $this->automation_model->AllTicketPages($data['permission'], $limit, $offset);
                 $data['total_rows'] = $count;
                 $data['total_new'] = $this->automation_model->TicketsCount($data['permission'], 1, 0);
+                $data['total_open'] = $this->automation_model->TicketsCount($data['permission'], 1, 1);
                 $data['total_progress'] = $this->automation_model->TicketsCount($data['permission'], 1, 2);
                 $data['total_closed'] = $this->automation_model->TicketsCount($data['permission'], 1, 3);
+                $data['total_pending'] = $this->automation_model->TicketsCount($data['permission'], 1, 4);
+                $data['total_cancelled'] = $this->automation_model->TicketsCount($data['permission'], 1, 5);
             }
             //Pages ..
 
@@ -221,7 +237,7 @@ class Automation extends CI_Controller
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 198);
         $id = base64_decode($_GET['t']);
         $ticket = $this->db->get_where('automation_tickets', array('id' => $id))->row();
-        if ($data['permission']->view == 1 || $ticket->created_by == $this->user) {
+        if ($data['permission']->view == 1 || $ticket->emp_id == $this->emp_id) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             //body ..            
@@ -258,6 +274,15 @@ class Automation extends CI_Controller
             $mailBody = "Your Ticket #$id has been done. <br/> Date : " . date('Y-m-d H:i:s');
             $this->automation_model->sendTicketMail($mailSubject, $mailBody, $ticket->created_by);
         }
+        if ($status == 5) {          
+            $data_action['comment'] = $_POST['comment'];
+            $data_action['closed_at'] = date("Y-m-d H:i:s");
+            $data_action['closed_by'] = $this->user;
+            $mailSubject = "Automation System - Ticket #$id";
+            $mailBody = "Your Ticket #$id has been cancelled. <br/> Date : " . date('Y-m-d H:i:s');
+            $mailBody .= "<br/><br/>" . $_POST['comment'];
+            $this->automation_model->sendTicketMail($mailSubject, $mailBody, $ticket->created_by);
+        }
         $data_action['status'] = $status;
         $this->admin_model->addToLoggerUpdate('automation_tickets', 198, 'id', $id, 0, 0, $this->user);
         $this->db->update('automation_tickets', $data_action, array('id' => $id));
@@ -288,7 +313,8 @@ class Automation extends CI_Controller
         }
         if ($this->db->insert('automation_ticket_comments', $data)) {
             $mailSubject = "Automation System - Ticket #$id";
-            $mailBody = "You Have New Reply Please check...";
+            $mailBody = "You Have New Reply Please check ...";
+            $mailBody .= "<br/><br/><a href='". base_url() ."/automation/viewTicket?t=".base64_encode($id)."'>Click Here </a> to view the ticket ";
             if ($this->role == 21 || $this->role == 1) {
                 $ticket_created_by = $this->db->get_where('automation_tickets', array('id' => $id))->row()->created_by;
                 $this->automation_model->sendTicketMail($mailSubject, $mailBody, $ticket_created_by);

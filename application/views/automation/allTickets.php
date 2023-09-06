@@ -61,6 +61,12 @@
                                 </select>
                             </div>
                         <?php } ?>
+
+                          <label class="col-lg-2 col-form-label text-lg-right">Ticket Number</label>
+                          <div class="col-lg-4">
+                            <input type="text" class="form-control" value="<?= $id ?>" name="id">
+                          </div>
+
                     </div>
                     <div class="card-footer">
                         <div class="row">
@@ -115,14 +121,59 @@
                                 <div class="d-flex flex-column w-100px mr-2">
                                     <div class="d-flex align-items-center justify-content-between mb-2">
                                         <span class="text-muted mr-2 font-size-sm font-weight-bold">
+                                            <?= $total_open ?>
+                                        </span>
+                                        <span class="text-muted font-size-sm font-weight-bold">Opened</span>
+                                    </div>
+                                    <div class="progress progress-xs w-100">
+                                        <div class="progress-bar bg-dark-o-50" role="progressbar"
+                                            style="width: <?= $total_rows == 0?$total_rows : $total_open / $total_rows * 100 ?>%;" aria-valuenow="50"
+                                            aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-3">
+                                <div class="d-flex flex-column w-100px mr-2">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="text-muted mr-2 font-size-sm font-weight-bold">
                                             <?= $total_progress ?>
                                         </span>
                                         <span class="text-muted font-size-sm font-weight-bold">In Progress</span>
                                     </div>
                                     <div class="progress progress-xs w-100">
-                                        <div class="progress-bar bg-warning" role="progressbar"
+                                        <div class="progress-bar bg-info" role="progressbar"
                                             style="width: <?= $total_rows == 0?$total_rows: $total_progress / $total_rows * 100 ?>%;"
                                             aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </td>                            
+                            <td class="px-3">
+                                <div class="d-flex flex-column w-100px mr-2">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="text-muted mr-2 font-size-sm font-weight-bold">
+                                            <?= $total_pending ?>
+                                        </span>
+                                        <span class="text-muted font-size-sm font-weight-bold">Pending</span>
+                                    </div>
+                                    <div class="progress progress-xs w-100">
+                                        <div class="progress-bar bg-warning" role="progressbar"
+                                            style="width: <?= $total_rows == 0?$total_rows: $total_pending / $total_rows * 100 ?>%;" aria-valuenow="50"
+                                            aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-3">
+                                <div class="d-flex flex-column w-100px mr-2">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="text-muted mr-2 font-size-sm font-weight-bold">
+                                            <?= $total_cancelled ?>
+                                        </span>
+                                        <span class="text-muted font-size-sm font-weight-bold">Cancelled</span>
+                                    </div>
+                                    <div class="progress progress-xs w-100">
+                                        <div class="progress-bar bg-danger" role="progressbar"
+                                            style="width: <?= $total_rows == 0?$total_rows: $total_cancelled / $total_rows * 100 ?>%;" aria-valuenow="50"
+                                            aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
                             </td>

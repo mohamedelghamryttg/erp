@@ -76,7 +76,7 @@
                             </tr> 
                             <tr>
                                 <td><p class="text-success font-weight-bolder">Status</p></td>
-                                <td><span class="text-<?=$this->automation_model->getTicketStatus($ticket->status)['color']?>"><?= $this->automation_model->getTicketStatus($ticket->status)['status'] ?></span></td>                               
+                                <td><span class="font-weight-bolder text-<?=$this->automation_model->getTicketStatus($ticket->status)['color']?>"><?= $this->automation_model->getTicketStatus($ticket->status)['status'] ?></span></td>                               
                             </tr>
                             <?php if($ticket->status == 3){?>
                             <tr> 
@@ -90,6 +90,19 @@
                             <tr> 
                                 <td><p class="text-success font-weight-bolder">Action Type </p></td>
                                 <td> <?= ($ticket->action_type==1)?'YES':'NO' ?></td>                               
+                            </tr>                           
+                            <?php }elseif($ticket->status == 5){?>
+                            <tr> 
+                                <td><p class="text-success font-weight-bolder">Cancelled BY</p></td>
+                                <td><?= $this->automation_model->getUserName($ticket->closed_by); ?></td>
+                            </tr>
+                            <tr> 
+                               <td><p class="text-success font-weight-bolder">Cancelled AT</p></td>
+                                <td><?= $ticket->closed_at ?></td>
+                            </tr>
+                            <tr> 
+                                <td><p class="text-success font-weight-bolder">Comment </p></td>
+                                <td> <?= $ticket->comment ?></td>                               
                             </tr>                           
                             <?php }?>
                            
@@ -131,17 +144,20 @@
                 </div>
                  <?php }?>
                 <div class="card-footer">
-                    <?php if($ticket->status !=3 && ($role == 1 || $role== 21)){?>
+                    <?php if(($ticket->status !=3 && $ticket->status !=5)&& ($role == 1 || $role== 21)){?>
                     <h6 class="custom">Change Status</h6>
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label text-lg-right font-weight-bolder">Status</label>
                         <div class="col-lg-2">
                             <select name="status" id='status' class="form-control" required onchange="checkStatus()">
+                                <option  selected disabled value="">-- Select --</option>
                                 <option  value="2">In Progress</option>
-                                <option  value="3">Closed</option>                                    
+                                <option  value="4">Pending</option> 
+                                <option  value="3">Closed</option>  
+                                <option  value="5">Cancelled</option>                                    
                             </select>
-                        </div>        
-
+                        </div>    
+                        
                         <label class="col-lg-2 col-form-label text-lg-right action_type_div font-weight-bold" style="display:none">Action Type:</label>
                         <div class="col-lg-2 action_type_div" style="display:none"> 
                             <select name="action_type" id='action_type' class="form-control">
@@ -149,6 +165,12 @@
                                 <option  value="0">No</option>                                    
                             </select>                     
                         </div>
+                        <label class="col-lg-2 col-form-label text-lg-right cancelled_comment_div font-weight-bold" style="display:none">Comment:</label>
+                        <div class="col-lg-4 cancelled_comment_div" style="display:none"> 
+                            <textarea name="cancelled_comment" id='cancelled_comment' class="form-control"></textarea>
+                                                   
+                        </div>
+                       
                         <button class="btn btn-sm btn-dark col-lg-1"  onclick="changeStatus()"><i class="fa fa-save"></i>Save</button>
                     </div>
                     <?php }?>
@@ -263,7 +285,7 @@
         </div>
     </div>
 </div>
-<script type="text/javascript">         
+<script type="text/javascript"> 
     function checkStatus() {  
         var status = $("select#status option").filter(":selected").val();
       
@@ -271,31 +293,41 @@
             $(".action_type_div").show();
         else
             $(".action_type_div").hide();
+        if(status == 5)         
+            $(".cancelled_comment_div").show();
+        else
+            $(".cancelled_comment_div").hide();
          
     }
     function changeStatus() { 
-        Swal.fire({
-            title: "Changing Status ...",
-            text: "Are you sure?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, do it!",
-            cancelButtonText: "No, cancel!",
-            reverseButtons: true
-        }).then(function(result) {
-            if (result.value) {
-                var url = base_url + "automation/changeStatusTicket/<?=$ticket->id?>";
-                var action_type = $("#action_type").val();   
-                var status = $("select#status option").filter(":selected").val();
-                $.post(url, {action_type: action_type, status: status} ).done(function( data ) {
-                    Swal.fire( " Success ....!",  "" , "success").then(function () {
-                        window.location.reload();
-                    }); 
-                });
-            } else if (result.dismiss === "cancel") {
-                Swal.fire("Cancelled", "" , "error" );
-            }
-        });
+        var status = $("select#status option").filter(":selected").val();
+        if(status == 0){
+             Swal.fire("Please Select Status", "" , "error" );
+        }else{
+            Swal.fire({
+                title: "Changing Status ...",
+                text: "Are you sure?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, do it!",
+                cancelButtonText: "No, cancel!",
+                reverseButtons: true
+            }).then(function(result) {
+                if (result.value) {
+                    var url = base_url + "automation/changeStatusTicket/<?=$ticket->id?>";
+                    var action_type = $("#action_type").val();   
+                    var status = $("select#status option").filter(":selected").val();
+                    var comment = $("#cancelled_comment").val();
+                    $.post(url, {action_type: action_type, status: status,comment: comment} ).done(function( data ) {
+                        Swal.fire( " Success ....!",  "" , "success").then(function () {
+                            window.location.reload();
+                        }); 
+                    });
+                } else if (result.dismiss === "cancel") {
+                    Swal.fire("Cancelled", "" , "error" );
+                }
+            });
+        }
     } 
     
     $(document).on("submit", "#saveComment", function(e)

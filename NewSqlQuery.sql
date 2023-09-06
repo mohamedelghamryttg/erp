@@ -1,0 +1,2 @@
+ALTER TABLE `automation_tickets` CHANGE `status` `status` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '0:new / 1 :opened / 2:in progress /3:closed / 4:pending / 5:cancelled';
+ALTER TABLE `automation_tickets` ADD `comment` TEXT NULL AFTER `send_flg`; 
