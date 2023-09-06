@@ -1030,13 +1030,13 @@ class Admin_model extends CI_Model
 	public function AllLanguages($filter)
 	{
 
-		$data = $this->db->query("SELECT * FROM `languages` WHERE " . $filter . "  ORDER BY `name`");
+		$data = $this->db->query(" SELECT * FROM `languages` WHERE " . $filter . "  ORDER BY name ASC , id DESC ");
 		return $data;
 	}
 
 	public function AllLanguagesPages($limit, $offset)
 	{
-		$data = $this->db->query("SELECT * FROM `languages`  ORDER BY  name  LIMIT $limit OFFSET $offset ");
+		$data = $this->db->query("SELECT * FROM `languages`  ORDER BY  id DESC LIMIT $limit OFFSET $offset ");
 		return $data;
 	}
 

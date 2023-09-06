@@ -1,3 +1,11 @@
+<style>
+	.blocked,
+	.blocked a,
+	.blocked td {
+		background-color: black !important;
+		color: white !important;
+	}
+</style>
 <div class="row">
 	<div class="col-sm-12">
 		<section class="panel">
@@ -7,8 +15,7 @@
 			</header>
 
 			<div class="panel-body">
-				<form class="cmxform form-horizontal " id="vendors" action="<?php echo base_url() ?>vendor" method="get"
-					enctype="multipart/form-data">
+				<form class="cmxform form-horizontal " id="vendors" action="<?php echo base_url() ?>vendor" method="get" enctype="multipart/form-data">
 					<?php
 					if (isset($_REQUEST['email'])) {
 						$email = $_REQUEST['email'];
@@ -222,9 +229,7 @@
 					<div class="form-group">
 						<div class="col-lg-offset-3 col-lg-6">
 							<button class="btn btn-primary" name="search" type="submit">Search</button>
-							<button class="btn btn-success"
-								onclick="var e2 = document.getElementById('vendors'); e2.action='<?= base_url() ?>vendor/exportVendors'; e2.submit();"
-								name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export To
+							<button class="btn btn-success" onclick="var e2 = document.getElementById('vendors'); e2.action='<?= base_url() ?>vendor/exportVendors'; e2.submit();" name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export To
 								Excel</button>
 							<a href="<?= base_url() ?>vendor" class="btn btn-warning">(x) Clear Filter</a>
 						</div>
@@ -335,10 +340,11 @@
 								<th>Tools</th>
 								<th>Type</th>
 								<th>Color Reason</th>
-                        		<th>Num. Of Tasks</th>
+								<th>Num. Of Tasks</th>
 								<th>Created By</th>
 								<th>Created At</th>
 								<th>Favourite</th>
+								<th>Blocked/Num. of Bad Review</th>
 								<th>Edit</th>
 								<th>Delete</th>
 							</tr>
@@ -356,16 +362,18 @@
 								} else {
 									$style = '';
 								}
-								?>
-								<tr style="<?= $style ?>" class="">
+								if ($row->ev_block == 1) {
+									$class = "blocked";
+								}
+							?>
+								<tr style="<?= $style ?>" class="<?= $class ?? '' ?>">
 									<td>
 										<?php echo $x; ?>
 									</td>
 									<td>
 										<?= $row->id ?>
 									</td>
-									<td><a href="<?= base_url() ?>vendor/vendorProfile?t=<?= base64_encode($row->id) ?>"
-											target="_blank"><?= $row->name ?></a>
+									<td><a href="<?= base_url() ?>vendor/vendorProfile?t=<?= base64_encode($row->id) ?>" target="_blank"><?= $row->name ?></a>
 										<?php if ($row->favourite == 1) { ?>
 											<i class="fa fa-check-circle text-success" title="Vendor Marked As Favourite"></i>
 										<?php } ?>
@@ -419,18 +427,15 @@
 										<?= $row->profile ?>
 									</td>
 									<td>
-										<?php if (strlen($row->cv ?? '') > 1) { ?><a
-												href="<?= base_url() ?>assets/uploads/vendors/<?= $row->cv ?>">Download</a>
+										<?php if (strlen($row->cv ?? '') > 1) { ?><a href="<?= base_url() ?>assets/uploads/vendors/<?= $row->cv ?>">Download</a>
 										<?php } ?>
 									</td>
 									<td>
-										<?php if (strlen($row->certificate ?? '') > 1) { ?><a
-												href="<?= base_url() ?>assets/uploads/certificate/<?= $row->certificate ?>">Download</a>
+										<?php if (strlen($row->certificate ?? '') > 1) { ?><a href="<?= base_url() ?>assets/uploads/certificate/<?= $row->certificate ?>">Download</a>
 										<?php } ?>
 									</td>
 									<td>
-										<?php if (strlen($row->NDA ?? '') > 1) { ?><a
-												href="<?= base_url() ?>assets/uploads/NDA/<?= $row->NDA ?>">Download</a>
+										<?php if (strlen($row->NDA ?? '') > 1) { ?><a href="<?= base_url() ?>assets/uploads/NDA/<?= $row->NDA ?>">Download</a>
 										<?php } ?>
 									</td>
 									<td>
@@ -461,7 +466,7 @@
 									<td>
 										<?php echo $row->color_comment; ?>
 									</td>
-                                        <td>
+									<td>
 										<?= $this->vendor_model->getVendorTaskCount($row->id); ?>
 									</td>
 									<td>
@@ -472,39 +477,35 @@
 									</td>
 									<td class="text-center">
 										<?php if ($permission->add == 1 && $row->favourite == 1) { ?>
-											<a href="<?php echo base_url() ?>vendor/changeVendorFavourite?t=<?= base64_encode($row->id) ?>&f=0"
-												onclick="return confirm('Removing This Vendor From Favourite List, Are you sure ... ?');"
-												data-toggle="tooltip"
-												title="Vendor Marked As Favourite, Click To Remove From Favourite List ">
+											<a href="<?php echo base_url() ?>vendor/changeVendorFavourite?t=<?= base64_encode($row->id) ?>&f=0" onclick="return confirm('Removing This Vendor From Favourite List, Are you sure ... ?');" data-toggle="tooltip" title="Vendor Marked As Favourite, Click To Remove From Favourite List ">
 												<i class="fa fa-heart text-danger"></i>
 											</a>
 										<?php } elseif ($permission->add == 1 && $row->favourite == 0) { ?>
-											<a href="<?php echo base_url() ?>vendor/changeVendorFavourite?t=<?= base64_encode($row->id) ?>&f=1"
-												onclick="return confirm('Adding This Vendor From Favourite List, Are you sure ... ?');"
-												data-toggle="tooltip" title="Click To Add This Vendor To Favourite List">
+											<a href="<?php echo base_url() ?>vendor/changeVendorFavourite?t=<?= base64_encode($row->id) ?>&f=1" onclick="return confirm('Adding This Vendor From Favourite List, Are you sure ... ?');" data-toggle="tooltip" title="Click To Add This Vendor To Favourite List">
 												<i class="fa fa-heart-o"></i> Add To Favourite
 											</a>
 										<?php } ?>
 									</td>
 									<td>
+										<?= $row->ev_block == 1 ? 'YES' : 'NO' ?>
+										<?= $row->ev_block_count > 0 ? "( $row->ev_block_count)" : '' ?>
+									</td>
+									<td>
 										<?php if ($permission->edit == 1) { ?>
-											<a href="<?php echo base_url() ?>vendor/editVendor?t=<?= base64_encode($row->id) ?>"
-												class="">
+											<a href="<?php echo base_url() ?>vendor/editVendor?t=<?= base64_encode($row->id) ?>" class="">
 												<i class="fa fa-pencil"></i> Edit
 											</a>
 										<?php } ?>
 									</td>
 									<td>
 										<?php if ($permission->delete == 1) { ?>
-											<a href="<?php echo base_url() ?>vendor/deleteVendor?t=<?= base64_encode($row->id) ?>"
-												title="delete" class=""
-												onclick="return confirm('Are you sure you want to delete this Vendor ?');">
+											<a href="<?php echo base_url() ?>vendor/deleteVendor?t=<?= base64_encode($row->id) ?>" title="delete" class="" onclick="return confirm('Are you sure you want to delete this Vendor ?');">
 												<i class="fa fa-times text-danger text"></i> Delete
 											</a>
 										<?php } ?>
 									</td>
 								</tr>
-								<?php
+							<?php
 
 								$x++;
 							}
