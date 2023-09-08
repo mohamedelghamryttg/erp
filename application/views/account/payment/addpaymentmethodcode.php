@@ -24,6 +24,7 @@
                                 <option value="1"> Cash </option>
                                 <option value="2"> Bank </option>
                                 <option value="3"> Credit Card </option>
+                                <option value="4"> Other </option>
                             </select>
                         </div>
                     </div>
@@ -51,10 +52,10 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="form-group row" id="account_code">
                         <label class="col-lg-3 col-form-label text-right">Account Link</label>
                         <div class="col-lg-6">
-                            <select name="account_id" class="form-control required m-b" id="account_id" required>
+                            <select name="account_id" class="form-control required m-b" id="account_id">
                                 <option value="" selected>-- Select Account --</option>
                                 <?= $this->AccountModel->selectCombo_New('account_chart') ?>
                             </select>
@@ -74,8 +75,7 @@
                         <div class="col-lg-3"></div>
                         <div class="col-lg-6">
                             <button type="button" id="submit" class="btn btn-success mr-2">Submit</button>
-                            <a class="btn btn-secondary" href="<?php echo base_url() ?>account/paymentmethodcode"
-                                class="btn btn-default" type="button">Cancel</a>
+                            <a class="btn btn-secondary" href="<?php echo base_url() ?>account/paymentmethodcode" class="btn btn-default" type="button">Cancel</a>
                         </div>
                     </div>
                 </div>
@@ -86,26 +86,33 @@
     </div>
 </div>
 <script>
-    $(document).ready(function () {
-        $("#type").change(function (e) {
+    $(document).ready(function() {
+        $("#type").change(function() {
             if ($("#type").val() == 1) {
                 $("#bank").val(null);
                 document.getElementById("select_bank").style.display = 'none';
                 $("#acc_code").val(null);
                 document.getElementById("account_no").style.display = 'none';
+            } else if ($("#type").val() == 4) {
+                $("#bank").val(null);
+                document.getElementById("select_bank").style.display = 'none';
+                $("#acc_code").val(null);
+                document.getElementById("account_no").style.display = 'none';
+                $("#account_id").val(null);
+                document.getElementById("account_code").style.display = 'none';
             } else {
                 document.getElementById('select_bank').style.display = 'flex';
                 document.getElementById("account_no").style.display = 'flex';
             }
         })
-        $("#submit").click(function (event) {
+        $("#submit").click(function(e) {
             e.preventDefault();
-            CKEDITOR.instances.payment_desc.updateElement();
+            //CKEDITOR.instances.payment_desc.updateElement();
             $.ajax({
                 url: "<?= base_url() . "account/doAddpaymentmethodcode" ?>",
                 type: "POST",
                 data: $("#form").serialize(),
-                success: function (data) {
+                success: function(data) {
                     var data = JSON.parse(data);
                     if (data.records != 0)
                         alert("paymentmethod Already Exists!");

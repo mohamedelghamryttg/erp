@@ -49,13 +49,12 @@ class Automation_model extends CI_Model
         }
         return $data;
     }
-
-    public function AllTicketPages($permission, $limit, $offset)
+    public function AllTicketsPages($permission, $limit, $offset)
     {
         if ($permission->view == 1) {
-            $data = $this->db->query("SELECT * FROM `automation_tickets` Order By `status` ASC,`created_at` DESC LIMIT $limit OFFSET $offset ");
+            $data = $this->db->query("SELECT * FROM `automation_tickets`  Order By `status` ASC,`created_at` DESC limit " . $limit . " offset " . $offset);
         } elseif ($permission->view == 2) {
-            $data = $this->db->query("SELECT * FROM `automation_tickets` WHERE emp_id = $this->emp_id Order By `status` ASC,`created_at` DESC LIMIT $limit OFFSET $offset ");
+            $data = $this->db->query("SELECT * FROM `automation_tickets` WHERE  emp_id = $this->emp_id Order By `status` ASC,`created_at` DESC limit " . $limit . " offset " . $offset);
         }
         return $data;
     }
@@ -77,13 +76,22 @@ class Automation_model extends CI_Model
     public function getTicketStatus($status)
     {
 
-        $statusArray = ['0' => "New", '1' => "Opened", '2' => "In Progress", '3' => "Closed",'4' => "Pending",'5'=>"Cancelled"];
-        $statusColor = ['0' => "success", '1' => "dark-50", '2' => "info", '3' => "dark",'4'=>"warning",'5'=>"danger"];
+        $statusArray = ['0' => "New", '1' => "Opened", '2' => "In Progress", '3' => "Closed", '4' => "Pending", '5' => "Cancelled"];
+        $statusColor = ['0' => "success", '1' => "dark-50", '2' => "info", '3' => "dark", '4' => "warning", '5' => "danger"];
         $data['status'] = $statusArray[$status];
         $data['color'] = $statusColor[$status];
         return $data;
     }
+    public function getTicketApproval($appStatus)
+    {
+        $appStatus = intval($appStatus);
 
+        $statusAppArray = ['0' => "NA", '1' => "Pending Approval", '2' => "Approved", '3' => "Rejected"];
+        $statusAppColor = ['0' => "dark", '1' => "danger", '2' => "success", '3' => "warning"];
+        $data['status'] = $statusAppArray[$appStatus];
+        $data['color'] = $statusAppColor[$appStatus];
+        return $data;
+    }
     public function sendTicketMail($mailSubject, $mailBody, $mailToID = '')
     {
 
@@ -168,7 +176,7 @@ class Automation_model extends CI_Model
                         <meta name="description" content="">
                         <meta name="author" content="">
                         <link rel="shortcut icon" href="' . base_url() . 'assets/images/favicon.png">
-                        <title>Falaq| Site Manager</title>
+                        <title>Nexus | Site Manager</title>
                         <style>
                         body {
                             font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -277,16 +285,34 @@ class Automation_model extends CI_Model
     public function TicketsCount($permission, $filter, $status)
     {
         if ($filter == '') {
-            $filter = '1';
+            if ($status == '6') {
+                if ($permission->view == 1) {
+                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE  approval = 1")->row()->total;
+                } elseif ($permission->view == 2) {
+                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE approval = 1 AND emp_id = $this->emp_id ")->row()->total;
+                }
+            } else {
+                if ($permission->view == 1) {
+                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE  status = $status ")->row()->total;
+                } elseif ($permission->view == 2) {
+                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets`  status = $status AND emp_id = $this->emp_id ")->row()->total;
+                }
+            }
+        } else {
+            if ($status == '6') {
+                if ($permission->view == 1) {
+                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE " . $filter . " AND approval = 1")->row()->total;
+                } elseif ($permission->view == 2) {
+                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE " . $filter . " AND approval = 1 AND emp_id = $this->emp_id ")->row()->total;
+                }
+            } else {
+                if ($permission->view == 1) {
+                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE " . $filter . " AND status = $status ")->row()->total;
+                } elseif ($permission->view == 2) {
+                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE " . $filter . " AND status = $status AND emp_id = $this->emp_id ")->row()->total;
+                }
+            }
+            return $data;
         }
-        if ($permission->view == 1) {
-            $sql = "SELECT count(id) as total FROM `automation_tickets` WHERE " . $filter . " AND status = $status ";
-            $data = $this->db->query($sql)->row()->total;
-        } elseif ($permission->view == 2) {
-            $sql = "SELECT count(id) as total FROM `automation_tickets` WHERE " . $filter . " AND status = $status AND emp_id = $this->emp_id ";
-            $data = $this->db->query($sql)->row()->total;
-        }
-        return $data;
     }
-
 }
