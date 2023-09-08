@@ -60,7 +60,7 @@ background-color: #FFFFCC;
                     <!--<td ><?= $emp->id ?></td>-->
                     <td class="sticky-col"><?= word_limiter($emp->name, 3, ' ') ?></td>
                     <?php foreach ($days as $key => $day) {
-                        $status = $this->hr_model->getDayStatus($emp->id, $day->format('Y-m-d'));
+                        $status = $this->hr_model->getDayStatusFast($emp->id, $day->format('Y-m-d'));
                         if($status=="W"){
                             $location = $this->hr_model->checkAttendanceLocationDetails($emp->id, $day->format('Y-m-d'));
                             $status = $status.$location;                                            
