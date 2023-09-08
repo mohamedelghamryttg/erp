@@ -2520,5 +2520,64 @@ public function selectAllEmployeesByManagerID2level($emp_id, $id = "")
         }
         return $data;
     }
+    
+    // test
+    public function getDayStatusFast($emp_id, $day)
+    {
+        // get foreach day records from attendance log/missing_attendance table where USRID = emp_id & SRVDT = this day "w"
+        // else get foreach day records from holidays_plan table / holiday_date "h" or sat-sun
+        // else get foreach day records from vacation_transaction table where day between  start_day - end_day & emp_id = $emp_id / type = 1 "v"
+        // else get foreach day records from vacation_transaction table where day between  start_day - end_day & emp_id = $emp_id / type = 2 "do"
+        // else get foreach day records from vacation_transaction table where day between  start_day - end_day & emp_id = $emp_id / type = 3 "sl"
+        // else display absent "a"  
+        $date = date('Y-m-d', strtotime($day));
+        $dayName = date('D', strtotime($day));
+        $vacation_transaction = $this->db->query("SELECT type_of_vacation FROM `vacation_transaction` where status = 1 AND emp_id = $emp_id AND '$date' BETWEEN `start_date` and `end_date`")->row();
+        if(!empty($vacation_transaction)){
+            $vacation_type = $vacation_transaction->type_of_vacation;            
+           if(($vacation_type == 1 || $vacation_type ==2 ||$vacation_type ==5 || $vacation_type ==6 || $vacation_type ==7) && ($dayName != "Sat" && $dayName != "Sun")){
+                $data = "V";
+            }elseif($vacation_type == 8 ){
+                    $data = "RL";            
+            }elseif($vacation_type == 4 ){
+                    $data = "MV";            
+            }elseif($vacation_type == 3 ){
+                    $data = "SL";
+            }
+        }else{  
+            $attendance_log_in = $this->db->query("SELECT count('id') as count_rows FROM `attendance_log` where USRID = $emp_id AND TNAKEY =1 AND SRVDT like '$date %'")->row()->count_rows;
+            if ($attendance_log_in > 0){
+                $attendance_log_out = 0;          
+                $signIn = $this->db->query("SELECT SRVDT FROM `attendance_log` where USRID = $emp_id AND TNAKEY =1 AND SRVDT like '$date %'")->row();
+                $signIn_log = $signIn ? $signIn->SRVDT : 0;
+                if ($signIn_log != 0) {
+                    $attendance_log_out = $this->db->query("SELECT count('id') as count_rows FROM attendance_log AS log WHERE log.USRID = $emp_id AND TNAKEY = '2' AND
+                                                ((log.SRVDT BETWEEN '" . $signIn_log . "' AND DATE_ADD('" . $signIn_log . "', INTERVAL 18 hour)) AND log.SRVDT > '" . $signIn_log . "')")->row()->count_rows;
+                }
+                //$attendance_log_out = $this->db->query("SELECT count('id') as count_rows FROM `attendance_log` where USRID = $emp_id AND TNAKEY =2 AND SRVDT like '$date %'")->row()->count_rows;
+
+                if ($attendance_log_in > 0 && $attendance_log_out > 0) {
+                    $data = "W";
+                }else {
+                    $data = "A";
+                }          
+            }
+            else {
+                if ($dayName == "Sat" || $dayName == "Sun") {
+                    $data = "WE";
+                } else {
+                    $holiday = $this->db->query("SELECT count('id') as count_rows FROM `holidays_plan` where holiday_date like '$date'")->row()->count_rows;
+                    if ($holiday > 0) {
+                        $data = "H";
+                    } else {
+                        $data = "A";
+                    }
+                }
+            }
+        }
+
+        return $data;
+    }
+
 
 }
