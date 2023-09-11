@@ -5440,8 +5440,7 @@ class Hr extends CI_Controller
             } elseif ($permission->view == 2) {
                 $data['employees'] = $this->db->query("SELECT id,name FROM employees WHERE status = 0 AND( manager = $this->emp_id || id = $this->emp_id) $where")->result();
             }
-
-            //   $data['employees'] = $this->db->query("SELECT id,name FROM employees WHERE status = 0 $where")->result();
+        
             $endDate = date('Y-m-d', strtotime("+1 day", strtotime($date_to)));
             $data['days'] = new DatePeriod(new DateTime($date_from), new DateInterval('P1D'), new DateTime($endDate));
 

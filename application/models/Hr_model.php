@@ -2545,6 +2545,55 @@ public function selectAllEmployeesByManagerID2level($emp_id, $id = "")
                     $data = "SL";
             }
         }else{  
+            $attendance_log = $this->db->query("SELECT * FROM `attendance_view` where USRID = $emp_id AND SignIn like '$date %'")->row();
+            if (!empty($attendance_log)){            
+                if ($attendance_log->SignIn != null && $attendance_log->SignOut !=null) {
+                    $location = self::checkAttendanceLocationDetailsFast($attendance_log->SignInLocation,$attendance_log->SignOutLocation);
+                    $data = "W".$location;
+                }else {
+                    $data = "A";
+                }          
+            }
+            else {
+                if ($dayName == "Sat" || $dayName == "Sun") {
+                    $data = "WE";
+                } else {
+                    $holiday = $this->db->query("SELECT count('id') as count_rows FROM `holidays_plan` where holiday_date like '$date'")->row()->count_rows;
+                    if ($holiday > 0) {
+                        $data = "H";
+                    } else {
+                        $data = "A";
+                    }
+                }
+            }
+        }
+
+        return $data;
+    }
+    
+    public function getDayStatusFast_old($emp_id, $day)
+    {
+        // get foreach day records from attendance log/missing_attendance table where USRID = emp_id & SRVDT = this day "w"
+        // else get foreach day records from holidays_plan table / holiday_date "h" or sat-sun
+        // else get foreach day records from vacation_transaction table where day between  start_day - end_day & emp_id = $emp_id / type = 1 "v"
+        // else get foreach day records from vacation_transaction table where day between  start_day - end_day & emp_id = $emp_id / type = 2 "do"
+        // else get foreach day records from vacation_transaction table where day between  start_day - end_day & emp_id = $emp_id / type = 3 "sl"
+        // else display absent "a"  
+        $date = date('Y-m-d', strtotime($day));
+        $dayName = date('D', strtotime($day));
+        $vacation_transaction = $this->db->query("SELECT type_of_vacation FROM `vacation_transaction` where status = 1 AND emp_id = $emp_id AND '$date' BETWEEN `start_date` and `end_date`")->row();
+        if(!empty($vacation_transaction)){
+            $vacation_type = $vacation_transaction->type_of_vacation;            
+           if(($vacation_type == 1 || $vacation_type ==2 ||$vacation_type ==5 || $vacation_type ==6 || $vacation_type ==7) && ($dayName != "Sat" && $dayName != "Sun")){
+                $data = "V";
+            }elseif($vacation_type == 8 ){
+                    $data = "RL";            
+            }elseif($vacation_type == 4 ){
+                    $data = "MV";            
+            }elseif($vacation_type == 3 ){
+                    $data = "SL";
+            }
+        }else{  
             $attendance_log_in = $this->db->query("SELECT count('id') as count_rows FROM `attendance_log` where USRID = $emp_id AND TNAKEY =1 AND SRVDT like '$date %'")->row()->count_rows;
             if ($attendance_log_in > 0){
                 $attendance_log_out = 0;          
@@ -2576,6 +2625,31 @@ public function selectAllEmployeesByManagerID2level($emp_id, $id = "")
             }
         }
 
+        return $data;
+    }
+
+    public function checkAttendanceLocationDetailsFast($signin_location, $signout_location)
+    {
+        // 0=>Office ,1=>Work from Home
+        $data = $signin_loc = $signout_loc = '';           
+        
+        if ($signin_location == 0 && $signin_location != null) {
+            $signin_loc = 'O';
+        } elseif ($signin_location == 1) {
+            $signin_loc = 'H';
+        }
+
+        if ($signout_location == 0 && $signout_location != null) {
+            $signout_loc = 'O';
+        } elseif ($signout_location == 1) {
+            $signout_loc = 'H';
+        }
+
+        if ($signin_loc == $signout_loc) {
+            $data = $signin_loc;
+        } elseif ($signin_loc == 'O' || $signout_loc == 'O') {
+            $data = 'O';
+        }
         return $data;
     }
 

@@ -61,10 +61,7 @@ background-color: #FFFFCC;
                     <td class="sticky-col"><?= word_limiter($emp->name, 3, ' ') ?></td>
                     <?php foreach ($days as $key => $day) {
                         $status = $this->hr_model->getDayStatusFast($emp->id, $day->format('Y-m-d'));
-                        if($status=="W"){
-                            $location = $this->hr_model->checkAttendanceLocationDetails($emp->id, $day->format('Y-m-d'));
-                            $status = $status.$location;                                            
-                        }?>
+                        ?>
                     <td class="font-size-xs status " <?php if($status=='W' || $status=='WO'){
                         echo 'style="background:green;color:white"';
                         }

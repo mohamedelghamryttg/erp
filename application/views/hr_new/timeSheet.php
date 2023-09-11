@@ -147,10 +147,7 @@
                                     <?php  $count_deduction = 0;
                                     foreach ($days as $key => $day) {                                       
                                         $status = $this->hr_model->getDayStatusFast($emp->id, $day->format('Y-m-d'));
-                                        if($status=="W"){
-                                            $location = $this->hr_model->checkAttendanceLocationDetails($emp->id, $day->format('Y-m-d'));
-                                            $status = $status.$location;                                            
-                                        }?>
+                                        ?>
                                         <td class="font-size-sm <?= $this->hr_model->getDayStatusClass($status)?> ">
                                             <span class="status"><?= $status?></span>
                                             <?php if($status == 'A'){
