@@ -209,8 +209,7 @@ class Accounting extends CI_Controller
             for ($i = 0; $i < count($select); $i++) {
                 $id = $select[$i];
                 $data['verified'] = 1;
-                $data['verified_at'] = date("Y-m-d H:i:s");
-                ;
+                $data['verified_at'] = date("Y-m-d H:i:s");;
                 $data['verified_by'] = $this->user;
                 $this->db->update('po', $data, array('id' => $id));
             }
@@ -1472,7 +1471,6 @@ class Accounting extends CI_Controller
                 $data['created_by'] = $this->user;
                 $data['created_at'] = date("Y-m-d H:i:s");
                 if ($this->db->insert('vendor_payment', $data)) {
-
                 } else {
                     $error = "Failed To Add Payment ...";
                     $this->session->set_flashdata('error', $error);
@@ -1844,38 +1842,38 @@ class Accounting extends CI_Controller
                 }
             } else {
                 //                 $limit = 9;
-//                 $offset = $this->uri->segment(3);
-//                 if($this->uri->segment(3) != NULL)
-//                 {
-//                     $offset = $this->uri->segment(3);
-//                 }else{
-//                     $offset = 0;
-//                 }
-//                 $data['count'] = $this->db->query(" SELECT Count(*) AS total FROM job_task AS t LEFT OUTER JOIN vendor AS v ON v.id = t.vendor WHERE v.brand = '$this->brand' ")->row()->total;
-//                 $config['base_url']= base_url('accounting/vpoStatus');
-//                 $config['uri_segment'] = 3;
-//                 $config['display_pages']= TRUE;
-//                 $config['per_page']  = $limit;
-//                 $config['total_rows'] = $data['count'];
-//                 $config['full_tag_open'] = "<ul class='pagination'>";
-//                 $config['full_tag_close'] ="</ul>";
-//                 $config['num_tag_open'] = '<li>';
-//                 $config['num_tag_close'] = '</li>';
-//                 $config['cur_tag_open'] = "<li class='active'><a href='#'>";
-//                 $config['cur_tag_close'] = "<span class='sr-only'(current)></span></a></li>";
-//                 $config['next_tag_open'] = "<li><span aria-hidden='true'>";
-//                 $config['next_tagl_close'] = "</span></li>";
-//                 $config['prev_tag_open'] = "<li><span aria-hidden='true'>";
-//                 $config['prev_tagl_close'] = "</span></li>";
-//                 $config['first_tag_open'] = "<li>";
-//                 $config['first_tagl_close'] = "</li>";
-//                 $config['last_tag_open'] = "<li>";
-//                 $config['last_tagl_close'] = "</li>";
-//                 $config['next_link'] = '»';
-//                 $config['prev_link'] = '«';
-//                 $config['num_links'] = 5;
-//                 $config['show_count'] = TRUE;
-//                 $this->pagination->initialize($config);
+                //                 $offset = $this->uri->segment(3);
+                //                 if($this->uri->segment(3) != NULL)
+                //                 {
+                //                     $offset = $this->uri->segment(3);
+                //                 }else{
+                //                     $offset = 0;
+                //                 }
+                //                 $data['count'] = $this->db->query(" SELECT Count(*) AS total FROM job_task AS t LEFT OUTER JOIN vendor AS v ON v.id = t.vendor WHERE v.brand = '$this->brand' ")->row()->total;
+                //                 $config['base_url']= base_url('accounting/vpoStatus');
+                //                 $config['uri_segment'] = 3;
+                //                 $config['display_pages']= TRUE;
+                //                 $config['per_page']  = $limit;
+                //                 $config['total_rows'] = $data['count'];
+                //                 $config['full_tag_open'] = "<ul class='pagination'>";
+                //                 $config['full_tag_close'] ="</ul>";
+                //                 $config['num_tag_open'] = '<li>';
+                //                 $config['num_tag_close'] = '</li>';
+                //                 $config['cur_tag_open'] = "<li class='active'><a href='#'>";
+                //                 $config['cur_tag_close'] = "<span class='sr-only'(current)></span></a></li>";
+                //                 $config['next_tag_open'] = "<li><span aria-hidden='true'>";
+                //                 $config['next_tagl_close'] = "</span></li>";
+                //                 $config['prev_tag_open'] = "<li><span aria-hidden='true'>";
+                //                 $config['prev_tagl_close'] = "</span></li>";
+                //                 $config['first_tag_open'] = "<li>";
+                //                 $config['first_tagl_close'] = "</li>";
+                //                 $config['last_tag_open'] = "<li>";
+                //                 $config['last_tagl_close'] = "</li>";
+                //                 $config['next_link'] = '»';
+                //                 $config['prev_link'] = '«';
+                //                 $config['num_links'] = 5;
+                //                 $config['show_count'] = TRUE;
+                //                 $this->pagination->initialize($config);
 
                 //                 $data['task'] = $this->accounting_model->vpoStatusPages($data['permission'],$this->brand,$limit,$offset);
             }
@@ -2024,7 +2022,6 @@ class Accounting extends CI_Controller
                     $data['balance_verified'] = $this->accounting_model->vpoBalanceVerified($data['permission'], $this->brand, $arr4);
                     $data['balance_paid'] = $this->accounting_model->vpoBalancePaid($data['permission'], $this->brand, $arr4);
                 } else {
-
                 }
             } else {
             }
@@ -2075,7 +2072,6 @@ class Accounting extends CI_Controller
             $data['balance_verified'] = $this->accounting_model->vpoBalanceVerified($data['permission'], $this->brand, $arr4);
             $data['balance_paid'] = $this->accounting_model->vpoBalancePaid($data['permission'], $this->brand, $arr4);
         } else {
-
         }
         $this->load->view('accounting_new/exportvpoBalance.php', $data);
     }
@@ -2220,7 +2216,7 @@ class Accounting extends CI_Controller
                     $date_from = "";
                 }
                 //print_r($arr2);
-                $cond1 = "issue_date BETWEEN '$date_from' AND '$date_to'";
+                $cond1 = "i.issue_date BETWEEN '$date_from' AND '$date_to'";
                 $arr1 = array($cond1);
                 $arr_1_cnt = count($arr2);
                 $arr3 = array();
@@ -2232,10 +2228,8 @@ class Accounting extends CI_Controller
                 if ($arr_1_cnt > 0) {
                     $data['jobs'] = $this->accounting_model->costOfSales($data['permission'], $this->user, $this->brand, $arr4);
                 } else {
-
                 }
             } else {
-
             }
             // //Pages ..
             $this->load->view('includes/header.php', $data);
@@ -2267,7 +2261,7 @@ class Accounting extends CI_Controller
                     $date_from = "";
                 }
                 //print_r($arr2);
-                $cond1 = "issue_date BETWEEN '$date_from' AND '$date_to'";
+                $cond1 = "i.issue_date BETWEEN '$date_from' AND '$date_to'";
                 $arr1 = array($cond1);
                 $arr_1_cnt = count($arr2);
                 $arr3 = array();
@@ -2279,10 +2273,8 @@ class Accounting extends CI_Controller
                 if ($arr_1_cnt > 0) {
                     $data['jobs'] = $this->accounting_model->costOfSales($data['permission'], $this->user, $this->brand, $arr4);
                 } else {
-
                 }
             } else {
-
             }
             // //Pages ..
             $this->load->view('includes/header.php', $data);
@@ -3129,7 +3121,6 @@ class Accounting extends CI_Controller
             //Pages ..
 
             $this->load->view('accounting/exportDtpRevenueReport.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -3155,26 +3146,26 @@ class Accounting extends CI_Controller
         //                 $arr2 = array();
 
         //                     if(isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])){
-//                         $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
-//                         $date_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
-//                         if(!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])){ array_push($arr2,0); }
-//                     }else{
-//                         $date_to = "";
-//                         $date_from = "";
-//                     }
+        //                         $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
+        //                         $date_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
+        //                         if(!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])){ array_push($arr2,0); }
+        //                     }else{
+        //                         $date_to = "";
+        //                         $date_from = "";
+        //                     }
 
         //                     // print_r($arr2);
 
         //                     $cond1 = "l.created_at BETWEEN '$date_from' AND '$date_to' ";      
 
         //                     $arr1 = array($cond1);
-//                     $arr_1_cnt = count($arr2);
-//                     $arr3 = array();
-//                     for($i=0; $i<$arr_1_cnt; $i++ ){
-//                     array_push($arr3,$arr1[$arr2[$i]]);
-//                     }
-//                     $arr4 = implode(" and ",$arr3);
-//                     // print_r($arr4);   
+        //                     $arr_1_cnt = count($arr2);
+        //                     $arr3 = array();
+        //                     for($i=0; $i<$arr_1_cnt; $i++ ){
+        //                     array_push($arr3,$arr1[$arr2[$i]]);
+        //                     }
+        //                     $arr4 = implode(" and ",$arr3);
+        //                     // print_r($arr4);   
 
         $arr4 = "l.created_at BETWEEN '2020-01-01' AND '2021-01-01' ";
         $data['project'] = $this->accounting_model->translationRevenueReport($data['permission'], $this->user, $this->brand, $arr4);
@@ -3183,7 +3174,6 @@ class Accounting extends CI_Controller
         //Pages ..
 
         $this->load->view('accounting/exportTranslationRevenueReport.php', $data);
-
     }
     public function vpoStatus()
     {
@@ -3248,7 +3238,6 @@ class Accounting extends CI_Controller
                 $id = array_column($data_task, 'id');
                 array_multisort($id, SORT_DESC, $data_task);
                 $data['task'] = $data_task;
-
             }
 
 
@@ -3547,9 +3536,7 @@ class Accounting extends CI_Controller
                                 $this->db->insert('journal_transaction', $dataTransaction);
                             }
                         }
-
                     }
-
                 } else {
                     $error = "Failed To edit Journal ...";
                     $this->session->set_flashdata('error', $error);
@@ -3674,7 +3661,6 @@ class Accounting extends CI_Controller
                 $data['jobs'] = $this->accounting_model->costOfSalesTest($filter);
                 $data['filter'] = $filter;
             } else {
-
             }
             // //Pages ..
             $this->load->view('includes/header.php', $data);
@@ -4062,7 +4048,6 @@ class Accounting extends CI_Controller
             $this->load->view('includes/header.php', $data);
             $this->load->view('accounting/overDueInvoices.php');
             $this->load->view('includes/footer.php');
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -4124,7 +4109,6 @@ class Accounting extends CI_Controller
                 $data['invoice'] = $this->accounting_model->AllOverDueInvoices($this->brand, 1);
 
             $this->load->view('accounting/exportOverDueInvoices.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -4257,7 +4241,6 @@ class Accounting extends CI_Controller
         } else {
             echo "You have no permission to access this page";
         }
-
     }
     public function exportRunningCpo($data)
     {
@@ -4342,7 +4325,6 @@ class Accounting extends CI_Controller
             }
 
             $this->load->view('accounting_new/exportRunningCpo.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -4441,7 +4423,6 @@ class Accounting extends CI_Controller
         } else {
             echo "You have no permission to access this page";
         }
-
     }
 
     public function addPaymentMethod()
@@ -4559,4 +4540,3 @@ class Accounting extends CI_Controller
         }
     }
 }
-?>

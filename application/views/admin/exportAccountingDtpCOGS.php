@@ -54,13 +54,18 @@
       <tr>
         <th>Job Name</th>
         <th>Job Code</th>
-        <th>Source Language Direction</th>
-        <th>Target Language Direction</th>
+
         <th>Total Revenue in $</th>
         <th>count</th>
         <th>Total Cost in $</th>
         <th>unit</th>
+        <th>Source Language Direction</th>
+        <th>Target Language Direction</th>
+        <th>Start Date</th>
+        <th>Delivery Date</th>
+        <th>issue_date</th>
         <th>Created By</th>
+
 
 
       </tr>
@@ -70,44 +75,49 @@
       if (isset($project)) {
         foreach ($project->result() as $row) {
           $priceList = $this->projects_model->getJobPriceListData($row->price_list);
-          $jobTotal = $this->sales_model->calculateRevenueJob($row->id, $row->type, $row->volume, $priceList->id);
-          $jobTotal = number_format($this->accounting_model->transfareTotalToCurrencyRate($priceList->currency, 2, $row->created_at, $jobTotal), 2);
-          $dateArray = explode("-", $row->created_at);
-          $year = $dateArray[0];
-
-          $dtp_tasks = $this->db->get_where('dtp_request', array('job_id' => $row->id))->result();
-          $totalRate = 0;
-          $totval = 0;
-          $unit = '';
+          $total_revenue = $this->sales_model->calculateRevenueJob($row->id, $row->type, $row->volume, $priceList->id);
+          $year =  explode("-", $row->created_at)[0];
+          //dtp
+          $dtp_tasks = $this->db->select('volume,unit,created_at')->from('dtp_request')->where(array('job_id' => $row->id))->get()->result();
+          $totalRateDtp = 0;
           foreach ($dtp_tasks as $dtp) {
-            $rateProduction = $this->db->get_where('production_team_cost', array('unit' => $dtp->unit, 'year' => $year, 'brand' => $this->brand, 'team' => 3))->row()->rate;
-            $rateTrnasfared = $this->accounting_model->transfareTotalToCurrencyRate(1, 2, $row->created_at, $rateProduction) * $dtp->volume;
-            $totval = $totval + $dtp->volume;
-            $unit =  $dtp->unit;
-            $totalRate = $totalRate + $rateTrnasfared;
-          }
+            $rateProductionDtp_r = $this->db->get_where('production_team_cost', array('unit' => $dtp->unit, 'brand' => $this->brand, 'year' => $year, 'team' => 3))->row();
+            if ($rateProductionDtp_r) {
+              $rateProductionDtp = $rateProductionDtp_r->rate;
+            } else {
+              $rateProductionDtp = 0;
+            }
+            $rateTrnasfaredDtp = $this->accounting_model->transfareTotalToCurrencyRate(1, 2, $dtp->created_at, $rateProductionDtp) * $dtp->volume;
+            $totalRateDtp = $rateTrnasfaredDtp;
+            //$totalRateDtp + $rateTrnasfaredDtp;
+
       ?>
-          <tr>
+            <tr>
 
 
-            <!-- jobs -->
-            <td><?= $row->name ?></td>
-            <td><?= $row->code ?></td>
-            <td><?= $this->admin_model->getLanguage($priceList->source) ?></td>
-            <td><?= $this->admin_model->getLanguage($priceList->target) ?></td>
-            <td><?php echo $jobTotal; ?></td>
-            <td><?php echo $totval; ?></td>
+              <!-- jobs -->
+              <td><?= $row->name ?></td>
+              <td><?= $row->code ?></td>
 
-            <td><?php echo number_format($totalRate, 2); ?></td>
-            <td><?= $this->admin_model->getUnit($unit) ?></td>
-            <td><?= $this->admin_model->getAdmin($row->created_by) ?></td>
+              <td><?php echo $total_revenue; ?></td>
+              <td><?php echo $dtp->volume; ?></td>
+              <td><?php echo number_format($rateTrnasfaredDtp, 2); ?></td>
 
 
-          </tr>
-          <!-- End DTP Tasks -->
+              <td><?= $this->admin_model->getUnit($dtp->unit) ?></td>
+              <td><?= $this->admin_model->getLanguage($priceList->source) ?></td>
+              <td><?= $this->admin_model->getLanguage($priceList->target) ?></td>
+              <td><?= $row->start_date ?></td>
+              <td><?= $row->delivery_date ?></td>
+              <td><?= $row->issue_date ?></td>
+              <td><?= $this->admin_model->getAdmin($row->created_by) ?></td>
 
-          </tr>
+            </tr>
+            <!-- End DTP Tasks -->
+
+            </tr>
       <?php }
+        }
       } ?>
     </tbody>
   </table>

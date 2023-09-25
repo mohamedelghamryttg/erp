@@ -123,7 +123,7 @@
                             <div class="col-lg-6">
                                 <select name="client_pm_id" class="form-control m-b" id="client_pm" required>
                                     <option disabled="disabled" value="" selected=""></option>
-                                    <?= $this->projects_model->selectClientPM($project_data->customer) ?>
+                                    <?= $this->projects_model->selectClientPM($project_data->customer, $row->client_pm_id) ?>
                                 </select>
                             </div>
                             <a class="btn btn-dark btn-sm font-weight-bolder text-white" data-toggle="modal" data-target="#addModal">

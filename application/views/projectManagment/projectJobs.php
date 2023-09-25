@@ -250,8 +250,8 @@
                                             <?php } ?>
                                             <td><?php echo $this->admin_model->getAdmin($row->created_by); ?></td>
                                             <td><?php echo $row->created_at; ?></td>
-                                            <td> <?php if (strlen($row->job_file) > 1) { ?><a href="<?= base_url(); ?>assets/uploads/jobFile/<?= $row->job_file; ?>" target="_blank"><?= $row->job_file_name; ?></a><?php } ?></td>
-                                            <td> <?php if (strlen($row->attached_email) > 1 && $row->job_type == "1") { ?><a href="<?= base_url(); ?>assets/uploads/jobFile/<?= $row->attached_email; ?>" target="_blank">Click Here..</a><?php } ?></td>
+                                            <td> <?php if (strlen($row->job_file ?? '') > 1) { ?><a href="<?= base_url(); ?>assets/uploads/jobFile/<?= $row->job_file; ?>" target="_blank"><?= $row->job_file_name; ?></a><?php } ?></td>
+                                            <td> <?php if (strlen($row->attached_email ?? '') > 1 && $row->job_type == "1") { ?><a href="<?= base_url(); ?>assets/uploads/jobFile/<?= $row->attached_email; ?>" target="_blank">Click Here..</a><?php } ?></td>
                                             <td><?= $this->projects_model->getClientPM($row->client_pm_id); ?></td>
                                             <td>
                                                 <!--qc log-->

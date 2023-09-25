@@ -587,8 +587,8 @@ class Report extends CI_Controller
 
                 // print_r($arr2);
 
-                $cond1 = "l.created_at BETWEEN '$date_from' AND '$date_to' ";
-
+                // $cond1 = "l.created_at BETWEEN '$date_from' AND '$date_to' ";
+                $cond1 = "i.issue_date BETWEEN '$date_from' AND '$date_to' ";
                 $arr1 = array($cond1);
                 $arr_1_cnt = count($arr2);
                 $arr3 = array();
@@ -649,7 +649,8 @@ class Report extends CI_Controller
             // print_r($arr2);
 
             //$cond1 = "l.created_at BETWEEN '$date_from' AND '$date_to' ";      
-            $cond1 = "j.closed_date BETWEEN '$date_from' AND '$date_to' ";
+            //$cond1 = "j.closed_date BETWEEN '$date_from' AND '$date_to' ";
+            $cond1 = "i.issue_date BETWEEN '$date_from' AND '$date_to' ";
             $arr1 = array($cond1);
             $arr_1_cnt = count($arr2);
             $arr3 = array();
@@ -699,8 +700,8 @@ class Report extends CI_Controller
 
                 // print_r($arr2);
 
-                $cond1 = "l.created_at BETWEEN '$date_from' AND '$date_to' ";
-
+                //$cond1 = "l.created_at BETWEEN '$date_from' AND '$date_to' ";
+                $cond1 = "i.issue_date BETWEEN '$date_from' AND '$date_to' ";
                 $arr1 = array($cond1);
                 $arr_1_cnt = count($arr2);
                 $arr3 = array();
@@ -760,8 +761,8 @@ class Report extends CI_Controller
 
             // print_r($arr2);
 
-            $cond1 = "l.created_at BETWEEN '$date_from' AND '$date_to' ";
-
+            //$cond1 = "l.created_at BETWEEN '$date_from' AND '$date_to' ";
+            $cond1 = "i.issue_date BETWEEN '$date_from' AND '$date_to' ";
             $arr1 = array($cond1);
             $arr_1_cnt = count($arr2);
             $arr3 = array();
@@ -812,8 +813,8 @@ class Report extends CI_Controller
 
                 // print_r($arr2);
 
-                $cond1 = "j.closed_date BETWEEN '$date_from' AND '$date_to' ";
-
+                //$cond1 = "j.closed_date BETWEEN '$date_from' AND '$date_to' ";
+                $cond1 = "i.issue_date BETWEEN '$date_from' AND '$date_to' ";
                 $arr1 = array($cond1);
                 $arr_1_cnt = count($arr2);
                 $arr3 = array();
@@ -872,8 +873,8 @@ class Report extends CI_Controller
 
             // print_r($arr2);
 
-            $cond1 = "j.closed_date BETWEEN '$date_from' AND '$date_to'";
-
+            //$cond1 = "j.closed_date BETWEEN '$date_from' AND '$date_to'";
+            $cond1 = "i.issue_date BETWEEN '$date_from' AND '$date_to' ";
             $arr1 = array($cond1);
             $arr_1_cnt = count($arr2);
             $arr3 = array();

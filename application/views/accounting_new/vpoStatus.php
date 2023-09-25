@@ -70,12 +70,12 @@
         } else {
           $date_to = "";
         }
-        $vpo_status = ["Running", "Delivered", "Canceled"];
+        // $vpo_status = ["Running", "Delivered", "Canceled"];
+        $vpo_status = ["Running", "Delivered", "Cancelled", "Rejected", "Waiting Vendor Acceptance", "Waiting PM Confirmation", "Not Started Yet", "Heads Up", "Heads Up ( Marked as Available )", "Heads Up ( Marked as Not Available )"];
 
         ?>
 
-        <form class="form" id="vpoStatus" method="post" action="<?php echo base_url() ?>accounting/vpoStatus"
-          enctype="multipart/form-data">
+        <form class="form" id="vpoStatus" method="post" action="<?php echo base_url() ?>accounting/vpoStatus" enctype="multipart/form-data">
           <div class="card-body">
 
             <div class="form-group row">
@@ -163,8 +163,7 @@
 
               <label class="col-lg-2 col-form-label text-lg-right">Date From</label>
               <div class="col-lg-3">
-                <input class="form-control date_sheet" type="text" name="date_from" autocomplete="off"
-                  value=<?= $date_from ?>>
+                <input class="form-control date_sheet" type="text" name="date_from" autocomplete="off" value=<?= $date_from ?>>
               </div>
 
               <label class="col-lg-2 col-form-label text-lg-right" for="role name">Date To</label>
@@ -178,9 +177,7 @@
                 <div class="col-lg-2"></div>
                 <div class="col-lg-10">
                   <button class="btn btn-primary" name="search" type="submit">Search</button>
-                  <button class="btn btn-success"
-                    onclick="var e2 = document.getElementById('vpoStatus'); e2.action='<?= base_url() ?>accounting/exportvpoStatus'; e2.submit();"
-                    name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export To
+                  <button class="btn btn-success" onclick="var e2 = document.getElementById('vpoStatus'); e2.action='<?= base_url() ?>accounting/exportvpoStatus'; e2.submit();" name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export To
                     Excel</button>
 
 
@@ -235,7 +232,7 @@
           <tbody>
             <?php if (!empty($task)) {
               foreach ($task as $row) {
-                ?>
+            ?>
                 <tr>
                   <td>
                     <?php echo $row->user_name; ?>
@@ -265,8 +262,7 @@
                   </td>
                   <td>
                     <?php if (strlen($row->vpo_file) > 1 && $row->job_portal == 1) { ?>
-                      <a href="<?= $this->projects_model->getNexusLinkByBrand() ?>/assets/uploads/invoiceVendorFiles/<?= $row->vpo_file ?>"
-                        target="_blank">Click Here</a>
+                      <a href="<?= $this->projects_model->getNexusLinkByBrand() ?>/assets/uploads/invoiceVendorFiles/<?= $row->vpo_file ?>" target="_blank">Click Here</a>
                     <?php } elseif (strlen($row->vpo_file) > 1 && $row->job_portal == 0) { ?>
                       <a href="<?= base_url() ?>assets/uploads/vpo/<?= $row->vpo_file ?>" target="_blank">Click Here</a>
                     <?php } ?>
@@ -337,7 +333,7 @@
                     <?php } ?>
                   </td>
                 </tr>
-              <?php }
+            <?php }
             } ?>
 
           </tbody>

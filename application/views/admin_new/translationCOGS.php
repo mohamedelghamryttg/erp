@@ -74,7 +74,7 @@
             <tr>
               <th>Job Name</th>
               <th>Job Code</th>
-              <th>Volume</th>
+              <!-- <th>Volume</th> -->
               <th>Count</th>
               <th>Total Revenue in $</th>
               <th>Total Cost in $</th>
@@ -93,6 +93,7 @@
 
             <?php
             if (isset($project)) {
+
               foreach ($project->result() as $row) {
                 $priceList = $this->projects_model->getJobPriceListData($row->price_list);
                 $total_revenue = $this->sales_model->calculateRevenueJob($row->id, $row->type, $row->volume, $priceList->id);
@@ -113,13 +114,13 @@
 
                     <td><?= $row->name ?></td>
                     <td><?= $row->code ?></td>
-                    <td>
+                    <!-- <td>
                       <?php if ($row->type == 1) { ?>
                         <?php echo $row->volume; ?>
                       <?php } elseif ($row->type == 2) { ?>
                         <?php echo $total_revenue / $priceList->rate; ?>
                       <?php } ?>
-                    </td>
+                    </td> -->
                     <td><?php echo ($trans->count - $trans->tm); ?> </td>
 
                     <td><?php echo $total_revenue; ?></td>

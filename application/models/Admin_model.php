@@ -38,7 +38,7 @@ class Admin_model extends CI_Model
 	public function addToLoggerDelete($table_name = "", $screen = "", $transaction_id_name = "", $transaction_id = "", $parent = "", $parent_id = "", $created_by = "")
 	{
 		//Table Structure ...
-		$table_structure = $this->db->query(" SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='falaq' AND `TABLE_NAME`='$table_name' ")->result();
+		$table_structure = $this->db->query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='falaq' AND `TABLE_NAME`='$table_name' ")->result();
 		$key = array();
 		$count = 0;
 		$columns_name = "";
@@ -81,7 +81,7 @@ class Admin_model extends CI_Model
 	public function addToLoggerUpdate($table_name = "", $screen = "", $transaction_id_name = "", $transaction_id = "", $parent = "", $parent_id = "", $created_by = "")
 	{
 		//Table Structure ...
-		$table_structure = $this->db->query(" SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='falaq' AND `TABLE_NAME`='$table_name' ")->result();
+		$table_structure = $this->db->query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='falaq' AND `TABLE_NAME`='$table_name' ")->result();
 		$key = array();
 		$count = 0;
 		foreach ($table_structure as $column) {
@@ -124,7 +124,7 @@ class Admin_model extends CI_Model
 
 	public function getGroupByScreen($screen)
 	{
-		$result = $this->db->query(" SELECT * FROM `screen` WHERE id = '$screen' ")->row();
+		$result = $this->db->query("SELECT * FROM `screen` WHERE id = '$screen' ")->row();
 		return $result->groups;
 	}
 
@@ -229,7 +229,7 @@ class Admin_model extends CI_Model
 
 	public function getScreenByGroupAndRole($groups, $role)
 	{
-		$result = $this->db->query(" SELECT p.* FROM `permission` AS p INNER JOIN screen AS s ON p.screen = s.id WHERE s.menu = '1' and p.groups = '$groups' and p.role = '$role' ")->result();
+		$result = $this->db->query("SELECT p.* FROM `permission` AS p INNER JOIN screen AS s ON p.screen = s.id WHERE s.menu = '1' and p.groups = '$groups' and p.role = '$role' ")->result();
 		return $result;
 	}
 
@@ -254,20 +254,9 @@ class Admin_model extends CI_Model
 		$result = $this->db->get_where('users', array('id' => $user))->row();
 		return $result->image;
 	}
-	public function allPermissions($limit, $offset, $filter = '')
+	public function allPermissions()
 	{
-
-		$this->db->limit($limit, $offset);
-		if ($filter) {
-			$sql = "select * from permission where " . $filter . " order by id  LIMIT $limit OFFSET $offset ";
-
-			$data = $this->db->query($sql);
-		} else {
-			$sql = "select * from permission order by id  LIMIT $limit OFFSET $offset ";
-
-			$data = $this->db->query($sql);
-		}
-
+		$data = $this->db->get('permission');
 		return $data;
 	}
 
@@ -407,7 +396,7 @@ class Admin_model extends CI_Model
 		if ($ids == NULL) {
 			$ids = 0;
 		}
-		$result = $this->db->query(" SELECT GROUP_CONCAT(user_name SEPARATOR '- ') AS names FROM `users` WHERE id IN(" . $ids . ")  ")->row();
+		$result = $this->db->query("SELECT GROUP_CONCAT(user_name SEPARATOR '- ') AS names FROM `users` WHERE id IN(" . $ids . ")  ")->row();
 		if (isset($result->names)) {
 			return $result->names;
 		} else {
@@ -1029,8 +1018,7 @@ class Admin_model extends CI_Model
 
 	public function AllLanguages($filter)
 	{
-
-		$data = $this->db->query(" SELECT * FROM `languages` WHERE " . $filter . "  ORDER BY name ASC , id DESC ");
+		$data = $this->db->query("SELECT * FROM `languages` WHERE " . $filter . "  ORDER BY `name`  , id DESC ");
 		return $data;
 	}
 
@@ -1139,7 +1127,7 @@ class Admin_model extends CI_Model
 
 	public function selectLEUnit($id = "")
 	{
-		$unit = $this->db->query(" SELECT * FROM unit WHERE le = 1 ")->result();
+		$unit = $this->db->query("SELECT * FROM unit WHERE le = 1 ")->result();
 		$data = "";
 		foreach ($unit as $unit) {
 			if ($unit->id == $id) {
@@ -1176,7 +1164,7 @@ class Admin_model extends CI_Model
 
 	public function selectDtpEmployeeId($id = "", $brand = "")
 	{
-		$dtp = $this->db->query(" SELECT * FROM users WHERE (role = '23' OR role = '24') AND brand = '$this->brand' AND status = '1' ")->result();
+		$dtp = $this->db->query("SELECT * FROM users WHERE (role = '23' OR role = '24') AND brand = '$this->brand' AND status = '1' ")->result();
 		$data = "";
 		foreach ($dtp as $dtp) {
 			if ($dtp->id == $id) {
@@ -1189,7 +1177,7 @@ class Admin_model extends CI_Model
 	}
 	public function selectLeEmployeeId($id = "", $brand = "")
 	{
-		$le = $this->db->query(" SELECT * FROM users WHERE (role = '25' OR role = '26') AND brand = '$this->brand' AND status = '1' ")->result();
+		$le = $this->db->query("SELECT * FROM users WHERE (role = '25' OR role = '26') AND brand = '$this->brand' AND status = '1' ")->result();
 		$data = "";
 		foreach ($le as $le) {
 			if ($le->id == $id) {
@@ -1203,7 +1191,7 @@ class Admin_model extends CI_Model
 
 	public function selectTranslatorEmployeeId($id = "", $brand = "")
 	{
-		$translator = $this->db->query(" SELECT * FROM users WHERE (role = '27' OR role = '28') AND brand = '$this->brand' AND status = '1' ")->result();
+		$translator = $this->db->query("SELECT * FROM users WHERE (role = '27' OR role = '28') AND brand = '$this->brand' AND status = '1' ")->result();
 		$data = "";
 		foreach ($translator as $translator) {
 			if ($translator->id == $id) {
@@ -1217,7 +1205,7 @@ class Admin_model extends CI_Model
 
 	public function selectTranslatorTeamleader($id = "", $brand = "")
 	{
-		$translator = $this->db->query(" SELECT * FROM users WHERE (role = '28') AND brand = '$this->brand' AND status = '1' ")->result();
+		$translator = $this->db->query("SELECT * FROM users WHERE (role = '28') AND brand = '$this->brand' AND status = '1' ")->result();
 		$data = "";
 		foreach ($translator as $translator) {
 			if ($translator->id == $id) {
@@ -1231,7 +1219,7 @@ class Admin_model extends CI_Model
 
 	public function selectMarketingEmployeeId($id = "", $brand = "")
 	{
-		$marketing = $this->db->query(" SELECT * FROM users WHERE (role = '22' OR role = '34' OR role = '35') AND brand = '$this->brand' AND status = '1' ")->result();
+		$marketing = $this->db->query("SELECT * FROM users WHERE (role = '22' OR role = '34' OR role = '35') AND brand = '$this->brand' AND status = '1' ")->result();
 		$data = "";
 		foreach ($marketing as $marketing) {
 			if ($marketing->id == $id) {
@@ -1246,20 +1234,20 @@ class Admin_model extends CI_Model
 	//Operational Report ...
 	public function operationalReportBYPM($brand, $brandName, $start_date, $end_date)
 	{
-		$pm = $this->db->query(" SELECT u.id,u.user_name FROM users AS u WHERE (u.role = '2' OR u.role = '29' OR u.role = '16' OR role = '20' OR u.role = '42' OR u.role = '43' OR u.role = '45' OR u.role = '47' OR u.role = '52') AND u.brand = '$brand' ");
+		$pm = $this->db->query("SELECT u.id,u.user_name FROM users AS u WHERE (u.role = '2' OR u.role = '29' OR u.role = '16' OR role = '20' OR u.role = '42' OR u.role = '43' OR u.role = '45' OR u.role = '47' OR u.role = '52') AND u.brand = '$brand' ");
 		$objReader = PHPExcel_IOFactory::createReader('Excel2007');
 		$objPHPExcel = $objReader->load('assets/uploads/excel/operationalReportBYPM.xlsx');
 		$objWorksheet = $objPHPExcel->getActiveSheet();
 		$rows = 3;
 		foreach ($pm->result() as $pm) {
-			$runningProjects = $this->db->query(" SELECT * FROM `job` WHERE created_at < '$end_date' AND created_by = '$pm->id' AND project_id <> 0 AND status = 0 ");
+			$runningProjects = $this->db->query("SELECT * FROM `job` WHERE created_at < '$end_date' AND created_by = '$pm->id' AND project_id <> 0 AND status = 0 ");
 			$totalRunning = 0;
 			foreach ($runningProjects->result() as $running) {
 				$priceList = $this->projects_model->getJobPriceListData($running->price_list);
 				$total_revenue = $this->sales_model->calculateRevenueJob($running->id, $running->type, $running->volume, $priceList->id);
 				$totalRunning = $totalRunning + $this->accounting_model->transfareTotalToCurrencyRate($priceList->currency, 2, $running->created_at, $total_revenue);
 			}
-			$closedProjects = $this->db->query(" SELECT * FROM `job` WHERE closed_date BETWEEN '$start_date' AND '$end_date' AND status ='1' AND created_by = '$pm->id' ");
+			$closedProjects = $this->db->query("SELECT * FROM `job` WHERE closed_date BETWEEN '$start_date' AND '$end_date' AND status ='1' AND created_by = '$pm->id' ");
 			$totalClosed = 0;
 			foreach ($closedProjects->result() as $closed) {
 				$priceList = $this->projects_model->getJobPriceListData($closed->price_list);
@@ -1333,20 +1321,20 @@ class Admin_model extends CI_Model
 
 	public function operationalReportBYCustomer($brand, $brandName, $start_date, $end_date)
 	{
-		$customer = $this->db->query(" SELECT c.id,c.name,c.brand,c.status,l.id AS leadID,l.customer,l.region FROM customer_leads AS l LEFT OUTER JOIN customer AS c ON l.customer = c.id HAVING c.status = '2' AND brand = '$brand' ORDER BY c.name ASC ");
+		$customer = $this->db->query("SELECT c.id,c.name,c.brand,c.status,l.id AS leadID,l.customer,l.region FROM customer_leads AS l LEFT OUTER JOIN customer AS c ON l.customer = c.id HAVING c.status = '2' AND brand = '$brand' ORDER BY c.name ASC ");
 		$objReader = PHPExcel_IOFactory::createReader('Excel2007');
 		$objPHPExcel = $objReader->load('assets/uploads/excel/operationalReportBYCustomer.xlsx');
 		$objWorksheet = $objPHPExcel->getActiveSheet();
 		$rows = 3;
 		foreach ($customer->result() as $customer) {
-			$runningProjects = $this->db->query(" SELECT j.*,p.customer,p.lead FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.created_at < '$end_date' AND p.lead = '$customer->leadID' AND project_id <> 0 AND j.status = 0 ");
+			$runningProjects = $this->db->query("SELECT j.*,p.customer,p.lead FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.created_at < '$end_date' AND p.lead = '$customer->leadID' AND project_id <> 0 AND j.status = 0 ");
 			$totalRunning = 0;
 			foreach ($runningProjects->result() as $running) {
 				$priceList = $this->projects_model->getJobPriceListData($running->price_list);
 				$total_revenue = $this->sales_model->calculateRevenueJob($running->id, $running->type, $running->volume, $priceList->id);
 				$totalRunning = $totalRunning + $this->accounting_model->transfareTotalToCurrencyRate($priceList->currency, 2, $running->created_at, $total_revenue);
 			}
-			$closedProjects = $this->db->query(" SELECT j.*,p.customer,p.lead FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.closed_date BETWEEN '$start_date' AND '$end_date' AND j.status ='1' AND p.lead = '$customer->leadID' ");
+			$closedProjects = $this->db->query("SELECT j.*,p.customer,p.lead FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.closed_date BETWEEN '$start_date' AND '$end_date' AND j.status ='1' AND p.lead = '$customer->leadID' ");
 			$totalClosed = 0;
 			foreach ($closedProjects->result() as $closed) {
 				$priceList = $this->projects_model->getJobPriceListData($closed->price_list);
@@ -1419,20 +1407,20 @@ class Admin_model extends CI_Model
 
 	public function operationalReportBYSAM($brand, $brandName, $start_date, $end_date)
 	{
-		$sam = $this->db->query(" SELECT u.id,u.user_name FROM users AS u WHERE u.status = '1' AND (u.role = '3' OR u.role = '29' OR role = '12' OR role = '20') AND u.brand = '$brand' ");
+		$sam = $this->db->query("SELECT u.id,u.user_name FROM users AS u WHERE u.status = '1' AND (u.role = '3' OR u.role = '29' OR role = '12' OR role = '20') AND u.brand = '$brand' ");
 		$objReader = PHPExcel_IOFactory::createReader('Excel2007');
 		$objPHPExcel = $objReader->load('assets/uploads/excel/operationalReportBYSAM.xlsx');
 		$objWorksheet = $objPHPExcel->getActiveSheet();
 		$rows = 3;
 		foreach ($sam->result() as $sam) {
-			$runningProjects = $this->db->query(" SELECT j.*,p.customer,p.lead,(SELECT COUNT(*) FROM customer_sam WHERE customer_sam.lead = p.lead AND customer_sam.sam = '$sam->id') AS assigned FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.project_id <> 0 AND j.status = 0 AND j.created_at < '$end_date' HAVING assigned = '1' ");
+			$runningProjects = $this->db->query("SELECT j.*,p.customer,p.lead,(SELECT COUNT(*) FROM customer_sam WHERE customer_sam.lead = p.lead AND customer_sam.sam = '$sam->id') AS assigned FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.project_id <> 0 AND j.status = 0 AND j.created_at < '$end_date' HAVING assigned = '1' ");
 			$totalRunning = 0;
 			foreach ($runningProjects->result() as $running) {
 				$priceList = $this->projects_model->getJobPriceListData($running->price_list);
 				$total_revenue = $this->sales_model->calculateRevenueJob($running->id, $running->type, $running->volume, $priceList->id);
 				$totalRunning = $totalRunning + $this->accounting_model->transfareTotalToCurrencyRate($priceList->currency, 2, $running->created_at, $total_revenue);
 			}
-			$closedProjects = $this->db->query(" SELECT j.*,p.customer,p.lead,(SELECT COUNT(*) FROM customer_sam WHERE customer_sam.lead = p.lead AND customer_sam.sam = '$sam->id') AS assigned FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.project_id <> 0 AND j.status = 1 AND j.closed_date BETWEEN '$start_date' AND '$end_date' HAVING assigned = '1' ");
+			$closedProjects = $this->db->query("SELECT j.*,p.customer,p.lead,(SELECT COUNT(*) FROM customer_sam WHERE customer_sam.lead = p.lead AND customer_sam.sam = '$sam->id') AS assigned FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.project_id <> 0 AND j.status = 1 AND j.closed_date BETWEEN '$start_date' AND '$end_date' HAVING assigned = '1' ");
 			$totalClosed = 0;
 			foreach ($closedProjects->result() as $closed) {
 				$priceList = $this->projects_model->getJobPriceListData($closed->price_list);
@@ -1504,14 +1492,14 @@ class Admin_model extends CI_Model
 
 	public function operationalReportBYSAMActivities($brand, $brandName, $start_date, $end_date)
 	{
-		$sam = $this->db->query(" SELECT u.id,u.user_name FROM users AS u WHERE u.status = '1' AND (u.role = '3' OR u.role = '29' OR role = '12' OR role = '20') AND u.brand = '$brand' ");
+		$sam = $this->db->query("SELECT u.id,u.user_name FROM users AS u WHERE u.status = '1' AND (u.role = '3' OR u.role = '29' OR role = '12' OR role = '20') AND u.brand = '$brand' ");
 		$objReader = PHPExcel_IOFactory::createReader('Excel2007');
 		$objPHPExcel = $objReader->load('assets/uploads/excel/operationalReportSAMActivities.xlsx');
 		$objWorksheet = $objPHPExcel->getActiveSheet();
 		$rows = 3;
 		foreach ($sam->result() as $sam) {
-			$activities = $this->db->query(" SELECT COUNT(*) AS total FROM `sales_activity` WHERE created_at BETWEEN '$start_date' AND '$end_date' AND created_by = '$sam->id' ")->row();
-			$busimess = $this->db->query(" SELECT COUNT(*) AS total FROM `sales_business_reviews` WHERE created_at BETWEEN '$start_date' AND '$end_date' AND created_by = '$sam->id' ")->row();
+			$activities = $this->db->query("SELECT COUNT(*) AS total FROM `sales_activity` WHERE created_at BETWEEN '$start_date' AND '$end_date' AND created_by = '$sam->id' ")->row();
+			$busimess = $this->db->query("SELECT COUNT(*) AS total FROM `sales_business_reviews` WHERE created_at BETWEEN '$start_date' AND '$end_date' AND created_by = '$sam->id' ")->row();
 
 			$objPHPExcel->getActiveSheet()->setCellValue('a' . $rows, $sam->user_name);
 			$objPHPExcel->getActiveSheet()->setCellValue('b' . $rows, $activities->total);
@@ -1586,6 +1574,7 @@ class Admin_model extends CI_Model
         LEFT OUTER JOIN invoices AS i ON FIND_IN_SET(p.id, i.po_ids) > 0
         WHERE " . $filter . " HAVING brand = '$brand' order by issue_date desc ";
 
+
 			// $sql = "SELECT l.*,j.id AS job_id,j.price_list,j.name,j.code,j.volume,j.type AS job_type,j.created_at AS job_created_at,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand FROM translation_request AS l 
 			// LEFT OUTER JOIN job AS j on l.job_id = j.id WHERE j.id <> 0 AND l.status = '3' AND " . $filter . " HAVING brand = '$this->brand' order by j.id desc ";
 
@@ -1597,12 +1586,16 @@ class Admin_model extends CI_Model
 	public function leCOGS($permission, $user, $brand, $filter)
 	{
 		if ($permission->view == 1) {
+			$sql = "SELECT j.*,p.number,i.id AS invoiceId,i.issue_date,i.lead,i.customer,(SELECT brand FROM `users` WHERE users.id = i.created_by) AS brand  FROM job AS j
+			LEFT OUTER JOIN po AS p ON p.id = j.po
+			LEFT OUTER JOIN invoices AS i ON FIND_IN_SET(p.id, i.po_ids) > 0
+			WHERE " . $filter . " HAVING brand = '$brand' order by issue_date desc ";
 
-			$sql = "SELECT l.*,j.id AS job_id,j.price_list,j.name,j.code,j.volume AS job_volume,j.type AS job_type,j.created_at AS job_created_at,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand 
-			,(select unit from le_request_job where request_id = l.id limit 1) as unit
-			,(select sum(volume) from le_request_job where request_id = l.id ) as count
-			FROM le_request AS l 
-			LEFT OUTER JOIN job AS j on l.job_id = j.id WHERE j.id <> 0 AND l.status = '3' AND " . $filter . " HAVING brand = '$this->brand' order by j.id desc ";
+			// $sql = "SELECT l.*,j.id AS job_id,j.price_list,j.name,j.code,j.volume AS job_volume,j.type AS job_type,j.created_at AS job_created_at,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand 
+			// ,(select unit from le_request_job where request_id = l.id limit 1) as unit
+			// ,(select sum(volume) from le_request_job where request_id = l.id ) as count
+			// FROM le_request AS l 
+			// LEFT OUTER JOIN job AS j on l.job_id = j.id WHERE j.id <> 0 AND l.status = '3' AND " . $filter . " HAVING brand = '$this->brand' order by j.id desc ";
 
 			$data = $this->db->query($sql);
 		}
@@ -1617,10 +1610,15 @@ class Admin_model extends CI_Model
 		// }
 		// return $data;
 		if ($permission->view == 1) {
-			$sql = " SELECT DISTINCT(job_id), j.*,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand
-	 		FROM dtp_request AS d 
-										LEFT OUTER JOIN job AS j ON j.id = d.job_id
-										WHERE " . $filter . " HAVING brand = '$this->brand' order by j.id desc";
+			$sql = "SELECT j.*,p.number,i.id AS invoiceId,i.issue_date,i.lead,i.customer,(SELECT brand FROM `users` WHERE users.id = i.created_by) AS brand  FROM job AS j
+			LEFT OUTER JOIN po AS p ON p.id = j.po
+			LEFT OUTER JOIN invoices AS i ON FIND_IN_SET(p.id, i.po_ids) > 0
+			WHERE " . $filter . " HAVING brand = '$brand' order by issue_date desc ";
+
+			// $sql = "SELECT DISTINCT(job_id), j.*,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand
+			// FROM dtp_request AS d 
+			// 							LEFT OUTER JOIN job AS j ON j.id = d.job_id
+			// 							WHERE " . $filter . " HAVING brand = '$this->brand' order by j.id desc";
 
 			$data = $this->db->query($sql);
 		}
@@ -1631,7 +1629,7 @@ class Admin_model extends CI_Model
 	public function AllVendorsAccounts($brand, $filter)
 	{
 
-		$data = $this->db->query(" SELECT * FROM `vendor` WHERE " . $filter . " AND brand = '$brand' ORDER BY id ASC , id DESC ");
+		$data = $this->db->query("SELECT * FROM `vendor` WHERE " . $filter . " AND brand = '$brand' ORDER BY id ASC , id DESC ");
 		return $data;
 	}
 
@@ -1852,7 +1850,7 @@ class Admin_model extends CI_Model
 	public function addToLoggerRestore($table_name = "", $screen = "", $transaction_id_name = "", $transaction_id = "", $parent = "", $parent_id = "", $created_by = "")
 	{
 		//Table Structure ...
-		$table_structure = $this->db->query(" SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='falaq' AND `TABLE_NAME`='$table_name' ")->result();
+		$table_structure = $this->db->query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='falaq' AND `TABLE_NAME`='$table_name' ")->result();
 		$key = array();
 		$count = 0;
 		foreach ($table_structure as $column) {
@@ -2059,7 +2057,7 @@ class Admin_model extends CI_Model
 	public function AllOffices($filter)
 	{
 
-		$data = $this->db->query(" SELECT * FROM `ttg_branch` WHERE " . $filter . "  ORDER BY id ASC , id DESC ");
+		$data = $this->db->query("SELECT * FROM `ttg_branch` WHERE " . $filter . "  ORDER BY id ASC , id DESC ");
 		return $data;
 	}
 

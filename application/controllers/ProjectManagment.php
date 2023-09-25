@@ -703,6 +703,7 @@ class ProjectManagment extends CI_Controller
                     $data['attached_email'] = $data_file['file_name'];
                 }
             }
+
             if ($this->db->update('job', $data, array('id' => $id))) {
                 if ($data['type'] == 2) {
                     $fuzzy['job'] = $id;

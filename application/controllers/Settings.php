@@ -18,10 +18,10 @@ class Settings extends CI_Controller
 
     public function pm_settings()
     {
-        $check = $this->admin_model->checkPermission($this->role, 217);
+        $check = $this->admin_model->checkPermission($this->role, 235);
         if ($check) {
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
-            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 217);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 235);
             $data['brand'] = $this->brand;
             $dd = $this->db->get_where('pm_setup', array('brand' => $this->brand))->row();
 
@@ -47,7 +47,8 @@ class Settings extends CI_Controller
         $data['block_v_no'] = ($this->input->post('block_v_no') ? $this->input->post('block_v_no') : 0);
         $data['cuemailsub'] = ($this->input->post('cuemailsub') ? $this->input->post('cuemailsub') : '');
         $data['cuemaildesc'] = ($this->input->post('cuemaildesc') ? $this->input->post('cuemaildesc') : '');
-
+        // var_dump($this->input->post('qmemail'));
+        // die;
         for ($i = 1; $i <= 6; $i++) {
             $data['pm_ev_name' . $i] = ($this->input->post('pm_ev_name' . $i) ? $this->input->post('pm_ev_name' . $i) : '');
             $data['pm_ev_per' . $i] = ($this->input->post('pm_ev_per' . $i) ? $this->input->post('pm_ev_per' . $i) : 0);
@@ -77,5 +78,6 @@ class Settings extends CI_Controller
                 $this->session->set_flashdata('error', $error);
             }
         }
+        redirect(base_url() . "settings/pm_settings");
     }
 }

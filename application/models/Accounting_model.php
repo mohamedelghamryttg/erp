@@ -1,4 +1,8 @@
-<?php if (!defined('BASEPATH'))
+<?php
+
+use LDAP\Result;
+
+if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 /**
  * Name:  Auth
@@ -17,16 +21,16 @@ class Accounting_model extends CI_Model
     }
 
     // 	public function AllCpo($brand,$filter)
-// 	{
-// 		$data = $this->db->query(" SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand FROM `project` AS p WHERE p.status = 1 AND p.verified = 0 AND ".$filter." HAVING brand = '$brand' ORDER BY p.closed_date DESC ");
-// 		return $data;
-// 	}
+    // 	{
+    // 		$data = $this->db->query(" SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand FROM `project` AS p WHERE p.status = 1 AND p.verified = 0 AND ".$filter." HAVING brand = '$brand' ORDER BY p.closed_date DESC ");
+    // 		return $data;
+    // 	}
 
     // 	public function AllCpoPages($brand,$limit,$offset)
-// 	{
-// 		$data = $this->db->query(" SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand FROM `project` AS p WHERE p.status = 1 AND p.verified = 0  HAVING brand = '$brand' ORDER BY p.closed_date DESC LIMIT $limit OFFSET $offset ");
-// 		return $data;
-// 	}
+    // 	{
+    // 		$data = $this->db->query(" SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand FROM `project` AS p WHERE p.status = 1 AND p.verified = 0  HAVING brand = '$brand' ORDER BY p.closed_date DESC LIMIT $limit OFFSET $offset ");
+    // 		return $data;
+    // 	}
 
     public function AllCpo($brand, $filter)
     {
@@ -341,7 +345,6 @@ class Accounting_model extends CI_Model
             if (in_array($po, $poIdsArray)) {
                 $invoiceNumber = $invoiceData->id;
             } else {
-
             }
         }
         return $invoiceNumber;
@@ -625,12 +628,12 @@ class Accounting_model extends CI_Model
             LEFT OUTER JOIN vendor_payment AS p ON p.task = t.id
             HAVING brand = '$brand' ORDER BY t.id DESC LIMIT $limit OFFSET $offset ");
         return $data;
-
     }
 
     public function cpoStatus($brand, $filter)
     {
-        $data = $this->db->query(" SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand FROM `po` AS p WHERE " . $filter . " HAVING brand = '$brand' ORDER BY p.created_by DESC ");
+        $sql = " SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand FROM `po` AS p WHERE " . $filter . " HAVING brand = '$brand' ORDER BY p.created_by DESC ";
+        $data = $this->db->query($sql);
         return $data;
     }
 
@@ -783,13 +786,17 @@ class Accounting_model extends CI_Model
 
     public function totalCostByJobCurrency($currencyTo, $job)
     {
-        $tasks = $this->db->get_where('job_task', array('job_id' => $job, 'status' => 1))->result();
+        //$tasks = $this->db->get_where('job_task', array('job_id' => $job, 'status' => 1))->result();
+        $tasks = $this->db->query("select * from job_task where (job_id = '" . $job . "') and ( status = 0 or status = 1 or status = 4  or status = 5 )");
+        //$tasks = $this->db->get_where('job_task', array('job_id' => $job))->result();
         $totalTasks = 0;
-        foreach ($tasks as $task) {
+        foreach ($tasks->result() as $task) {
             if ($task->currency == $currencyTo) {
                 $totalTasks = $totalTasks + ($task->rate * $task->count);
             } else {
-                $dateArray = explode("-", $task->closed_date);
+
+                $dateArray = explode("-", $task->delivery_date);
+                //$dateArray = explode("-", $task->closed_date);
                 $year = $dateArray[0];
                 $month = $dateArray[1];
                 $mainCurrencyData = $this->db->get_where('currenies_rate', array('year' => $year, 'month' => $month, 'currency' => $task->currency, 'currency_to' => $currencyTo))->row();
@@ -799,7 +806,10 @@ class Accounting_model extends CI_Model
 
         return $totalTasks;
     }
-
+    public function getJobtaskStatus($job)
+    {
+        return $status = $this->db->get_where('job_task', array('job_id' => $job))->row()->status;
+    }
     //start currency rate
     public function CurrencyRateTable()
     {
@@ -826,7 +836,6 @@ class Accounting_model extends CI_Model
             $data['rate'] = $post[$currency->name];
             $this->db->insert('currenies_rate', $data);
         }
-
     }
 
     public function AllCurrenyRate($filter)
@@ -1290,7 +1299,6 @@ class Accounting_model extends CI_Model
             ->join('job As j', 't.job_id=j.id', 'left')->join('job_price_list AS jo', 'j.price_list=jo.id', 'left')->join('languages As slang', 'jo.source=slang.id', 'left')
             ->join('languages As tlang', 'jo.target=tlang.id', 'left')->join('po', 'j.po=po.id', 'left')->where($filter);
         return $query->get();
-
     }
 
     // start journal
@@ -1852,6 +1860,4 @@ WHERE project_id <> 0 AND " . $filter . " HAVING brand = '$brand' order by id de
             return '';
         }
     }
-
 }
-?>

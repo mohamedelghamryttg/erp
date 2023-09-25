@@ -15,7 +15,66 @@ class Projects_model extends CI_Model
         parent::__construct();
         $this->load->database();
     }
+    // public function AllProjects($permission, $user, $brand, $filter, $having = 1)
+    // {
 
+    //     $sql = "select t.* from 
+    //         (
+    //         SELECT p.*
+    //         ,b.id as brand
+    //         ,b.name as brandname
+
+    //         ,c.name as customername
+    //         ,l.name as productline
+    //         ,u.user_name as username
+    //         FROM `project` AS p
+    //         inner join customer as c on c.id = p.customer
+    //         inner join brand as b on b.id = c.brand 
+    //         inner join customer_product_line as l on l.id = p.product_line
+    //         inner join users as u on u.id = p.created_by
+    //         ) t
+    //         WHERE " . $filter;
+
+    //     if ($permission->view == 1) {
+    //         $sql .= " HAVING brand = '$brand' AND " . $having . " ORDER BY id DESC ";
+    //         $data = $this->db->query($sql);
+    //     } elseif ($permission->view == 2) {
+    //         $sql .= " AND created_by = '$user'  HAVING brand = '$brand' AND " . $having . " ORDER BY id DESC ";
+    //         $data = $this->db->query($sql);
+    //         // $data = $this->db->query(" SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand,(SELECT IF ((SELECT count(*) from job where project_id = p.id) = (SELECT count(*) from job where project_id = p.id AND status = '1'), 1, 0)) AS closed FROM `project` AS p WHERE " . $filter . " AND created_by = '$user' HAVING brand = '$brand' AND " . $having . " ORDER BY id DESC ");
+    //     }
+    //     return $data;
+    // }
+
+    // public function AllProjectsPages($permission, $user, $brand, $limit, $offset)
+    // {
+    //     $sql = "select t.* from 
+    //     (
+    //     SELECT p.*
+    //     ,b.id as brand
+    //     ,b.name as brandname
+
+    //     ,c.name as customername
+    //     ,l.name as productline
+    //     ,u.user_name as username
+    //     FROM `project` AS p
+    //     inner join customer as c on c.id = p.customer
+    //     inner join brand as b on b.id = c.brand 
+    //     inner join customer_product_line as l on l.id = p.product_line
+    //     inner join users as u on u.id = p.created_by
+    //     ) t ";
+
+
+    //     if ($permission->view == 1) {
+    //         $sql .= " HAVING brand = '$brand' ORDER BY id DESC LIMIT $limit OFFSET $offset ";
+    //         $data = $this->db->query($sql);
+    //     } elseif ($permission->view == 2) {
+    //         $sql .= "  WHERE created_by = '$user' HAVING brand = '$brand' ORDER BY id DESC LIMIT $limit OFFSET $offset ";
+    //         $data = $this->db->query($sql);
+    //         // $data = $this->db->query(" SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand,(SELECT IF ((SELECT count(*) from job where project_id = p.id) = (SELECT count(*) from job where project_id = p.id AND status = '1'), 1, 0)) AS closed FROM `project` AS p WHERE " . $filter . " AND created_by = '$user' HAVING brand = '$brand' AND " . $having . " ORDER BY id DESC ");
+    //     }
+    //     return $data;
+    // }
     public function AllProjects($permission, $user, $brand, $filter, $having = 1)
     {
         if ($permission->view == 1) {
@@ -5868,8 +5927,19 @@ class Projects_model extends CI_Model
         date_default_timezone_set("Africa/Cairo");
         $first = $this->db->order_by('start_date', 'ASC')->get_where('job', array('project_id' => $project_id))->row();
         $last = $this->db->order_by('delivery_date', 'DESC')->get_where('job', array('project_id' => $project_id))->row();
-        $start_date = new DateTime($first->start_date);
-        $end_date = new DateTime($last->delivery_date);
+
+        if ($first) {
+            $start_date = new DateTime($first->start_date);
+        } else {
+            $start_date = new DateTime();
+        }
+
+        if ($last) {
+            $end_date = new DateTime($last->delivery_date);
+        } else {
+            $end_date = new DateTime();
+        }
+
         $current_date = new DateTime();
         //$total = $start_date->diff($end_date);
         $total = date_diff($start_date, $end_date);

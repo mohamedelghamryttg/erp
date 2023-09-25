@@ -32,12 +32,12 @@
               </tr>
             </thead>
             <tbody>
-              <?php
-              if ($opportunity->num_rows() > 0) {
-                $iix = 0;
-                foreach ($opportunity->result() as $row) {
-                  $iix++;
-              ?>
+              <!-- <?php
+                    if ($opportunity->num_rows() > 0) {
+                      $iix = 0;
+                      foreach ($opportunity->result() as $row) {
+                        $iix++;
+                    ?>
                   <tr class="">
                     <td>
                       <?= $iix ?>
@@ -60,15 +60,15 @@
                       </a></td>
                   </tr>
                 <?php
-                }
-              } else {
+                      }
+                    } else {
                 ?>
                 <tr>
                   <td colspan="7">There is no new projects to you </td>
                 </tr>
               <?php
-              }
-              ?>
+                    }
+              ?> -->
             </tbody>
           </table>
           <!--end: Datatable-->
@@ -271,7 +271,7 @@
               $ix = $offset;
               foreach ($project->result() as $row) {
                 $ix++;
-                $progress = $this->projects_model->getProjectProgress($row->id);
+
               ?>
                 <tr>
                   <td>
@@ -286,24 +286,28 @@
                     <?php echo $row->name; ?>
                   </td>
                   <td>
-                    <?php echo $this->customer_model->getCustomer($row->customer); ?>
+                    <?php echo $row->customername; ?>
                   </td>
                   <td>
-                    <?php echo $this->customer_model->getProductLine($row->product_line); ?>
+                    <?php echo $row->productline; ?>
                   </td>
                   <td>
                     <?php
-                    if ($this->projects_model->checkCloseProject($row->id) != 1) { ?>
+                    $closed = $this->projects_model->checkCloseProject($row->id);
+                    if ($closed != 0) : ?>
+                      <?php
+                      $progress = $this->projects_model->getProjectProgress($row->id);
+                      ?>
                       <div class="progress">
 
-                        <?php if ($progress >= 100) : ?>
+                        <?php if ($progress > 100) : ?>
                           <span style="position: absolute;margin: 6.5px 2.5%;color:#000">
                             <span style="color:red">
                               ***
                             </span>
                           </span>
                         <?php else : ?>
-                          <span style="position: absolute;margin: 6.5px 2.5%;color:#fff">
+                          <span style="position: absolute;margin: 6.5px 2.5%;color:#000">
                             <?= 100 - $progress ?>%
                           </span>
                           <?php
@@ -311,20 +315,26 @@
                           switch (true) {
                             case ($progress <= 15):
                           ?>
-                              <div class="progress-bar bg-success progress-bar-striped  progress-bar-animated" role="progressbar" style="width: <?= $progress <= 85 ? 100 - $progress : 85 ?>%" aria-valuenow="<?= $p_s ?>" aria-valuemin="0" aria-valuemax="85">
+                              <div class="progress-bar bg-success progress-bar-striped  progress-bar-animated" role="progressbar" style="width: <?= $progress <= 85 ? 100 - $progress : 85 ?>%" value="<?= $progress ?>" max="100">
                               </div>
+                              <!-- <div class="progress-bar bg-success progress-bar-striped  progress-bar-animated" role="progressbar" style="width: <?= $progress <= 85 ? 100 - $progress : 85 ?>%" aria-valuenow="<?= $progress ?>" aria-valuemin="0" aria-valuemax="86">
+                              </div> -->
                             <?php
                               break;
                             case ($progress <= 35):
                             ?>
-                              <div class="progress-bar bg-warning progress-bar-striped  progress-bar-animated" role="progressbar" style="width: <?= $progress <= 65 ? 100 - $progress : 65 ?>%" aria-valuenow="<?= $p_s ?>" aria-valuemin="0" aria-valuemax="65">
+                              <!-- <div class="progress-bar bg-warning progress-bar-striped  progress-bar-animated" role="progressbar" style="width: <?= $progress <= 65 ? 100 - $progress : 65 ?>%" aria-valuenow="<?= $progress ?>" aria-valuemin="0" aria-valuemax="65">
+                              </div> -->
+                              <div class="progress-bar bg-warning progress-bar-striped  progress-bar-animated" role="progressbar" style="width: <?= $progress <= 65 ? 100 - $progress : 65 ?>%" value="<?= $progress ?>" max="100">
                               </div>
                             <?php
                               break;
                             case ($progress <= 100):
                             ?>
-                              <div class="progress-bar bg-primary progress-bar-striped  progress-bar-animated" role="progressbar" style="width: <?= $progress < 100 ? 100 - $progress : 0 ?>%" aria-valuenow="<?= $p_s ?>" aria-valuemin="0" aria-valuemax="100">
+                              <div class="progress-bar bg-primary progress-bar-striped  progress-bar-animated" role="progressbar" style="width: <?= $progress < 100 ? 100 - $progress : 0 ?>%" value="<?= $progress ?>" max="100">
                               </div>
+                              <!-- <div class="progress-bar bg-primary progress-bar-striped  progress-bar-animated" role="progressbar" style="width: <?= $progress < 100 ? 100 - $progress : 0 ?>%" aria-valuenow="<?= $progress ?>" aria-valuemin="0" aria-valuemax="100">
+                              </div> -->
                             <?php
                               break;
                             default:
@@ -338,10 +348,10 @@
                           ?>
                         <?php endif; ?>
                       </div>
-                    <?php } ?>
+                    <?php endif; ?>
                   </td>
                   <td>
-                    <?= $this->projects_model->getNewProjectStatus($row->status, $row->id) ?>
+                    <?= ($closed = 1) ? "Closed" :   "Running" ?>
                   </td>
                   <td>
                     <?php if ($row->status == 0) { ?>
@@ -352,7 +362,7 @@
                     <?php echo $row->opportunity; ?>
                   </td>
                   <td>
-                    <?php echo $this->admin_model->getAdmin($row->created_by); ?>
+                    <?php echo $row->username; ?>
                   </td>
                   <td>
                     <?php echo $row->created_at; ?>
@@ -388,6 +398,9 @@
   </div>
 </div>
 <script>
+  function calc_progress() {
+
+  }
   // window.realAlert = window.alert;
   // window.alert = function () { };
 </script>

@@ -416,10 +416,12 @@ class Sales_model extends CI_Model
 
     public function calculateRevenueJob($job, $type, $volume, $priceList)
     {
+
         $rate = $this->db->get_where('job_price_list', array('id' => $priceList))->row()->rate;
         if ($type == 1) {
             $result = $rate * $volume;
         } elseif ($type == 2) {
+
             $fuzzy = $this->db->get_where('project_fuzzy', array('job' => $job))->result();
             $result = 0;
             foreach ($fuzzy as $row) {

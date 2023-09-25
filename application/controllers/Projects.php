@@ -14,12 +14,12 @@ class Projects extends CI_Controller
         $this->role = $this->session->userdata('role');
         $this->user = $this->session->userdata('id');
         $this->brand = $this->session->userdata('brand');
-    	$this->emp_id = $this->session->userdata('emp_id');
+        $this->emp_id = $this->session->userdata('emp_id');
     }
     public function index()
     {
         // Check Permission ..
-//        if($this->brand == 1 || $this->brand == 3 || $this->brand == 11 )
+        //        if($this->brand == 1 || $this->brand == 3 || $this->brand == 11 )
         redirect("projectManagment/index");
 
         $check = $this->admin_model->checkPermission($this->role, 37);
@@ -692,7 +692,7 @@ class Projects extends CI_Controller
                         $fuzzy['value'] = $_POST['value_' . $i];
                         $this->db->insert('project_fuzzy', $fuzzy);
                     }
-                } elseif ($type == 1) {
+                } elseif ($data['type'] == 1) {
                     $this->db->delete('project_fuzzy', array('job' => $id));
                 }
                 $true = "Job Edited Successfully ...";
@@ -766,7 +766,7 @@ class Projects extends CI_Controller
         $check = $this->admin_model->checkPermission($this->role, 70);
         if ($check) {
             //header ..
-//            if($this->brand == 1 || $this->brand == 3 || $this->brand == 11)
+            //            if($this->brand == 1 || $this->brand == 3 || $this->brand == 11)
             redirect("projectManagment/addTaskVendorModule?t=" . $_GET['t']);
 
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
@@ -786,153 +786,153 @@ class Projects extends CI_Controller
     }
 
     //	public function addTaskVendorModule(){
-//        // Check Permission ..
-//        $check = $this->admin_model->checkPermission($this->role,70);
-//        if($check){
-//            //header ..
-//            $data['group'] = $this->admin_model->getGroupByRole($this->role);
-//            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role,70);
-//            //body ..
-//          	$data['brand'] = $this->brand;
-//            $data['job'] = base64_decode($_GET['t']);
-//            $data['job_data'] = $this->projects_model->getJobData($data['job']); 
-//          	$data['priceList'] = $this->projects_model->getJobPriceListData($data['job_data']->price_list); 
-//            // //Pages ..
-//            $this->load->view('includes/header.php',$data);
-//            $this->load->view('projects/addTaskVendorModule.php');
-//            $this->load->view('includes/footer.php'); 
-//        }else{
-//            echo "You have no permission to access this page";
-//        }
-//    }  
-//  	
-//        public function doAddTask(){
-//        // Check Permission ..
-//        $check = $this->admin_model->checkPermission($this->role,70);
-//        if($check){
-//            $data['job_id'] = base64_decode($_POST['job_id']);
-//          	$data['subject'] = $_POST['subject'];
-//            $data['task_type'] = $_POST['task_type'];
-//            $data['vendor'] = $_POST['vendor'];
-//            $select = $_POST['select'];
-//            $data['rate'] = $_POST['rate_'.$select];
-//            $data['currency'] = $_POST['currency_'.$select];
-//            $data['unit'] = $_POST['unit_'.$select];
-//            $data['count'] = $_POST['count'];
-//            $data['start_date'] = $_POST['start_date'];
-//            $data['delivery_date'] = $_POST['delivery_date'];
-//          	$data['time_zone'] = $_POST['time_zone'];
-//            $data['insrtuctions'] = $_POST['insrtuctions'];
-//            if ($_FILES['file']['size'] != 0)
-//            {
-//                //$config['file']['upload_path']          = './assets/uploads/vendors/';
-//                $config['file']['upload_path']          = './assets/uploads/taskFile/';
-//                $config['file']['encrypt_name']         = TRUE;
-//                $config['file']['allowed_types']  = 'zip|rar';
-//                $config['file']['max_size']             = 20000000;
-//                $config['file']['max_width']            = 1024;
-//                $config['file']['max_height']           = 768;
-//                $this->load->library('upload', $config['file'], 'file_upload');
-//                if ( ! $this->file_upload->do_upload('file'))
-//                {
-//                    $error= $this->file_upload->display_errors();   
-//                    $this->session->set_flashdata('error', $error);
-//                    redirect(base_url()."projects/jobTasks?t=".$_POST['job_id']);             
-//                }
-//                else
-//                {
-//                    $data_file = $this->file_upload->data();
-//                    $data['file'] = $data_file['file_name'];
-//                }
-//            }
-//            $data['code'] = $this->projects_model->generateTaskCode($data['job_id']);
-//            $data['created_by'] = $this->user;
-//            $data['created_at'] = date("Y-m-d H:i:s");
-//            
-//            if($this->db->insert('job_task',$data)){
-//            	$totalVpo = $data['rate'] * $data['count'];
-//                if($totalVpo > 0){
-//              	     $this->projects_model->sendVendorTaskMail($this->db->insert_id(),$this->user,$this->brand);
-//                }
-//                $true = "Task Added Successfully ...";
-//                $this->session->set_flashdata('true', $true);
-//                redirect(base_url()."projects/jobTasks?t=".$_POST['job_id']);
-//            }else{
-//                $error = "Failed To Add Task ...";
-//                $this->session->set_flashdata('error', $error);
-//                redirect(base_url()."projects/jobTasks?t=".$_POST['job_id']);
-//            }
-//        }else{
-//            echo "You have no permission to access this page";
-//        }
-//    }
-//
-//	public function doAddTaskVendorModule(){
-//        // Check Permission ..
-//        $check = $this->admin_model->checkPermission($this->role,70);
-//        if($check){
-//            $data['job_id'] = base64_decode($_POST['job_id']);
-//          	$data['subject'] = $_POST['subject'];
-//            $data['task_type'] = $_POST['task_type'];
-//            $data['vendor'] = $_POST['vendor'];
-//            $select = $_POST['select'];
-//            $data['rate'] = $_POST['rate_'.$select];
-//            $data['currency'] = $_POST['currency_'.$select];
-//            $data['unit'] = $_POST['unit_'.$select];
-//            $data['count'] = $_POST['count'];
-//            $data['start_date'] = $_POST['start_date'];
-//            $data['delivery_date'] = $_POST['delivery_date'];
-//          	$data['time_zone'] = $_POST['time_zone'];
-//            $data['insrtuctions'] = $_POST['insrtuctions'];
-//            $data['job_portal'] = 1;
-//            $data['status'] = 4;
-//            if ($_FILES['file']['size'] != 0)
-//            {
-//                //$config['file']['upload_path']          = './assets/uploads/vendors/';
-//                $config['file']['upload_path']          = './assets/uploads/taskFile/';
-//                $config['file']['encrypt_name']         = TRUE;
-//                $config['file']['allowed_types']  = 'zip|rar';
-//                $config['file']['max_size']             = 20000000;
-//                $config['file']['max_width']            = 1024;
-//                $config['file']['max_height']           = 768;
-//                $this->load->library('upload', $config['file'], 'file_upload');
-//                if ( ! $this->file_upload->do_upload('file'))
-//                {
-//                    $error= $this->file_upload->display_errors();   
-//                    $this->session->set_flashdata('error', $error);
-//                    redirect(base_url()."projects/jobTasks?t=".$_POST['job_id']);             
-//                }
-//                else
-//                {
-//                    $data_file = $this->file_upload->data();
-//                    $data['file'] = $data_file['file_name'];
-//                }
-//            }
-//            $data['code'] = $this->projects_model->generateTaskCode($data['job_id']);
-//            $data['created_by'] = $this->user;
-//            $data['created_at'] = date("Y-m-d H:i:s");
-//            
-//            if($this->db->insert('job_task',$data)){
-//                $insert_id = $this->db->insert_id();
-//            	$totalVpo = $data['rate'] * $data['count'];
-//                if($totalVpo > 0){
-//              	     $this->projects_model->sendVendorTaskMailVendorModule($insert_id,$this->user,$this->brand);
-//                }              
-//                // task log
-//                 $this->projects_model->addToTaskLogger($insert_id,0);
-//                 
-//                $true = "Task Added Successfully ...";
-//                $this->session->set_flashdata('true', $true);
-//                redirect(base_url()."projects/jobTasks?t=".$_POST['job_id']);
-//            }else{
-//                $error = "Failed To Add Task ...";
-//                $this->session->set_flashdata('error', $error);
-//                redirect(base_url()."projects/jobTasks?t=".$_POST['job_id']);
-//            }
-//        }else{
-//            echo "You have no permission to access this page";
-//        }
-//    }
+    //        // Check Permission ..
+    //        $check = $this->admin_model->checkPermission($this->role,70);
+    //        if($check){
+    //            //header ..
+    //            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+    //            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role,70);
+    //            //body ..
+    //          	$data['brand'] = $this->brand;
+    //            $data['job'] = base64_decode($_GET['t']);
+    //            $data['job_data'] = $this->projects_model->getJobData($data['job']); 
+    //          	$data['priceList'] = $this->projects_model->getJobPriceListData($data['job_data']->price_list); 
+    //            // //Pages ..
+    //            $this->load->view('includes/header.php',$data);
+    //            $this->load->view('projects/addTaskVendorModule.php');
+    //            $this->load->view('includes/footer.php'); 
+    //        }else{
+    //            echo "You have no permission to access this page";
+    //        }
+    //    }  
+    //  	
+    //        public function doAddTask(){
+    //        // Check Permission ..
+    //        $check = $this->admin_model->checkPermission($this->role,70);
+    //        if($check){
+    //            $data['job_id'] = base64_decode($_POST['job_id']);
+    //          	$data['subject'] = $_POST['subject'];
+    //            $data['task_type'] = $_POST['task_type'];
+    //            $data['vendor'] = $_POST['vendor'];
+    //            $select = $_POST['select'];
+    //            $data['rate'] = $_POST['rate_'.$select];
+    //            $data['currency'] = $_POST['currency_'.$select];
+    //            $data['unit'] = $_POST['unit_'.$select];
+    //            $data['count'] = $_POST['count'];
+    //            $data['start_date'] = $_POST['start_date'];
+    //            $data['delivery_date'] = $_POST['delivery_date'];
+    //          	$data['time_zone'] = $_POST['time_zone'];
+    //            $data['insrtuctions'] = $_POST['insrtuctions'];
+    //            if ($_FILES['file']['size'] != 0)
+    //            {
+    //                //$config['file']['upload_path']          = './assets/uploads/vendors/';
+    //                $config['file']['upload_path']          = './assets/uploads/taskFile/';
+    //                $config['file']['encrypt_name']         = TRUE;
+    //                $config['file']['allowed_types']  = 'zip|rar';
+    //                $config['file']['max_size']             = 20000000;
+    //                $config['file']['max_width']            = 1024;
+    //                $config['file']['max_height']           = 768;
+    //                $this->load->library('upload', $config['file'], 'file_upload');
+    //                if ( ! $this->file_upload->do_upload('file'))
+    //                {
+    //                    $error= $this->file_upload->display_errors();   
+    //                    $this->session->set_flashdata('error', $error);
+    //                    redirect(base_url()."projects/jobTasks?t=".$_POST['job_id']);             
+    //                }
+    //                else
+    //                {
+    //                    $data_file = $this->file_upload->data();
+    //                    $data['file'] = $data_file['file_name'];
+    //                }
+    //            }
+    //            $data['code'] = $this->projects_model->generateTaskCode($data['job_id']);
+    //            $data['created_by'] = $this->user;
+    //            $data['created_at'] = date("Y-m-d H:i:s");
+    //            
+    //            if($this->db->insert('job_task',$data)){
+    //            	$totalVpo = $data['rate'] * $data['count'];
+    //                if($totalVpo > 0){
+    //              	     $this->projects_model->sendVendorTaskMail($this->db->insert_id(),$this->user,$this->brand);
+    //                }
+    //                $true = "Task Added Successfully ...";
+    //                $this->session->set_flashdata('true', $true);
+    //                redirect(base_url()."projects/jobTasks?t=".$_POST['job_id']);
+    //            }else{
+    //                $error = "Failed To Add Task ...";
+    //                $this->session->set_flashdata('error', $error);
+    //                redirect(base_url()."projects/jobTasks?t=".$_POST['job_id']);
+    //            }
+    //        }else{
+    //            echo "You have no permission to access this page";
+    //        }
+    //    }
+    //
+    //	public function doAddTaskVendorModule(){
+    //        // Check Permission ..
+    //        $check = $this->admin_model->checkPermission($this->role,70);
+    //        if($check){
+    //            $data['job_id'] = base64_decode($_POST['job_id']);
+    //          	$data['subject'] = $_POST['subject'];
+    //            $data['task_type'] = $_POST['task_type'];
+    //            $data['vendor'] = $_POST['vendor'];
+    //            $select = $_POST['select'];
+    //            $data['rate'] = $_POST['rate_'.$select];
+    //            $data['currency'] = $_POST['currency_'.$select];
+    //            $data['unit'] = $_POST['unit_'.$select];
+    //            $data['count'] = $_POST['count'];
+    //            $data['start_date'] = $_POST['start_date'];
+    //            $data['delivery_date'] = $_POST['delivery_date'];
+    //          	$data['time_zone'] = $_POST['time_zone'];
+    //            $data['insrtuctions'] = $_POST['insrtuctions'];
+    //            $data['job_portal'] = 1;
+    //            $data['status'] = 4;
+    //            if ($_FILES['file']['size'] != 0)
+    //            {
+    //                //$config['file']['upload_path']          = './assets/uploads/vendors/';
+    //                $config['file']['upload_path']          = './assets/uploads/taskFile/';
+    //                $config['file']['encrypt_name']         = TRUE;
+    //                $config['file']['allowed_types']  = 'zip|rar';
+    //                $config['file']['max_size']             = 20000000;
+    //                $config['file']['max_width']            = 1024;
+    //                $config['file']['max_height']           = 768;
+    //                $this->load->library('upload', $config['file'], 'file_upload');
+    //                if ( ! $this->file_upload->do_upload('file'))
+    //                {
+    //                    $error= $this->file_upload->display_errors();   
+    //                    $this->session->set_flashdata('error', $error);
+    //                    redirect(base_url()."projects/jobTasks?t=".$_POST['job_id']);             
+    //                }
+    //                else
+    //                {
+    //                    $data_file = $this->file_upload->data();
+    //                    $data['file'] = $data_file['file_name'];
+    //                }
+    //            }
+    //            $data['code'] = $this->projects_model->generateTaskCode($data['job_id']);
+    //            $data['created_by'] = $this->user;
+    //            $data['created_at'] = date("Y-m-d H:i:s");
+    //            
+    //            if($this->db->insert('job_task',$data)){
+    //                $insert_id = $this->db->insert_id();
+    //            	$totalVpo = $data['rate'] * $data['count'];
+    //                if($totalVpo > 0){
+    //              	     $this->projects_model->sendVendorTaskMailVendorModule($insert_id,$this->user,$this->brand);
+    //                }              
+    //                // task log
+    //                 $this->projects_model->addToTaskLogger($insert_id,0);
+    //                 
+    //                $true = "Task Added Successfully ...";
+    //                $this->session->set_flashdata('true', $true);
+    //                redirect(base_url()."projects/jobTasks?t=".$_POST['job_id']);
+    //            }else{
+    //                $error = "Failed To Add Task ...";
+    //                $this->session->set_flashdata('error', $error);
+    //                redirect(base_url()."projects/jobTasks?t=".$_POST['job_id']);
+    //            }
+    //        }else{
+    //            echo "You have no permission to access this page";
+    //        }
+    //    }
 
     public function editTask()
     {
@@ -1304,7 +1304,6 @@ class Projects extends CI_Controller
                         $jobData['closed_by'] = $this->user;
                         $this->admin_model->addToLoggerUpdate('job', 65, 'id', $id, 0, 0, $this->user);
                         if ($this->db->update('job', $jobData, array('id' => $id))) {
-
                         } else {
                             $error = "Failed To Close Job : " . $id . " ...";
                             $this->session->set_flashdata('error', $error);
@@ -3984,7 +3983,6 @@ class Projects extends CI_Controller
                     } else {
                         $data['job'] = $this->projects_model->AllLEPm($data['permission'], $this->user, 0, 1);
                     }
-
                 } elseif ($data['report'] == 3) {
                     header("Content-Disposition: attachment; filename=InHouseReportBYTranslation.$file_ending");
                     header("Pragma: no-cache");
@@ -4033,7 +4031,6 @@ class Projects extends CI_Controller
                     } else {
                         $data['job'] = $this->projects_model->AllTranslationPm($data['permission'], $this->user, 0, 1);
                     }
-
                 }
             }
             //Pages ..
@@ -4041,7 +4038,6 @@ class Projects extends CI_Controller
         } else {
             echo "You have no permission to access this page";
         }
-
     }
 
     public function pmoReport()
@@ -4168,7 +4164,6 @@ class Projects extends CI_Controller
             //Pages ..
 
             $this->load->view('projects/exportPmoCustomer.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -4451,7 +4446,6 @@ class Projects extends CI_Controller
             //Pages ..
 
             $this->load->view('projects/exportPmoCustomerPm.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -4600,7 +4594,6 @@ class Projects extends CI_Controller
                         $data_file = $this->file_upload->data();
                         $data['attachment'] = $data_file['file_name'];
                         $data['link'] = " ";
-
                     }
                 } else {
                     $error = "You should upload attachment";
@@ -4610,7 +4603,6 @@ class Projects extends CI_Controller
             } elseif ($data['attachment_type'] == 2) {
                 $data['attachment'] = " ";
                 $data['link'] = $_POST['link'];
-
             }
 
             ///
@@ -4692,7 +4684,6 @@ class Projects extends CI_Controller
             } elseif ($data['attachment_type'] == 2) {
                 $data['attachment'] = " ";
                 $data['link'] = $_POST['link'];
-
             }
 
             ///
@@ -4826,7 +4817,6 @@ class Projects extends CI_Controller
                 $data['pm_conversion_requests'] = $this->projects_model->AllPmConversionRequestPages($data['permission'], $this->user, $this->brand, 9, 0);
             }
             $this->load->view('projects/exportPmConversionRequest.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -5120,7 +5110,6 @@ class Projects extends CI_Controller
                     $handover_resources['created_by'] = $this->user;
                     $handover_resources['created_at'] = date("Y-m-d H:i:s");
                     if ($this->db->insert('handover_resources', $handover_resources)) {
-
                     } else {
                         $error = "Failed To Add Vendor Sheet ...";
                         $this->session->set_flashdata('error', $error);
@@ -5136,7 +5125,6 @@ class Projects extends CI_Controller
                 $error = "Failed To Add Handover ...";
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "projects/handover");
-
             }
             //print_r($data);
         } else {
@@ -5210,7 +5198,6 @@ class Projects extends CI_Controller
                     $handover_resources['created_by'] = $this->user;
                     $handover_resources['created_at'] = date("Y-m-d H:i:s");
                     if ($this->db->insert('handover_resources', $handover_resources)) {
-
                     } else {
                         $error = "Failed To Add Vendor Sheet ...";
                         $this->session->set_flashdata('error', $error);
@@ -5606,7 +5593,6 @@ class Projects extends CI_Controller
                 redirect($_SERVER['HTTP_REFERER']);
             }
         }
-
     }
 
     public function pmDirectConfirm()
@@ -5631,9 +5617,7 @@ class Projects extends CI_Controller
             $error = "There's Something Wrong , Please try Again !!";
             $this->session->set_flashdata('error', $error);
             redirect($_SERVER['HTTP_REFERER']);
-
         }
-
     }
 
     public function pmDirectConfirmExternalLink()
@@ -5656,7 +5640,6 @@ class Projects extends CI_Controller
                     $true = "Task Confirmed Successfully ...";
                     $this->session->set_flashdata('true', $true);
                     redirect(base_url() . "projects");
-
                 } else {
                     $error = "There's Something Wrong , Please try Again !!";
                     $this->session->set_flashdata('error', $error);
@@ -5670,7 +5653,6 @@ class Projects extends CI_Controller
         } else {
             echo "You have no permission to access this page";
         }
-
     }
 
     public function confirmTasks()
@@ -5689,7 +5671,6 @@ class Projects extends CI_Controller
                     // task log                
                     $this->projects_model->addToTaskLogger($task, 4);
                     $true = "Tasks Confirmed Successfully ...";
-
                 } else {
                     $error = "There's Something Wrong , Please try Again !!";
                 }
@@ -5702,7 +5683,6 @@ class Projects extends CI_Controller
         else
             $this->session->set_flashdata('true', $true);
         redirect($_SERVER['HTTP_REFERER']);
-
     }
 
     public function PMNew()
@@ -5710,7 +5690,6 @@ class Projects extends CI_Controller
         $this->load->view('includes_new/header.php');
         $this->load->view('projects_new/pm_new.php');
         $this->load->view('includes_new/footer.php');
-
     }
 
     public function addPoNumber()
@@ -5761,7 +5740,6 @@ class Projects extends CI_Controller
             $this->session->set_flashdata('error', $error);
             redirect(base_url() . "projects/projectJobs?t=" . $_POST['project_id']);
         }
-
     }
 
     public function closeJobNew()
@@ -5781,7 +5759,6 @@ class Projects extends CI_Controller
                     $jobData['closed_by'] = $this->user;
                     $this->admin_model->addToLoggerUpdate('job', 65, 'id', $id, 0, 0, $this->user);
                     if ($this->db->update('job', $jobData, array('id' => $id))) {
-
                     } else {
                         $error = "Failed To Close Job : " . $id . " ...";
                         $this->session->set_flashdata('error', $error);
@@ -5792,7 +5769,6 @@ class Projects extends CI_Controller
                 $true = "Job Closed Successfully ...";
                 $this->session->set_flashdata('true', $true);
                 redirect(base_url() . "projects/projectJobs?t=" . $_POST['project_id']);
-
             } else {
                 $error = "Jobs Total Revenue > PO Amount,Please Check ...";
                 $this->session->set_flashdata('error', $error);
@@ -5804,5 +5780,4 @@ class Projects extends CI_Controller
             redirect(base_url() . "projects/projectJobs?t=" . $_POST['project_id']);
         }
     }
-
 }

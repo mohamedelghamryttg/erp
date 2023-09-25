@@ -82,7 +82,7 @@
 
           foreach ($translation_tasks as $trans) {
             $rateProductionTrans = $this->db->get_where('production_team_cost', array('task_type' => $trans->task_type, 'unit' => $trans->unit, 'year' => $year, 'team' => 1))->row()->rate;
-            $rateTrnasfaredTrans = number_format($this->accounting_model->transfareTotalToCurrencyRate(1, 2, $trans->created_at, $rateProductionTrans), 6) * ($trans->count - $trans->tm);
+            $rateTrnasfaredTrans = $this->accounting_model->transfareTotalToCurrencyRate(1, 2, $trans->created_at, $rateProductionTrans) * ($trans->count - $trans->tm);
             $totalRateTrans = $rateTrnasfaredTrans;
             //$totalRateTrans + $rateTrnasfaredTrans;
 
