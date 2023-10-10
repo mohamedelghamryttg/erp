@@ -45,6 +45,9 @@
                         <li class="nav-item">
                             <a class="nav-link" id="cusetting-tab" data-toggle="tab" href="#cusetting" role="tab" aria-controls="cusetting" aria-selected="false">Customer Experience Setting</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="profit-tab" data-toggle="tab" href="#profit_percentage" role="tab" aria-controls="profit_percentage" aria-selected="false">Min. Profit Percentage</a>
+                        </li>
                     </ul>
                 </div>
                 <!-- Tab navs -->
@@ -369,6 +372,22 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="profit_percentage" role="tabpanel" aria-labelledby="profit-tab">
+                            <div class="card">
+                                <div class="card-header" style="padding-bottom: 0px !important;">
+                                    <h3 class="card-title text-center">Minimum Project Profit Percentage </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group row">
+                                        <label class="col-md-3 col-form-label  col-sm-12">Min. Percentage %</label>
+                                        <div class="col-md-9 col-sm-12">
+                                            <input type="number" class="form-control" name="min_profit_percentage" id="min_profit_percentage" value="<?= $pmConfig->min_profit_percentage;?>" step=".01"  min="0">
+                                        </div>
+                                    </div>
+                                   
                                 </div>
                             </div>
                         </div>

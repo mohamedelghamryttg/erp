@@ -18,10 +18,10 @@ class Settings extends CI_Controller
 
     public function pm_settings()
     {
-        $check = $this->admin_model->checkPermission($this->role, 235);
+        $check = $this->admin_model->checkPermission($this->role, 1);
         if ($check) {
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
-            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 235);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 1);
             $data['brand'] = $this->brand;
             $dd = $this->db->get_where('pm_setup', array('brand' => $this->brand))->row();
 
@@ -47,6 +47,7 @@ class Settings extends CI_Controller
         $data['block_v_no'] = ($this->input->post('block_v_no') ? $this->input->post('block_v_no') : 0);
         $data['cuemailsub'] = ($this->input->post('cuemailsub') ? $this->input->post('cuemailsub') : '');
         $data['cuemaildesc'] = ($this->input->post('cuemaildesc') ? $this->input->post('cuemaildesc') : '');
+        $data['min_profit_percentage'] = ($this->input->post('min_profit_percentage') ? $this->input->post('min_profit_percentage') : '');
         // var_dump($this->input->post('qmemail'));
         // die;
         for ($i = 1; $i <= 6; $i++) {
