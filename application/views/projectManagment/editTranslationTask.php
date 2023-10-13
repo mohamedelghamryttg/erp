@@ -128,7 +128,31 @@
                                       <textarea name="insrtuctions" class="form-control" rows="6"><?=$task->insrtuctions?></textarea>
                                 </div>
                             </div>
-                             
+                            <hr/>
+                             <div class="form-group">
+                                <label class="col-lg-3 control-label font-weight-bold " >Total Hours   
+                                    <span class="text-danger font-weight-bolder"> * </span>
+                                </label>            
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label" for="role Unit">Work Hours  </label>
+                                <div class="col-lg-6">                               
+                                    <input type="number" name="work_hours" value="<?=$task->work_hours?>" class="form-control" required min="0" step="0.5"/>
+                               </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label" for="role Unit">Overtime Hours  </label>
+                                <div class="col-lg-6">                               
+                                    <input type="number" name="overtime_hours" value="<?=$task->overtime_hours?>" class="form-control" required min="0" step="0.5"/>
+                               </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label" for="role Unit">Double Paid Hours  </label>
+                                <div class="col-lg-6">                               
+                                    <input type="number" name="doublepaid_hours" value="<?=$task->doublepaid_hours?>" class="form-control" required min="0" step="0.5"/>
+                               </div>
+                            </div>
+                            
                             <div class="form-group">
                                 <div class="col-lg-offset-3 col-lg-6">
                                     <input class="btn btn-primary" type="submit" name="submit" value="Save">

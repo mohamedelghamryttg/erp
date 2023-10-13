@@ -28,11 +28,13 @@
                                 <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact"
                                     role="tab" aria-controls="pills-contact" aria-selected="false">Communcation Info</a>
                             </li>
+                               <?php if($this->role == 31){?>
+                            <li class="nav-item">
+                                <a class="nav-link" id="pills-salary-tab" data-toggle="pill" href="#pills-salary"
+                                    role="tab" aria-controls="pills-salary" aria-selected="false">Salary</a>
+                            </li>
+                            <?php }?>
                         </ul>
-
-
-
-
 
                         <div class="tab-content" id="pills-tabContent">
                             <div class="tab-pane fade active show in" id="pills-home" role="tabpanel"
@@ -83,10 +85,6 @@
                                     </div>
                                 </div>
                             </div>
-
-
-
-
                             <div class="tab-pane fade" id="pills-profile" role="tabpanel"
                                 aria-labelledby="pills-profile-tab">
                                 <br>
@@ -303,7 +301,6 @@
                                 </div>
 
                             </div>
-
                             <div class="tab-pane fade" id="pills-contact" role="tabpanel"
                                 aria-labelledby="pills-contact-tab">
                                 <div class="form-group">
@@ -364,6 +361,21 @@
                                     </div>
                                 </div>
                             </div>
+                                <?php if($this->role == 31){?>
+                            <div class="tab-pane fade" id="pills-salary" role="tabpanel"
+                                aria-labelledby="pills-salary-tab">  
+                                <br/>
+                                <div class="form-group">
+                                    <label class="col-lg-3 control-label" for="Salary">Salary</label>
+
+                                    <div class="col-lg-6">
+                                        <input type="number" class=" form-control" name="salary" value="<?= $this->hr_model->getEmpSalary($employees->id)?>" />
+                                    </div>
+                                </div>
+
+                 
+                            </div>
+                              <?php }?>
                         </div>
 
                     </form>

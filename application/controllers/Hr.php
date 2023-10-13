@@ -1160,8 +1160,18 @@ class Hr extends CI_Controller
                 $other_emails = implode(" ; ", $_POST['other_emails']);
                 $data['other_emails'] = $other_emails;
             }
+            if (isset($_POST['salary'])) {               
+                $salary['salary'] = $_POST['salary'];
+            }
 
             if ($this->db->insert('employees', $data)) {
+                $salary['emp_id'] = $this->db->insert_id();
+                if (isset($_POST['salary'])) {               
+                    $salary['salary'] = $_POST['salary']; 
+                    $salary['created_by'] = $this->user;
+                    $salary['created_at'] = date("Y-m-d H:i:s");
+                    $this->db->insert('emp_finance ', $salary);
+                }
                 $true = "Employee Added Successfully ...";
                 $this->session->set_flashdata('true', $true);
                 redirect(base_url() . "hr/employees");
@@ -1232,8 +1242,26 @@ class Hr extends CI_Controller
             $other_emails = ($this->input->post('other_emails') ? implode(' ; ', $this->input->post('other_emails')) : '');
             $data['other_emails'] = $other_emails;
             $data['workplace_model'] = $_POST['workplace_model'] ?? '';
+             if (isset($_POST['salary'])) { 
+                 $checkSalary = $this->db->get_where('emp_finance', array('emp_id' => $id))->row();
+                 if(!empty($checkSalary)){
+                    $salary['salary'] = $_POST['salary'];  
+                    $salary['updated_by'] = $this->user;
+                    $salary['updated_at'] = date("Y-m-d H:i:s");
+                    $this->admin_model->addToLoggerUpdate('emp_finance', 140, 'id', $checkSalary->id, 0, 0, $this->user);
+                    $this->db->update('emp_finance ', $salary, array('id' => $checkSalary->id));
+                    
+                }else{
+                    $salary['salary'] = $_POST['salary'];            
+                    $salary['emp_id'] = $id;
+                    $salary['created_by'] = $this->user;
+                    $salary['created_at'] = date("Y-m-d H:i:s");
+                    $this->db->insert('emp_finance ', $salary);
+                }
+             }
+           
             $this->admin_model->addToLoggerUpdate('employees', 140, 'id', $id, 0, 0, $this->user);
-
+            
             if ($this->db->update('employees', $data, array('id' => $id))) {
                 $true = "Employee Edited Successfully ...";
                 $this->session->set_flashdata('true', $true);

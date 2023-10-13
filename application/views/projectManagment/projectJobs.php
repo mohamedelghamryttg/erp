@@ -984,13 +984,13 @@
                 <p class="ml-2"><?= $project_data->created_at; ?></p>
                 <hr/>
                 <h5 class="text-dark font-weight-bold mb-2">Project Revenue </h5>
-                <p class="ml-2"><?= $this->projects_model->getProjectRevenue($project_data->id).' $' ?></p>               
+                <p class="ml-2"><?= round($this->projects_model->getProjectRevenue($project_data->id),2).' $' ?></p>               
                 <h5 class="text-dark font-weight-bold mb-2">Project Cost  </h5>
-                <p class="ml-2"><?= $this->projects_model->getProjectCost($project_data->id).' $' ?></p>                
+                <p class="ml-2"><?= round($this->projects_model->getProjectCost($project_data->id),2).' $' ?></p>                
                 <h5 class="text-dark font-weight-bold mb-2">Project Profit   </h5>
-                <p class="ml-2"><?= $this->projects_model->getProjectProfit($project_data->id).' $' ?></p>                
+                <p class="ml-2"><?= round($this->projects_model->getProjectProfit($project_data->id),2).' $' ?></p>                
                 <h5 class="text-dark font-weight-bold mb-2">Project Profit Percentage % </h5>
-                <p class="ml-2"><?= $this->projects_model->getProjectProfitPercentage($project_data->id).' %' ?></p>
+                <p class="ml-2"><?= round($this->projects_model->getProjectProfitPercentage($project_data->id),2).' %' ?></p>
                 <h5 class="text-dark font-weight-bold mb-2">Minimum Project Profit Percentage % </h5>
                 <p class="ml-2"><?= $project_data->min_profit_percentage??$this->projects_model->getProfitPercentageSetup($this->brand)?> %</p>
                 <?php if(!empty($project_data->approval_by)){?>
@@ -1003,7 +1003,6 @@
                       <a href="<?php echo base_url() ?>projectManagment/editProjectPercentage?t=<?= base64_encode($project_data->id); ?>" class=" btn btn-primary font-size-xs">
                         <i class="fa fa-pencil"></i> Edit Min. Percentage
                       </a>
-
                   </p>
                   <?php }?>
 

@@ -6148,20 +6148,34 @@ class Projects_model extends CI_Model
     }
     
     // start project cost
-    public function getProfitPercentageSetup($brand_id)
-    {
+
+    public function checkManagerAccess($project_id)    {
+        $result = false;
+        $projectData = $this->projects_model->getProjectData($project_id);
+        $project_user = $projectData->created_by;
+        $userData = $this->admin_model->getUserData($project_user);
+        $project_emp = $userData->employees_id;
+        $managerAccess = $this->admin_model->checkIfUserIsEmployeeManager($project_emp);
+        if($managerAccess == TRUE)
+            $result = true;
+        return $result;
+    }
+
+    public function getProfitPercentageSetup($brand_id)    {
         $data = null;
         $row = $this->db->get_where('pm_setup', array('brand' => $brand_id))->row();
         if (!empty($row))
             $data = !empty($row->min_profit_percentage) ? $row->min_profit_percentage : null;
 
         return $data;
-}
+    }
     
-    public function getProjectRevenue ($project_id)
-    {
+    public function getProjectRevenue ($project_id,$job_id ='',$data ='')    {
         $total = 0;
+        if(empty($job_id))
         $jobs = $this->db->get_where('job', array('project_id' => $project_id))->result();
+        else
+        $jobs = $this->db->get_where('job', array('project_id' => $project_id,'id !='=>$job_id))->result();
         if(!empty($jobs)){
             foreach($jobs as $row){ 
                 $priceList = $this->projects_model->getJobPriceListData($row->price_list);
@@ -6171,12 +6185,20 @@ class Projects_model extends CI_Model
                 $total += $revenueDollar;
             }
         }
+        if(!empty($data)){  
+            $data['created_at'] =  $this->db->get_where('job', array('id' => $job_id))->row()->created_at;
+            $data = (object) $data;
+            $priceList = $this->projects_model->getJobPriceListData($data->price_list);
+            $revenue = $this->sales_model->calculateRevenueJob($data->id, $data->type, $data->volume, $priceList->id);
+            // ConvertCurrencyToDollar
+            $revenueDollar = self::convertCurrencyToDollar($priceList->currency, $data->created_at, $revenue);
+            $total += $revenueDollar;            
+        }
        
         return $total;
     }
     
-    public function getTranslationHourRate()
-    {
+    public function getTranslationHourRate()    {
         $result = 0;    
         $sql = "SELECT `employees_id` FROM `users` where `role` = 28 AND `status` = 1";
         $query = $this->db->query($sql);
@@ -6194,8 +6216,7 @@ class Projects_model extends CI_Model
          return $result;
     }
     
-    public function getDtpHourRate()
-    {
+    public function getDtpHourRate()    {
         $result = 0;    
         $sql = "SELECT `employees_id` FROM `users` where `role` = 24 AND `status` = 1";
         $query = $this->db->query($sql);
@@ -6213,8 +6234,7 @@ class Projects_model extends CI_Model
         return $result;
     }
     
-    public function getLeHourRate()
-    {
+    public function getLeHourRate()    {
         $result = 0;    
         $sql = "SELECT `employees_id` FROM `users` where `role` = 26 AND `status` = 1";
         $query = $this->db->query($sql);
@@ -6230,17 +6250,20 @@ class Projects_model extends CI_Model
         }
 
         return $result;
-    }
-        
+    }        
     
-    public function getProjectCost($project_id)
-    {
+    public function getProjectCost($project_id,$task_type='',$task_id ='')    {
         $cost = 0;
         $jobs = $this->db->get_where('job', array('project_id' => $project_id))->result();
         if(!empty($jobs)){
             foreach($jobs as $job){
                 // vendor tasks 
-                $vTasks = $this->db->get_where('job_task', array('job_id' => $job->id))->result();
+                if(!empty($task_type) && $task_type == 1){
+                    $vTasks = $this->db->get_where('job_task', array('job_id' => $job->id,'status !='=>2,'status !='=>3,'id !='=>$task_id))->result();
+                }
+                else{
+                    $vTasks = $this->db->get_where('job_task', array('job_id' => $job->id,'status !='=>2,'status !='=>3))->result();
+                }
                 if(!empty($vTasks)){
                     foreach($vTasks as $task){
                         $taskCost = $task->rate * $task->count;                        
@@ -6249,8 +6272,13 @@ class Projects_model extends CI_Model
                     }
                 }
                 // translation tasks 
-                $transTasks = $this->db->get_where('translation_request', array('job_id' => $job->id))->result();
-                if(!empty($transTasks)){
+                if(!empty($task_type) && $task_type == 2){
+                    $transTasks = $this->db->get_where('translation_request', array('job_id' => $job->id,'status !='=>4,'id !='=>$task_id))->result();                
+                }
+                else{
+                   $transTasks = $this->db->get_where('translation_request', array('job_id' => $job->id,'status !='=>4))->result();
+                }   
+               if(!empty($transTasks)){
                     foreach($transTasks as $task){
                         $hourRate = self::getTranslationHourRate();
                         $workCost = $task->work_hours * $hourRate;                        
@@ -6263,7 +6291,12 @@ class Projects_model extends CI_Model
                     }
                 }
                 // dtp tasks 
-                $dtTasks = $this->db->get_where('dtp_request', array('job_id' => $job->id))->result();
+                if(!empty($task_type) && $task_type == 3){
+                    $dtTasks = $this->db->get_where('dtp_request', array('job_id' => $job->id,'status !='=>4,'id !='=>$task_id))->result();
+                }
+                else{
+                    $dtTasks = $this->db->get_where('dtp_request', array('job_id' => $job->id,'status !='=>4))->result();
+                }
                 if(!empty($dtpTasks)){
                     foreach($dtpTasks as $task){
                         $hourRate = self::getDtpHourRate();
@@ -6276,7 +6309,12 @@ class Projects_model extends CI_Model
                     }
                 }
                 // le tasks 
-                $leTasks = $this->db->get_where('le_request', array('job_id' => $job->id))->result();
+                 if(!empty($task_type) && $task_type == 4){
+                    $leTasks = $this->db->get_where('le_request', array('job_id' => $job->id,'status !='=>4,'id !='=>$task_id))->result();
+                }
+                else{
+                    $leTasks = $this->db->get_where('le_request', array('job_id' => $job->id,'status !='=>4))->result();
+                }
                 if(!empty($leTasks)){
                     foreach($leTasks as $task){
                         $hourRate = self::getLeHourRate();
@@ -6313,12 +6351,70 @@ class Projects_model extends CI_Model
         return $result;
           
     }    
+    
+    public function getProfitCurrentPercentage($revenue,$cost){
+        
+        $profit = $revenue - $cost ; 
+         if($revenue != 0)
+            $currentProjectPre = $profit/$revenue*100 ;
+        else
+            $currentProjectPre = 0 ; 
+       
+        return $currentProjectPre;
+          
+    }    
    
     public function checkProjectProfitPercentage($project_id){
         $project_data =  $this->db->get_where('project', array('id' => $project_id))->row();        
         $minProjectPre = $project_data->min_profit_percentage;
         if(!empty($minProjectPre)){
             $currentProjectPre = self::getProjectProfitPercentage($project_id);
+            // start checking
+            if($currentProjectPre >=  $minProjectPre){
+                $result = true;
+            }else{
+                $result = false;
+            }
+        }else{
+            $result = true;
+        }  
+        return $result;
+          
+    }
+    
+    public function checkProjectProfitPercentageForJobs($project_id,$job_id ='',$data =''){       
+        $project_data =  $this->db->get_where('project', array('id' => $project_id))->row();        
+        $minProjectPre = $project_data->min_profit_percentage;
+        if(!empty($minProjectPre)){            
+            $revenue = self::getProjectRevenue($project_id,$job_id,$data) ;
+            $cost = self::getProjectCost($project_id) ;  
+            $currentProjectPre = self::getProfitCurrentPercentage($revenue,$cost) ;  ;       
+            // start checking
+            if($currentProjectPre >=  $minProjectPre){
+                $result = true;
+            }else{
+                $result = false;
+            }
+        }else{
+            $result = true;
+        }  
+        return $result;
+          
+    }
+    
+    public function checkProjectProfitPercentageForTasks($project_id,$task_type,$task_id ='',$new_data =''){       
+        $project_data =  $this->db->get_where('project', array('id' => $project_id))->row();        
+        $minProjectPre = $project_data->min_profit_percentage;
+        if(!empty($minProjectPre)){            
+            $revenue = self::getProjectRevenue($project_id) ;           
+            if(!empty($new_data))
+                $taskCost = self::getTaskCost($task_type,$new_data);
+            else
+                $taskCost = 0;
+            
+            $cost = self::getProjectCost($project_id,$task_type,$task_id) + $taskCost ;                
+           
+            $currentProjectPre = self::getProfitCurrentPercentage($revenue,$cost) ;       
             // start checking
             if($currentProjectPre >=  $minProjectPre){
                 $result = true;
@@ -6345,6 +6441,8 @@ class Projects_model extends CI_Model
         }  
     }
     
+    // adding new task 
+
     public function checkSingleTaskPercentage($project_id,$type,$data){
         $project_data =  $this->db->get_where('project', array('id' => $project_id))->row();        
         $minProjectPre = $project_data->min_profit_percentage;
@@ -6373,8 +6471,7 @@ class Projects_model extends CI_Model
           
     }
     
-    public function getTaskCost($type,$task)
-    {
+    public function getTaskCost($type,$task)    {
         $cost = 0;  
         $task = (object) $task;
         if($type == 1){
@@ -6416,8 +6513,7 @@ class Projects_model extends CI_Model
         return $cost ;
     }
     
-    public function checkTaskCostError($type,$task)
-    {
+    public function checkTaskCostError($type,$task)    {
         $error = "";  
         $task = (object) $task;
         if($type == 1){
@@ -6496,22 +6592,6 @@ class Projects_model extends CI_Model
         }                         
        
         return $error ;
-    }
-    
-      public function checkManagerAccess($project_id)
-    {
-        $data = False;
-        $projectData = self::getProjectData($project_id);
-        $emp_id = $this->db->get_where('users', array('id' => $projectData->created_by))->row()->employees_id;
-        $row = $this->db->get_where('employees', array('id' => $emp_id))->row();
-        if (!empty($row) && $row->manager == $this->emp_id) {
-            $data = True;
-        }
-
-        return $data;
-    }
-    
-    // update job & task 
-    // update normal and run checking function if false get old data 
-    // or run checking function before update ?? if job get all cost as normal / get revenue expect this job id + new data 
+    }    
+   
 }
