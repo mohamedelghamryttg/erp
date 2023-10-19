@@ -18,10 +18,10 @@ class Settings extends CI_Controller
 
     public function pm_settings()
     {
-        $check = $this->admin_model->checkPermission($this->role, 1);
+        $check = $this->admin_model->checkPermission($this->role, 235);
         if ($check) {
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
-            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 1);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 235);
             $data['brand'] = $this->brand;
             $dd = $this->db->get_where('pm_setup', array('brand' => $this->brand))->row();
 
