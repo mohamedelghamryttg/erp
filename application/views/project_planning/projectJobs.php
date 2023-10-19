@@ -19,20 +19,16 @@
                             <?= $this->session->flashdata('error') ?>
                         </strong></span>
                 </div>
-            <?php } ?>
+            <?php } ?>           
+        </section>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-10">
+         <section class="panel">
             <div class="panel-body">
-                <div class="adv-table editable-table " style="overflow:scroll;">
-                    <div class="clearfix">
-                        <div class="btn-group">
-                            <span class=" btn-primary" style="">
-                                Project Data
-                            </span>
-                        </div>
-
-                    </div>
-
+                <div class="adv-table editable-table " style="overflow:scroll;">  
                     <div class="space15"></div>
-
                     <table class="table table-striped table-hover table-bordered" id="">
                         <thead>
                             <tr>
@@ -44,11 +40,11 @@
                                 <th>Created At</th>
                             </tr>
                         </thead>
-
                         <tbody>
                             <tr class="">
-                                <td><a
-                                        href="<?= base_url() ?>projectManagment/projectJobs?t=<?= base64_encode($project_data->project_id ?? '') ?>"><?= $this->projects_model->getProjectCode($project_data->project_id ?? '') ?></a></td>
+                                <td>
+                                    <a href="<?= base_url() ?>projectManagment/projectJobs?t=<?= base64_encode($project_data->project_id ?? '') ?>"><?= $this->projects_model->getProjectCode($project_data->project_id ?? '') ?></a>
+                                </td>
                                 <td>
                                     <?php echo $project_data->project_name ?>
                                 </td>
@@ -72,22 +68,15 @@
             <div class="panel-body">
                 <header class="panel-heading">
                     Project Jobs
-                </header>
-                <div class="adv-table editable-table mt-2" style="overflow-y: scroll;">
-                    <div class="clearfix">
-                        <div class="btn-group">
-
-
+                       <div class="btn-group pull-right">
                             <?php if ($permission->add == 1 && $project_data->status == 0) { ?>
                                 <a href="<?= base_url() ?>projectPlanning/addJob?t=<?= base64_encode($project) ?>"
-                                    class="btn btn-primary ">Add New Job</a>
-                                </br></br></br>
+                                    class="btn btn-sm btn-primary">Add New Job</a>
+                               
                             <?php } ?>
-
                         </div>
-
-                    </div>
-                    <div class="space15"></div>
+                </header>
+                <div class="adv-table editable-table mt-2" style="overflow-y: scroll;">                  
 
                     <table class="table table-striped table-hover table-bordered" style="overflow:scroll;">
                         <thead>
@@ -200,6 +189,53 @@
                     </table>
                 </div>
             </div>
-        </section>
+         </section>
+    </div>
+    <div class="col-sm-2">       
+        <section class="panel">
+            <header class="panel-heading">
+                Project Data
+            </header>
+            <div class="panel-body">
+                <h5 class="text-dark font-weight-bold mb-2">Project Code</h5>
+                <p class="ml-2"><a href="<?= base_url() ?>projectManagment/projectJobs?t=<?= base64_encode($project_data->project_id ?? '') ?>"><?= $this->projects_model->getProjectCode($project_data->project_id ?? '') ?></a></p>
+
+                <h5 class="text-dark font-weight-bold">Project Name</h5>
+                <p class="ml-2"><?= $project_data->project_name; ?></p>
+
+                <h5 class="text-dark font-weight-bold mb-2">Client</h5>
+                <p class="ml-2"><?= $this->customer_model->getCustomer($project_data->customer); ?></p>
+
+                <h5 class="text-dark font-weight-bold mb-2">Product Line</h5>
+                <p class="ml-2"><?= $this->customer_model->getProductLine($project_data->product_line); ?></p>
+                <?php if ($this->brand == 1) { ?>
+                    <h5 class="text-dark font-weight-bold mb-2">TTG Branch Name</h5>
+                    <p class="ml-2"><?= $this->projects_model->getTTGBranchName($project_data->branch_name); ?></p>
+                <?php } ?>
+                <h5 class="text-dark font-weight-bold mb-2">Created By</h5>
+                <p class="ml-2"><?= $this->admin_model->getAdmin($project_data->created_by); ?></p>
+
+                <h5 class="text-dark font-weight-bold mb-2">Created At</h5>
+                <p class="ml-2"><?= $project_data->created_at; ?></p>
+                <hr/>
+                <?php $re = $this->projects_model->getPlanRevenue($project_data->id);
+                $co = $this->projects_model->getPlanCost($project_data->id);?>
+                <h5 class="text-dark font-weight-bold mb-2">Project Revenue </h5>
+                <p class="ml-2"><?= round($re,2).' $' ?></p>               
+                <h5 class="text-dark font-weight-bold mb-2">Project Cost  </h5>
+                <p class="ml-2"><?= round($co,2).' $' ?></p>                
+                <h5 class="text-dark font-weight-bold mb-2">Project Profit   </h5>
+                <p class="ml-2"><?= round($this->projects_model->getPlanProfit($project_data->id),2).' $' ?></p>                
+                <h5 class="text-dark font-weight-bold mb-2">Project Profit Percentage % </h5>
+                <p class="ml-2"><?= round($this->projects_model->getProfitCurrentPercentage($re,$co),2).' %' ?></p>
+                
+                <h5 class="text-dark font-weight-bold mb-2">Minimum Project Profit Percentage % </h5>
+                <p class="ml-2"><?= $this->projects_model->getProfitPercentageSetup($this->brand)?> %</p>
+             
+              
+               
+
+            </div>
+        </section>     
     </div>
 </div>

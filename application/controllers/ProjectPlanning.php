@@ -928,51 +928,59 @@ class ProjectPlanning extends CI_Controller
         $check = $this->admin_model->checkPermission($this->role, 38);
         if ($check) {
             if (isset($_POST['submit'])) {
-                $row = $this->db->get_where('project_planning', array('id' => $_POST['id']))->row();
-                $project['lead'] = $row->lead;
-                $project['customer'] = $row->customer;
-                $project['name'] = $row->project_name;
-                $project['product_line'] = $row->product_line;
-                $project['code'] = $this->projects_model->generateProjectCode($project['lead'], $this->user);
-                $project['created_by'] = $this->user;
-                $project['created_at'] = date("Y-m-d H:i:s");
-                if ($this->brand == 1)
-                    $project['branch_name'] = $row->branch_name;
+                // check min. per for planning 
+                $checkPer = $this->projects_model->checkPlanProfitPercentage($_POST['id']);
+                if($checkPer){
+                    $row = $this->db->get_where('project_planning', array('id' => $_POST['id']))->row();
+                    $project['lead'] = $row->lead;
+                    $project['customer'] = $row->customer;
+                    $project['name'] = $row->project_name;
+                    $project['product_line'] = $row->product_line;
+                    $project['code'] = $this->projects_model->generateProjectCode($project['lead'], $this->user);
+                    $project['created_by'] = $this->user;
+                    $project['created_at'] = date("Y-m-d H:i:s");
+                    if ($this->brand == 1)
+                        $project['branch_name'] = $row->branch_name;
 
 
-                // first save as a project
-                if ($this->db->insert('project', $project)) {
-                    $project_id = $this->db->insert_id();
+                    // first save as a project
+                    if ($this->db->insert('project', $project)) {
+                        $project_id = $this->db->insert_id();
 
-                    $job_data['status'] = 0;
-                    $job_data['project_id'] = $project_id;
-                    $projectPlan['project_id'] = $project_id;
-                    $projectPlan['status'] = 1;
-                    //  update project plan with status & project_id
-                    $this->admin_model->addToLoggerUpdate('project_planning', 38, 'id', $_POST['id'], 0, 0, $this->user);
-                    $this->db->update('project_planning', $projectPlan, array('id' => $_POST['id']));
-                    // update jobs with project_id & & status & code
-                    $jobs = $this->db->get_where('job', array('plan_id' => $_POST['id']))->result();
-                    foreach ($jobs as $job) {
-                        $job_data['created_by'] = $this->user;
-                        $jobPrice = $this->db->get_where('job_price_list', array('id' => $job->price_list))->row();
-                        $job_data['code'] = $this->projects_model->updateJobCode($job_data['project_id'], $jobPrice->price_list_id, $job->id);
-                        $this->db->update('job', $job_data, array('id' => $job->id));
-                        // update tasks
-                        $tasks = $this->db->get_where('job_task', array('job_id' => $job->id))->result();
-                        foreach ($tasks as $task) {
-                            $task_data['code'] = $this->projects_model->updateTaskCode($job->id, $task->id);
-                            $this->db->update('job_task', $task_data, array('id' => $task->id));
+                        $job_data['status'] = 0;
+                        $job_data['project_id'] = $project_id;
+                        $projectPlan['project_id'] = $project_id;
+                        $projectPlan['status'] = 1;
+                        //  update project plan with status & project_id
+                        $this->admin_model->addToLoggerUpdate('project_planning', 38, 'id', $_POST['id'], 0, 0, $this->user);
+                        $this->db->update('project_planning', $projectPlan, array('id' => $_POST['id']));
+                        // update jobs with project_id & & status & code
+                        $jobs = $this->db->get_where('job', array('plan_id' => $_POST['id']))->result();
+                        foreach ($jobs as $job) {
+                            $job_data['created_by'] = $this->user;
+                            $jobPrice = $this->db->get_where('job_price_list', array('id' => $job->price_list))->row();
+                            $job_data['code'] = $this->projects_model->updateJobCode($job_data['project_id'], $jobPrice->price_list_id, $job->id);
+                            $this->db->update('job', $job_data, array('id' => $job->id));
+                            // update tasks
+                            $tasks = $this->db->get_where('job_task', array('job_id' => $job->id))->result();
+                            foreach ($tasks as $task) {
+                                $task_data['code'] = $this->projects_model->updateTaskCode($job->id, $task->id);
+                                $this->db->update('job_task', $task_data, array('id' => $task->id));
+                            }
                         }
-                    }
 
-                    $true = "Project Added Successfully ...";
-                    $this->session->set_flashdata('true', $true);
-                    redirect(base_url() . "ProjectManagment");
-                } else {
-                    $error = "Failed To Add Project ...";
-                    $this->session->set_flashdata('error', $error);
-                    redirect(base_url() . "ProjectManagment");
+                        $true = "Project Added Successfully ...";
+                        $this->session->set_flashdata('true', $true);
+                        redirect(base_url() . "ProjectManagment");
+                    } else {
+                        $error = "Failed To Add Project ...";
+                        $this->session->set_flashdata('error', $error);
+                        redirect(base_url() . "ProjectManagment");
+                    }
+                }else{
+                        $error = "Failed To Add Project <br/>Project Profit Percentage < Minimum Profit Percentage";
+                        $this->session->set_flashdata('error', $error);
+                        redirect(base_url() . "ProjectPlanning");
                 }
             } elseif (isset($_POST['reject'])) {
                 // $projectPlan['reject_reason'] = $_POST['reject_reason'];

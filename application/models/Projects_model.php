@@ -6348,6 +6348,9 @@ class Projects_model extends CI_Model
         $result = $profit/$revenue*100 ;
         else
             $result = 0 ;
+        
+        if($result < 0 )
+            $result = 0;
         return $result;
           
     }    
@@ -6359,6 +6362,9 @@ class Projects_model extends CI_Model
             $currentProjectPre = $profit/$revenue*100 ;
         else
             $currentProjectPre = 0 ; 
+        
+       if($currentProjectPre < 0 )
+            $currentProjectPre = 0;
        
         return $currentProjectPre;
           
@@ -6593,5 +6599,138 @@ class Projects_model extends CI_Model
        
         return $error ;
     }    
+    
+    // planning
+    public function getPlanRevenue ($plan_id)    {
+        $total = 0;       
+        $jobs = $this->db->get_where('job', array('plan_id' => $plan_id))->result();      
+        if(!empty($jobs)){
+            foreach($jobs as $row){ 
+                $priceList = $this->projects_model->getJobPriceListData($row->price_list);
+                $revenue = $this->sales_model->calculateRevenueJob($row->id, $row->type, $row->volume, $priceList->id);
+                // ConvertCurrencyToDollar
+                $revenueDollar = self::convertCurrencyToDollar($priceList->currency, $row->created_at, $revenue);
+                $total += $revenueDollar;
+            }
+        }
+        if(!empty($data)){  
+            $data['created_at'] =  $this->db->get_where('job', array('id' => $job_id))->row()->created_at;
+            $data = (object) $data;
+            $priceList = $this->projects_model->getJobPriceListData($data->price_list);
+            $revenue = $this->sales_model->calculateRevenueJob($data->id, $data->type, $data->volume, $priceList->id);
+            // ConvertCurrencyToDollar
+            $revenueDollar = self::convertCurrencyToDollar($priceList->currency, $data->created_at, $revenue);
+            $total += $revenueDollar;            
+        }
+       
+        return $total;
+    }
+    
+    public function getPlanCost($plan_id)    {
+        $cost = 0;
+        $jobs = $this->db->get_where('job', array('plan_id' => $plan_id))->result();
+        if(!empty($jobs)){
+            foreach($jobs as $job){
+                // vendor tasks 
+                if(!empty($task_type) && $task_type == 1){
+                    $vTasks = $this->db->get_where('job_task', array('job_id' => $job->id,'status !='=>2,'status !='=>3,'id !='=>$task_id))->result();
+                }
+                else{
+                    $vTasks = $this->db->get_where('job_task', array('job_id' => $job->id,'status !='=>2,'status !='=>3))->result();
+                }
+                if(!empty($vTasks)){
+                    foreach($vTasks as $task){
+                        $taskCost = $task->rate * $task->count;                        
+                         // ConvertCurrencyToDollar
+                        $cost += self::convertCurrencyToDollar($task->currency, $task->created_at, $taskCost);
+                    }
+                }
+                // translation tasks 
+                if(!empty($task_type) && $task_type == 2){
+                    $transTasks = $this->db->get_where('translation_request', array('job_id' => $job->id,'status !='=>4,'id !='=>$task_id))->result();                
+                }
+                else{
+                   $transTasks = $this->db->get_where('translation_request', array('job_id' => $job->id,'status !='=>4))->result();
+                }   
+               if(!empty($transTasks)){
+                    foreach($transTasks as $task){
+                        $hourRate = self::getTranslationHourRate();
+                        $workCost = $task->work_hours * $hourRate;                        
+                        $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
+                        $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
+                        $taskCost = $workCost + $overtimeCost + $doublepaidCost;
+                      
+                        // ConvertCurrencyToDollar
+                        $cost += self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
+                    }
+                }
+                // dtp tasks 
+                if(!empty($task_type) && $task_type == 3){
+                    $dtTasks = $this->db->get_where('dtp_request', array('job_id' => $job->id,'status !='=>4,'id !='=>$task_id))->result();
+                }
+                else{
+                    $dtTasks = $this->db->get_where('dtp_request', array('job_id' => $job->id,'status !='=>4))->result();
+                }
+                if(!empty($dtpTasks)){
+                    foreach($dtpTasks as $task){
+                        $hourRate = self::getDtpHourRate();
+                        $workCost = $task->work_hours * $hourRate;                        
+                        $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
+                        $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
+                        $taskCost = $workCost + $overtimeCost + $doublepaidCost;
+                         // ConvertCurrencyToDollar
+                        $cost += self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
+                    }
+                }
+                // le tasks 
+                 if(!empty($task_type) && $task_type == 4){
+                    $leTasks = $this->db->get_where('le_request', array('job_id' => $job->id,'status !='=>4,'id !='=>$task_id))->result();
+                }
+                else{
+                    $leTasks = $this->db->get_where('le_request', array('job_id' => $job->id,'status !='=>4))->result();
+                }
+                if(!empty($leTasks)){
+                    foreach($leTasks as $task){
+                        $hourRate = self::getLeHourRate();
+                        $workCost = $task->work_hours * $hourRate;                        
+                        $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
+                        $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
+                        $taskCost = $workCost + $overtimeCost + $doublepaidCost;
+                         // ConvertCurrencyToDollar
+                        $cost += self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
+                    }
+                }
+            }
+        }
+       
+        return $cost ;
+    }
+    
+    public function getPlanProfit($plan_id){
+        $revenue = self::getPlanRevenue($plan_id) ;
+        $cost = self::getPlanCost($plan_id) ;
+        $result = $revenue - $cost ;
+        return $result;
+    }
+    
+    public function checkPlanProfitPercentage($plan_id){           
+        $minProjectPre =  $this->projects_model->getProfitPercentageSetup($this->brand);
+        if(!empty($minProjectPre)){
+           $re = self::getPlanRevenue($plan_id);
+            $co = self::getPlanCost($plan_id);
+            $currentProjectPre = self::getProfitCurrentPercentage($re,$co);
+            // start checking
+            if($currentProjectPre >=  $minProjectPre){
+                $result = true;
+            }else{
+                $result = false;
+            }
+        }else{
+            $result = true;
+        }  
+        return $result;
+          
+    }
+   
    
 }
