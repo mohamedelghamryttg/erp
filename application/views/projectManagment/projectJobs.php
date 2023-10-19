@@ -87,7 +87,7 @@
                     <li><b>You have to add Q.C. to each job before close jobs.</b></li>
                     <li><b>You have to add Vendor Evaluation to each vendor Task before close jobs.</b></li>
                 </ul>
-                <?php $this->view('ProjectManagment/projectJobs_includes'); ?>
+                <?php $this->view('projectManagment/projectJobs_includes'); ?>
             </div>
         </section>
 
@@ -483,7 +483,7 @@
                                                     <i class="fa fa-list"></i> View
                                                 </a>
                                             <?php }
-                                            $this->view('ProjectManagment/projectJobs_includes2'); ?>
+                                            $this->view('projectManagment/projectJobs_includes2'); ?>
                                         </td>
                                         <!--                                        <td>
                                                                                                                                                                                                <?php
