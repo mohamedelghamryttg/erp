@@ -86,7 +86,7 @@ class Payroll extends CI_Controller
                     $cond2 = "(Year(start_date)='$yearVal' || Year(end_date)='$yearVal')";
                 }
 
-                $cond3 = "emp_id LIKE '%$employee_name%'";
+                $cond3 = "emp_id = '$employee_name'";
                 $cond4 = "action = '$action'";
                 $arr1 = array($cond1, $cond2, $cond3, $cond4);
                 $arr_1_cnt = count($arr2);
@@ -375,7 +375,7 @@ class Payroll extends CI_Controller
             $cond1 = "(MONTH(start_date)='$month') || (MONTH(start_date)>='$month' AND MONTH(end_date)<='$month')";
             $cond2 = "(Year(start_date)='$year') || (Year(start_date)>='$year' AND Year(end_date)<='$year')";
 
-            $cond3 = "emp_id LIKE '%$employee_name%'";
+            $cond3 = "emp_id = '$employee_name'";
             $arr1 = array($cond1, $cond2, $cond3);
             $arr_1_cnt = count($arr2);
             $arr3 = array();

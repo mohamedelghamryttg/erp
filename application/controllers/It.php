@@ -76,7 +76,7 @@ class It extends CI_Controller {
                     $type = "";
                 }
                 $cond1 = "date_format(created_at, '%m') LIKE '%$month%'";               
-                $cond2 = "emp_id LIKE '%$employee_name%'";                
+                $cond2 = "emp_id = '$employee_name'";                
                 $cond3 = "emp_id IN ($empIds)";
                 $cond4 = "ticket_type = '$type'";
                 $arr1 = array($cond1, $cond2, $cond3, $cond4);

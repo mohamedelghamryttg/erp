@@ -447,7 +447,7 @@ class PerformanceManagment extends CI_Controller
 
                 $cond1 = "year LIKE '%$year%'";
                 $cond2 = "month LIKE '%$month%'";
-                $cond3 = "emp_id LIKE '%$employee_name%'";
+                $cond3 = "emp_id = '$employee_name'";
                 $cond4 = "emp_id IN ($empIds)";
                 $cond5 = "id IN ($scoreIds)";
                 $cond6 = "status = $status";
@@ -1038,7 +1038,7 @@ class PerformanceManagment extends CI_Controller
                     $data['employee_name'] = $employee_name = "";
                 }
                 $cond1 = "MONTH(date) = '$month'";
-                $cond2 = "emp_id LIKE '%$employee_name%'";
+                $cond2 = "emp_id = '$employee_name'";
                 $arr1 = array($cond1, $cond2);
                 $arr_1_cnt = count($arr2);
                 $arr3 = array();
@@ -1328,7 +1328,7 @@ class PerformanceManagment extends CI_Controller
 
             $cond1 = "year LIKE '%$year%'";
             $cond2 = "month LIKE '%$month%'";
-            $cond3 = "emp_id LIKE '%$employee_name%'";
+            $cond3 = "emp_id = '$employee_name'";
             $cond4 = "emp_id IN ($empIds)";
             $cond5 = "id IN ($scoreIds)";
             $cond6 = "status = $status";
