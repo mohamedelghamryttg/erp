@@ -839,8 +839,16 @@ class ProjectManagment extends CI_Controller
             $jobData['status'] = 0;
             $jobData['po'] = null;
             $this->admin_model->addToLoggerUpdate('job', 65, 'id', $job, 0, 0, $this->user);
-            if ($this->db->update('job', $jobData, array('id' => $job))) {
-                $this->admin_model->addToLoggerDelete('po', 65, 'id', $po, 0, 0, $this->user);
+            if ($this->db->update('job', $jobData, array('id' => $job))) {               
+                // check if po has others jobs if yes not delete
+                // check jobs where id != this job_id 
+               $checkPO =  $this->db->get_where('job', array('po' => $po,'id !='=>$job))->num_rows();
+               if($checkPO == 0){               
+                    $this->admin_model->addToLoggerDelete('po', 65, 'id', $po, 0, 0, $this->user);
+                     $this->db->delete('po',array('id'=>$po));
+               }
+                
+               
                 $true = "Job Re-opened Successfully ...";
                 $this->session->set_flashdata('true', $true);
                 redirect($_SERVER['HTTP_REFERER']);
@@ -6300,7 +6308,7 @@ class ProjectManagment extends CI_Controller
     {
         $check = $this->admin_model->checkPermission($this->role, 67);
         if ($check) {
-
+          
             // check if alreday exists
             $job_qc = $this->db->get_where('job_qc', array('job_id' => $_POST['job_id']))->row();
             $project_id = $_POST['project_id'] ? base64_encode($_POST['project_id']) : base64_encode($job_qc->project_id);
@@ -6331,13 +6339,13 @@ class ProjectManagment extends CI_Controller
                 }
                 if ($qc_type == 2 || $qc_type == 3) {
                     for ($i = 1; $i <= 30; $i++) {
-                        $data["logcheck$i"] = $_POST["label_logcheck$i"];
-                        $data["logcheck_value$i"] = $_POST["logcheck$i"];
+                        $data["logcheck$i"] = $_POST["label_logcheck$i"]??null;
+                        $data["logcheck_value$i"] = $_POST["logcheck$i"]??null;
                     }
                     for ($i = 31; $i <= 35; $i++) {
                         $x = $i - 30;
-                        $data["logcheck$i"] = $_POST["label_logcheckn$x"];
-                        $data["logcheck_value$i"] = $_POST["logcheckn$x"];
+                        $data["logcheck$i"] = $_POST["label_logcheckn$x"]??null;
+                        $data["logcheck_value$i"] = $_POST["logcheckn$x"]??null;
                     }
                 }
                 $data['created_by'] = $this->user;
@@ -6386,13 +6394,13 @@ class ProjectManagment extends CI_Controller
                 }
                 if ($job_qc->qc_type == 2 || $job_qc->qc_type == 3) {
                     for ($i = 1; $i <= 30; $i++) {
-                        $data["logcheck$i"] = $_POST["label_logcheck$i"];
-                        $data["logcheck_value$i"] = $_POST["logcheck$i"];
+                        $data["logcheck$i"] = $_POST["label_logcheck$i"]??null;
+                        $data["logcheck_value$i"] = $_POST["logcheck$i"]??null;
                     }
                     for ($i = 31; $i <= 35; $i++) {
                         $x = $i - 30;
-                        $data["logcheck$i"] = $_POST["label_logcheckn$x"];
-                        $data["logcheck_value$i"] = $_POST["logcheckn$x"];
+                        $data["logcheck$i"] = $_POST["label_logcheckn$x"]??null;
+                        $data["logcheck_value$i"] = $_POST["logcheckn$x"]??null;
                     }
                 }
                 $data['updated_by'] = $this->user;
