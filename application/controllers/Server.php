@@ -281,7 +281,7 @@ class Server extends CI_Controller
 		}
 	}
 
-	public function operationalReportBYPM()
+	public function operationalReportBYPM_old()
 	{
 		$key = base64_decode($_GET['t']);
 		if ($key == '@falaq123') {
@@ -535,7 +535,7 @@ class Server extends CI_Controller
 			}
 		}
 	}
-	public function operationalReportBYPM_new()
+	public function operationalReportBYPM()
 	{
 		$sended = true;
 		$query_tasks = $this->db->get_where('cron_tasks', array('command' => 'operationalReportBYPM'))->row();
@@ -551,8 +551,7 @@ class Server extends CI_Controller
 
 				$sended = false;
 			}
-			// var_dump($sended);
-			// die;
+
 			if ($sended == false) {
 				$tasks_date = array('report_date' => date("Y-m-d"));
 				$this->db->where('command', 'operationalReportBYPM');
@@ -571,7 +570,7 @@ class Server extends CI_Controller
 						$end_date = date('Y-m-d', strtotime("+1 day"));
 					}
 					$operationalReportBYPMFileName = $this->admin_model->operationalReportBYPM_new($start_date, $end_date);
-					// $this->admin_model->sendOperationalReportBYPM_new($operationalReportBYPMFileName, $start_date, $end_date);
+					$this->admin_model->sendOperationalReportBYPM_new($operationalReportBYPMFileName, $start_date, $end_date);
 				}
 			}
 		} else {
@@ -588,7 +587,7 @@ class Server extends CI_Controller
 			}
 
 			$operationalReportBYPMFileName = $this->admin_model->operationalReportBYPM_new($start_date, $end_date);
-			//$this->admin_model->sendOperationalReportBYPM_new($operationalReportBYPMFileName, $start_date, $end_date);
+			$this->admin_model->sendOperationalReportBYPM_new($operationalReportBYPMFileName, $start_date, $end_date);
 		}
 	}
 }
