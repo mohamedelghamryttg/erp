@@ -26,3 +26,4 @@ CREATE TABLE IF NOT EXISTS `emp_finance` (
   PRIMARY KEY (`id`)
 ) 
 
+ALTER TABLE `customer` ADD `customer_profile` TEXT NULL AFTER `client_type`, ADD `notes` TEXT NULL AFTER `customer_profile`; 

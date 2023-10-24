@@ -34,6 +34,20 @@
                             </select>		
                         </div>
                     </div>
+                    <div class="form-group row">
+                            <label class="col-lg-3 col-form-label text-right">Customer Profile</label>
+                            <div class="col-lg-6">
+                                    <input type="file" class=" form-control" name="customer_profile" accept=".zip,.rar,.7zip">
+
+                            </div>
+                    </div>
+                    <div class="form-group row">
+                            <label class="col-lg-3 col-form-label text-right">Notes</label>
+                            <div class="col-lg-6">
+                                     <textarea name="notes" class="form-control" rows="7"></textarea>
+
+                            </div>
+                    </div>
         <hr/>
         <div class="form-group">
             <label class="col-lg-3 control-label font-weight-bold " >Customer Leads   
