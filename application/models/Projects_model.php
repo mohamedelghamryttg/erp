@@ -128,7 +128,7 @@ class Projects_model extends CI_Model
             $projectCode = 'columbuslang-' . $id->Auto_increment;
         }
         return $projectCode;
-    }
+    }   
 
     public function updateProjectCode($lead, $id, $pm)
     {

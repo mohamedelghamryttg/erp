@@ -946,7 +946,11 @@ class ProjectPlanning extends CI_Controller
                     // first save as a project
                     if ($this->db->insert('project', $project)) {
                         $project_id = $this->db->insert_id();
-
+                        // update project code
+                            $code['code'] = $this->projects_model->updateProjectCode($project['lead'],$project_id, $this->user);
+                            $this->db->update('project', $code, array('id' => $project_id));
+                        // end update    
+                    
                         $job_data['status'] = 0;
                         $job_data['project_id'] = $project_id;
                         $projectPlan['project_id'] = $project_id;

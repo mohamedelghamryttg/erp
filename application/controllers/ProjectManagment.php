@@ -224,6 +224,10 @@ class ProjectManagment extends CI_Controller
             
             if ($this->db->insert('project', $data)) {
                 $project_id = $this->db->insert_id();
+                // update project code
+                    $code['code'] = $this->projects_model->updateProjectCode($data['lead'],$project_id, $this->user);
+                    $this->db->update('project', $code, array('id' => $project_id));
+                    // end update
                 $jobsNum = $_POST['new_job'];
                 for ($i = 1; $i < $jobsNum; $i++) {
                     if (isset($_POST['price_list_' . $i])) {
@@ -1993,8 +1997,11 @@ class ProjectManagment extends CI_Controller
             
                 $opportunity['saved'] = 1;
                 if ($this->db->insert('project', $project)) {
-                    $job_data['project_id'] = $this->db->insert_id();
-
+                    $project_id = $job_data['project_id'] = $this->db->insert_id();
+                     // update project code
+                    $code['code'] = $this->projects_model->updateProjectCode($project['lead'],$project_id, $this->user);
+                    $this->db->update('project', $code, array('id' => $project_id));
+                    // end update                  
                     $this->admin_model->addToLoggerUpdate('sales_opportunity', 38, 'id', $project['opportunity'], 0, 0, $this->user);
                     $this->db->update('sales_opportunity', $opportunity, array('id' => $project['opportunity']));
 
