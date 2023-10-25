@@ -515,6 +515,7 @@ class Vendor_model extends CI_Model
             'wordwrap' => TRUE,
 
         );
+        $row = $this->db->get_where('vm_ticket', array('id' => $ticketNumber))->row();
         $pmMail = $this->admin_model->getUserEmail($user);
         $pmManagerEmail = $this->projects_model->getUserManagerEmail();
         $subject = "New Ticket : #" . $ticketNumber . " - " . $emailSubject;
@@ -576,7 +577,78 @@ class Vendor_model extends CI_Model
                     <p>Dear VM Team,</p>
                        <p> Please Check This New Ticket #' . $ticketNumber . ' </p>
                        <p>Created By : ' . $this->admin_model->getUser($user) . '</p>
-                       <p> Thanks</p>
+                       <div class="space15"></div>                                    
+                            <table class="table table-striped table-hover table-bordered" id="" style="overflow:scroll;border: 1px solid;width: 100%;text-align: center">
+                                <tbody>
+                                    <tr>
+                                         <td colspan=2 style="background-color: #ddd;">Ticket Data</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Ticket Number</td>
+                                         <td style="background-color:#ddd;">' . $ticketNumber . '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Ticket Subject</td>
+                                         <td style="background-color:#ddd;">' . $row->ticket_subject . '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Request Type</td>
+                                         <td style="background-color:#ddd;">' . self::getTicketType($row->request_type) . '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Number Of Rescource</td>
+                                         <td style="background-color:#ddd;">' . $row->number_of_resource . '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Service</td>
+                                         <td style="background-color:#ddd;">' . $this->admin_model->getServices($row->service) . '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Task Type</td>
+                                         <td style="background-color:#ddd;">' . $this->admin_model->getTaskType($row->task_type) . '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Rate</td>
+                                         <td style="background-color:#ddd;">' . $row->rate . '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Count</td>
+                                         <td style="background-color:#ddd;">' . $row->count . '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Unit</td>
+                                         <td style="background-color:#ddd;">' . $this->admin_model->getUnit($row->unit) . '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Currency</td>
+                                         <td style="background-color:#ddd;">' . $this->admin_model->getCurrency($row->currency) . '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Source Language</td>
+                                         <td style="background-color:#ddd;">' . $this->admin_model->getLanguage($row->source_lang). '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Target Language</td>
+                                         <td style="background-color:#ddd;">' . $this->admin_model->getLanguage($row->target_lang) . '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Start Date</td>
+                                         <td style="background-color:#ddd;">' . $row->start_date . '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Delivery Date</td>
+                                         <td style="background-color:#ddd;">' . $row->delivery_date . '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Subject Matter</td>
+                                         <td style="background-color:#ddd;">' . $this->admin_model->getFields($row->subject) . '</td>
+                                    </tr>
+                                    <tr>
+                                         <td style="background-color: #f9f9f9;">Software</td>
+                                         <td style="background-color:#ddd;">' . $this->sales_model->getToolName($row->software) . '</td>
+                                    </tr>                                    
+                                </tbody>
+                            </table>
                     </body>
                     </html>';
         $this->email->message($message);
