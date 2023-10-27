@@ -2656,19 +2656,27 @@ class Accounting extends CI_Controller
                 } else {
                     $po = "";
                 }
-
-                //print_r($arr2);
+                if (isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])) {
+                    $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
+                    $date_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
+                    if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
+                        array_push($arr2, 2);
+                    }
+                } else {
+                    $date_to = "";
+                    $date_from = "";
+                }
                 $cond1 = "c.customer = '$customer'";
                 $cond2 = "c.po = '$poID'";
-                //$cond3 = "";
-                $arr1 = array($cond1, $cond2);
+                $cond3 = "c.created_at BETWEEN '$date_from' AND '$date_to' ";
+
+                $arr1 = array($cond1, $cond2, $cond3);
                 $arr_1_cnt = count($arr2);
                 $arr3 = array();
                 for ($i = 0; $i < $arr_1_cnt; $i++) {
                     array_push($arr3, $arr1[$arr2[$i]]);
                 }
                 $arr4 = implode(" and ", $arr3);
-                //print_r($arr4);     
                 if ($arr_1_cnt > 0) {
                     $data['creditNote'] = $this->accounting_model->creditNote($this->brand, $arr4);
                 } else {
@@ -2720,6 +2728,68 @@ class Accounting extends CI_Controller
         } else {
             echo "You have no permission to access this page";
         }
+    }
+    public function exportcreditNote()
+    {
+
+
+        $file_ending = "xls";
+        header("Content-Type: application/vnd.ms-excel");
+        header("Content-Disposition: attachment; filename=CreditNote.$file_ending");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 157);
+
+        $data['user'] = $this->user;
+        $data['brand'] = $this->brand;
+
+        $arr2 = array();
+        if (isset($_REQUEST['customer'])) {
+            $customer = $_REQUEST['customer'];
+            if (!empty($customer)) {
+                array_push($arr2, 0);
+            }
+        } else {
+            $customer = "";
+        }
+        if (isset($_REQUEST['po'])) {
+            $po = $_REQUEST['po'];
+            $poID = $this->accounting_model->getPONumberID($po);
+            if (!empty($po)) {
+                array_push($arr2, 1);
+            }
+        } else {
+            $po = "";
+        }
+        if (isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])) {
+            $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
+            $date_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
+            if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
+                array_push($arr2, 2);
+            }
+        } else {
+            $date_to = "";
+            $date_from = "";
+        }
+        $cond1 = "c.customer = '$customer'";
+        $cond2 = "c.po = '$poID'";
+        $cond3 = "c.created_at BETWEEN '$date_from' AND '$date_to' ";
+
+        $arr1 = array($cond1, $cond2, $cond3);
+        $arr_1_cnt = count($arr2);
+        $arr3 = array();
+        for ($i = 0; $i < $arr_1_cnt; $i++) {
+            array_push($arr3, $arr1[$arr2[$i]]);
+        }
+        $arr4 = implode(" and ", $arr3);
+        if ($arr_1_cnt > 0) {
+            $data['creditNote'] = $this->accounting_model->creditNote($this->brand, $arr4);
+        } else {
+            $data['creditNote'] = $this->accounting_model->creditNotePages($this->brand, 0, 0);
+        }
+
+        $this->load->view('accounting/exportcreditNote.php', $data);
     }
 
     public function addCreditNote()
