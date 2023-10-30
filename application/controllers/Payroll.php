@@ -345,44 +345,71 @@ class Payroll extends CI_Controller
             //body ..
 
             $arr2 = array();
-            if (isset($_REQUEST['month'])) {
-                $month = $_REQUEST['month'];
-                if (!empty($month)) {
-                    array_push($arr2, 0);
-                    $data['month'] = $month;
+            if (isset($_REQUEST['month']) && !empty($_REQUEST['month'])) {
+                    $month = $_REQUEST['month'];
+                    if (!empty($month)) {
+                        array_push($arr2, 0);
+                        $data['month'] = $month;
+                    }
+                } else {
+                    $data['month'] = $month = "";
                 }
-            } else {
-                $data['month'] = $month = "";
-            }
-            if (isset($_REQUEST['year'])) {
-                $year = $_REQUEST['year'];
-                if (!empty($year)) {
-                    array_push($arr2, 1);
-                    $data['year'] = $year;
-                }
-            } else {
-                $data['year'] = $year = "";
-            }
-            if (isset($_REQUEST['employee_name'])) {
-                $employee_name = $_REQUEST['employee_name'];
-                if (!empty($employee_name)) {
-                    array_push($arr2, 2);
-                    $data['employee_name'] = $employee_name;
-                }
-            } else {
-                $data['employee_name'] = $employee_name = "";
-            }
-            $cond1 = "(MONTH(start_date)='$month') || (MONTH(start_date)>='$month' AND MONTH(end_date)<='$month')";
-            $cond2 = "(Year(start_date)='$year') || (Year(start_date)>='$year' AND Year(end_date)<='$year')";
+                if (isset($_REQUEST['year']) && !empty($_REQUEST['year'])) {
+                    $year = $_REQUEST['year'];
+                    if (!empty($year)) {
+                        array_push($arr2, 1);
+                        $data['yearVal'] = $yearVal = $this->hr_model->getYear($year);
+                        $data['year'] = $year;
+                    }
+                } elseif (isset($_REQUEST['yearValue'])) {
+                    $year = $this->db->get_where('years', array('name' => $_REQUEST['yearValue']))->row();
 
-            $cond3 = "emp_id = '$employee_name'";
-            $arr1 = array($cond1, $cond2, $cond3);
-            $arr_1_cnt = count($arr2);
-            $arr3 = array();
-            for ($i = 0; $i < $arr_1_cnt; $i++) {
-                array_push($arr3, $arr1[$arr2[$i]]);
-            }
-            $arr4 = implode(" and ", $arr3);
+                    if (!empty($year)) {
+                        array_push($arr2, 1);
+                        $data['yearVal'] = $yearVal = $_REQUEST['yearValue'];
+                        $data['year'] = $year->id;
+                    }
+                } else {
+                    $data['year'] = $data['yearVal'] = $year = $yearVal = "";
+                }
+                if (isset($_REQUEST['employee_name'])) {
+                    $employee_name = $_REQUEST['employee_name'];
+                    if (!empty($employee_name)) {
+                        array_push($arr2, 2);
+                        $data['employee_name'] = $employee_name;
+                    }
+                } else {
+                    $data['employee_name'] = $employee_name = "";
+                }
+                if (isset($_REQUEST['action'])) {
+                    $action = $_REQUEST['action'];
+                    if (!empty($action)) {
+                        array_push($arr2, 3);
+                        $data['action'] = $action;
+                    }
+                } else {
+                    $data['action'] = $action = "";
+                }
+                // search with (month& year) or only year
+                if (!empty($month) && !empty($yearVal)) {
+                    $searchDate = "$yearVal-$month-01";
+                    $cond1 = "(start_date <= '$searchDate' AND end_date>= '$searchDate' ) || start_date = '$searchDate'";
+                    $cond2 = "1";
+                } else {
+                    // $cond1 = "(MONTH(start_date)='$month') || (MONTH(start_date)>='$month' AND MONTH(end_date)<='$month')";
+                    $cond1 = "1";
+                    $cond2 = "(Year(start_date)='$yearVal' || Year(end_date)='$yearVal')";
+                }
+
+                $cond3 = "emp_id = '$employee_name'";
+                $cond4 = "action = '$action'";
+                $arr1 = array($cond1, $cond2, $cond3, $cond4);
+                $arr_1_cnt = count($arr2);
+                $arr3 = array();
+                for ($i = 0; $i < $arr_1_cnt; $i++) {
+                    array_push($arr3, $arr1[$arr2[$i]]);
+                }
+                $arr4 = implode(" and ", $arr3);
 
             if ($arr_1_cnt > 0) {
                 $data['logs'] = $this->hr_model->AllPayroll($data['permission'], $arr4);
