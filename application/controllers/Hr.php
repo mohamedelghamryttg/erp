@@ -1659,9 +1659,24 @@ class Hr extends CI_Controller
             // $data['emp_id'] = $this->hr_model->getEmpId($this->user);
             $data['emp_id'] = $this->emp_id;
             $data['type_of_vacation '] = $_POST['type_of_vacation'];
-            $data['start_date'] = $_POST['start_date'];
+             $data['start_date'] = $_POST['start_date'];
             //calculate end date 
             $data['end_date'] = $this->hr_model->getEndDate($_POST['type_of_vacation'], $_POST['start_date'], $_POST['end_date'], $_POST['relative_degree']);
+            
+            // if year for start date != this year return error cannot processed
+            $thisYear = date('Y');
+            $yearOfStart = date('Y', strtotime( $_POST['start_date']));
+            $yearOfEnd = date('Y', strtotime( $data['end_date']));
+            if($yearOfStart != $thisYear || $yearOfEnd != $thisYear){
+                if($yearOfStart != $thisYear)
+                    $diff = $yearOfStart;
+                elseif($yearOfEnd != $thisYear)
+                    $diff = $yearOfEnd;
+                $error = "Failed To Add Request ... <br/> you can't add vacation for $diff";
+                $this->session->set_flashdata('error', $error);
+                redirect(base_url() . "hr/vacation");
+            }
+            // end                     
             $data['created_by'] = $this->user;
             $data['created_at'] = date("Y-m-d H:i:s");
             $data['relative_degree'] = $_POST['relative_degree'];
