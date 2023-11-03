@@ -107,9 +107,9 @@ class Server extends CI_Controller
 	public function activeCustomersDaily()
 	{
 		// $key = base64_decode($_GET['t']);
-            $key = '@falaq123';
-            $brand = base64_decode($_GET['b']);
-            $brand_name = $this->db->query("SELECT * FROM `brand` where id = '$brand'")->row()->abbreviations;
+		$key = '@falaq123';
+		$brand = base64_decode($_GET['b']);
+		$brand_name = $this->db->query("SELECT * FROM `brand` where id = '$brand'")->row()->abbreviations;
             
             $dbReportName =   "activeCustomersDaily - $brand_name"; 
             $sended = true;
@@ -131,7 +131,7 @@ class Server extends CI_Controller
                     $this->db->where('command', "$dbReportName");
                     $this->db->update('cron_tasks', $tasks_date);
                     
-                    if ($key == '@falaq123') {
+		if ($key == '@falaq123') {
 			$day = date('D', strtotime("now"));
 			$date = date("Y-m-d");
 			if ($day == "Mon") {
@@ -164,8 +164,8 @@ class Server extends CI_Controller
 			$objWriter->save(getcwd() . '/assets/uploads/active_customers_report/' . $fileName);
 			$this->projects_model->activeCustomersDaily($fileName, $brand_name);
 		}
-                }
-                
+	}
+
             }else {
 
                     $tasks_date = array('command' => "$dbReportName", 'report_date' => date("Y-m-d"));
@@ -328,26 +328,26 @@ class Server extends CI_Controller
                         $this->db->where('command', 'operationalReportBYCustomer');
                         $this->db->update('cron_tasks', $tasks_date);
 
-                        $key = base64_decode($_GET['t']);
-                        if ($key == '@falaq123') {
-                                $day = date('d', strtotime("now"));
-                                if ($day > "06") {
-                                        $start_date = date('Y-m', strtotime("now")) . "-06";
-                                        $end_date = date('Y-m-d', strtotime("+1 day"));
-                                } else if ($day <= "06") {
-                                        $start_date = date('Y-m', strtotime("-1 month")) . "-06";
-                                        $end_date = date('Y-m-d', strtotime("+1 day"));
-                                }
-                                // echo "Start Date: ".$start_date."----"."End Date:".$end_date;
+		$key = base64_decode($_GET['t']);
+		if ($key == '@falaq123') {
+			$day = date('d', strtotime("now"));
+			if ($day > "06") {
+				$start_date = date('Y-m', strtotime("now")) . "-06";
+				$end_date = date('Y-m-d', strtotime("+1 day"));
+			} else if ($day <= "06") {
+				$start_date = date('Y-m', strtotime("-1 month")) . "-06";
+				$end_date = date('Y-m-d', strtotime("+1 day"));
+			}
+			// echo "Start Date: ".$start_date."----"."End Date:".$end_date;
 
-                                $TTGFileName = $this->admin_model->operationalReportBYCustomer(1, "TTG", $start_date, $end_date);
-                                $DTPFileName = $this->admin_model->operationalReportBYCustomer(2, "Localizera", $start_date, $end_date);
-                                $EuropeFileName = $this->admin_model->operationalReportBYCustomer(3, "EuropeLocalize", $start_date, $end_date);
-                                $ColumbusFileName = $this->admin_model->operationalReportBYCustomer(11, "Columbuslang", $start_date, $end_date);
+			$TTGFileName = $this->admin_model->operationalReportBYCustomer(1, "TTG", $start_date, $end_date);
+			$DTPFileName = $this->admin_model->operationalReportBYCustomer(2, "Localizera", $start_date, $end_date);
+			$EuropeFileName = $this->admin_model->operationalReportBYCustomer(3, "EuropeLocalize", $start_date, $end_date);
+			$ColumbusFileName = $this->admin_model->operationalReportBYCustomer(11, "Columbuslang", $start_date, $end_date);
 
-                                $this->admin_model->sendOperationalReportBYCustomer($TTGFileName, $DTPFileName, $EuropeFileName, $ColumbusFileName, $start_date, $end_date);
-                        }
-                    }  
+			$this->admin_model->sendOperationalReportBYCustomer($TTGFileName, $DTPFileName, $EuropeFileName, $ColumbusFileName, $start_date, $end_date);
+		}
+	}
                 } 
                 else {
 
@@ -490,7 +490,7 @@ class Server extends CI_Controller
 
 			$this->admin_model->sendOperationalReportBYSAMActivities($TTGFileName, $DTPFileName, $EuropeFileName, $ColumbusFileName, $start_date, $end_date);
 		}
-                        }
+	}
                 }else {
 
 			$tasks_date = array('command' => 'operationalReportBYSAMActivities', 'report_date' => date("Y-m-d"));
@@ -569,7 +569,7 @@ class Server extends CI_Controller
 						$start_date = date('Y-m', strtotime("-1 month")) . "-06";
 						$end_date = date('Y-m-d', strtotime("+1 day"));
 					}
-					$operationalReportBYPMFileName = $this->admin_model->operationalReportBYPM_new($start_date, $end_date);
+					$operationalReportBYPMFileName = $this->admin_model->operationalReportBYPM($start_date, $end_date);
 					$this->admin_model->sendOperationalReportBYPM_new($operationalReportBYPMFileName, $start_date, $end_date);
 				}
 			}
@@ -586,7 +586,7 @@ class Server extends CI_Controller
 				$end_date = date('Y-m-d', strtotime("+1 day"));
 			}
 
-			$operationalReportBYPMFileName = $this->admin_model->operationalReportBYPM_new($start_date, $end_date);
+			$operationalReportBYPMFileName = $this->admin_model->operationalReportBYPM($start_date, $end_date);
 			$this->admin_model->sendOperationalReportBYPM_new($operationalReportBYPMFileName, $start_date, $end_date);
 		}
 	}
