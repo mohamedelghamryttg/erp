@@ -74,13 +74,13 @@
                         <label class="col-lg-2 col-form-label text-right">Date From <span
                                 class="text-danger">*</span></label>
                         <div class="col-lg-4">
-                            <input name="date_from" type="text" class="form-control date_sheet" value="<?=$row->date_from?>" readonly="readonly" placeholder="Select date" />
+                            <input name="date_from" type="text" class="form-control date_sheet" value="<?=$row->date_from?>" readonly="readonly" placeholder="Select date" required=""/>
                         </div>
 
                         <label class="col-lg-2 col-form-label text-right">Date To <span
                                 class="text-danger">*</span></label>
                         <div class="col-lg-4">
-                            <input name="date_to" type="text" class="form-control date_sheet" value="<?=$row->date_to?>" readonly="readonly" placeholder="Select date" />
+                            <input name="date_to" type="text" class="form-control date_sheet" value="<?=$row->date_to?>" readonly="readonly" placeholder="Select date" required=""/>
 
                         </div>
                     </div>

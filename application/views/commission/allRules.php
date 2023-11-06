@@ -13,7 +13,7 @@
 <?php } ?>
 <?php if ($this->session->flashdata('error')) { ?>
     <div class="alert alert-danger" role="alert">
-        <span class="fa fa-warning"></span>
+        <span class="fas fa-times-circle"></span>
         <span><strong>
                 <?= $this->session->flashdata('error') ?>
             </strong></span>
@@ -25,7 +25,7 @@
                 <h3 class="card-title">Search </h3>
             </div>
 
-            <form class="form" id="Filter" action="<?php echo base_url() ?>commission" method="get" enctype="multipart/form-data">
+            <form class="form" id="Filter" action="<?php echo base_url() ?>commission" method="get" >
                 <div class="card-body">
                    
                     <div class="form-group row">
@@ -49,15 +49,12 @@
                                 <option value="">-- Select Brand --</option>
                                  <?= $this->admin_model->selectBrand($brand ?? '') ?>
                             </select>
-                        </div>
-                     
-                    </div>
-                 
+                        </div>                     
+                    </div>                
                    
                         <div class="row">
-
                             <div class="col-lg-12 text-center">
-                                <button class="btn btn-success mr-2 btn-sm" name="search" type="submit">Search</button>
+                                <button class="btn btn-success btn-sm" name="search" type="submit">Search</button>
                                 <a href="<?= base_url() ?>commission/tickets" class="btn btn-danger btn-sm"><i class="la la-trash"></i>Clear Filter</a>
                                 <button class="btn btn-warning btn-sm" onclick="var e2 = document.getElementById('Filter'); e2.action='<?= base_url() ?>commission/exportTickets'; e2.submit();" name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export
                                     To Excel</button>
@@ -81,8 +78,90 @@
             </div>
             <div class="card-toolbar">  
                 <?php if ($permission->add == 1) { ?>
-                    <a href="<?= base_url() ?>commission/addRule" class="btn btn-primary btn-sm font-weight-bolder">
-                        <i class="fa fa-pen"></i>Add New rule</a>
+                    <a href="<?= base_url() ?>commission/addRule" class="btn btn-dark btn-sm font-weight-bolder">
+                        <i class="fa fa-pen"></i>Add New Rule</a>
+                    <button type="button" class="btn btn-dark btn-sm font-weight-bolder" data-toggle="modal" data-target="#exampleModal">
+                        <i class="fas fa-copy"></i>Copy Rule</button>                        
+                        <!-- Modal-->
+                        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Copy All Data </h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <i aria-hidden="true" class="ki ki-close"></i>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form class="form" id="Filter" action="<?php echo base_url() ?>commission/copyRule" method="post" >
+                                         <h5 class="font-size-lg text-dark font-weight-bold mb-6 ml-5">Copy From :</h5>  
+                                            <div class="form-group row">
+                                                <label class="col-lg-2 col-form-label text-right">Year <span
+                                                        class="text-danger">*</span></label>
+                                                <div class="col-lg-4">
+                                                    <select name="year_old" class="form-control" id="year_old" required>
+                                                        <option disabled="disabled" selected="selected" value="">-- Select Year --
+                                                        </option>
+                                                        <?= $this->accounting_model->selectYear() ?>
+                                                    </select>
+                                                </div>
+                                                <label class="col-lg-2 col-form-label text-right">Month <span
+                                                        class="text-danger">*</span></label>
+                                                <div class="col-lg-4">
+                                                    <select name="month_old" class="form-control" id="month_old" required>
+                                                        <option disabled="disabled" selected="selected" value="">-- Select Month --
+                                                        </option>
+                                                        <?= $this->accounting_model->selectMonth() ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                         <h5 class="font-size-lg text-dark font-weight-bold mb-6 ml-5">Copy To :</h5>  
+                                            <div class="form-group row">
+                                                <label class="col-lg-2 col-form-label text-right">Year <span
+                                                        class="text-danger">*</span></label>
+                                                <div class="col-lg-4">
+                                                    <select name="year_new" class="form-control" id="year_new" required>
+                                                        <option disabled="disabled" selected="selected" value="">-- Select Year --
+                                                        </option>
+                                                        <?= $this->accounting_model->selectYear() ?>
+                                                    </select>
+                                                </div>
+                                                <label class="col-lg-2 col-form-label text-right">Month <span
+                                                        class="text-danger">*</span></label>
+                                                <div class="col-lg-4">
+                                                    <select name="month_new" class="form-control" id="month_new" required>
+                                                        <option disabled="disabled" selected="selected" value="">-- Select Month --
+                                                        </option>
+                                                        <?= $this->accounting_model->selectMonth() ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                             <div class="form-group row">
+                                                    <label class="col-lg-2 col-form-label text-right">Date From <span
+                                                            class="text-danger">*</span></label>
+                                                    <div class="col-lg-4">
+                                                        <input name="date_from" type="text" class="form-control date_sheet"  readonly="readonly" placeholder="Select date" required=""/>
+                                                    </div>
+
+                                                    <label class="col-lg-2 col-form-label text-right">Date To <span
+                                                            class="text-danger">*</span></label>
+                                                    <div class="col-lg-4">
+                                                        <input name="date_to" type="text" class="form-control date_sheet"  readonly="readonly" placeholder="Select date" required=""/>
+
+                                                    </div>
+                                                </div>
+                                         <hr/>
+                                          <div class="text-right">
+                                                <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary font-weight-bold">Save changes</button>
+                                          </div>
+                                        </form>
+                                       
+                                    </div>
+                                   
+                                </div>
+                            </div>
+                        </div>
                 <?php } ?>
             </div>
 
@@ -164,5 +243,8 @@
     .label {
         width: auto;
         padding: 10px;
+    }
+    .datepicker{
+        z-index: 1100;
     }
 </style>
