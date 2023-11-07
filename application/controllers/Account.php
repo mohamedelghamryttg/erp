@@ -17,6 +17,7 @@ class Account extends CI_Controller
         $this->load->model('AccountModel');
         $this->load->model('CreateDatabase');
         $this->load->library('form_validation');
+        $this->load->library('Excelfile');
         $this->role = $this->session->userdata('role');
         $this->user = $this->session->userdata('id');
         $this->brand = $this->session->userdata('brand');
@@ -122,13 +123,14 @@ class Account extends CI_Controller
     {
         if (isset($_FILES["file"]["name"])) {
             $path = $_FILES["file"]["tmp_name"];
-            $object = PHPExcel_IOFactory::load($path);
+            // $object = PHPExcel_IOFactory::load($path);
             $inputFileType = PHPExcel_IOFactory::identify($path);
             $objReader = PHPExcel_IOFactory::createReader($inputFileType);
             $objPHPExcel = $objReader->load($path);
             $allDataInSheet = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
             $flag = true;
             $i = 0;
+
             foreach ($allDataInSheet as $value) {
                 if ($flag) {
                     $flag = false;
@@ -139,7 +141,7 @@ class Account extends CI_Controller
                 $inserdata[$i]['acode'] = $value['B'];
                 $inserdata[$i]['brand'] = $this->brand;
                 //$inserdata[$i]['parent'] = $this->AccountModel->getByID('brand', $this->brand);
-                $inserdata[$i]['parent_id'] = $this->AccountModel->getByNAME('account_chart', $value['D']);
+                $inserdata[$i]['parent_id'] = ($this->AccountModel->getByNAME('account_chart', $value['D'])) ?? 0;
                 $inserdata[$i]['parent'] = $value['D'];
                 $inserdata[$i]['acc_thrd_party'] = false;
 
@@ -314,7 +316,6 @@ class Account extends CI_Controller
                 }
                 echo "account/accountList";
             }
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -1447,6 +1448,8 @@ class Account extends CI_Controller
     public function saveAccountConfig()
     {
         $id = $this->input->post('id');
+        $row_num = $this->db->get_where('acc_setup', array('brand' => $this->brand))->num_rows();
+
         $data['cashin_num'] = $this->input->post('cashin_num');
         $data['cashout_num'] = $this->input->post('cashout_num');
         $data['bankin_num'] = $this->input->post('bankin_num');
@@ -1458,25 +1461,29 @@ class Account extends CI_Controller
         $data['exp_num'] = $this->input->post('exp_num');
         $data['begin_num'] = $this->input->post('begin_num');
         $data['cash_acc_id'] = $this->input->post('cash_acc_id');
-        $data['cash_acc_acode'] = $this->AccountModel->getchartData($this->input->post('cash_acc_id'))->acode;
+        $data['cash_acc_acode'] = ($this->AccountModel->getchartData($this->input->post('cash_acc_id'))->acode) ?? '';
 
         $data['bank_acc_id'] = $this->input->post('bank_acc_id');
-        $data['bank_acc_acode'] = $this->AccountModel->getchartData($this->input->post('bank_acc_id'))->acode;
+        $data['bank_acc_acode'] = ($this->AccountModel->getchartData($this->input->post('bank_acc_id'))->acode) ?? '';
         $data['cust_acc_id'] = $this->input->post('cust_acc_id');
-        $data['cust_acc_acode'] = $this->AccountModel->getchartData($this->input->post('cust_acc_id'))->acode;
+        $data['cust_acc_acode'] = ($this->AccountModel->getchartData($this->input->post('cust_acc_id'))->acode) ?? '';
         $data['ven_acc_id'] = $this->input->post('ven_acc_id');
-        $data['ven_acc_acode'] = $this->AccountModel->getchartData($this->input->post('ven_acc_id'))->acode;
+        $data['ven_acc_acode'] = ($this->AccountModel->getchartData($this->input->post('ven_acc_id'))->acode) ?? '';
 
         $data['rev_acc_id'] = $this->input->post('rev_acc_id');
-        $data['rev_acc_acode'] = $this->AccountModel->getchartData($this->input->post('rev_acc_id'))->acode;
+        $data['rev_acc_acode'] = ($this->AccountModel->getchartData($this->input->post('rev_acc_id'))->acode) ?? '';
         $data['exp_acc_id'] = $this->input->post('exp_acc_id');
-        $data['exp_acc_acode'] = $this->AccountModel->getchartData($this->input->post('exp_acc_id'))->acode;
+        $data['exp_acc_acode'] = ($this->AccountModel->getchartData($this->input->post('exp_acc_id'))->acode) ?? '';
 
         $data['local_currency_id'] = $this->input->post('local_currency_id');
+        // $data['sdate1'] = date("Y-m-d", strtotime($this->input->post('sdate1')));
+        // $data['sdate2'] = date("Y-m-d", strtotime($this->input->post('sdate2')));
+
         $data['sdate1'] = $this->input->post('sdate1');
         $data['sdate2'] = $this->input->post('sdate2');
+        // echo $data;
 
-        $row_num = $this->db->get_where('acc_setup', array('brand' => $this->brand))->num_rows();
+
         if ($row_num == 0) {
             $data['brand'] = $this->brand;
             if ($this->db->insert('acc_setup', $data)) {
@@ -1488,7 +1495,6 @@ class Account extends CI_Controller
             }
         } else {
             $this->db->where('id', $id);
-
             if ($this->db->update('acc_setup', $data)) {
                 $true = "Account Configration Update Successfully  ...";
                 $this->session->set_flashdata('true', $true);
@@ -3306,7 +3312,6 @@ class Account extends CI_Controller
                 $sort_by = $this->session->userdata('sort_by');
             } else {
                 $this->session->set_userdata('sort_by', $sort_by);
-
             }
 
             $arr2 = array();
@@ -3316,7 +3321,6 @@ class Account extends CI_Controller
                 $ser = $this->session->userdata('ser');
             } else {
                 $this->session->set_userdata('ser', $ser);
-
             }
             if (!empty($ser)) {
                 array_push($arr2, 0);
@@ -3336,7 +3340,6 @@ class Account extends CI_Controller
                 $to_date = $this->session->userdata('to_date');
             } else {
                 $this->session->set_userdata('to_date', $to_date);
-
             }
             if (!empty($to_date)) {
                 array_push($arr2, 2);
@@ -3546,7 +3549,6 @@ class Account extends CI_Controller
                                 $entry_data['crd_acc_id'] = '';
                                 $entry_data['crd_acc_acode'] = '';
                                 $entry_data['ev_crd'] = 0;
-
                             } else {
                                 $entry_data['crd_amount'] = $details['crd_amount'];
                                 $entry_data['crd_acc_id'] = $details['account_id'];

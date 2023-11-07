@@ -1016,11 +1016,9 @@ class Customer_model extends CI_Model
         if ($table_name == 'customer_contacts' || $table_name == 'customer_portal') {
             $data['updated_by'] = $this->user;
             $data['update_at'] = date("Y-m-d H:i:s");
-
         } else {
             $data['updated_by'] = $this->user;
             $data['updated_at'] = date("Y-m-d H:i:s");
-
         }
         $this->db->update($table_name, $data, array('id' => $row_id));
     }
@@ -1094,7 +1092,6 @@ class Customer_model extends CI_Model
                     </html>';
         //    echo "$message"; 
         mail($mailTo, $subject, $message, $headers);
-
     }
 
     public function sendNewPriceMail($id, $type)
@@ -1146,6 +1143,5 @@ class Customer_model extends CI_Model
                     </html>';
         //    echo "$message"; 
         mail($ManagerMail, $subject, $message, $headers);
-
     }
 }

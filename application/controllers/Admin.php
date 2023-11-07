@@ -3717,4 +3717,145 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
             echo "You have no permission to access this page";
         }
     }
+    function whos()
+    {
+        $data['userss'] = "";
+        $data['employee'] = "";
+        $data['user_det'] = "";
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $this->load->view('includes_new/header.php', $data);
+        $this->load->view('admin_new/whos.php');
+        $this->load->view('includes_new/footer.php');
+    }
+    function whos_data()
+    {
+        $arr2 = array();
+        if ($this->input->post("search_name")) {
+            $search_name = $this->input->post("search_name");
+            if (!empty($search_name)) {
+                array_push($arr2, 0);
+            }
+        } else {
+            $search_name = "";
+        }
+        if ($this->input->post("search_email")) {
+            $search_email = $this->input->post("search_email");
+            if (!empty($search_email)) {
+                array_push($arr2, 1);
+            }
+        } else {
+            $search_email = "";
+        }
+        if ($this->input->post("searchmanager")) {
+            $searchmanager = $this->input->post("searchmanager");
+            if (!empty($searchmanager)) {
+                array_push($arr2, 2);
+            }
+        } else {
+            $searchmanager = "";
+        }
+        $cond1 = "(u.first_name LIKE '%$search_name%' or u.last_name LIKE '%$search_name%' or u.user_name LIKE '%$search_name%')";
+        $cond2 = "u.email LIKE '%$search_email%'";
+        $cond3 = "e.manager = '$searchmanager'";
+        $arr1 = array($cond1, $cond2, $cond3);
+        $arr_1_cnt = count($arr2);
+        $arr3 = array();
+        for ($i = 0; $i < $arr_1_cnt; $i++) {
+            array_push($arr3, $arr1[$arr2[$i]]);
+        }
+        $arr4 = implode(" and ", $arr3);
+        // var_dump($arr4);
+        // die;
+        if ($arr_1_cnt > 0) {
+            if ($searchmanager != '') {
+                $sql = "select u.id,u.first_name,u.last_name,u.user_name,u.email from users u inner join employees e on e.id = u.employees_id where ($arr4  and u.status ='1') or e.id = $searchmanager order by e.title asc";
+            } else {
+                $sql = "select u.id,u.first_name,u.last_name,u.user_name,u.email from users u inner join employees e on e.id = u.employees_id where ($arr4  and u.status ='1')  order by e.title asc";
+            }
+            $query = $this->db->query($sql);
+            $data['userss'] = $query->result();
+        } else {
+            $data['userss'] = "";
+        }
+        echo json_encode($data);
+    }
+    function whos_data_det()
+    {
+        if ($this->input->post("user_id")) {
+            $search_id = $this->input->post("user_id");
+        } else {
+            $search_id = "";
+        }
+
+
+        if ($search_id != '' and $search_id != 0) {
+            $user_det = $this->db->get_where('users', array('id' => $search_id, 'status' => '1'))->row();
+
+            if ($user_det) {
+                $mas_id = $user_det->master_user_id;
+                $empl_id = $user_det->employees_id;
+
+                $data['user_det'] = $this->db->query("select u.id,u.email ,u.user_name,u.first_name,u.last_name ,b.name as brand from  users as u 
+inner join brand as b on b.id = u.brand
+    where master_user_id ='$mas_id'")->result();
+
+                // $this->db->get_where('users', array('master_user_id' => $mas_id))->result();
+                $data['employee'] = $this->db->query("select e.emergency,e.name as emp_name,e.phone,d.name as department,dv.name as division,st.title ,emp.name as manager,e.employee_image
+                from employees e
+                inner join
+                department d
+                on d.id = e.department
+                inner join 
+                division dv
+                on dv.id = e.division
+                inner join 
+                structure st
+                on st.id = e.title
+                inner join 
+                employees emp 
+                on emp.id = e.manager where e.id = '$empl_id'")->result();
+                $data['user_mas'] = $this->db->get_where('master_user', array('id' => $mas_id))->result();
+            }
+        } else {
+            $data['user_det'] = "";
+            $data['employee'] = "";
+            $data['user_det'] = "";
+        }
+        echo json_encode($data);
+    }
+    function exportpermition()
+    {
+        $sql = "select p.id,b.name as brand ,s.name as screen_name ,em.name as emp_name,u.user_name ,ro.name as rol_name,
+        case when p.follow = 1 then 'Team'
+            when p.follow = 2 then 'Team Leader'
+        else ''
+        end as follow_upp
+        ,case when p.view= 1 then 'Can View'
+        else ''
+        end as can_view
+        
+        ,case when p.add = 1 then 'Can Add'
+        else ''
+        end as can_add
+        
+        ,case when p.edit = 1 then 'Can edit'
+        else ''
+        end as can_edit
+        
+        ,case when p.delete = 1 then 'Can Delete'
+        else ''
+        end as can_delete
+        
+        
+        from permission p
+        
+        left join screen s on s.id = p.screen
+        left join users u on u.role = p.role
+        left join employees em on em.id = u.employees_id
+        left join brand as b on b.id = u.id
+        left join role as ro on ro.id = p.role
+        
+        where u.status = 1
+        order by b.id,em.id,s.id";
+    }
 }

@@ -11,155 +11,440 @@ class ProjectManagment extends CI_Controller
         $this->load->helper('url');
         $this->admin_model->verfiyLogin();
         $this->load->library('Excelfile');
+        $this->load->library('datatables');
         $this->role = $this->session->userdata('role');
         $this->user = $this->session->userdata('id');
         $this->brand = $this->session->userdata('brand');
         $this->emp_id = $this->session->userdata('emp_id');
+        $this->perPage = 20;
     }
     public function index()
-    {
-        // Check Permission ..        
+    {  // Check Permission ..   
+
         $check = $this->admin_model->checkPermission($this->role, 204);
         if ($check) {
-            //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 204);
             //body ..
             $data['user'] = $this->user;
             $data['brand'] = $this->brand;
             $data['opportunity'] = $this->projects_model->OpportunitiesByPm($data['permission'], $this->user, $this->brand);
-            $having = 1;
-            if (isset($_GET['search'])) {
-                $arr2 = array();
-                if (isset($_REQUEST['code'])) {
-                    $code = $_REQUEST['code'];
-                    if (!empty($code)) {
-                        array_push($arr2, 0);
-                    }
-                } else {
-                    $code = "";
-                }
-                if (isset($_REQUEST['name'])) {
-                    $name = $_REQUEST['name'];
-                    if (!empty($name)) {
-                        array_push($arr2, 1);
-                    }
-                } else {
-                    $name = "";
-                }
-                if (isset($_REQUEST['customer'])) {
-                    $customer = $_REQUEST['customer'];
-                    if (!empty($customer)) {
-                        array_push($arr2, 2);
-                    }
-                } else {
-                    $customer = "";
-                }
-                if (isset($_REQUEST['product_line'])) {
-                    $product_line = $_REQUEST['product_line'];
-                    if (!empty($product_line)) {
-                        array_push($arr2, 3);
-                    }
-                } else {
-                    $product_line = "";
-                }
-                if (isset($_REQUEST['status'])) {
-                    $status = $_REQUEST['status'];
-                    if ($status == 2) {
-                        $having = "closed = '0'";
-                    } elseif ($status == 1) {
-                        $having = "closed = '1'";
-                    }
-                } else {
-                    $status = "";
-                    $having = 1;
-                }
-                if (isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])) {
-                    $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
-                    $date_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
-                    if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
-                        array_push($arr2, 4);
-                    }
-                } else {
-                    $date_to = "";
-                    $date_from = "";
-                }
-                // print_r($arr2);
-                $cond1 = "code LIKE '%$code%'";
-                $cond2 = "name LIKE '%$name%'";
-                $cond3 = "customer = '$customer'";
-                $cond4 = "product_line = '$product_line'";
-                if ($status == 2) {
-                    $status = 0;
-                }
-                $cond6 = "created_at BETWEEN '$date_from' AND '$date_to' ";
-                $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond6);
-                $arr_1_cnt = count($arr2);
-                $arr3 = array();
-                for ($i = 0; $i < $arr_1_cnt; $i++) {
-                    array_push($arr3, $arr1[$arr2[$i]]);
-                }
-                $arr4 = implode(" and ", $arr3);
-                // print_r($arr4);     
-                if ($arr_1_cnt <= 0) {
-                    $arr4 = 1;
-                }
-                $data['project'] = $this->projects_model->AllProjects($data['permission'], $this->user, $this->brand, $arr4, $having);
-                $data['total_rows'] = $data['project']->num_rows();
-                $data['offset'] = 0;
-            } else {
-                $limit = 20;
-                $offset = $this->uri->segment(3);
-                if ($this->uri->segment(3) != NULL) {
-                    $offset = $this->uri->segment(3);
-                } else {
-                    $offset = 0;
-                }
-                $data['offset'] = $offset;
-
-                $count = $this->projects_model->AllProjectsCount($data['permission'], $this->user, $this->brand, $this->brand, 1)->num_rows();
-                $config['base_url'] = base_url('projectManagment/index');
-                $config['uri_segment'] = 3;
-                $config['display_pages'] = TRUE;
-                $config['per_page'] = $limit;
-                $config['total_rows'] = $count;
-                $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
-                $config['full_tag_close'] = "</ul>";
-                $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
-                $config['num_tag_close'] = '</li>';
-                $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
-                $config['cur_tag_close'] = "</li>";
-                $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-                $config['next_tagl_close'] = "</span></li>";
-                $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-                $config['prev_tagl_close'] = "</span></li>";
-                $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-                $config['first_tagl_close'] = "</li>";
-                $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-                $config['last_tagl_close'] = "</li>";
-                $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
-                $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
-                $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
-                $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
-                $config['num_links'] = 5;
-                $config['show_count'] = TRUE;
-                $this->pagination->initialize($config);
-
-                $data['project'] = $this->projects_model->AllProjectsPages($data['permission'], $this->user, $this->brand, $limit, $offset);
-                $data['total_rows'] = $count;
-            }
-            // //Pages ..
             $this->load->view('includes_new/header.php', $data);
-            $this->load->view('projectManagment/view_projects.php');
+            $this->load->view('projectManagment/view_projects_new.php');
             $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";
         }
     }
+    function findallO()
+    {
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 204);
+        //body ..
+        $data['user'] = $this->user;
+        $data['brand'] = $this->brand;
+        $data['opportunity'] = $this->projects_model->OpportunitiesByPm($data['permission'], $this->user, $this->brand)->result();
+        echo json_encode($data);
+    }
+    function findall()
+    {
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 204);
+        //body ..
+        $data['user'] = $this->user;
+        $data['brand'] = $this->brand;
+        $filter_data = $this->input->post('filter_data');
+        $data['opportunity'] = $this->projects_model->OpportunitiesByPm($data['permission'], $this->user, $this->brand)->result();
+        $arr2 = array();
+        if ($filter_data) {
+            parse_str($filter_data, $params);
+            if (isset($params['code'])) {
+                $code = $params['code'];
+                if (!empty($code)) {
+                    array_push($arr2, 0);
+                }
+            } else {
+                $code = "";
+            }
+            if (isset($params['name'])) {
+                $name = $params['name'];
+                if (!empty($name)) {
+                    array_push($arr2, 1);
+                }
+            } else {
+                $name = "";
+            }
+            if (isset($params['customer'])) {
+                $customer = $params['customer'];
+                if (!empty($customer)) {
+                    array_push($arr2, 2);
+                }
+            } else {
+                $customer = "";
+            }
+            if (isset($params['product_line'])) {
+                $product_line = $params['product_line'];
+                if (!empty($product_line)) {
+                    array_push($arr2, 3);
+                }
+            } else {
+                $product_line = "";
+            }
+            $having = "";
+            if (isset($params['status'])) {
+                $status = $params['status'];
+                if ($status == 2) {
+                    $having = "allclosed <> closedstat";
+                } elseif ($status == 1) {
+                    $having = "allclosed = closedstat";
+                }
+            } else {
+                $status = "";
+                $having = 1;
+            }
+
+            if ($params['date_from'] && $params['date_to']) {
+                $date_from = date('Y-m-d', strtotime($params['date_from']));
+                $date_to = date('Y-m-d', strtotime($params['date_to']));
+                if (!empty($date_from) && !empty($date_to)) {
+                    array_push($arr2, 4);
+                }
+            } else {
+                $date_to = "";
+                $date_from = "";
+            }
+        } else {
+            $date_from = "";
+            $date_to = "";
+            $status = "";
+            $code = "";
+            $name = "";
+            $customer = "";
+            $product_line = "";
+        }
+        if ($status == 2) {
+            $status = 0;
+        }
+        $data['date_from'] = $date_from;
+        $data['date_to'] = $date_to;
+        $cond1 = "code LIKE '%$code%'";
+        $cond2 = "name LIKE '%$name%'";
+        $cond3 = "customer = '$customer'";
+        $cond4 = "product_line = '$product_line'";
+        $cond5 = " brand = '$this->brand'";
+        $cond6 = "( created_at BETWEEN '$date_from' AND '$date_to') ";
+        if ($data['permission']->view == 1) {
+            $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5, $cond6);
+        } elseif ($data['permission']->view == 2) {
+            $cond7 = " created_by = '$this->user'";
+            $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5, $cond6, $cond7);
+        }
+
+        $arr_1_cnt = count($arr2);
+        $arr3 = array();
+        for ($i = 0; $i < $arr_1_cnt; $i++) {
+            array_push($arr3, $arr1[$arr2[$i]]);
+        }
+        $arr4 = implode(" and ", $arr3);
+        $data['projects'] = $this->projects_model->findall($arr4, $having);
+
+        echo json_encode($data);
+    }
+
+    public function checkCloseProject()
+    {
+        $id = $this->input->post('id');
+        // $closed = $this->projects_model->checkCloseProject($id);
+        $closed = $this->input->post('colsed');
+
+        if ($closed > 0) {
+            echo $this->projects_model->getProjectProgress($id);
+        }
+    }
+    public function loadData($record = 0)
+    {
+
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 204);
+        //body ..
+        $data['user'] = $this->user;
+        $data['brand'] = $this->brand;
+        $arr2 = array();
+        if (isset($_REQUEST['code'])) {
+            $code = $_REQUEST['code'];
+            if (!empty($code)) {
+                array_push($arr2, 0);
+            }
+        } else {
+            $code = "";
+        }
+        if (isset($_REQUEST['name'])) {
+            $name = $_REQUEST['name'];
+            if (!empty($name)) {
+                array_push($arr2, 1);
+            }
+        } else {
+            $name = "";
+        }
+        if (isset($_REQUEST['customer'])) {
+            $customer = $_REQUEST['customer'];
+            if (!empty($customer)) {
+                array_push($arr2, 2);
+            }
+        } else {
+            $customer = "";
+        }
+        if (isset($_REQUEST['product_line'])) {
+            $product_line = $_REQUEST['product_line'];
+            if (!empty($product_line)) {
+                array_push($arr2, 3);
+            }
+        } else {
+            $product_line = "";
+        }
+        if (isset($_REQUEST['status'])) {
+            $status = $_REQUEST['status'];
+            if ($status == 2) {
+                $having = "closed = '0'";
+            } elseif ($status == 1) {
+                $having = "closed = '1'";
+            }
+        } else {
+            $status = "";
+            $having = 1;
+        }
+
+        if ($this->input->post('date_from') && $this->input->post('date_to')) {
+            $date_from = date('Y-m-d', strtotime($this->input->post('date_from')));
+            $date_to = date('Y-m-d', strtotime($this->input->post('date_to')));
+            if (!empty($date_from) && !empty($date_to)) {
+                array_push($arr2, 4);
+            }
+        } else {
+            $date_to = "";
+            $date_from = "";
+        }
+        $data['date_from'] = $date_from;
+        $data['date_to'] = $date_to;
+        $data['status'] = $status;
+        $data['status'] = $status;
+        // print_r($arr2);
+        $cond1 = "p.code LIKE '%$code%'";
+        $cond2 = "p.name LIKE '%$name%'";
+        $cond3 = "p.customer = '$customer'";
+        $cond4 = "p.product_line = '$product_line'";
+        if ($status == 2) {
+            $status = 0;
+        }
+        $cond6 = "( p.created_at BETWEEN '$date_from' AND '$date_to') ";
+        $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond6);
+        $arr_1_cnt = count($arr2);
+        $arr3 = array();
+        for ($i = 0; $i < $arr_1_cnt; $i++) {
+            array_push($arr3, $arr1[$arr2[$i]]);
+        }
+        $arr4 = implode(" and ", $arr3);
+
+        if ($arr_1_cnt <= 0) {
+            $arr4 = 1;
+        }
+        // }
+        // var_dump($arr4);
+        // die;
+        $recordPerPage = 30;
+        if ($record != 0) {
+            $record = ($record - 1) * $recordPerPage;
+        }
+
+        $recordCount = $this->projects_model->getRecordCount($arr4);
+        $projRecord = $this->projects_model->getRecord($record, $recordPerPage, $arr4);
+
+        $config['base_url'] = '#';
+        $config['use_page_numbers'] = TRUE;
+        $config['next_link'] = 'Next';
+        $config['prev_link'] = 'Previous';
+        $config['total_rows'] = $recordCount;
+        $config['per_page'] = $recordPerPage;
+
+        $config['display_pages'] = TRUE;
+        // $config['per_page'] = $limit;
+        // $config['total_rows'] = $count;
+        $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
+        $config['full_tag_close'] = "</ul>";
+        $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
+        $config['num_tag_close'] = '</li>';
+        $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
+        $config['cur_tag_close'] = "</li>";
+        $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
+        $config['next_tagl_close'] = "</span></li>";
+        $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
+        $config['prev_tagl_close'] = "</span></li>";
+        $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
+        $config['first_tagl_close'] = "</li>";
+        $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
+        $config['last_tagl_close'] = "</li>";
+        $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
+        $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
+        $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
+        $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
+        $config['num_links'] = 10;
+        $config['show_count'] = TRUE;
+        $this->pagination->initialize($config);
+
+
+
+        // $this->pagination->initialize($config);
+        $data['pagination'] = $this->pagination->create_links();
+        $data['progData'] = $projRecord;
+        echo json_encode($data);
+    }
+
+
+    // public function index()
+    // {
+    //     // Check Permission ..        
+    //     $check = $this->admin_model->checkPermission($this->role, 204);
+    //     if ($check) {
+    //         //header ..
+    //         $data['group'] = $this->admin_model->getGroupByRole($this->role);
+    //         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 204);
+    //         //body ..
+    //         $data['user'] = $this->user;
+    //         $data['brand'] = $this->brand;
+    //         $data['opportunity'] = $this->projects_model->OpportunitiesByPm($data['permission'], $this->user, $this->brand);
+    //         $having = 1;
+    //         if (isset($_GET['search'])) {
+    //             $arr2 = array();
+    //             if (isset($_REQUEST['code'])) {
+    //                 $code = $_REQUEST['code'];
+    //                 if (!empty($code)) {
+    //                     array_push($arr2, 0);
+    //                 }
+    //             } else {
+    //                 $code = "";
+    //             }
+    //             if (isset($_REQUEST['name'])) {
+    //                 $name = $_REQUEST['name'];
+    //                 if (!empty($name)) {
+    //                     array_push($arr2, 1);
+    //                 }
+    //             } else {
+    //                 $name = "";
+    //             }
+    //             if (isset($_REQUEST['customer'])) {
+    //                 $customer = $_REQUEST['customer'];
+    //                 if (!empty($customer)) {
+    //                     array_push($arr2, 2);
+    //                 }
+    //             } else {
+    //                 $customer = "";
+    //             }
+    //             if (isset($_REQUEST['product_line'])) {
+    //                 $product_line = $_REQUEST['product_line'];
+    //                 if (!empty($product_line)) {
+    //                     array_push($arr2, 3);
+    //                 }
+    //             } else {
+    //                 $product_line = "";
+    //             }
+    //             if (isset($_REQUEST['status'])) {
+    //                 $status = $_REQUEST['status'];
+    //                 if ($status == 2) {
+    //                     $having = "closed = '0'";
+    //                 } elseif ($status == 1) {
+    //                     $having = "closed = '1'";
+    //                 }
+    //             } else {
+    //                 $status = "";
+    //                 $having = 1;
+    //             }
+    //             if (isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])) {
+    //                 $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
+    //                 $date_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
+    //                 if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
+    //                     array_push($arr2, 4);
+    //                 }
+    //             } else {
+    //                 $date_to = "";
+    //                 $date_from = "";
+    //             }
+    //             // print_r($arr2);
+    //             $cond1 = "code LIKE '%$code%'";
+    //             $cond2 = "name LIKE '%$name%'";
+    //             $cond3 = "customer = '$customer'";
+    //             $cond4 = "product_line = '$product_line'";
+    //             if ($status == 2) {
+    //                 $status = 0;
+    //             }
+    //             $cond6 = "created_at BETWEEN '$date_from' AND '$date_to' ";
+    //             $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond6);
+    //             $arr_1_cnt = count($arr2);
+    //             $arr3 = array();
+    //             for ($i = 0; $i < $arr_1_cnt; $i++) {
+    //                 array_push($arr3, $arr1[$arr2[$i]]);
+    //             }
+    //             $arr4 = implode(" and ", $arr3);
+    //             // print_r($arr4);     
+    //             if ($arr_1_cnt <= 0) {
+    //                 $arr4 = 1;
+    //             }
+    //             $data['project'] = $this->projects_model->AllProjects($data['permission'], $this->user, $this->brand, $arr4, $having);
+    //             $data['total_rows'] = $data['project']->num_rows();
+    //             $data['offset'] = 0;
+    //         } else {
+    //             $limit = 20;
+    //             $offset = $this->uri->segment(3);
+    //             if ($this->uri->segment(3) != NULL) {
+    //                 $offset = $this->uri->segment(3);
+    //             } else {
+    //                 $offset = 0;
+    //             }
+    //             $data['offset'] = $offset;
+
+    //             $count = $this->projects_model->AllProjectsCount($data['permission'], $this->user, $this->brand, $this->brand, 1)->num_rows();
+    //             $config['base_url'] = base_url('projectManagment/index');
+    //             $config['uri_segment'] = 3;
+    //             $config['display_pages'] = TRUE;
+    //             $config['per_page'] = $limit;
+    //             $config['total_rows'] = $count;
+    //             $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
+    //             $config['full_tag_close'] = "</ul>";
+    //             $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
+    //             $config['num_tag_close'] = '</li>';
+    //             $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
+    //             $config['cur_tag_close'] = "</li>";
+    //             $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
+    //             $config['next_tagl_close'] = "</span></li>";
+    //             $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
+    //             $config['prev_tagl_close'] = "</span></li>";
+    //             $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
+    //             $config['first_tagl_close'] = "</li>";
+    //             $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
+    //             $config['last_tagl_close'] = "</li>";
+    //             $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
+    //             $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
+    //             $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
+    //             $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
+    //             $config['num_links'] = 5;
+    //             $config['show_count'] = TRUE;
+    //             $this->pagination->initialize($config);
+
+    //             $data['project'] = $this->projects_model->AllProjectsPages($data['permission'], $this->user, $this->brand, $limit, $offset);
+    //             $data['total_rows'] = $count;
+    //         }
+    //         // //Pages ..
+    //         $this->load->view('includes_new/header.php', $data);
+    //         $this->load->view('projectManagment/view_projects.php');
+    //         $this->load->view('includes_new/footer.php');
+    //     } else {
+    //         echo "You have no permission to access this page";
+    //     }
+    // }
 
     public function projectJobs($id = '')
     {
         // Check Permission ..
+
         $check = $this->admin_model->checkPermission($this->role, 65);
         if ($check) {
             //header ..
@@ -1751,9 +2036,11 @@ class ProjectManagment extends CI_Controller
     public function deleteProject()
     {
         // Check Permission ..
+
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 204);
         if ($permission->delete == 1) {
             $id = base64_decode($_GET['t']);
+
             $this->admin_model->addToLoggerDelete('project', 40, 'id', $id, 0, 0, $this->user);
             if ($this->db->delete('project', array('id' => $id))) {
                 $true = "Project Deleted Successfully ...";
@@ -1764,8 +2051,10 @@ class ProjectManagment extends CI_Controller
                 $this->session->set_flashdata('error', $error);
                 redirect($_SERVER['HTTP_REFERER']);
             }
+            echo '1';
         } else {
             echo "You have no permission to access this page";
+            echo '2';
         }
     }
     // not checked 

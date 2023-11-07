@@ -15,6 +15,111 @@ class Projects_model extends CI_Model
         parent::__construct();
         $this->load->database();
     }
+    public function findall($vfilter = '', $having = '')
+    {
+        // var_dump($having);
+        // die;
+        $this->db->select('*');
+        if ($vfilter != '') {
+            $this->db->where($vfilter);
+        }
+        if ($having != '') {
+            $this->db->having($having);
+        }
+        // $this->db->order_by('id asc');
+        // $query = $this->db->get('projects_view')->result();
+        // var_dump($this->db->last_query());
+        // die;
+        return $this->db->get('projects_view')->result();
+    }
+    // function make_query()
+    // {
+    //     $this->db->select($this->select_column);
+    //     $this->db->from($this->table);
+    //     if (isset($_POST["search"]["value"])) {
+    //         $this->db->like("first_name", $_POST["search"]["value"]);
+    //         $this->db->or_like("last_name", $_POST["search"]["value"]);
+    //     }
+    //     if (isset($_POST["order"])) {
+    //         $this->db->order_by($this->order_column[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+    //     } else {
+    //         $this->db->order_by('id', 'DESC');
+    //     }
+    // }
+    function make_datatables($rowno, $rowperpage, $vfilter)
+    {
+        // $this->make_query();
+        // if ($_POST["length"] != -1) {
+        //     $this->db->limit($_POST['length'], $_POST['start']);
+        // }
+        // $query = $this->db->get();
+        $rowno = $_POST['start'];
+        $rowperpage = $_POST['length'];
+
+        $vfilter =  $vfilter;
+        $query = $this->db->query('call projects_view(' . $rowperpage . ',' . $rowno . ',"' . $vfilter . '" )');
+        $res      = $query->result();
+
+        $query->next_result();
+        // $query->free_result();
+
+        return $res;
+    }
+    function get_filtered_data()
+    {
+
+        $vfilter =  ' 1 ';
+        $rowno = '0';
+        $rowperpage = '0';
+        $query = $this->db->query('call projects_view(' . $rowperpage . ',' . $rowno . ',"' . $vfilter . '" )');
+        $res      = $query->result_array();
+        $query->next_result();
+        // $query->free_result();
+        // $query = $this->db->get();
+        return count($res);
+    }
+    function get_all_data()
+    {
+        $this->db->select("*");
+        $this->db->from("project");
+        // $vfilter =  ' 1 ';
+        // $rowno = $_POST['start'];
+        // $rowperpage = $_POST['length'];
+        // $query = $this->db->query('call projects_view(' . $rowperpage . ',' . $rowno . ',"' . $vfilter . '" )');
+        // $res      = $query->result_array();
+        // $query->next_result();
+        // $query->free_result();
+        // return count($res);
+        // $this->db->select("*");  
+        //    $this->db->from($this->table);  
+        return $this->db->count_all_results();
+    }
+    //**************** */
+    public function getRecord($rowno, $rowperpage, $vfilter)
+    {
+        $vfilter =  $vfilter;
+        $res = $this->db->get('projects_view');
+        // $query = $this->db->query('call projects_view(' . $rowperpage . ',' . $rowno . ',"' . $vfilter . '" )');
+        // $res      = $query->result_array();
+        // $query->next_result();
+        // $query->free_result();
+        return $res;
+    }
+    public function getRecordCount()
+    {
+        return $this->db->count_all('project');
+    }
+    public function projCountRecord_stat($vfilter)
+    {
+
+        $query = $this->db->query('call projcountrecord("' . $vfilter . '" )');
+        $res      = $query->row();
+        $query->next_result();
+        $query->free_result();
+        return $res;
+    }
+
+
     // public function AllProjects($permission, $user, $brand, $filter, $having = 1)
     // {
 
@@ -109,9 +214,23 @@ class Projects_model extends CI_Model
     public function OpportunitiesByPm($permission, $pm, $brand)
     {
         if ($permission->view == 1) {
-            $data = $this->db->query(" SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand FROM `sales_opportunity` AS p WHERE p.assigned = '1' AND p.saved = '0' HAVING brand = '$brand' ");
+            $sql = " SELECT p.*,c.brand AS brand,c.name as customer_name,u.user_name as sam_name
+            FROM `sales_opportunity` AS p 
+            inner join customer c on c.id = p.customer
+            inner join users as u on u.id = p.created_by
+            WHERE p.assigned = '1' AND p.saved = '0' HAVING brand = '$brand' ";
+            $data = $this->db->query($sql);
+            //" SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand FROM `sales_opportunity` AS p WHERE p.assigned = '1' AND p.saved = '0' HAVING brand = '$brand' ");
         } elseif ($permission->view == 2) {
-            $data = $this->db->query("SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand,(SELECT COUNT(*) FROM customer_pm WHERE customer_pm.lead = p.lead AND customer_pm.pm = '$pm') AS total FROM `sales_opportunity` AS p WHERE p.assigned = '1' AND p.saved = '0' HAVING total > 0 AND brand = '$brand' ");
+            $sql = "SELECT p.*,c.brand AS brand,cp.lead_count AS total 
+            ,c.name as customer_name,u.user_name as sam_name
+            FROM `sales_opportunity` AS p 
+            inner join customer c on c.id = p.customer
+            inner join users as u on u.id = p.created_by
+            left join (select count(`lead`) as lead_count,`lead` from customer_pm group by `lead`) cp on cp.lead = p.lead 
+            WHERE p.assigned = '1' AND p.saved = '0' HAVING total > 0 AND brand = '$brand' ";
+            $data = $this->db->query($sql);
+            //"SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand,(SELECT COUNT(*) FROM customer_pm WHERE customer_pm.lead = p.lead AND customer_pm.pm = '$pm') AS total FROM `sales_opportunity` AS p WHERE p.assigned = '1' AND p.saved = '0' HAVING total > 0 AND brand = '$brand' ");
         }
         return $data;
     }
@@ -5925,45 +6044,50 @@ class Projects_model extends CI_Model
     {
         // get project jobs (start date / last date as end date)
         date_default_timezone_set("Africa/Cairo");
-        $first = $this->db->order_by('start_date', 'ASC')->get_where('job', array('project_id' => $project_id))->row();
-        $last = $this->db->order_by('delivery_date', 'DESC')->get_where('job', array('project_id' => $project_id))->row();
+        // $first = $this->db->order_by('start_date', 'ASC')->get_where('job', array('project_id' => $project_id))->row();
+        // $last = $this->db->order_by('delivery_date', 'DESC')->get_where('job', array('project_id' => $project_id))->row();
 
-        if ($first) {
-            $start_date = new DateTime($first->start_date);
-        } else {
-            $start_date = new DateTime();
-        }
-
-        if ($last) {
-            $end_date = new DateTime($last->delivery_date);
-        } else {
-            $end_date = new DateTime();
-        }
-
-        $current_date = new DateTime();
-        //$total = $start_date->diff($end_date);
-        $total = date_diff($start_date, $end_date);
-        if ($current_date > $start_date) {
-            $interval = date_diff($start_date, $current_date);
-            $interval_hours = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
-        } else {
-            $interval_hours = 0;
-        }
-
-        $total_hours = ($total->days * 24 * 60) + ($total->h * 60) + $total->i;
-        // if ($project_id == '39217') {
-        //     var_dump($start_date);
-        //     var_dump($current_date);
-        //     var_dump($interval->days * 24 * 60);
-        //     var_dump($interval->h * 60);
-        //     die;
+        // if ($first) {
+        //     $start_date = new DateTime($first->start_date);
+        // } else {
+        //     $start_date = new DateTime();
         // }
-        if ($total_hours > 0) {
-            $progress = $interval_hours * 100 / $total_hours;
-            $progress = $progress >= 100 ? 100 : round($progress, 0);
+
+        // if ($last) {
+        //     $end_date = new DateTime($last->delivery_date);
+        // } else {
+        //     $end_date = new DateTime();
+        // }
+
+        // $current_date = new DateTime();
+        // //$total = $start_date->diff($end_date);
+        // $total = date_diff($start_date, $end_date);
+        // if ($current_date > $start_date) {
+        //     $interval = date_diff($start_date, $current_date);
+        //     $interval_hours = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
+        // } else {
+        //     $interval_hours = 0;
+        // }
+
+        // $total_hours = ($total->days * 24 * 60) + ($total->h * 60) + $total->i;
+
+        $sql = "select TIMESTAMPDIFF(HOUR,start_date,delivery_date) as total_hours,TIMESTAMPDIFF(HOUR,start_date,now()) as interval_hours,now(),start_date,delivery_date from (
+            (select start_date  from job where project_id =" . $project_id . " order by start_date asc limit 1) as start_date,
+            (select delivery_date from job where project_id =" . $project_id . " order by delivery_date DESC limit 1) as delivery_date
+            ) ";
+        $progr = $this->db->query($sql)->row();
+        if ($progr) {
+
+            if ($progr->total_hours > 0) {
+                $progress = $progr->interval_hours * 100 / $progr->total_hours;
+                $progress = $progress >= 100 ? 100 : round($progress, 0);
+            } else {
+                $progress = 0;
+            }
         } else {
             $progress = 0;
         }
+        // print_r($progress);
         return $progress;
     }
 

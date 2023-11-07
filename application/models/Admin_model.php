@@ -38,7 +38,7 @@ class Admin_model extends CI_Model
 	public function addToLoggerDelete($table_name = "", $screen = "", $transaction_id_name = "", $transaction_id = "", $parent = "", $parent_id = "", $created_by = "")
 	{
 		//Table Structure ...
-		$table_structure = $this->db->query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='falaq' AND `TABLE_NAME`='$table_name' ")->result();
+		$table_structure = $this->db->query(" SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='falaq' AND `TABLE_NAME`='$table_name' ")->result();
 		$key = array();
 		$count = 0;
 		$columns_name = "";
@@ -81,7 +81,7 @@ class Admin_model extends CI_Model
 	public function addToLoggerUpdate($table_name = "", $screen = "", $transaction_id_name = "", $transaction_id = "", $parent = "", $parent_id = "", $created_by = "")
 	{
 		//Table Structure ...
-		$table_structure = $this->db->query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='falaq' AND `TABLE_NAME`='$table_name' ")->result();
+		$table_structure = $this->db->query(" SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='falaq' AND `TABLE_NAME`='$table_name' ")->result();
 		$key = array();
 		$count = 0;
 		foreach ($table_structure as $column) {
@@ -124,7 +124,7 @@ class Admin_model extends CI_Model
 
 	public function getGroupByScreen($screen)
 	{
-		$result = $this->db->query("SELECT * FROM `screen` WHERE id = '$screen' ")->row();
+		$result = $this->db->query(" SELECT * FROM `screen` WHERE id = '$screen' ")->row();
 		return $result->groups;
 	}
 
@@ -229,7 +229,7 @@ class Admin_model extends CI_Model
 
 	public function getScreenByGroupAndRole($groups, $role)
 	{
-		$result = $this->db->query("SELECT p.* FROM `permission` AS p INNER JOIN screen AS s ON p.screen = s.id WHERE s.menu = '1' and p.groups = '$groups' and p.role = '$role' ")->result();
+		$result = $this->db->query(" SELECT p.* FROM `permission` AS p INNER JOIN screen AS s ON p.screen = s.id WHERE s.menu = '1' and p.groups = '$groups' and p.role = '$role' ")->result();
 		return $result;
 	}
 
@@ -259,6 +259,7 @@ class Admin_model extends CI_Model
 		$data = $this->db->get('permission');
 		return $data;
 	}
+
 
 	public function selectBrand($id = "")
 	{
@@ -396,7 +397,7 @@ class Admin_model extends CI_Model
 		if ($ids == NULL) {
 			$ids = 0;
 		}
-		$result = $this->db->query("SELECT GROUP_CONCAT(user_name SEPARATOR '- ') AS names FROM `users` WHERE id IN(" . $ids . ")  ")->row();
+		$result = $this->db->query(" SELECT GROUP_CONCAT(user_name SEPARATOR '- ') AS names FROM `users` WHERE id IN(" . $ids . ")  ")->row();
 		if (isset($result->names)) {
 			return $result->names;
 		} else {
@@ -964,7 +965,7 @@ class Admin_model extends CI_Model
 
 	public function selectAllDTP($brand, $id = 0)
 	{
-		$translator = $this->db->query("SELECT id,user_name FROM `users` WHERE (role = '23' OR role = '24') AND brand = '$brand' ")->result();
+		$translator = $this->db->query("SELECT id,user_name FROM `users` WHERE (role = '23' OR role = '24') AND brand = '$brand' AND status = '1'")->result();
 		$data = "";
 		foreach ($translator as $translator) {
 			if ($translator->id == $id) {
@@ -1018,13 +1019,14 @@ class Admin_model extends CI_Model
 
 	public function AllLanguages($filter)
 	{
-		$data = $this->db->query("SELECT * FROM `languages` WHERE " . $filter . "  ORDER BY `name`  , id DESC ");
+
+		$data = $this->db->query("SELECT * FROM `languages` WHERE " . $filter . "  ORDER BY `name`");
 		return $data;
 	}
 
 	public function AllLanguagesPages($limit, $offset)
 	{
-		$data = $this->db->query("SELECT * FROM `languages`  ORDER BY  id DESC LIMIT $limit OFFSET $offset ");
+		$data = $this->db->query("SELECT * FROM `languages`  ORDER BY  name  LIMIT $limit OFFSET $offset ");
 		return $data;
 	}
 
@@ -1127,7 +1129,7 @@ class Admin_model extends CI_Model
 
 	public function selectLEUnit($id = "")
 	{
-		$unit = $this->db->query("SELECT * FROM unit WHERE le = 1 ")->result();
+		$unit = $this->db->query(" SELECT * FROM unit WHERE le = 1 ")->result();
 		$data = "";
 		foreach ($unit as $unit) {
 			if ($unit->id == $id) {
@@ -1164,7 +1166,7 @@ class Admin_model extends CI_Model
 
 	public function selectDtpEmployeeId($id = "", $brand = "")
 	{
-		$dtp = $this->db->query("SELECT * FROM users WHERE (role = '23' OR role = '24') AND brand = '$this->brand' AND status = '1' ")->result();
+		$dtp = $this->db->query(" SELECT * FROM users WHERE (role = '23' OR role = '24') AND brand = '$this->brand' AND status = '1' ")->result();
 		$data = "";
 		foreach ($dtp as $dtp) {
 			if ($dtp->id == $id) {
@@ -1177,7 +1179,7 @@ class Admin_model extends CI_Model
 	}
 	public function selectLeEmployeeId($id = "", $brand = "")
 	{
-		$le = $this->db->query("SELECT * FROM users WHERE (role = '25' OR role = '26') AND brand = '$this->brand' AND status = '1' ")->result();
+		$le = $this->db->query(" SELECT * FROM users WHERE (role = '25' OR role = '26') AND brand = '$this->brand' AND status = '1' ")->result();
 		$data = "";
 		foreach ($le as $le) {
 			if ($le->id == $id) {
@@ -1191,7 +1193,7 @@ class Admin_model extends CI_Model
 
 	public function selectTranslatorEmployeeId($id = "", $brand = "")
 	{
-		$translator = $this->db->query("SELECT * FROM users WHERE (role = '27' OR role = '28') AND brand = '$this->brand' AND status = '1' ")->result();
+		$translator = $this->db->query(" SELECT * FROM users WHERE (role = '27' OR role = '28') AND brand = '$this->brand' AND status = '1' ")->result();
 		$data = "";
 		foreach ($translator as $translator) {
 			if ($translator->id == $id) {
@@ -1205,7 +1207,7 @@ class Admin_model extends CI_Model
 
 	public function selectTranslatorTeamleader($id = "", $brand = "")
 	{
-		$translator = $this->db->query("SELECT * FROM users WHERE (role = '28') AND brand = '$this->brand' AND status = '1' ")->result();
+		$translator = $this->db->query(" SELECT * FROM users WHERE (role = '28') AND brand = '$this->brand' AND status = '1' ")->result();
 		$data = "";
 		foreach ($translator as $translator) {
 			if ($translator->id == $id) {
@@ -1219,7 +1221,7 @@ class Admin_model extends CI_Model
 
 	public function selectMarketingEmployeeId($id = "", $brand = "")
 	{
-		$marketing = $this->db->query("SELECT * FROM users WHERE (role = '22' OR role = '34' OR role = '35') AND brand = '$this->brand' AND status = '1' ")->result();
+		$marketing = $this->db->query(" SELECT * FROM users WHERE (role = '22' OR role = '34' OR role = '35') AND brand = '$this->brand' AND status = '1' ")->result();
 		$data = "";
 		foreach ($marketing as $marketing) {
 			if ($marketing->id == $id) {
@@ -1232,22 +1234,22 @@ class Admin_model extends CI_Model
 	}
 
 	//Operational Report ...
-	public function operationalReportBYPM($brand, $brandName, $start_date, $end_date)
+	public function operationalReportBYPM_old($brand, $brandName, $start_date, $end_date)
 	{
-		$pm = $this->db->query("SELECT u.id,u.user_name FROM users AS u WHERE (u.role = '2' OR u.role = '29' OR u.role = '16' OR role = '20' OR u.role = '42' OR u.role = '43' OR u.role = '45' OR u.role = '47' OR u.role = '52') AND u.brand = '$brand' ");
+		$pm = $this->db->query(" SELECT u.id,u.user_name FROM users AS u WHERE (u.role = '2' OR u.role = '29' OR u.role = '16' OR role = '20' OR u.role = '42' OR u.role = '43' OR u.role = '45' OR u.role = '47' OR u.role = '52') AND u.brand = '$brand' ");
 		$objReader = PHPExcel_IOFactory::createReader('Excel2007');
 		$objPHPExcel = $objReader->load('assets/uploads/excel/operationalReportBYPM.xlsx');
 		$objWorksheet = $objPHPExcel->getActiveSheet();
 		$rows = 3;
 		foreach ($pm->result() as $pm) {
-			$runningProjects = $this->db->query("SELECT * FROM `job` WHERE created_at < '$end_date' AND created_by = '$pm->id' AND project_id <> 0 AND status = 0 ");
+			$runningProjects = $this->db->query(" SELECT * FROM `job` WHERE created_at < '$end_date' AND created_by = '$pm->id' AND project_id <> 0 AND status = 0 ");
 			$totalRunning = 0;
 			foreach ($runningProjects->result() as $running) {
 				$priceList = $this->projects_model->getJobPriceListData($running->price_list);
 				$total_revenue = $this->sales_model->calculateRevenueJob($running->id, $running->type, $running->volume, $priceList->id);
 				$totalRunning = $totalRunning + $this->accounting_model->transfareTotalToCurrencyRate($priceList->currency, 2, $running->created_at, $total_revenue);
 			}
-			$closedProjects = $this->db->query("SELECT * FROM `job` WHERE closed_date BETWEEN '$start_date' AND '$end_date' AND status ='1' AND created_by = '$pm->id' ");
+			$closedProjects = $this->db->query(" SELECT * FROM `job` WHERE closed_date BETWEEN '$start_date' AND '$end_date' AND status ='1' AND created_by = '$pm->id' ");
 			$totalClosed = 0;
 			foreach ($closedProjects->result() as $closed) {
 				$priceList = $this->projects_model->getJobPriceListData($closed->price_list);
@@ -1270,6 +1272,43 @@ class Admin_model extends CI_Model
 		$objWriter->save(getcwd() . '/assets/uploads/OperationalReport/' . $fileName);
 
 		return $fileName;
+	}
+	public function sendOperationalReportBYP($TTGfile, $start_date, $end_date)
+	{
+		$config = array(
+			'protocol' => 'smtp',
+			'smtp_host' => 'email-smtp.us-west-2.amazonaws.com',
+			'smtp_port' => 25,
+			'smtp_user' => 'erp@aixnexus.com',
+			'smtp_pass' => 'EXoYlsum6Do@',
+			'charset' => 'utf-8',
+			'validate' => TRUE,
+			'wordwrap' => TRUE,
+		);
+		$this->load->library('email', $config);
+		$this->email->set_newline("\r\n");
+
+		$TTGfileName = base_url() . 'assets/uploads/OperationalReport/' . $TTGfile;
+		$this->email->attach($TTGfileName);
+
+		$this->email->from("erp@aixnexus.com");
+		$this->email->to("mohammad@thetranslationgate.com, shehab@thetranslationgate.com, sam-spocs@thetranslationgate.com, heba.adam@thetranslationgate.com, sabeeh.mohamed@thetranslationgate.com , maged.abdelmoniem@thetranslationgate.com ");
+		$this->email->cc("dev@thetranslationgate.com");
+		$this->email->subject("Operational Report By PM");
+		$message = '<!DOCTYPE ><html dir=ltr>
+	<head>
+	</head>
+    <body>
+	<p>Hi,</p>
+	<p>Kindly find Operational Report PM from ' . $start_date . ' To ' . $end_date . '</p>
+   	
+	<p>Thank You!</p>
+	</body>
+	</html>';
+		$this->email->message($message);
+		$this->email->set_header('Reply-To', "dev@thetranslationgate.com");
+		$this->email->set_mailtype('html');
+		$this->email->send();
 	}
 
 	public function sendOperationalReportBYPM($TTGfile, $DTPfile, $Europefile, $Columbusfile, $start_date, $end_date)
@@ -1321,20 +1360,20 @@ class Admin_model extends CI_Model
 
 	public function operationalReportBYCustomer($brand, $brandName, $start_date, $end_date)
 	{
-		$customer = $this->db->query("SELECT c.id,c.name,c.brand,c.status,l.id AS leadID,l.customer,l.region FROM customer_leads AS l LEFT OUTER JOIN customer AS c ON l.customer = c.id HAVING c.status = '2' AND brand = '$brand' ORDER BY c.name ASC ");
+		$customer = $this->db->query(" SELECT c.id,c.name,c.brand,c.status,l.id AS leadID,l.customer,l.region FROM customer_leads AS l LEFT OUTER JOIN customer AS c ON l.customer = c.id HAVING c.status = '2' AND brand = '$brand' ORDER BY c.name ASC ");
 		$objReader = PHPExcel_IOFactory::createReader('Excel2007');
 		$objPHPExcel = $objReader->load('assets/uploads/excel/operationalReportBYCustomer.xlsx');
 		$objWorksheet = $objPHPExcel->getActiveSheet();
 		$rows = 3;
 		foreach ($customer->result() as $customer) {
-			$runningProjects = $this->db->query("SELECT j.*,p.customer,p.lead FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.created_at < '$end_date' AND p.lead = '$customer->leadID' AND project_id <> 0 AND j.status = 0 ");
+			$runningProjects = $this->db->query(" SELECT j.*,p.customer,p.lead FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.created_at < '$end_date' AND p.lead = '$customer->leadID' AND project_id <> 0 AND j.status = 0 ");
 			$totalRunning = 0;
 			foreach ($runningProjects->result() as $running) {
 				$priceList = $this->projects_model->getJobPriceListData($running->price_list);
 				$total_revenue = $this->sales_model->calculateRevenueJob($running->id, $running->type, $running->volume, $priceList->id);
 				$totalRunning = $totalRunning + $this->accounting_model->transfareTotalToCurrencyRate($priceList->currency, 2, $running->created_at, $total_revenue);
 			}
-			$closedProjects = $this->db->query("SELECT j.*,p.customer,p.lead FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.closed_date BETWEEN '$start_date' AND '$end_date' AND j.status ='1' AND p.lead = '$customer->leadID' ");
+			$closedProjects = $this->db->query(" SELECT j.*,p.customer,p.lead FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.closed_date BETWEEN '$start_date' AND '$end_date' AND j.status ='1' AND p.lead = '$customer->leadID' ");
 			$totalClosed = 0;
 			foreach ($closedProjects->result() as $closed) {
 				$priceList = $this->projects_model->getJobPriceListData($closed->price_list);
@@ -1407,20 +1446,20 @@ class Admin_model extends CI_Model
 
 	public function operationalReportBYSAM($brand, $brandName, $start_date, $end_date)
 	{
-		$sam = $this->db->query("SELECT u.id,u.user_name FROM users AS u WHERE u.status = '1' AND (u.role = '3' OR u.role = '29' OR role = '12' OR role = '20') AND u.brand = '$brand' ");
+		$sam = $this->db->query(" SELECT u.id,u.user_name FROM users AS u WHERE u.status = '1' AND (u.role = '3' OR u.role = '29' OR role = '12' OR role = '20') AND u.brand = '$brand' ");
 		$objReader = PHPExcel_IOFactory::createReader('Excel2007');
 		$objPHPExcel = $objReader->load('assets/uploads/excel/operationalReportBYSAM.xlsx');
 		$objWorksheet = $objPHPExcel->getActiveSheet();
 		$rows = 3;
 		foreach ($sam->result() as $sam) {
-			$runningProjects = $this->db->query("SELECT j.*,p.customer,p.lead,(SELECT COUNT(*) FROM customer_sam WHERE customer_sam.lead = p.lead AND customer_sam.sam = '$sam->id') AS assigned FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.project_id <> 0 AND j.status = 0 AND j.created_at < '$end_date' HAVING assigned = '1' ");
+			$runningProjects = $this->db->query(" SELECT j.*,p.customer,p.lead,(SELECT COUNT(*) FROM customer_sam WHERE customer_sam.lead = p.lead AND customer_sam.sam = '$sam->id') AS assigned FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.project_id <> 0 AND j.status = 0 AND j.created_at < '$end_date' HAVING assigned = '1' ");
 			$totalRunning = 0;
 			foreach ($runningProjects->result() as $running) {
 				$priceList = $this->projects_model->getJobPriceListData($running->price_list);
 				$total_revenue = $this->sales_model->calculateRevenueJob($running->id, $running->type, $running->volume, $priceList->id);
 				$totalRunning = $totalRunning + $this->accounting_model->transfareTotalToCurrencyRate($priceList->currency, 2, $running->created_at, $total_revenue);
 			}
-			$closedProjects = $this->db->query("SELECT j.*,p.customer,p.lead,(SELECT COUNT(*) FROM customer_sam WHERE customer_sam.lead = p.lead AND customer_sam.sam = '$sam->id') AS assigned FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.project_id <> 0 AND j.status = 1 AND j.closed_date BETWEEN '$start_date' AND '$end_date' HAVING assigned = '1' ");
+			$closedProjects = $this->db->query(" SELECT j.*,p.customer,p.lead,(SELECT COUNT(*) FROM customer_sam WHERE customer_sam.lead = p.lead AND customer_sam.sam = '$sam->id') AS assigned FROM job AS j LEFT OUTER JOIN project AS p ON j.project_id = p.id WHERE j.project_id <> 0 AND j.status = 1 AND j.closed_date BETWEEN '$start_date' AND '$end_date' HAVING assigned = '1' ");
 			$totalClosed = 0;
 			foreach ($closedProjects->result() as $closed) {
 				$priceList = $this->projects_model->getJobPriceListData($closed->price_list);
@@ -1492,14 +1531,14 @@ class Admin_model extends CI_Model
 
 	public function operationalReportBYSAMActivities($brand, $brandName, $start_date, $end_date)
 	{
-		$sam = $this->db->query("SELECT u.id,u.user_name FROM users AS u WHERE u.status = '1' AND (u.role = '3' OR u.role = '29' OR role = '12' OR role = '20') AND u.brand = '$brand' ");
+		$sam = $this->db->query(" SELECT u.id,u.user_name FROM users AS u WHERE u.status = '1' AND (u.role = '3' OR u.role = '29' OR role = '12' OR role = '20') AND u.brand = '$brand' ");
 		$objReader = PHPExcel_IOFactory::createReader('Excel2007');
 		$objPHPExcel = $objReader->load('assets/uploads/excel/operationalReportSAMActivities.xlsx');
 		$objWorksheet = $objPHPExcel->getActiveSheet();
 		$rows = 3;
 		foreach ($sam->result() as $sam) {
-			$activities = $this->db->query("SELECT COUNT(*) AS total FROM `sales_activity` WHERE created_at BETWEEN '$start_date' AND '$end_date' AND created_by = '$sam->id' ")->row();
-			$busimess = $this->db->query("SELECT COUNT(*) AS total FROM `sales_business_reviews` WHERE created_at BETWEEN '$start_date' AND '$end_date' AND created_by = '$sam->id' ")->row();
+			$activities = $this->db->query(" SELECT COUNT(*) AS total FROM `sales_activity` WHERE created_at BETWEEN '$start_date' AND '$end_date' AND created_by = '$sam->id' ")->row();
+			$busimess = $this->db->query(" SELECT COUNT(*) AS total FROM `sales_business_reviews` WHERE created_at BETWEEN '$start_date' AND '$end_date' AND created_by = '$sam->id' ")->row();
 
 			$objPHPExcel->getActiveSheet()->setCellValue('a' . $rows, $sam->user_name);
 			$objPHPExcel->getActiveSheet()->setCellValue('b' . $rows, $activities->total);
@@ -1615,7 +1654,7 @@ class Admin_model extends CI_Model
 			LEFT OUTER JOIN invoices AS i ON FIND_IN_SET(p.id, i.po_ids) > 0
 			WHERE " . $filter . " HAVING brand = '$brand' order by issue_date desc ";
 
-			// $sql = "SELECT DISTINCT(job_id), j.*,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand
+			// $sql = " SELECT DISTINCT(job_id), j.*,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand
 			// FROM dtp_request AS d 
 			// 							LEFT OUTER JOIN job AS j ON j.id = d.job_id
 			// 							WHERE " . $filter . " HAVING brand = '$this->brand' order by j.id desc";
@@ -1629,7 +1668,7 @@ class Admin_model extends CI_Model
 	public function AllVendorsAccounts($brand, $filter)
 	{
 
-		$data = $this->db->query("SELECT * FROM `vendor` WHERE " . $filter . " AND brand = '$brand' ORDER BY id ASC , id DESC ");
+		$data = $this->db->query(" SELECT * FROM `vendor` WHERE " . $filter . " AND brand = '$brand' ORDER BY id ASC , id DESC ");
 		return $data;
 	}
 
@@ -1850,7 +1889,7 @@ class Admin_model extends CI_Model
 	public function addToLoggerRestore($table_name = "", $screen = "", $transaction_id_name = "", $transaction_id = "", $parent = "", $parent_id = "", $created_by = "")
 	{
 		//Table Structure ...
-		$table_structure = $this->db->query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='falaq' AND `TABLE_NAME`='$table_name' ")->result();
+		$table_structure = $this->db->query(" SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='falaq' AND `TABLE_NAME`='$table_name' ")->result();
 		$key = array();
 		$count = 0;
 		foreach ($table_structure as $column) {
@@ -1882,6 +1921,7 @@ class Admin_model extends CI_Model
 			$this->db->insert('logger', $logger);
 		}
 	}
+
 
 	public function selectMultiServices($id = "")
 	{
@@ -2057,7 +2097,7 @@ class Admin_model extends CI_Model
 	public function AllOffices($filter)
 	{
 
-		$data = $this->db->query("SELECT * FROM `ttg_branch` WHERE " . $filter . "  ORDER BY id ASC , id DESC ");
+		$data = $this->db->query(" SELECT * FROM `ttg_branch` WHERE " . $filter . "  ORDER BY id ASC , id DESC ");
 		return $data;
 	}
 
@@ -2083,5 +2123,434 @@ class Admin_model extends CI_Model
 			return $empIds;
 		} else
 			return false;
+	}
+	public function operationalReportBYPM_new($start_date, $end_date)
+	{
+
+		$sql_pm = "
+		select * ,sum(j_open) as count_open ,sum(j_open_old) as count_old_open,sum(j_close) as count_close
+		
+		from (
+		select *,case  when (created_at < '$start_date' and status = 0) then count(user_id) 
+			else 0
+			end as j_open
+			,case  when ((created_at >= '$start_date' AND created_at <= '$end_date') and status = 0) then count(user_id) 
+			else 0
+			end as j_open_old
+			 ,case  when ((closed_date >= '$start_date' AND closed_date <= '$end_date') and status = 1) then count(user_id) 
+			else 0
+			end as j_close
+		from
+		(
+		SELECT *
+		  
+		FROM
+			(SELECT  * from
+			(select
+					j.created_by,
+					j.created_at,
+					j.project_id as project_id,
+					r.id AS region_id,
+					r.name AS region,
+					u.id AS user_id,
+					u.user_name,
+					u.role,
+					e.id AS employee_id,
+					e.name AS employee,
+					b.id AS brand,
+					b.name AS brand_name,
+					j.status,
+					j.closed_date,
+					u.role as user_role
+					
+			FROM
+				job AS j
+			LEFT JOIN users u ON u.id = j.created_by
+			LEFT JOIN brand b ON b.id = u.brand
+			LEFT JOIN project AS p ON p.id = j.project_id
+			LEFT JOIN customer_leads AS l ON l.id = p.lead
+			LEFT JOIN regions AS r ON r.id = l.region
+			LEFT JOIN employees e ON e.id = u.employees_id
+			)as  tt2
+			WHERE
+			 ( (created_at < '$end_date' and status =0) or (closed_date >= '$start_date' AND closed_date  <= '$end_date' and status =1))
+			 and  project_id <> 0 
+					and user_role in ('2','29','16','20','42','43','45','47','52') 
+		) AS t1
+		
+			) t2 
+		GROUP BY  brand , region,created_by,status 
+		) t3
+		
+		GROUP BY  brand , region,created_by
+		order by brand ,created_by, region
+		 ";
+		// var_dump($sql_pm);
+		// die;
+		$pm = $this->db->query($sql_pm);
+
+		$objPHPExcel = new PHPExcel();
+		$filename = 'operationalReportBYPM';
+		$title = 'Operational Report By PM / USD From:' . date('Y_m_d', strtotime($start_date)) . '  To:' . date('Y_m_d', strtotime($end_date));
+		$file = $filename  . '.xlsx'; //save our workbook as this file name
+
+		// header('Content-Type: application/vnd.ms-excel'); //mime type
+		// header('Content-Disposition: attachment;filename="' . $filename . '"'); //tell browser what's the file name
+		// header("Pragma: no-cache");
+		// header("Expires: 0");
+
+
+		$objPHPExcel = new PHPExcel();
+		$objPHPExcel->getProperties()->setTitle("title")->setDescription($filename);
+		$objPHPExcel->setActiveSheetIndex(0);
+		// $objPHPExcel->getActiveSheet()->setActiveSheetIndexByName('operationalReportBYPM');
+
+		$objPHPExcel->getActiveSheet()->setCellValue('A1', $title);
+		$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setSize(20);
+		$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setBold(true);
+		$objPHPExcel->getActiveSheet()->mergeCells('A1:J1');
+
+		$objPHPExcel->getActiveSheet()->getCell('A2')->setValue('Brand');
+		$objPHPExcel->getActiveSheet()->getCell('B2')->setValue('Employee');
+		$objPHPExcel->getActiveSheet()->getCell('C2')->setValue('Region');
+		$objPHPExcel->getActiveSheet()->getCell('D2')->setValue('PM Name');
+		$objPHPExcel->getActiveSheet()->getCell('E2')->setValue('Number Of Running Jobs');
+		$objPHPExcel->getActiveSheet()->getCell('G2')->setValue('Revenue Of Running Jobs');
+		$objPHPExcel->getActiveSheet()->getCell('I2')->setValue('Number Of Closed Jobs');
+		$objPHPExcel->getActiveSheet()->getCell('J2')->setValue('Revenue Of Closed Jobs');
+		$objPHPExcel->getActiveSheet()->getCell('E3')->setValue('Old Running Jobs');
+		$objPHPExcel->getActiveSheet()->getCell('F3')->setValue('Current Running Jobs');
+		$objPHPExcel->getActiveSheet()->getCell('G3')->setValue('Old Running Jobs');
+		$objPHPExcel->getActiveSheet()->getCell('H3')->setValue('Current Running Jobs');
+
+		$objPHPExcel->getActiveSheet()->mergeCells('A2:A3');
+		$objPHPExcel->getActiveSheet()->mergeCells('B2:B3');
+		$objPHPExcel->getActiveSheet()->mergeCells('C2:C3');
+		$objPHPExcel->getActiveSheet()->mergeCells('D2:D3');
+		$objPHPExcel->getActiveSheet()->mergeCells('E2:F2');
+		$objPHPExcel->getActiveSheet()->mergeCells('G2:H2');
+		$objPHPExcel->getActiveSheet()->mergeCells('I2:I3');
+		$objPHPExcel->getActiveSheet()->mergeCells('J2:J3');
+		$rows = 4;
+		$total_old_count = 0;
+		$total_curr_count = 0;
+		$total_old_rev = 0;
+		$total_curr_rev = 0;
+		$total_closed_count = 0;
+		$total_closed_rev = 0;
+		$ix = 1;
+		foreach ($pm->result() as $pm) {
+			$sql_open = "SELECT j.id,j.price_list,j.type,j.volume,j.created_at
+						FROM `job` as j
+						left join project as p on p.id = j.project_id
+						left join customer_leads as l on l.id = p.lead
+						left join regions as r on r.id = l.region   
+						left join users u on u.id = j.created_by
+						WHERE j.created_at BETWEEN '$start_date' AND '$end_date' AND j.created_by = '$pm->user_id' AND j.project_id <> 0 AND j.status = 0 and r.id = '$pm->region_id'  and u.brand ='$pm->brand'";
+			$runningProjects = $this->db->query($sql_open);
+			//$this->db->query("SELECT * FROM `job` WHERE created_at < '$end_date' AND created_by = '$pm->user_id' AND project_id <> 0 AND status = 0 ");
+			$totalRunning = 0;
+			foreach ($runningProjects->result() as $running) {
+				$priceList = $this->projects_model->getJobPriceListData($running->price_list);
+				$total_revenue = $this->sales_model->calculateRevenueJob($running->id, $running->type, $running->volume, $priceList->id);
+				$totalRunning = $totalRunning + $this->accounting_model->transfareTotalToCurrencyRate($priceList->currency, 2, $running->created_at, $total_revenue);
+			}
+			//****************/
+			$sql_old_open = "SELECT j.id,j.price_list,j.type,j.volume,j.created_at
+						FROM `job` as j
+						left join project as p on p.id = j.project_id
+						left join customer_leads as l on l.id = p.lead
+						left join regions as r on r.id = l.region   
+						left join users u on u.id = j.created_by
+						WHERE j.created_at < '$start_date' AND j.created_by = '$pm->user_id' AND j.project_id <> 0 AND j.status = 0 and r.id = '$pm->region_id'  and u.brand ='$pm->brand'";
+			$old_runningProjects = $this->db->query($sql_old_open);
+			$old_totalRunning = 0;
+			foreach ($old_runningProjects->result() as $oldrunning) {
+				$priceList = $this->projects_model->getJobPriceListData($oldrunning->price_list);
+				$total_revenue = $this->sales_model->calculateRevenueJob($oldrunning->id, $oldrunning->type, $oldrunning->volume, $priceList->id);
+				$old_totalRunning = $old_totalRunning + $this->accounting_model->transfareTotalToCurrencyRate($priceList->currency, 2, $oldrunning->created_at, $total_revenue);
+			}
+			// print_r($old_totalRunning);
+
+			//***************/
+			$sql_close = "SELECT j.id,j.price_list,j.type,j.volume,j.created_at
+						FROM `job` as j
+						left join project as p on p.id = j.project_id
+						left join customer_leads as l on l.id = p.lead
+						left join regions as r on r.id = l.region   
+						left join users u on u.id = j.created_by
+						WHERE j.closed_date BETWEEN '$start_date' AND '$end_date' AND j.created_by = '$pm->user_id' AND j.project_id <> 0 AND j.status = '1' and r.id = '$pm->region_id'  and u.brand ='$pm->brand'";
+			$closedProjects = $this->db->query($sql_close);
+			//$this->db->query("SELECT * FROM `job` WHERE closed_date BETWEEN '$start_date' AND '$end_date' AND status ='1' AND created_by = '$pm->user_id' ");
+			$totalClosed = 0;
+			foreach ($closedProjects->result() as $closed) {
+				$priceList = $this->projects_model->getJobPriceListData($closed->price_list);
+				$total_revenue = $this->sales_model->calculateRevenueJob($closed->id, $closed->type, $closed->volume, $priceList->id);
+				$totalClosed = $totalClosed + $this->accounting_model->transfareTotalToCurrencyRate($priceList->currency, 2, $closed->created_at, $total_revenue);
+			}
+			$tot1 = (string)$totalClosed;
+			$tot2 =  (string)$totalRunning;
+			$tot3 =  (string)$old_totalRunning;
+			if (
+				$totalClosed == 0 && $totalRunning == 0 && $old_totalRunning == 0
+				&& $pm->count_old_open == 0 && $pm->count_open == 0  && $pm->count_close == 0
+			) {
+			} else {
+				$objPHPExcel->getActiveSheet()->getCell('A' . $rows)->setValue($pm->brand_name);
+				$objPHPExcel->getActiveSheet()->getCell('B' . $rows)->setValue($pm->employee);
+				$objPHPExcel->getActiveSheet()->getCell('C' . $rows)->setValue($pm->region);
+				$objPHPExcel->getActiveSheet()->getCell('D' . $rows)->setValue($pm->user_name);
+				$objPHPExcel->getActiveSheet()->getCell('E' . $rows)->setValue((string)$pm->count_old_open);
+				$objPHPExcel->getActiveSheet()->getCell('F' . $rows)->setValue((string)$pm->count_open);
+
+				$objPHPExcel->getActiveSheet()->getCell('G' . $rows)->setValue($tot3);
+				$objPHPExcel->getActiveSheet()->setCellValue('H' . $rows, $tot2);
+				$objPHPExcel->getActiveSheet()->setCellValue('I' . $rows, $pm->count_close);
+				$objPHPExcel->getActiveSheet()->setCellValue('J' . $rows, $tot1);
+
+				$currencyFormat = html_entity_decode("$ 0,0.00", ENT_QUOTES, 'UTF-8');
+				$objPHPExcel->getActiveSheet()
+					->getStyle('G' . $rows)
+					->getNumberFormat()->setFormatCode($currencyFormat);
+				$objPHPExcel->getActiveSheet()
+					->getStyle('H' . $rows)
+					->getNumberFormat()->setFormatCode($currencyFormat);
+				$objPHPExcel->getActiveSheet()
+					->getStyle('J' . $rows)
+					->getNumberFormat()->setFormatCode($currencyFormat);
+
+				$rows++;
+
+				$total_old_count += $pm->count_old_open;
+				$total_curr_count += $pm->count_open;
+				$total_old_rev += $old_totalRunning;
+				$total_curr_rev += $totalRunning;
+				$total_closed_count += $pm->count_close;
+				$total_closed_rev += $totalClosed;
+				if ($ix == 1) {
+					$objPHPExcel->getActiveSheet()
+						->getStyle('A' . $rows . ':J' . $rows)
+						->getFill()
+						->setFillType(PHPExcel_Style_Fill::FILL_SOLID)
+						->getStartColor()
+						->setRGB('e6eff8');
+					$ix = 0;
+				} else {
+					$ix = 1;
+				}
+			}
+		}
+		$objPHPExcel->getActiveSheet()->getCell('A' . $rows)->setValue('Total');
+		$objPHPExcel->getActiveSheet()->getCell('B' . $rows)->setValue('');
+		$objPHPExcel->getActiveSheet()->getCell('C' . $rows)->setValue('');
+		$objPHPExcel->getActiveSheet()->getCell('D' . $rows)->setValue('');
+		$objPHPExcel->getActiveSheet()->getCell('E' . $rows)->setValue((string)$total_old_count ?? '');
+		$objPHPExcel->getActiveSheet()->getCell('F' . $rows)->setValue((string)$total_curr_count ?? '');
+
+		$objPHPExcel->getActiveSheet()->getCell('G' . $rows)->setValue((string)$total_old_rev);
+		$objPHPExcel->getActiveSheet()->setCellValue('H' . $rows, (string)$total_curr_rev);
+		$objPHPExcel->getActiveSheet()->setCellValue('I' . $rows, (string)$total_closed_count);
+		$objPHPExcel->getActiveSheet()->setCellValue('J' . $rows, (string)$total_closed_rev);
+
+		$currencyFormat = html_entity_decode("$ 0,0.00", ENT_QUOTES, 'UTF-8');
+		$objPHPExcel->getActiveSheet()
+			->getStyle('G' . $rows)
+			->getNumberFormat()->setFormatCode($currencyFormat);
+		$objPHPExcel->getActiveSheet()
+			->getStyle('H' . $rows)
+			->getNumberFormat()->setFormatCode($currencyFormat);
+		$objPHPExcel->getActiveSheet()
+			->getStyle('J' . $rows)
+			->getNumberFormat()->setFormatCode($currencyFormat);
+
+
+		$objPHPExcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('B2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('C2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('D2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('E2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('E3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('F3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('G2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('G3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('H3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('I2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('J2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+		$objPHPExcel->getActiveSheet()->getStyle('A1')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('A2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('A2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('A2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('A2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('A2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('A2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('B2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('C2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('D2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('E2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('E3')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('F3')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('G2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('G3')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('H3')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('I2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('J2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+		// foreach (range('A', 'J') as $columnID) {
+		// 	$objPHPExcel->getActiveSheet()->getColumnDimension($columnID)->setAutoSize(true);
+		// }
+		$styleArray = array(
+			'borders' => array(
+				'allborders' => array(
+					'style' => PHPExcel_Style_Border::BORDER_THIN
+				)
+			)
+		);
+
+		$objPHPExcel->getActiveSheet()->getStyle('A1:J' . $rows)->applyFromArray($styleArray);
+		unset($styleArray);
+		$objPHPExcel->getActiveSheet()
+			->getStyle('A2:J2')
+			->getFill()
+			->setFillType(PHPExcel_Style_Fill::FILL_SOLID)
+			->getStartColor()
+			->setRGB('c6c6c6');
+
+		$objPHPExcel->getActiveSheet()
+			->getStyle('E3:H3')
+			->getFill()
+			->setFillType(PHPExcel_Style_Fill::FILL_SOLID)
+			->getStartColor()
+			->setRGB('c6c6c6');
+
+		$objPHPExcel->getActiveSheet()
+			->getStyle('A' . ($rows) . ':J' . ($rows))
+			->getFill()
+			->setFillType(PHPExcel_Style_Fill::FILL_SOLID)
+			->getStartColor()
+			->setRGB('c6c6c6');
+
+		for ($col = 'A'; $col != 'K'; $col++) { //Runs through all cells between A and E and sets to autosize
+			$objPHPExcel->getActiveSheet()->getColumnDimension($col, true)->setAutoSize(true);
+		}
+		// $objPHPExcel->getActiveSheet()->setAutoFilter('A5:J20');
+		$objPHPExcel->getActiveSheet()->freezePane('A4');
+
+
+		// $objPHPExcel->getActiveSheet()->setAutoFilter($objPHPExcel->getActiveSheet()->calculateWorksheetDimension());
+		// $autoFilter = $objPHPExcel->getActiveSheet()->getAutoFilter();
+		//**********************/
+		$dataseriesLabels1 = array(
+			new \PHPExcel_Chart_DataSeriesValues('String', '=Worksheet!$D$4:$D$79', NULL, 1), //  Temperature
+		);
+		$dataseriesLabels2 = array(
+			new \PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$H$3', NULL, 1), //  Rainfall
+		);
+
+		$dataseriesLabels3 = array(
+			new \PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$J$2', NULL, 1), //  Humidity
+		);
+
+
+		$xAxisTickValues = array(
+			new \PHPExcel_Chart_DataSeriesValues('String', '=Worksheet!$D$4:$D$79', NULL, 50), //  Jan to Dec
+		);
+
+
+		$dataSeriesValues1 = array(
+			new \PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$J$4:$J$79', NULL, 50),
+		);
+
+		//  Build the dataseries
+		$series1 = new \PHPExcel_Chart_DataSeries(
+			\PHPExcel_Chart_DataSeries::TYPE_BARCHART, // plotType
+			\PHPExcel_Chart_DataSeries::GROUPING_CLUSTERED, // plotGrouping
+			range(0, count($dataSeriesValues1) - 1), // plotOrder
+			$dataseriesLabels1, // plotLabel
+			$xAxisTickValues, // plotCategory
+			$dataSeriesValues1                              // plotValues
+		);
+		$series1->setPlotDirection(\PHPExcel_Chart_DataSeries::DIRECTION_COL);
+
+
+		$dataSeriesValues2 = array(
+			new \PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$J$4:$H$79', NULL, 50),
+		);
+
+		// //  Build the dataseries
+		// $series2 = new \PHPExcel_Chart_DataSeries(
+		// 	\PHPExcel_Chart_DataSeries::TYPE_LINECHART, // plotType
+		// 	\PHPExcel_Chart_DataSeries::GROUPING_STANDARD, // plotGrouping
+		// 	range(0, count($dataSeriesValues2) - 1), // plotOrder
+		// 	$dataseriesLabels2, // plotLabel
+		// 	NULL, // plotCategory
+		// 	$dataSeriesValues2                              // plotValues
+		// );
+
+
+		// $dataSeriesValues3 = array(
+		// 	new \PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$J$4:$J$54', NULL, 50),
+		// );
+
+		// //  Build the dataseries
+		// $series3 = new \PHPExcel_Chart_DataSeries(
+		// 	\PHPExcel_Chart_DataSeries::TYPE_AREACHART, // plotType
+		// 	\PHPExcel_Chart_DataSeries::GROUPING_STANDARD, // plotGrouping
+		// 	range(0, count($dataSeriesValues2) - 1), // plotOrder
+		// 	$dataseriesLabels3, // plotLabel
+		// 	NULL, // plotCategory
+		// 	$dataSeriesValues3                              // plotValues
+		// );
+
+
+		$plotarea = new \PHPExcel_Chart_PlotArea(NULL, array($series1));
+		//  Set the chart legend
+		$legend = new \PHPExcel_Chart_Legend(\PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
+
+		$title = new \PHPExcel_Chart_Title('Revenue Of Closed Jobs');
+
+		//  Create the chart
+		$chart = new \PHPExcel_Chart(
+			'chart1', // name
+			$title, // title
+			$legend, // legend
+			$plotarea, // plotArea
+			true, // plotVisibleOnly
+			0, // displayBlanksAs
+			NULL, // xAxisLabel
+			NULL            // yAxisLabel
+		);
+
+
+		//  Set the position where the chart should appear in the worksheet
+		$chart->setTopLeftPosition('B82');
+		$chart->setBottomRightPosition('J100');
+
+		//  Add the chart to the worksheet
+		$objPHPExcel->getActiveSheet()->addChart($chart);
+		//************************/
+		// ob_end_clean();
+		// $objPHPExcel->getActiveSheet()->setTitle('Test');
+		$fileName = 'operationalReportBYPM_' . date('Y_m_d') . '.xlsx';
+		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->setIncludeCharts(TRUE);
+		// ob_end_clean();
+		$objWriter->save(getcwd() . '/assets/uploads/OperationalReport/' . $fileName);
+		return $fileName;
+	}
+	function getDirectManagers($title = '')
+	{
+		$structure = $this->db->get_where('structure', array('id' => $title, 'brand' => $this->brand))->row();
+		$manager = $this->db->get_where('employees', array('title' => $structure->parent, 'brand' => $this->brand))->result();
+		//$data = "<option disabled='disabled' selected=''>-- Select Manager --</option>";
+		foreach ($manager as $manager) {
+			if ($manager->id == $title) {
+				$data = "<option value='" . $manager->id . "' selected='selected'>" . $manager->name . "</option>";
+			} else {
+				$data = "<option value='" . $manager->id . "'>" . $manager->name . "</option>";
+			}
+		}
+		return $data;
 	}
 }

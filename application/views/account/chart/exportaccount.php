@@ -65,11 +65,11 @@
         </thead>
 
         <tbody>
-            <?php foreach ($chart->result() as $row): ?>
+            <?php foreach ($chart->result() as $row) : ?>
                 <tr class="">
 
                     <td><a href="<?= base_url() ?>account/editAccount/<?= base64_encode($row->id) ?>"><?=
-                            $row->ccode; ?></a>
+                                                                                                        $row->ccode; ?></a>
                     </td>
                     <td>
                         <?= $row->name; ?>
@@ -87,9 +87,9 @@
                         <?= $row->currency; ?>
                     </td>
                     <td>
-                        <?php if ($row->acc_thrd_party == 1): ?>
+                        <?php if ($row->acc_thrd_party == 1) : ?>
                             <input type="checkbox" checked>
-                        <?php else: ?>
+                        <?php else : ?>
                             <input type="checkbox">
                         <?php endif ?>
                     </td>
