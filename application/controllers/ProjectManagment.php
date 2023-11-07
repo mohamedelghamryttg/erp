@@ -504,9 +504,15 @@ class ProjectManagment extends CI_Controller
             $data['code'] = $this->projects_model->generateProjectCode($data['lead'], $this->user);
             $data['created_by'] = $this->user;
             $data['created_at'] = date("Y-m-d H:i:s");
-
+            // min_profit_percentage
+            $data['min_profit_percentage'] = $this->projects_model->getProfitPercentageSetup($this->brand);
+            
             if ($this->db->insert('project', $data)) {
                 $project_id = $this->db->insert_id();
+                // update project code
+                    $code['code'] = $this->projects_model->updateProjectCode($data['lead'],$project_id, $this->user);
+                    $this->db->update('project', $code, array('id' => $project_id));
+                    // end update
                 $jobsNum = $_POST['new_job'];
                 for ($i = 1; $i < $jobsNum; $i++) {
                     if (isset($_POST['price_list_' . $i])) {
@@ -668,29 +674,43 @@ class ProjectManagment extends CI_Controller
                 $data['unit'] = $_POST['unit_' . $select];
                 $data['code'] = $this->projects_model->generateTaskCode($data['job_id']);
             }
-            if ($this->db->insert($tableName, $data)) {
-                $insert_id = $this->db->insert_id();
-                $totalVpo = $data['rate'] * $data['count'];
-                if ($totalVpo > 0 && $data['status'] == 4) {
-                    if ($tableName == "job_task") {
-                        $this->projects_model->sendVendorTaskMailVendorModule($insert_id, $this->user, $this->brand);
-                        // task log
-                        $this->projects_model->addToTaskLogger($insert_id, 0);
-                    } else {
-                        //  new email to all vendors
-                        $this->projects_model->sendToVendorList($insert_id, $this->user, $this->brand);
+            // checkSingleTaskPercentage
+            $checkTaskCost = $this->projects_model->getTaskCost(1,$data);
+            $check = $this->projects_model->checkSingleTaskPercentage($project_id,1,$data);
+            if($check == True && $checkTaskCost > 0){
+                if ($this->db->insert($tableName, $data)) {
+                    $insert_id = $this->db->insert_id();
+                    $totalVpo = $data['rate'] * $data['count'];
+                    if ($totalVpo > 0 && $data['status'] == 4) {
+                        if ($tableName == "job_task") {
+                            $this->projects_model->sendVendorTaskMailVendorModule($insert_id, $this->user, $this->brand);
+                            // task log
+                            $this->projects_model->addToTaskLogger($insert_id, 0);
+                        } else {
+                            //  new email to all vendors
+                            $this->projects_model->sendToVendorList($insert_id, $this->user, $this->brand);
+                        }
                     }
+                    $true = "Task Added Successfully ...";
+                    $this->session->set_flashdata('true', $true);
+                    redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
+                } else {
+                    $error = "Failed To Add Task ...";
+                    $this->session->set_flashdata('error', $error);
+                    redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
+                }        
+            }else{
+                 if($checkTaskCost == 0){
+                    $msg = $this->projects_model->checkTaskCostError(1,$data);
+                    $error = "Failed To Add Task <br/>$msg";
+                }else{
+                    $error = "Failed To Add Task <br/>Project Profit Percentage < Minimum Profit Percentage";
                 }
-                $true = "Task Added Successfully ...";
-                $this->session->set_flashdata('true', $true);
-                redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
-            } else {
-                $error = "Failed To Add Task ...";
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
-            }
-        } else {
-            echo "You have no permission to access this page";
+            }         
+        }else {
+        echo "You have no permission to access this page";
         }
     }
 
@@ -881,18 +901,27 @@ class ProjectManagment extends CI_Controller
             $id = base64_decode($_GET['t']);
             $project = base64_decode($_GET['p']);
             $job_data = $this->projects_model->getJobData($id);
-            $this->admin_model->addToLoggerDelete('job', 68, 'id', $id, 0, 0, $this->user);
-            if ($this->db->delete('job', array('id' => $id))) {
-                $this->admin_model->addToLoggerDelete('job_price_list', 68, 'id', $job_data->price_list, 1, $id, $this->user);
-                $this->db->delete('job_price_list', array('id' => $job_data->price_list));
-                $true = "Job Deleted Successfully ...";
-                $this->session->set_flashdata('true', $true);
-                redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project));
-            } else {
-                $error = "Failed To Delete Job ...";
-                $this->session->set_flashdata('error', $error);
-                redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project));
+             // checkProjectProfitPercentageForJobs
+            $checkPer = $this->projects_model->checkProjectProfitPercentageForJobs($project,$id);
+            if($checkPer == True ){
+                $this->admin_model->addToLoggerDelete('job', 68, 'id', $id, 0, 0, $this->user);
+                if ($this->db->delete('job', array('id' => $id))) {
+                    $this->admin_model->addToLoggerDelete('job_price_list', 68, 'id', $job_data->price_list, 1, $id, $this->user);
+                    $this->db->delete('job_price_list', array('id' => $job_data->price_list));
+                    $true = "Job Deleted Successfully ...";
+                    $this->session->set_flashdata('true', $true);
+                    redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project));
+                } else {
+                    $error = "Failed To Delete Job ...";
+                    $this->session->set_flashdata('error', $error);
+                    redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project));
+                }            
             }
+            else {
+                    $error = "Failed To Delete Job <br/>Project Profit Percentage < Minimum Profit Percentage";
+                    $this->session->set_flashdata('error', $error);
+                    redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project));
+                }     
         } else {
             echo "You have no permission to access this page";
         }
@@ -940,76 +969,83 @@ class ProjectManagment extends CI_Controller
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "ProjectManagment/projectJobs?t=" . $_POST['project_id']);
             }
+             $project_id = base64_decode($_POST['project_id']);
+                // checkProjectProfitPercentageForJobs
+            $checkPer = $this->projects_model->checkProjectProfitPercentageForJobs($project_id,$id,$_POST);
+            if($checkPer == True ){               
+                $row = $this->sales_model->getPriceListData($price_list);
+                $job_price['product_line'] = $row->product_line;
+                $job_price['source'] = $row->source;
+                $job_price['target'] = $row->target;
+                $job_price['service'] = $row->service;
+                $job_price['task_type'] = $row->task_type;
+                $job_price['subject'] = $row->subject;
+                $job_price['unit'] = $row->unit;
+                $job_price['rate'] = $row->rate;
+                $job_price['currency'] = $row->currency;
+                $job_price['comment'] = $row->comment;
+                $job_price['price_list_id'] = $price_list;
+                $job_price_list = $_POST['job_price_list'];
+                $this->admin_model->addToLoggerUpdate('job_price_list', 67, 'id', $job_price_list, 1, $id, $this->user);
+                $this->db->update('job_price_list', $job_price, array('id' => $job_price_list));
+               
+                $data['type'] = $_POST['type'];
+                $data['name'] = $_POST['name'];
+                if ($data['type'] == 1) {
+                    $data['volume'] = $_POST['volume'];
+                }
+                $data['start_date'] = $_POST['start_date'];
+                $data['delivery_date'] = $_POST['delivery_date'];
+                $data['code'] = $this->projects_model->updateJobCode($project_id, $price_list, $id);
+                $data['job_type'] = $_POST['job_type'];
+                $data['client_pm_id'] = $_POST['client_pm_id'];        
+                $this->admin_model->addToLoggerUpdate('job', 67, 'id', $id, 0, 0, $this->user);
 
-            $row = $this->sales_model->getPriceListData($price_list);
-            $job_price['product_line'] = $row->product_line;
-            $job_price['source'] = $row->source;
-            $job_price['target'] = $row->target;
-            $job_price['service'] = $row->service;
-            $job_price['task_type'] = $row->task_type;
-            $job_price['subject'] = $row->subject;
-            $job_price['unit'] = $row->unit;
-            $job_price['rate'] = $row->rate;
-            $job_price['currency'] = $row->currency;
-            $job_price['comment'] = $row->comment;
-            $job_price['price_list_id'] = $price_list;
-            $job_price_list = $_POST['job_price_list'];
-            $this->admin_model->addToLoggerUpdate('job_price_list', 67, 'id', $job_price_list, 1, $id, $this->user);
-            $this->db->update('job_price_list', $job_price, array('id' => $job_price_list));
-
-            $project_id = base64_decode($_POST['project_id']);
-            $data['type'] = $_POST['type'];
-            $data['name'] = $_POST['name'];
-            if ($data['type'] == 1) {
-                $data['volume'] = $_POST['volume'];
-            }
-            $data['start_date'] = $_POST['start_date'];
-            $data['delivery_date'] = $_POST['delivery_date'];
-            $data['code'] = $this->projects_model->updateJobCode($project_id, $price_list, $id);
-            $data['job_type'] = $_POST['job_type'];
-            $data['client_pm_id'] = $_POST['client_pm_id'];
-            $this->admin_model->addToLoggerUpdate('job', 67, 'id', $id, 0, 0, $this->user);
-
-            if ($_FILES['attached_email']['size'] != 0 && $_POST['job_type'] == 1) {
-                //$config['file']['upload_path']          = './assets/uploads/vendors/';
-                $config['file']['upload_path'] = './assets/uploads/jobFile/';
-                $config['file']['encrypt_name'] = TRUE;
-                $config['file']['allowed_types'] = 'zip|rar';
-                $config['file']['max_size'] = 20000000;
-                $config['file']['max_width'] = 1024;
-                $config['file']['max_height'] = 768;
-                $this->load->library('upload', $config['file'], 'file_upload');
-                if (!$this->file_upload->do_upload('attached_email')) {
-                    $error = $this->file_upload->display_errors();
-                    $this->session->set_flashdata('error', $error);
+                if ($_FILES['attached_email']['size'] != 0 && $_POST['job_type'] == 1) {
+                    //$config['file']['upload_path']          = './assets/uploads/vendors/';
+                    $config['file']['upload_path'] = './assets/uploads/jobFile/';
+                    $config['file']['encrypt_name'] = TRUE;
+                    $config['file']['allowed_types'] = 'zip|rar';
+                    $config['file']['max_size'] = 20000000;
+                    $config['file']['max_width'] = 1024;
+                    $config['file']['max_height'] = 768;
+                    $this->load->library('upload', $config['file'], 'file_upload');
+                    if (!$this->file_upload->do_upload('attached_email')) {
+                        $error = $this->file_upload->display_errors();
+                        $this->session->set_flashdata('error', $error);
+                        redirect(base_url() . "ProjectManagment/projectJobs?t=" . $_POST['project_id']);
+                    } else {
+                        $data_file = $this->file_upload->data();
+                        $data['attached_email'] = $data_file['file_name'];
+                    }
+                }            
+                if ($this->db->update('job', $data, array('id' => $id))) {
+                    if ($data['type'] == 2) {
+                        $fuzzy['job'] = $id;
+                        $this->db->delete('project_fuzzy', array('job' => $id));
+                        for ($i = 1; $i <= $_POST['total_rows']; $i++) {
+                            $fuzzy['prcnt'] = $_POST['prcnt_' . $i];
+                            $fuzzy['unit_number'] = $_POST['unit_number_' . $i];
+                            $fuzzy['value'] = $_POST['value_' . $i];
+                            $this->db->insert('project_fuzzy', $fuzzy);
+                        }
+                    } elseif ($data['type'] == 1) {
+                        $this->db->delete('project_fuzzy', array('job' => $id));
+                    }
+                    $true = "Job Edited Successfully ...";
+                    $this->session->set_flashdata('true', $true);
                     redirect(base_url() . "ProjectManagment/projectJobs?t=" . $_POST['project_id']);
                 } else {
-                    $data_file = $this->file_upload->data();
-                    $data['attached_email'] = $data_file['file_name'];
+                    $error = "Failed To Edit Job ...";
+                    $this->session->set_flashdata('error', $error);
+                    redirect(base_url() . "ProjectManagment/projectJobs?t=" . $_POST['project_id']);
                 }
             }
-
-            if ($this->db->update('job', $data, array('id' => $id))) {
-                if ($data['type'] == 2) {
-                    $fuzzy['job'] = $id;
-                    $this->db->delete('project_fuzzy', array('job' => $id));
-                    for ($i = 1; $i <= $_POST['total_rows']; $i++) {
-                        $fuzzy['prcnt'] = $_POST['prcnt_' . $i];
-                        $fuzzy['unit_number'] = $_POST['unit_number_' . $i];
-                        $fuzzy['value'] = $_POST['value_' . $i];
-                        $this->db->insert('project_fuzzy', $fuzzy);
-                    }
-                } elseif ($data['type'] == 1) {
-                    $this->db->delete('project_fuzzy', array('job' => $id));
-                }
-                $true = "Job Edited Successfully ...";
-                $this->session->set_flashdata('true', $true);
-                redirect(base_url() . "ProjectManagment/projectJobs?t=" . $_POST['project_id']);
-            } else {
-                $error = "Failed To Edit Job ...";
+            else {
+                 $error = "Failed To Edit Job <br/>Project Profit Percentage < Minimum Profit Percentage";
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "ProjectManagment/projectJobs?t=" . $_POST['project_id']);
-            }
+                }
         } else {
             echo "You have no permission to access this page";
         }
@@ -1092,8 +1128,16 @@ class ProjectManagment extends CI_Controller
             $jobData['status'] = 0;
             $jobData['po'] = null;
             $this->admin_model->addToLoggerUpdate('job', 65, 'id', $job, 0, 0, $this->user);
-            if ($this->db->update('job', $jobData, array('id' => $job))) {
-                $this->admin_model->addToLoggerDelete('po', 65, 'id', $po, 0, 0, $this->user);
+            if ($this->db->update('job', $jobData, array('id' => $job))) {               
+                // check if po has others jobs if yes not delete
+                // check jobs where id != this job_id 
+               $checkPO =  $this->db->get_where('job', array('po' => $po,'id !='=>$job))->num_rows();
+               if($checkPO == 0){               
+                    $this->admin_model->addToLoggerDelete('po', 65, 'id', $po, 0, 0, $this->user);
+                     $this->db->delete('po',array('id'=>$po));
+               }
+                
+               
                 $true = "Job Re-opened Successfully ...";
                 $this->session->set_flashdata('true', $true);
                 redirect($_SERVER['HTTP_REFERER']);
@@ -1184,50 +1228,58 @@ class ProjectManagment extends CI_Controller
             $data['delivery_date'] = $_POST['delivery_date'];
             $data['time_zone'] = $_POST['time_zone'];
             $data['insrtuctions'] = $_POST['insrtuctions'];
-            if ($_FILES['file']['size'] != 0) {
-                //$config['file']['upload_path']          = './assets/uploads/vendors/';
-                $config['file']['upload_path'] = './assets/uploads/taskFile/';
-                $config['file']['encrypt_name'] = TRUE;
-                $config['file']['allowed_types'] = 'zip|rar';
-                $config['file']['max_size'] = 10000;
-                $config['file']['max_width'] = 1024;
-                $config['file']['max_height'] = 768;
-                $this->load->library('upload', $config['file'], 'file_upload');
-                if (!$this->file_upload->do_upload('file')) {
-                    $error = $this->file_upload->display_errors();
-                    $this->session->set_flashdata('error', $error);
+             // checkProjectProfitPercentageForTasks    
+            $data['created_at'] =  $this->projects_model->getTaskData($task_id)->created_at;
+            $checkPer = $this->projects_model->checkProjectProfitPercentageForTasks($project_id,1,$task_id,$data);
+            if($checkPer == True ){ 
+                if ($_FILES['file']['size'] != 0) {
+                    //$config['file']['upload_path']          = './assets/uploads/vendors/';
+                    $config['file']['upload_path'] = './assets/uploads/taskFile/';
+                    $config['file']['encrypt_name'] = TRUE;
+                    $config['file']['allowed_types'] = 'zip|rar';
+                    $config['file']['max_size'] = 10000;
+                    $config['file']['max_width'] = 1024;
+                    $config['file']['max_height'] = 768;
+                    $this->load->library('upload', $config['file'], 'file_upload');
+                    if (!$this->file_upload->do_upload('file')) {
+                        $error = $this->file_upload->display_errors();
+                        $this->session->set_flashdata('error', $error);
+                        redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
+                    } else {
+                        $data_file = $this->file_upload->data();
+                        $data['file'] = $data_file['file_name'];
+                    }
+                }
+                // new if task rejected & edit -> resend job portal = 1
+                $task_data = $this->db->get_where('job_task', array('id' => $task_id))->row();
+                $old_status = $task_data->status;
+                if (($task_data->status == 3 || $task_data->status == 0) && $task_data->job_portal == 1) {
+                    // update status to waiting vendor acceptance & send new task email to vendor
+                    $data['status'] = 4;
+                }
+                $this->admin_model->addToLoggerUpdate('job_task', 70, 'id', $task_id, 0, 0, $this->user);
+                if ($this->db->update('job_task', $data, array('id' => $task_id))) {
+                    if ($old_status == 3 && $task_data->job_portal == 1) {
+                        // task log
+                        $this->projects_model->addToTaskLogger($task_id, 5);
+                        $this->projects_model->sendVendorTaskMailVendorModule($task_id, $this->user, $this->brand);
+                    } else {
+                        $this->projects_model->addToTaskLogger($task_id, 7);
+                        $this->projects_model->sendVendorTaskMailVendorModule($task_id, $this->user, $this->brand, 1);
+                        //$this->projects_model->sendVendorUpdateTaskMail($task_id,$this->user,$this->brand);
+                    }
+                    $true = "Task Edited Successfully ...";
+                    $this->session->set_flashdata('true', $true);
                     redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
                 } else {
-                    $data_file = $this->file_upload->data();
-                    $data['file'] = $data_file['file_name'];
+                    $error = "Failed To Edit Task ...";
+                    $this->session->set_flashdata('error', $error);
+                    redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
                 }
             }
-            // new if task rejected & edit -> resend job portal = 1
-            $task_data = $this->db->get_where('job_task', array('id' => $task_id))->row();
-            $old_status = $task_data->status;
-            if (($task_data->status == 3 || $task_data->status == 0) && $task_data->job_portal == 1) {
-                // update status to waiting vendor acceptance & send new task email to vendor
-                $data['status'] = 4;
-            }
-            $this->admin_model->addToLoggerUpdate('job_task', 70, 'id', $task_id, 0, 0, $this->user);
-            if ($this->db->update('job_task', $data, array('id' => $task_id))) {
-                if ($old_status == 3 && $task_data->job_portal == 1) {
-                    // task log
-                    $this->projects_model->addToTaskLogger($task_id, 5);
-                    $this->projects_model->sendVendorTaskMailVendorModule($task_id, $this->user, $this->brand);
-                } else {
-                    $this->projects_model->addToTaskLogger($task_id, 7);
-                    $this->projects_model->sendVendorTaskMailVendorModule($task_id, $this->user, $this->brand, 1);
-                    //$this->projects_model->sendVendorUpdateTaskMail($task_id,$this->user,$this->brand);
-                }
-                $true = "Task Edited Successfully ...";
-                $this->session->set_flashdata('true', $true);
-                redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
-            } else {
-                $error = "Failed To Edit Task ...";
+                $error = "Failed To Edit Task ...<br/>Project Profit Percentage < Minimum Profit Percentage";
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
-            }
         } else {
             echo "You have no permission to access this page";
         }
@@ -1339,22 +1391,43 @@ class ProjectManagment extends CI_Controller
             }
             $data['created_by'] = $this->user;
             $data['created_at'] = date("Y-m-d H:i:s");
+            $data['work_hours'] = $_POST['work_hours'];
+            $data['overtime_hours'] = $_POST['overtime_hours'];
+            $data['doublepaid_hours'] = $_POST['doublepaid_hours'];
             if (!empty($_POST['start_after'])) {
                 $data['start_after_id'] = substr(strstr($_POST['start_after'], '//'), 2);
                 $data['start_after_type'] = strstr($_POST['start_after'], '//', true);
                 $data['status'] = 6;
-            }
-            if ($this->db->insert('translation_request', $data)) {
-                if ($data['status'] == 1)
-                    $this->projects_model->sendTranslationRequestMail($this->db->insert_id());
-                $true = "Task Added Successfully ...";
-                $this->session->set_flashdata('true', $true);
-                redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
-            } else {
-                $error = "Failed To Add Task ...";
+            } 
+            // checkSingleTaskPercentage            
+            
+            $checkTaskCost = $this->projects_model->getTaskCost(2,$data);
+            $check = $this->projects_model->checkSingleTaskPercentage($project_id,2,$data);
+            if($check == True && $checkTaskCost > 0){
+                if ($this->db->insert('translation_request', $data)) {
+                    $inserted_id = $this->db->insert_id();               
+                      if ($data['status'] == 1)
+                          $this->projects_model->sendTranslationRequestMail($inserted_id);
+                        $true = "Task Added Successfully ...";
+                        $this->session->set_flashdata('true', $true);
+                       redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
+                } else {
+                    $error = "Failed To Add Task ...";
+                    $this->session->set_flashdata('error', $error);  
+                    redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
+                }
+            }else{
+                if($checkTaskCost == 0){
+                    $msg = $this->projects_model->checkTaskCostError(2,$data);
+                    $error = "Failed To Add Task <br/>$msg";
+                }else{
+                    $error = "Failed To Add Task <br/>Project Profit Percentage < Minimum Profit Percentage";
+                }
+
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
             }
+           
         } else {
             echo "You have no permission to access this page";
         }
@@ -1615,22 +1688,42 @@ class ProjectManagment extends CI_Controller
             }
             $data['created_by'] = $this->user;
             $data['created_at'] = date("Y-m-d H:i:s");
+            $data['work_hours'] = $_POST['work_hours'];
+            $data['overtime_hours'] = $_POST['overtime_hours'];
+            $data['doublepaid_hours'] = $_POST['doublepaid_hours'];
             if (!empty($_POST['start_after'])) {
                 $data['start_after_id'] = substr(strstr($_POST['start_after'], '//'), 2);
                 $data['start_after_type'] = strstr($_POST['start_after'], '//', true);
                 $data['status'] = 6;
             }
-            if ($this->db->insert('le_request', $data)) {
+            // checkSingleTaskPercentage
+            $checkTaskCost = $this->projects_model->getTaskCost(3,$data);
+            $check = $this->projects_model->checkSingleTaskPercentage($project_id,3,$data);
+            if($check == True && $checkTaskCost > 0){
+                if ($this->db->insert('le_request', $data)) {
+                $inserted_id = $this->db->insert_id();                
                 if ($data['status'] == 1)
-                    $this->projects_model->sendLERequestMail($this->db->insert_id());
+                     $this->projects_model->sendLERequestMail($inserted_id);
                 $true = "Task Added Successfully ...";
                 $this->session->set_flashdata('true', $true);
-                redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
-            } else {
-                $error = "Failed To Add Task ...";
+                 redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
+                          
+                } else {
+                    $error = "Failed To Add Task ...";
+                    $this->session->set_flashdata('error', $error);           
+                     redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
+                }
+            }else{ 
+                if($checkTaskCost == 0){
+                    $msg = $this->projects_model->checkTaskCostError(3,$data);
+                    $error = "Failed To Add Task <br/>$msg";
+                }else{
+                    $error = "Failed To Add Task <br/>Project Profit Percentage < Minimum Profit Percentage";
+                }
                 $this->session->set_flashdata('error', $error);
-                redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
-            }
+                 redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
+              } 
+           
         } else {
             echo "You have no permission to access this page";
         }
@@ -1700,22 +1793,42 @@ class ProjectManagment extends CI_Controller
             }
             $data['created_by'] = $this->user;
             $data['created_at'] = date("Y-m-d H:i:s");
+            $data['work_hours'] = $_POST['work_hours'];
+            $data['overtime_hours'] = $_POST['overtime_hours'];
+            $data['doublepaid_hours'] = $_POST['doublepaid_hours'];
             if (!empty($_POST['start_after'])) {
                 $data['start_after_id'] = substr(strstr($_POST['start_after'], '//'), 2);
                 $data['start_after_type'] = strstr($_POST['start_after'], '//', true);
                 $data['status'] = 6;
             }
-            if ($this->db->insert('dtp_request', $data)) {
-                if ($data['status'] == 1)
-                    $this->projects_model->sendDTPRequestMail($this->db->insert_id());
-                $true = "Task Added Successfully ...";
-                $this->session->set_flashdata('true', $true);
-                redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
-            } else {
-                $error = "Failed To Add Task ...";
+             // checkSingleTaskPercentage
+             $checkTaskCost = $this->projects_model->getTaskCost(4,$data);
+            $check = $this->projects_model->checkSingleTaskPercentage($project_id,4,$data);
+            if($check == True && $checkTaskCost > 0){
+                 if ($this->db->insert('dtp_request', $data)) {
+                    $inserted_id = $this->db->insert_id();
+                   $check = $this->projects_model->checkProjectProfitPercentage($project_id);                  
+                       if ($data['status'] == 1)
+                           $this->projects_model->sendDTPRequestMail($this->db->insert_id());
+                       $true = "Task Added Successfully ...";
+                       $this->session->set_flashdata('true', $true);
+                       redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
+                } else {
+                    $error = "Failed To Add Task ...";
+                    $this->session->set_flashdata('error', $error);      
+                    redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
+                }
+            }else{ 
+                 if($checkTaskCost == 0){
+                    $msg = $this->projects_model->checkTaskCostError(4,$data);
+                    $error = "Failed To Add Task <br/>$msg";
+                }else{
+                    $error = "Failed To Add Task <br/>Project Profit Percentage < Minimum Profit Percentage";
+                }
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "projectManagment/projectJobs?t=" . base64_encode($project_id));
-            }
+              }           
+            
         } else {
             echo "You have no permission to access this page";
         }
@@ -1859,33 +1972,46 @@ class ProjectManagment extends CI_Controller
             $data['delivery_date'] = $_POST['delivery_date'];
             $data['insrtuctions'] = $_POST['insrtuctions'];
             $data['status'] = 1;
-            if ($_FILES['file']['size'] != 0) {
-                $config['file']['upload_path'] = './assets/uploads/translationRequest/';
-                $config['file']['encrypt_name'] = TRUE;
-                $config['file']['allowed_types'] = 'zip|rar';
-                $config['file']['max_size'] = 10000;
-                $this->load->library('upload', $config['file'], 'file_upload');
-                if (!$this->file_upload->do_upload('file')) {
-                    $error = $this->file_upload->display_errors();
-                    $this->session->set_flashdata('error', $error);
+            $data['work_hours'] = $_POST['work_hours'];
+            $data['overtime_hours'] = $_POST['overtime_hours'];
+            $data['doublepaid_hours'] = $_POST['doublepaid_hours'];
+            // checkProjectProfitPercentageForTasks
+            $data['created_at'] =  $this->db->get_where('translation_request', array('id' => $task))->row()->created_at;
+            $project_id = $this->projects_model->getJobData(base64_decode($_POST['job_id']))->project_id;
+            $checkPer = $this->projects_model->checkProjectProfitPercentageForTasks($project_id,2,$task,$data);
+            if($checkPer == True ){  
+                if ($_FILES['file']['size'] != 0) {
+                    $config['file']['upload_path'] = './assets/uploads/translationRequest/';
+                    $config['file']['encrypt_name'] = TRUE;
+                    $config['file']['allowed_types'] = 'zip|rar';
+                    $config['file']['max_size'] = 10000;
+                    $this->load->library('upload', $config['file'], 'file_upload');
+                    if (!$this->file_upload->do_upload('file')) {
+                        $error = $this->file_upload->display_errors();
+                        $this->session->set_flashdata('error', $error);
+                        redirect(base_url() . "projectManagment/jobTasks?t=" . $_POST['job_id']);
+                    } else {
+                        $data_file = $this->file_upload->data();
+                        $data['file'] = $data_file['file_name'];
+                    }
+                }
+
+                $this->admin_model->addToLoggerUpdate('translation_request', 69, 'id', $task, 0, 0, $this->user);
+                if ($this->db->update('translation_request', $data, array('id' => $task))) {
+                    $this->projects_model->sendTranslationRequestMail($task);
+                    $true = "Task Updated Successfully ...";
+                    $this->session->set_flashdata('true', $true);
                     redirect(base_url() . "projectManagment/jobTasks?t=" . $_POST['job_id']);
                 } else {
-                    $data_file = $this->file_upload->data();
-                    $data['file'] = $data_file['file_name'];
+                    $error = "Failed To Update Task ...";
+                    $this->session->set_flashdata('error', $error);
+                    redirect(base_url() . "projectManagment/jobTasks?t=" . $_POST['job_id']);
                 }
-            }
-
-            $this->admin_model->addToLoggerUpdate('translation_request', 69, 'id', $task, 0, 0, $this->user);
-            if ($this->db->update('translation_request', $data, array('id' => $task))) {
-                $this->projects_model->sendTranslationRequestMail($task);
-                $true = "Task Updated Successfully ...";
-                $this->session->set_flashdata('true', $true);
-                redirect(base_url() . "projectManagment/jobTasks?t=" . $_POST['job_id']);
-            } else {
-                $error = "Failed To Update Task ...";
+            }  else {
+                 $error = "Failed To Update Task <br/>Project Profit Percentage < Minimum Profit Percentage";
                 $this->session->set_flashdata('error', $error);
-                redirect(base_url() . "projectManagment/jobTasks?t=" . $_POST['job_id']);
-            }
+                redirect(base_url() . "ProjectManagment/jobTasks?t=" . $_POST['job_id']);
+                }
         } else {
             echo "You have no permission to access this page";
         }
@@ -2032,6 +2158,64 @@ class ProjectManagment extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
+    
+    public function editProjectPercentage()
+    {
+        // Check Permission ..
+        $check = $this->admin_model->checkPermission($this->role, 39);
+        if ($check) {
+            //header ..
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 39);
+            //body ..
+            $data['id'] = base64_decode($_GET['t']); 
+             $data['pm'] = $this->user;
+            $data['row'] = $this->db->get_Where('project', array('id' => $data['id']))->row();
+            //Pages ..
+            $this->load->view('includes/header.php', $data);
+            $this->load->view('projectManagment/editProjectPercentage.php');
+            $this->load->view('includes/footer.php');
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
+    
+    public function doEditProjectPercentage()
+    {
+        // Check Permission ..
+        $check = $this->admin_model->checkPermission($this->role, 39);
+        $project_id = $_POST['project_id'];
+        $id = base64_decode($_POST['project_id']);
+        $managerCheck = $this->projects_model->checkManagerAccess($id);
+       if ($check && $managerCheck) {    
+            $currPer = $this->projects_model->getProjectProfitPercentage($id);
+            if($currPer < $_POST['min_profit_percentage']){
+                $error = "Failed To Edit Data...<br/>Current Percentage less than ". $_POST['min_profit_percentage']." %";
+                $this->session->set_flashdata('error', $error);
+                 redirect(base_url() . "projectManagment/projectJobs?t=" .$project_id);
+            }else{
+               // min_profit_percentage
+            $data['min_profit_percentage'] =  $_POST['min_profit_percentage'];
+            $data['approval_by'] = $this->user;
+            $data['approval_at'] = date("Y-m-d H:i:s");
+            $this->admin_model->addToLoggerUpdate('project', 39, 'id', $id, 0, 0, $this->user);
+
+            if ($this->db->update('project', $data, array('id' => $id))) {
+                $true = "Project Edited Successfully ...";
+                $this->session->set_flashdata('true', $true);                
+                redirect(base_url() . "projectManagment/projectJobs?t=" .$project_id);
+                
+            } else {
+                $error = "Failed To Edit Project ...";
+                $this->session->set_flashdata('error', $error);
+                 redirect(base_url() . "projectManagment/projectJobs?t=" .$project_id);
+            } 
+            }
+            
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
 
     public function deleteProject()
     {
@@ -2097,11 +2281,16 @@ class ProjectManagment extends CI_Controller
                 $project['created_by'] = $this->user;
                 $project['created_at'] = date("Y-m-d H:i:s");
                 $project['opportunity'] = $row->id;
-
+                // min_profit_percentage
+                $project['min_profit_percentage'] = $this->projects_model->getProfitPercentageSetup($this->brand);
+            
                 $opportunity['saved'] = 1;
                 if ($this->db->insert('project', $project)) {
-                    $job_data['project_id'] = $this->db->insert_id();
-
+                    $project_id = $job_data['project_id'] = $this->db->insert_id();
+                     // update project code
+                    $code['code'] = $this->projects_model->updateProjectCode($project['lead'],$project_id, $this->user);
+                    $this->db->update('project', $code, array('id' => $project_id));
+                    // end update                  
                     $this->admin_model->addToLoggerUpdate('sales_opportunity', 38, 'id', $project['opportunity'], 0, 0, $this->user);
                     $this->db->update('sales_opportunity', $opportunity, array('id' => $project['opportunity']));
 
@@ -3597,35 +3786,49 @@ class ProjectManagment extends CI_Controller
             $data['start_date'] = $_POST['start_date'];
             $data['delivery_date'] = $_POST['delivery_date'];
             $data['insrtuctions'] = $_POST['insrtuctions'];
-            if ($_FILES['file']['size'] != 0) {
-                $config['file']['upload_path'] = './assets/uploads/dtpRequest/';
-                $config['file']['encrypt_name'] = TRUE;
-                $config['file']['allowed_types'] = 'zip|rar';
-                $config['file']['max_size'] = 10000;
-                $config['file']['max_width'] = 1024;
-                $config['file']['max_height'] = 768;
-                $this->load->library('upload', $config['file'], 'file_upload');
-                if (!$this->file_upload->do_upload('file')) {
-                    $error = $this->file_upload->display_errors();
-                    $this->session->set_flashdata('error', $error);
+              $data['work_hours'] = $_POST['work_hours'];
+            $data['overtime_hours'] = $_POST['overtime_hours'];
+            $data['doublepaid_hours'] = $_POST['doublepaid_hours'];
+            // checkProjectProfitPercentageForTasks
+            $data['created_at'] =  $this->db->get_where('dtp_request', array('id' => $task))->row()->created_at;
+            $project_id = $this->projects_model->getJobData(base64_decode($_POST['job_id']))->project_id;
+            $checkPer = $this->projects_model->checkProjectProfitPercentageForTasks($project_id,3,$task,$data);
+            if($checkPer == True ){ 
+                if ($_FILES['file']['size'] != 0) {
+                    $config['file']['upload_path'] = './assets/uploads/dtpRequest/';
+                    $config['file']['encrypt_name'] = TRUE;
+                    $config['file']['allowed_types'] = 'zip|rar';
+                    $config['file']['max_size'] = 10000;
+                    $config['file']['max_width'] = 1024;
+                    $config['file']['max_height'] = 768;
+                    $this->load->library('upload', $config['file'], 'file_upload');
+                    if (!$this->file_upload->do_upload('file')) {
+                        $error = $this->file_upload->display_errors();
+                        $this->session->set_flashdata('error', $error);
+                        redirect(base_url() . "projects/jobTasks?t=" . $_POST['job_id']);
+                    } else {
+                        $data_file = $this->file_upload->data();
+                        $data['file'] = $data_file['file_name'];
+                    }
+                }
+
+                $this->admin_model->addToLoggerUpdate('dtp_request', 69, 'id', $task, 0, 0, $this->user);
+                if ($this->db->update('dtp_request', $data, array('id' => $task))) {
+                    $this->projects_model->sendDTPRequestMail($task);
+                    $true = "Task Updated Successfully ...";
+                    $this->session->set_flashdata('true', $true);
                     redirect(base_url() . "projects/jobTasks?t=" . $_POST['job_id']);
                 } else {
-                    $data_file = $this->file_upload->data();
-                    $data['file'] = $data_file['file_name'];
-                }
-            }
-
-            $this->admin_model->addToLoggerUpdate('dtp_request', 69, 'id', $task, 0, 0, $this->user);
-            if ($this->db->update('dtp_request', $data, array('id' => $task))) {
-                $this->projects_model->sendDTPRequestMail($task);
-                $true = "Task Updated Successfully ...";
-                $this->session->set_flashdata('true', $true);
-                redirect(base_url() . "projects/jobTasks?t=" . $_POST['job_id']);
-            } else {
-                $error = "Failed To Update Task ...";
+                    $error = "Failed To Update Task ...";
+                    $this->session->set_flashdata('error', $error);
+                    redirect(base_url() . "projects/jobTasks?t=" . $_POST['job_id']);
+                } 
+            
+            }else {
+                 $error = "Failed To Update Task <br/>Project Profit Percentage < Minimum Profit Percentage";
                 $this->session->set_flashdata('error', $error);
-                redirect(base_url() . "projects/jobTasks?t=" . $_POST['job_id']);
-            }
+                redirect(base_url() . "ProjectManagment/jobTasks?t=" . $_POST['job_id']);
+                }
         } else {
             echo "You have no permission to access this page";
         }
@@ -3809,7 +4012,16 @@ class ProjectManagment extends CI_Controller
             $data['delivery_date'] = $_POST['delivery_date'];
             $data['insrtuctions'] = $_POST['insrtuctions'];
             $data['status'] = 1;
-            if ($_FILES['file']['size'] != 0) {
+             $data['work_hours'] = $_POST['work_hours'];
+            $data['overtime_hours'] = $_POST['overtime_hours'];
+            $data['doublepaid_hours'] = $_POST['doublepaid_hours'];
+            $data['created_at'] = $this->db->get_where('le_request', array('id' => $task))->row()->created_at;
+            // checkProjectProfitPercentageForTasks
+            $data['created_at'] =  $this->db->get_where('le_request', array('id' => $task))->row()->created_at;
+            $project_id = $this->projects_model->getJobData(base64_decode($_POST['job_id']))->project_id;
+            $checkPer = $this->projects_model->checkProjectProfitPercentageForTasks($project_id,4,$task,$data);
+            if($checkPer == True ){  
+                 if ($_FILES['file']['size'] != 0) {
                 $config['file']['upload_path'] = './assets/uploads/leRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
@@ -3836,6 +4048,11 @@ class ProjectManagment extends CI_Controller
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "projects/jobTasks?t=" . $_POST['job_id']);
             }
+        }else {
+                 $error = "Failed To Update Task <br/>Project Profit Percentage < Minimum Profit Percentage";
+                $this->session->set_flashdata('error', $error);
+                redirect(base_url() . "ProjectManagment/jobTasks?t=" . $_POST['job_id']);
+                }
         } else {
             echo "You have no permission to access this page";
         }
@@ -6387,7 +6604,7 @@ class ProjectManagment extends CI_Controller
     {
         $check = $this->admin_model->checkPermission($this->role, 67);
         if ($check) {
-
+          
             // check if alreday exists
             $job_qc = $this->db->get_where('job_qc', array('job_id' => $_POST['job_id']))->row();
             $project_id = $_POST['project_id'] ? base64_encode($_POST['project_id']) : base64_encode($job_qc->project_id);
@@ -6418,13 +6635,13 @@ class ProjectManagment extends CI_Controller
                 }
                 if ($qc_type == 2 || $qc_type == 3) {
                     for ($i = 1; $i <= 30; $i++) {
-                        $data["logcheck$i"] = $_POST["label_logcheck$i"];
-                        $data["logcheck_value$i"] = $_POST["logcheck$i"];
+                        $data["logcheck$i"] = $_POST["label_logcheck$i"]??null;
+                        $data["logcheck_value$i"] = $_POST["logcheck$i"]??null;
                     }
                     for ($i = 31; $i <= 35; $i++) {
                         $x = $i - 30;
-                        $data["logcheck$i"] = $_POST["label_logcheckn$x"];
-                        $data["logcheck_value$i"] = $_POST["logcheckn$x"];
+                        $data["logcheck$i"] = $_POST["label_logcheckn$x"]??null;
+                        $data["logcheck_value$i"] = $_POST["logcheckn$x"]??null;
                     }
                 }
                 $data['created_by'] = $this->user;
@@ -6473,13 +6690,13 @@ class ProjectManagment extends CI_Controller
                 }
                 if ($job_qc->qc_type == 2 || $job_qc->qc_type == 3) {
                     for ($i = 1; $i <= 30; $i++) {
-                        $data["logcheck$i"] = $_POST["label_logcheck$i"];
-                        $data["logcheck_value$i"] = $_POST["logcheck$i"];
+                        $data["logcheck$i"] = $_POST["label_logcheck$i"]??null;
+                        $data["logcheck_value$i"] = $_POST["logcheck$i"]??null;
                     }
                     for ($i = 31; $i <= 35; $i++) {
                         $x = $i - 30;
-                        $data["logcheck$i"] = $_POST["label_logcheckn$x"];
-                        $data["logcheck_value$i"] = $_POST["logcheckn$x"];
+                        $data["logcheck$i"] = $_POST["label_logcheckn$x"]??null;
+                        $data["logcheck_value$i"] = $_POST["logcheckn$x"]??null;
                     }
                 }
                 $data['updated_by'] = $this->user;

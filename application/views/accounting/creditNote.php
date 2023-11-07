@@ -46,8 +46,8 @@
       <div class="form-group">
         <div class="col-lg-offset-3 col-lg-6">
           <button class="btn btn-primary" name="search" type="submit">Search</button>
-          <a href="<?= base_url() ?>accounting/creditNote" class="btn btn-warning">(x) Clear Filter</a>
           <button class="btn btn-success" onclick="var e2 = document.getElementById('poList'); e2.action='<?= base_url() ?>accounting/exportcreditNote'; e2.submit();" name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export To Excel</button>
+          <a href="<?= base_url() ?>accounting/creditNote" class="btn btn-warning">(x) Clear Filter</a>
 
         </div>
       </div>
@@ -99,6 +99,7 @@
                 <th>Issue_date</th>
                 <th>PM Name</th>
                 <th>PO Number</th>
+                <th>Invoice Number</th>
                 <th>POs</th>
                 <th>Amount</th>
                 <th>Currency</th>
@@ -125,6 +126,7 @@
                   <td><?= $row->issue_date ?></td>
                   <td><?= $this->admin_model->getAdmin($row->pm) ?></td>
                   <td><?= $row->number ?></td>
+                  <td><?= $this->accounting_model->getCreditNoteInvoice($row->number) ?></td>
                   <td><?php if ($row->type == 2 || $row->type == 3) {
                         echo $this->accounting_model->getSelectedPOs($row->pos);
                       } ?></td>

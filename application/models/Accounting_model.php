@@ -16,17 +16,6 @@ class Accounting_model extends CI_Model
         $this->load->database();
     }
 
-    // 	public function AllCpo($brand,$filter)
-    // 	{
-    // 		$data = $this->db->query(" SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand FROM `project` AS p WHERE p.status = 1 AND p.verified = 0 AND ".$filter." HAVING brand = '$brand' ORDER BY p.closed_date DESC ");
-    // 		return $data;
-    // 	}
-
-    // 	public function AllCpoPages($brand,$limit,$offset)
-    // 	{
-    // 		$data = $this->db->query(" SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand FROM `project` AS p WHERE p.status = 1 AND p.verified = 0  HAVING brand = '$brand' ORDER BY p.closed_date DESC LIMIT $limit OFFSET $offset ");
-    // 		return $data;
-    // 	}
 
     public function AllCpo($brand, $filter)
     {
@@ -1057,8 +1046,8 @@ class Accounting_model extends CI_Model
     public function creditNote($brand, $filter)
     {
         $data = $this->db->query(" SELECT c.*,p.number,p.created_by AS pm,(SELECT brand FROM customer WHERE customer.id = c.customer) AS brand
-        							FROM credit_note AS c LEFT OUTER JOIN po AS p ON p.id = c.po 
-            						WHERE " . $filter . " HAVING brand = '$brand' order by id desc ");
+        FROM credit_note AS c LEFT OUTER JOIN po AS p ON p.id = c.po 
+        WHERE " . $filter . " HAVING brand = '$brand' order by id desc ");
         return $data;
     }
 
@@ -1860,5 +1849,18 @@ WHERE project_id <> 0 AND " . $filter . " HAVING brand = '$brand' order by id de
         } else {
             return '';
         }
+    }
+    
+    public function getCreditNoteInvoice($po_number)
+    {
+        $invoice = '';
+        $po = $this->db->query("SELECT id FROM `po` WHERE `number` LIKE '$po_number'")->row();
+         if(!empty($po)){
+            $po_id = $po->id;
+            $data = $this->db->query(" SELECT id FROM invoices WHERE po_ids like '$po_id ,%' or po_ids like '%,$po_id,%' or po_ids like '%,$po_id' or po_ids = '$po_id'")->row();
+            if(!empty($data))
+                $invoice = $data->id;
+         }
+        return $invoice;
     }
 }

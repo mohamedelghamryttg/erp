@@ -52,9 +52,13 @@ table th {
                                 <td><?php echo $this->hr_model->getEmployee($row->emp_id); ?></td>
                                 <td><?= date('F',strtotime($row->start_date)); ?></td>
                                 <td><?= date('Y',strtotime($row->start_date)); ?></td>
+                               <?php if($row->end_date != null){?>
                                 <td><?= date('F',strtotime($row->end_date)) ?></td>
                                 <td><?= date('Y',strtotime($row->end_date)) ?></td>
-                                
+                               <?php }else{?>
+                                   <td>-</td>
+                                <td>-</td>
+                               <?php }?>
                                 <td><?= $this->hr_model->getPayrollActions($row->action); ?></td>
                                 <td><?= $row->amount.' '.$this->hr_model->getPayrollUnits($row->unit) ?></td>
                               

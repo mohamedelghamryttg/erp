@@ -1,5 +1,5 @@
 <!DOCTYPE>
-<html>
+<html dir=ltr>
 
 <head>
   <style>
@@ -58,6 +58,7 @@
         <th>Issue_date</th>
         <th>PM Name</th>
         <th>PO Number</th>
+        <th>Invoice Number</th>
         <th>POs</th>
         <th>Amount</th>
         <th>Currency</th>
@@ -83,6 +84,7 @@
             <td><?= $row->issue_date ?></td>
             <td><?= $this->admin_model->getAdmin($row->pm) ?></td>
             <td><?= $row->number ?></td>
+            <td><?= $this->accounting_model->getCreditNoteInvoice($row->number) ?></td>
             <td><?php if ($row->type == 2 || $row->type == 3) {
                   echo $this->accounting_model->getSelectedPOs($row->pos);
                 } ?></td>

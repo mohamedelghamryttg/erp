@@ -117,6 +117,30 @@
                                       <textarea name="insrtuctions" class="form-control" rows="6"></textarea>
                                 </div>
                             </div>
+                             <hr/>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label font-weight-bold " >Total Hours   
+                                    <span class="text-danger font-weight-bolder"> * </span>
+                                </label>            
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label" for="role Unit">Work Hours  </label>
+                                <div class="col-lg-6">                               
+                                    <input type="number" name="work_hours" class="form-control" required min="0" step="0.5"/>
+                               </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label" for="role Unit">Overtime Hours  </label>
+                                <div class="col-lg-6">                               
+                                    <input type="number" name="overtime_hours" class="form-control" required min="0" step="0.5"/>
+                               </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label" for="role Unit">Double  Paid Hours  </label>
+                                <div class="col-lg-6">                               
+                                    <input type="number" name="doublepaid_hours" class="form-control" required min="0" step="0.5"/>
+                               </div>
+                            </div>
                             <hr/>
                             <div class="form-group">
                                 <label class="col-lg-3 control-label font-weight-bold " >schedule Task   

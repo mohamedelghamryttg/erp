@@ -87,7 +87,7 @@
                     <li><b>You have to add Q.C. to each job before close jobs.</b></li>
                     <li><b>You have to add Vendor Evaluation to each vendor Task before close jobs.</b></li>
                 </ul>
-                <?php $this->view('ProjectManagment/projectJobs_includes'); ?>
+                <?php $this->view('projectManagment/projectJobs_includes'); ?>
             </div>
         </section>
 
@@ -483,7 +483,7 @@
                                                     <i class="fa fa-list"></i> View
                                                 </a>
                                             <?php }
-                                            $this->view('ProjectManagment/projectJobs_includes2'); ?>
+                                            $this->view('projectManagment/projectJobs_includes2'); ?>
                                         </td>
                                         <!--                                        <td>
                                                                                                                                                                                                <?php
@@ -982,6 +982,29 @@
 
                 <h5 class="text-dark font-weight-bold mb-2">Created At</h5>
                 <p class="ml-2"><?= $project_data->created_at; ?></p>
+                <hr/>
+                <h5 class="text-dark font-weight-bold mb-2">Project Revenue </h5>
+                <p class="ml-2"><?= round($this->projects_model->getProjectRevenue($project_data->id),2).' $' ?></p>               
+                <h5 class="text-dark font-weight-bold mb-2">Project Cost  </h5>
+                <p class="ml-2"><?= round($this->projects_model->getProjectCost($project_data->id),2).' $' ?></p>                
+                <h5 class="text-dark font-weight-bold mb-2">Project Profit   </h5>
+                <p class="ml-2"><?= round($this->projects_model->getProjectProfit($project_data->id),2).' $' ?></p>                
+                <h5 class="text-dark font-weight-bold mb-2">Project Profit Percentage % </h5>
+                <p class="ml-2"><?= round($this->projects_model->getProjectProfitPercentage($project_data->id),2).' %' ?></p>
+                <h5 class="text-dark font-weight-bold mb-2">Minimum Project Profit Percentage % </h5>
+                <p class="ml-2"><?= $project_data->min_profit_percentage??$this->projects_model->getProfitPercentageSetup($this->brand)?> %</p>
+                <?php if(!empty($project_data->approval_by)){?>
+                <h5 class="text-dark font-weight-bold mb-2">approval By </h5>
+                <p class="ml-2"><?= $this->admin_model->getAdmin($project_data->approval_by); ?></p>
+                <h5 class="text-dark font-weight-bold mb-2">approval At </h5>
+                <p class="ml-2"><?= $project_data->approval_at; ?></p>
+                <?php }if($permission->edit == 1 && $project_data->status == 0 && $this->projects_model->checkManagerAccess($project_data->id) == TRUE){?>
+                 <p>                  
+                      <a href="<?php echo base_url() ?>projectManagment/editProjectPercentage?t=<?= base64_encode($project_data->id); ?>" class=" btn btn-primary font-size-xs">
+                        <i class="fa fa-pencil"></i> Edit Min. Percentage
+                      </a>
+                  </p>
+                  <?php }?>
 
             </div>
         </section>

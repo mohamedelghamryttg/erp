@@ -455,9 +455,24 @@ class Customer extends CI_Controller
             $data['alias'] = $_POST['alias'];
             $data['payment'] = $_POST['payment'];
             $data['client_type'] = $_POST['client_type'] ?? Null;
+            $data['notes'] = $_POST['notes'] ?? Null;
             $referer = $_POST['referer'];
             if ($oldWebsite == $data['website']) {
                 $this->admin_model->addToLoggerUpdate('customer', 12, 'id', $id, 0, 0, $this->user);
+                   if ($_FILES['customer_profile']['size'] != 0 ) {                       
+                        $config['file']['upload_path'] = './assets/uploads/customer_profiles/';
+                        $config['file']['encrypt_name'] = TRUE;
+                        $config['file']['allowed_types'] = 'zip|rar';
+                        $config['file']['max_size'] = 5000000;
+                        $this->load->library('upload', $config['file'], 'file_upload');
+                        if (!$this->file_upload->do_upload('customer_profile')) {
+                            $error = $this->file_upload->display_errors();
+                            $this->session->set_flashdata('error', $error);                            
+                        } else {
+                            $data_file = $this->file_upload->data();
+                            $data['customer_profile'] = $data_file['file_name'];
+                        }
+                    }
                 if ($this->db->update('customer', $data, array('id' => $id))) {
                     $this->customer_model->addLastUpdated('customer', $id);
                     $true = "Customer Edited Successfully ...";
@@ -3185,6 +3200,7 @@ background-color: #FFFFCC;
             $data['name'] = $_POST['name'];
             $data['website'] = $_POST['website'];
             $data['client_type'] = $_POST['client_type'];
+            $data['notes'] = $_POST['notes'];
             $data['status'] = '1';
             $data['brand'] = $this->brand;
             $data['created_by'] = $this->user;
@@ -3196,6 +3212,21 @@ background-color: #FFFFCC;
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "customer");
             } else {
+                    if ($_FILES['customer_profile']['size'] != 0 ) {                       
+                        $config['file']['upload_path'] = './assets/uploads/customer_profiles/';
+                        $config['file']['encrypt_name'] = TRUE;
+                        $config['file']['allowed_types'] = 'zip|rar';
+                        $config['file']['max_size'] = 5000000;
+                        $this->load->library('upload', $config['file'], 'file_upload');
+                        if (!$this->file_upload->do_upload('customer_profile')) {
+                            $error = $this->file_upload->display_errors();
+                            $this->session->set_flashdata('error', $error);                            
+                        } else {
+                            $data_file = $this->file_upload->data();
+                            $data['customer_profile'] = $data_file['file_name'];
+                        }
+                    }
+
                 if ($this->db->insert('customer', $data)) {
                     // after add customer add lead 
                     $customer_id = $this->db->insert_id();

@@ -1160,8 +1160,18 @@ class Hr extends CI_Controller
                 $other_emails = implode(" ; ", $_POST['other_emails']);
                 $data['other_emails'] = $other_emails;
             }
+            if (isset($_POST['salary'])) {               
+                $salary['salary'] = $_POST['salary'];
+            }
 
             if ($this->db->insert('employees', $data)) {
+                $salary['emp_id'] = $this->db->insert_id();
+                if (isset($_POST['salary'])) {               
+                    $salary['salary'] = $_POST['salary']; 
+                    $salary['created_by'] = $this->user;
+                    $salary['created_at'] = date("Y-m-d H:i:s");
+                    $this->db->insert('emp_finance ', $salary);
+                }
                 $true = "Employee Added Successfully ...";
                 $this->session->set_flashdata('true', $true);
                 redirect(base_url() . "hr/employees");
@@ -1232,8 +1242,26 @@ class Hr extends CI_Controller
             $other_emails = ($this->input->post('other_emails') ? implode(' ; ', $this->input->post('other_emails')) : '');
             $data['other_emails'] = $other_emails;
             $data['workplace_model'] = $_POST['workplace_model'] ?? '';
+             if (isset($_POST['salary'])) { 
+                 $checkSalary = $this->db->get_where('emp_finance', array('emp_id' => $id))->row();
+                 if(!empty($checkSalary)){
+                    $salary['salary'] = $_POST['salary'];  
+                    $salary['updated_by'] = $this->user;
+                    $salary['updated_at'] = date("Y-m-d H:i:s");
+                    $this->admin_model->addToLoggerUpdate('emp_finance', 140, 'id', $checkSalary->id, 0, 0, $this->user);
+                    $this->db->update('emp_finance ', $salary, array('id' => $checkSalary->id));
+                    
+                }else{
+                    $salary['salary'] = $_POST['salary'];            
+                    $salary['emp_id'] = $id;
+                    $salary['created_by'] = $this->user;
+                    $salary['created_at'] = date("Y-m-d H:i:s");
+                    $this->db->insert('emp_finance ', $salary);
+                }
+             }
+           
             $this->admin_model->addToLoggerUpdate('employees', 140, 'id', $id, 0, 0, $this->user);
-
+            
             if ($this->db->update('employees', $data, array('id' => $id))) {
                 $true = "Employee Edited Successfully ...";
                 $this->session->set_flashdata('true', $true);
@@ -1631,9 +1659,24 @@ class Hr extends CI_Controller
             // $data['emp_id'] = $this->hr_model->getEmpId($this->user);
             $data['emp_id'] = $this->emp_id;
             $data['type_of_vacation '] = $_POST['type_of_vacation'];
-            $data['start_date'] = $_POST['start_date'];
+             $data['start_date'] = $_POST['start_date'];
             //calculate end date 
             $data['end_date'] = $this->hr_model->getEndDate($_POST['type_of_vacation'], $_POST['start_date'], $_POST['end_date'], $_POST['relative_degree']);
+            
+            // if year for start date != this year return error cannot processed
+            $thisYear = date('Y');
+            $yearOfStart = date('Y', strtotime( $_POST['start_date']));
+            $yearOfEnd = date('Y', strtotime( $data['end_date']));
+            if($yearOfStart != $thisYear || $yearOfEnd != $thisYear){
+                if($yearOfStart != $thisYear)
+                    $diff = $yearOfStart;
+                elseif($yearOfEnd != $thisYear)
+                    $diff = $yearOfEnd;
+                $error = "Failed To Add Request ... <br/> you can't add vacation for $diff";
+                $this->session->set_flashdata('error', $error);
+                redirect(base_url() . "hr/vacation");
+            }
+            // end                     
             $data['created_by'] = $this->user;
             $data['created_at'] = date("Y-m-d H:i:s");
             $data['relative_degree'] = $_POST['relative_degree'];

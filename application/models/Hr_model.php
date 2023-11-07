@@ -2653,5 +2653,14 @@ public function selectAllEmployeesByManagerID2level($emp_id, $id = "")
         return $data;
     }
 
-
+  public function getEmpSalary($emp_id)
+    {
+        $salary = '';
+        $result = $this->db->get_where('emp_finance', array('emp_id' => $emp_id))->row();
+        if (isset($result)) 
+           $salary = $result->salary;
+       
+        return $salary;
+        
+    }
 }
