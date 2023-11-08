@@ -2541,14 +2541,19 @@ class Admin_model extends CI_Model
 	}
 	function getDirectManagers($title = '')
 	{
-		$structure = $this->db->get_where('structure', array('id' => $title, 'brand' => $this->brand))->row();
-		$manager = $this->db->get_where('employees', array('title' => $structure->parent, 'brand' => $this->brand))->result();
+		if ($title == '') {
+			$manager = $this->db->query("select * from employees where title in (select parent from structure) and status = '0' order by name")->result();
+		} else {
+			$structure = $this->db->get_where('structure', array('id' => $title, 'brand' => $this->brand))->row();
+			$manager = $this->db->order_by('name')->get_where('employees', array('title' => $structure->parent, 'brand' => $this->brand))->result();
+		}
+		$data = "";
 		//$data = "<option disabled='disabled' selected=''>-- Select Manager --</option>";
 		foreach ($manager as $manager) {
-			if ($manager->id == $title) {
-				$data = "<option value='" . $manager->id . "' selected='selected'>" . $manager->name . "</option>";
+			if (($manager->id == $title) && ($title != '')) {
+				$data .= "<option value='" . $manager->id . "' selected='selected'>" . $manager->name . "</option>";
 			} else {
-				$data = "<option value='" . $manager->id . "'>" . $manager->name . "</option>";
+				$data .= "<option value='" . $manager->id . "'>" . $manager->name . "</option>";
 			}
 		}
 		return $data;

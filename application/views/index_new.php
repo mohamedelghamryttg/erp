@@ -63,8 +63,7 @@
 												</svg><!--end::Svg Icon-->
 											</span>
 										</span>
-										<span class="nav-text font-size-lg py-2 font-weight-bolder text-center">Remote
-											Access</span>
+										<span class="nav-text font-size-lg py-2 font-weight-bolder text-center">Remote Access</span>
 									</a>
 								</li>
 								<!--end::Item-->
@@ -83,8 +82,7 @@
 												</svg><!--end::Svg Icon-->
 											</span>
 										</span>
-										<span class="nav-text font-size-lg py-2 font-weight-bolder text-center">Automation
-											Tickets</span>
+										<span class="nav-text font-size-lg py-2 font-weight-bolder text-center">Automation Tickets</span>
 									</a>
 								</li>
 								<!--end::Item-->
