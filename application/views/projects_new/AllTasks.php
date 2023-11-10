@@ -62,7 +62,7 @@
           $created_by = "";
         }
         ?>
-        <form class="form" id="customerfilter" action="<?php echo base_url() ?>projects/allTasks" method="get" enctype="multipart/form-data">
+        <form class="form" id="customerfilter" action="<?php echo base_url() ?>projectManagment/allTasks" method="get" enctype="multipart/form-data">
           <div class="card-body">
 
             <div class="form-group row">
@@ -153,7 +153,7 @@
                 <div class="col-lg-2"></div>
                 <div class="col-lg-10">
                   <button class="btn btn-success mr-2" name="search" type="submit">Search</button>
-                  <a href="<?= base_url() ?>projects/allTasks" class="btn btn-warning"><i class="la la-trash"></i>Clear Filter</a>
+                  <a href="<?= base_url() ?>projectManagment/allTasks" class="btn btn-warning"><i class="la la-trash"></i>Clear Filter</a>
 
                 </div>
               </div>
@@ -218,7 +218,7 @@
                       <?php } ?>
                     </td>
                   <?php } ?>
-                  <td><a href="<?= base_url() ?>projects/taskPage?t=<?= base64_encode($row->id) ?>"><?= $row->code ?></a></td>
+                  <td><a href="<?= base_url() ?>projectManagment/taskPage?t=<?= base64_encode($row->id) ?>"><?= $row->code ?></a></td>
                   <td><?php echo $row->subject; ?></td>
                   <td><?php echo $this->admin_model->getTaskType($row->task_type); ?></td>
                   <td><?php echo $this->vendor_model->getVendorName($row->vendor); ?></td>

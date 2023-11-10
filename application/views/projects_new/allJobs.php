@@ -70,7 +70,7 @@
           $created_by = "";
         }
         ?>
-        <form class="form" id="customerfilter" action="<?php echo base_url() ?>projects/allJobs" method="get"
+        <form class="form" id="customerfilter" action="<?php echo base_url() ?>projectManagment/allJobs" method="get"
           enctype="multipart/form-data">
           <div class="card-body">
 
@@ -179,7 +179,7 @@
                 <div class="col-lg-2"></div>
                 <div class="col-lg-10">
                   <button class="btn btn-success mr-2" name="search" type="submit">Search</button>
-                  <a href="<?= base_url() ?>projects/allJobs" class="btn btn-warning"><i class="la la-trash"></i>Clear
+                  <a href="<?= base_url() ?>projectManagment/allJobs" class="btn btn-warning"><i class="la la-trash"></i>Clear
                     Filter</a>
 
                 </div>
@@ -242,7 +242,7 @@
                   <?= $ix ?>
                 </td>
 
-                <td><a href="<?= base_url() ?>projects/jobTasks?t=<?= base64_encode($row->id) ?>"><?= $row->code ?></a>
+                <td><a href="<?= base_url() ?>projectManagment/jobTasks?t=<?= base64_encode($row->id) ?>"><?= $row->code ?></a>
                 </td>
                 <td>
                   <?= $row->name ?>

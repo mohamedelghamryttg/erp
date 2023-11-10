@@ -544,7 +544,7 @@ class PerformanceManagment extends CI_Controller
             $sqlArray = array();
             $core_headers = $this->hr_model->getCoreheaders($kpi_id);
             // check if already has score           
-            $score = $this->db->get_where('kpi_score', array('kpi_id' => $kpi_id, 'emp_id' => $_POST['employee_name'], 'month' => $_POST['month']))->row();
+            $score = $this->db->get_where('kpi_score', array('year' => $_POST['year'], 'emp_id' => $_POST['employee_name'], 'month' => $_POST['month']))->row();
 
             if (!empty($score)) {
                 $error = "Employee has already kpi score for this month & year....";
