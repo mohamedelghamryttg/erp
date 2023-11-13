@@ -49,39 +49,10 @@ License: You must have a valid license purchased only from themeforest(the above
 	<!-- <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" /> -->
 	<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<<<<<<< HEAD
-=======
 	<link href="<?php echo base_url(); ?>assets_new/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
 
 	<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 	<link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
-
-
-
-
-
-
-
-
-	<!-- 
-
-	<link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
-
-	<link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css" rel="stylesheet" type="text/css" />
-
-	<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-	<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-	<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-	<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-	<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script> -->
-
-
-
->>>>>>> 510c57653ad14a29f72d9a104fa50ae0946066eb
-
 
 </head>
 <!--end::Head-->

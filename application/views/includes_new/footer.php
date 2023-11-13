@@ -1068,97 +1068,90 @@
 <script src="<?php echo base_url(); ?>assets_new/plugins/custom/datatables/datatables.bundle.js"></script>
 <script src="<?php echo base_url(); ?>assets_new/js/pages/crud/datatables/basic/scrollable.js"></script>
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-<<<<<<< HEAD
-<!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script> -->
-=======
->>>>>>> 510c57653ad14a29f72d9a104fa50ae0946066eb
-<script type="text/javascript">
-	// $("#filter").hide();
-	$('.table-filter').DataTable({
-		scrollY: '50vh',
-		scrollX: true,
-		scrollCollapse: true,
-		paging: false,
-		bFilter: false,
-		info: false,
-	});
-	$("#filter2").hide();
-	$("#filter").hide();
-	$("#filter33").hide();
-</script>
-<script type="text/javascript">
-	$(function() {
-		$('.date_sheet').datepicker({
-			format: 'yyyy-mm-dd'
+<<<<<<< HEAD <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js">
+	</script> -->
+	=======
+	>>>>>>> 510c57653ad14a29f72d9a104fa50ae0946066eb
+	<script type="text/javascript">
+		// $("#filter").hide();
+		$('.table-filter').DataTable({
+			scrollY: '50vh',
+			scrollX: true,
+			scrollCollapse: true,
+			paging: false,
+			bFilter: false,
+			info: false,
 		});
-	});
-</script>
-
-<script>
-	$(document).ready(function() {
-		setTimeout(function() {
-			$(".mce-notification-warning").hide();
-		}, 1000);
-	});
-</script>
-
-<script src="<?php echo base_url(); ?>assets_new/js/pages/crud/forms/widgets/select2.js"></script>
-<script type="text/javascript">
-	$(document).ready(function() {
-		$("select").select2();
-	});
-</script>
-<script src="<?php echo base_url(); ?>assets/js/jquery.repeater.min.js"></script>
-<script type="text/javascript">
-	$('.repeater').repeater({
-		show: function() {
-			$(this).slideDown();
-			$('.select2-container').remove();
-			$('select').select2({
-				dropdownCssClass: "selectheight"
+		$("#filter2").hide();
+		$("#filter").hide();
+		$("#filter33").hide();
+	</script>
+	<script type="text/javascript">
+		$(function() {
+			$('.date_sheet').datepicker({
+				format: 'yyyy-mm-dd'
 			});
-			$('.select2-container').css('width', '100%');
-		},
-<<<<<<< HEAD
-=======
+		});
+	</script>
 
->>>>>>> 510c57653ad14a29f72d9a104fa50ae0946066eb
-		hide: function(deleteElement) {
-			if (confirm('Are you sure you want to delete this element?')) {
-				$(this).slideUp(deleteElement);
-			}
-		},
-		isFirstItemUndeletable: true,
-		repeaters: [{
-			selector: '.inner-repeater'
-		}],
-	});
-<<<<<<< HEAD
-=======
+	<script>
+		$(document).ready(function() {
+			setTimeout(function() {
+				$(".mce-notification-warning").hide();
+			}, 1000);
+		});
+	</script>
 
-	// $('.repeater2').repeater({
-	//         show: function () {
-	//             $(this).slideDown();
-	//             $('.select2-container').remove();
-	//             $('select').select2({dropdownCssClass: "selectheight"});
-	//             $('.select2-container').css('width','100%');
+	<script src="<?php echo base_url(); ?>assets_new/js/pages/crud/forms/widgets/select2.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("select").select2();
+		});
+	</script>
+	<script src="<?php echo base_url(); ?>assets/js/jquery.repeater.min.js"></script>
+	<script type="text/javascript">
+		$('.repeater').repeater({
+			show: function() {
+				$(this).slideDown();
+				$('.select2-container').remove();
+				$('select').select2({
+					dropdownCssClass: "selectheight"
+				});
+				$('.select2-container').css('width', '100%');
+			},
+			hide: function(deleteElement) {
+				if (confirm('Are you sure you want to delete this element?')) {
+					$(this).slideUp(deleteElement);
+				}
+			},
+			isFirstItemUndeletable: true,
+			repeaters: [{
+				selector: '.inner-repeater'
+			}],
+		});
 
-	//         },
+		// $('.repeater2').repeater({
+		//         show: function () {
+		//             $(this).slideDown();
+		//             $('.select2-container').remove();
+		//             $('select').select2({dropdownCssClass: "selectheight"});
+		//             $('.select2-container').css('width','100%');
 
-	//         hide: function (deleteElement) {
-	//             if(confirm('Are you sure you want to delete this element?')) {
-	//                 $(this).slideUp(deleteElement);
-	//             }
-	//         },
-	//         isFirstItemUndeletable: true
-	//   });
->>>>>>> 510c57653ad14a29f72d9a104fa50ae0946066eb
-</script>
+		//         },
 
-<script src="<?php echo base_url(); ?>assets_new/js/pages/custom/wizard/wizard-2.js"></script>
+		//         hide: function (deleteElement) {
+		//             if(confirm('Are you sure you want to delete this element?')) {
+		//                 $(this).slideUp(deleteElement);
+		//             }
+		//         },
+		//         isFirstItemUndeletable: true
+		//   });
+	</script>
+
+	<script src="<?php echo base_url(); ?>assets_new/js/pages/custom/wizard/wizard-2.js"></script>
 
 
-</body>
-<!--end::Body-->
+	</body>
+	<!--end::Body-->
 
-</html>
+	</html>
