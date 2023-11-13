@@ -36,27 +36,7 @@ class ProjectManagment extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
-    function findallO()
-    {
-        $data['group'] = $this->admin_model->getGroupByRole($this->role);
-        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 204);
-        //body ..
-        $data['user'] = $this->user;
-        $data['brand'] = $this->brand;
-        $data['opportunity'] = $this->projects_model->OpportunitiesByPm($data['permission'], $this->user, $this->brand)->result();
-        echo json_encode($data);
-    }
-    function findalln()
-    {
-        $data['group'] = $this->admin_model->getGroupByRole($this->role);
-        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 204);
-        //body ..
-        $data['user'] = $this->user;
-        $data['brand'] = $this->brand;
-        $data['opportunity'] = $this->projects_model->OpportunitiesByPm($data['permission'], $this->user, $this->brand)->result();
-        $data['projects'] = $this->projects_model->findall('', '')->result();
-        echo json_encode($data['projects']);
-    }
+
     function findall()
     {
         ini_set('memory_limit', '1024M');
@@ -67,15 +47,16 @@ class ProjectManagment extends CI_Controller
         $data['brand'] = $this->brand;
         $filter_data = $this->input->post('filter_data');
         $data['opportunity'] = $this->projects_model->OpportunitiesByPm($data['permission'], $this->user, $this->brand)->result();
-
         $arr2 = array();
+        array_push($arr2, 0);
         $having = "";
+        // var_dump($filter_data);
         if ($filter_data) {
             parse_str($filter_data, $params);
             if (isset($params['code'])) {
                 $code = $params['code'];
                 if (!empty($code)) {
-                    array_push($arr2, 0);
+                    array_push($arr2, 1);
                 }
             } else {
                 $code = "";
@@ -83,7 +64,7 @@ class ProjectManagment extends CI_Controller
             if (isset($params['name'])) {
                 $name = $params['name'];
                 if (!empty($name)) {
-                    array_push($arr2, 1);
+                    array_push($arr2, 2);
                 }
             } else {
                 $name = "";
@@ -91,7 +72,7 @@ class ProjectManagment extends CI_Controller
             if (isset($params['customer'])) {
                 $customer = $params['customer'];
                 if (!empty($customer)) {
-                    array_push($arr2, 2);
+                    array_push($arr2, 3);
                 }
             } else {
                 $customer = "";
@@ -99,7 +80,7 @@ class ProjectManagment extends CI_Controller
             if (isset($params['product_line'])) {
                 $product_line = $params['product_line'];
                 if (!empty($product_line)) {
-                    array_push($arr2, 3);
+                    array_push($arr2, 4);
                 }
             } else {
                 $product_line = "";
@@ -109,19 +90,20 @@ class ProjectManagment extends CI_Controller
                 $status = $params['status'];
                 if ($status == 2) {
                     $having = "allclosed <> closedstat";
+                    array_push($arr2, 5);
                 } elseif ($status == 1) {
                     $having = "allclosed = closedstat";
+                    array_push($arr2, 5);
                 }
             } else {
                 $status = "";
-                $having = 1;
             }
 
             if ($params['date_from'] && $params['date_to']) {
                 $date_from = date('Y-m-d', strtotime($params['date_from']));
                 $date_to = date('Y-m-d', strtotime($params['date_to']));
                 if (!empty($date_from) && !empty($date_to)) {
-                    array_push($arr2, 4);
+                    array_push($arr2, 6);
                 }
             } else {
                 $date_to = "";
@@ -136,35 +118,35 @@ class ProjectManagment extends CI_Controller
             $customer = "";
             $product_line = "";
         }
+
         if ($status == 2) {
             $status = 0;
         }
         $data['date_from'] = $date_from;
         $data['date_to'] = $date_to;
+
+        $cond0 = " brand = '$this->brand'";
         $cond1 = "code LIKE '%$code%'";
         $cond2 = "name LIKE '%$name%'";
         $cond3 = "customer = '$customer'";
         $cond4 = "product_line = '$product_line'";
+        $cond5 = $having;
 
-        $cond5 = " brand = '$this->brand'";
         $cond6 = "( created_at BETWEEN '$date_from' AND '$date_to') ";
         if ($data['permission']->view == 1) {
-            $arr1 = array($cond1, $cond2, $cond3, $cond4,  $cond5, $cond6);
+            $arr1 = array($cond0, $cond1, $cond2, $cond3, $cond4, $cond5, $cond6);
         } elseif ($data['permission']->view == 2) {
             $cond7 = " created_by = '$this->user'";
-            $arr1 = array($cond1, $cond2, $cond3, $cond4,  $cond5, $cond6, $cond7);
+            $arr1 = array($cond0, $cond1, $cond2, $cond3, $cond4, $cond5, $cond6, $cond7);
         }
-
         $arr_1_cnt = count($arr2);
         $arr3 = array();
         for ($i = 0; $i < $arr_1_cnt; $i++) {
             array_push($arr3, $arr1[$arr2[$i]]);
         }
         $arr4 = implode(" and ", $arr3);
+        $data['projects'] = $this->projects_model->findall($arr4)->result();
 
-        $data['projects'] = $this->projects_model->findall($arr4, $having)->result();
-        // var_dump($data['projects']);
-        // die;
         echo json_encode($data);
     }
 

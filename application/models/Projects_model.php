@@ -15,19 +15,9 @@ class Projects_model extends CI_Model
         parent::__construct();
         $this->load->database();
     }
-    public function findall($vfilter = '', $having = '')
+    public function findall($vfilter = '')
     {
-
-        // $this->db->select('*');
-        // if ($vfilter != '') {
-        //     $this->db->where($vfilter);
-        // }
-        // if ($having != '') {
-        //     $this->db->having($having);
-        // }
-        // $query = $this->db->get('projects_view');
-
-        $sql = "SELECT 
+        $sql = "select * from ( SELECT 
         p.id AS id,
         p.opportunity AS opportunity,
         p.branch_name AS branch_name,
@@ -101,8 +91,11 @@ class Projects_model extends CI_Model
             job
         WHERE
             job.status = 1
-        GROUP BY job.project_id) j3 ON (j3.project_id = p.id))";
-        // ->result();
+        GROUP BY job.project_id) j3 ON (j3.project_id = p.id))
+        ) as tot_pro ";
+        if ($vfilter != '') {
+            $sql .= " WHERE " . $vfilter;
+        }
         $query = $this->db->query($sql);
         // var_dump($query);
         // die;

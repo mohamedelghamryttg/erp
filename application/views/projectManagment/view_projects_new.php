@@ -266,7 +266,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button class="btn btn-primary" name="search" id="search" type="button" value="search">Search</button>
+                <button class="btn btn-primary" name="search" data-toggle="filter11Modal" id="search" type="button" value="search">Search</button>
                 <a href="<?= base_url() ?>ProjectManagment/" class="btn btn-warning">(x) Clear Filter</a>
 
               </div>

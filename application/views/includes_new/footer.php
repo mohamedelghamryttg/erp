@@ -172,6 +172,7 @@
 	<!--end::Content-->
 </div>
 <!--end::Quick Actions Panel-->
+
 <!-- begin::User Panel-->
 <div id="kt_quick_user" class="offcanvas offcanvas-right p-10">
 	<!--begin::Header-->
@@ -352,7 +353,7 @@
 										</span>
 									</div>
 								</div>
-								<div class="navi-text <?= $menuAccount->id == $this->session->userdata('id') ? 'text-danger' : '' ?>" style="">
+								<div class="navi-text <?= $menuAccount->id == $this->session->userdata('id') ? 'text-danger' : '' ?>">
 									<div class="font-weight-bold">
 										<?= $this->admin_model->getBrand($menuAccount->brand) ?>
 										<?php if ($menuAccount->id == $this->session->userdata('id')) { ?> <span class="font-weight-bold"><i class="fa fa-check-circle text-danger"></i></span>
@@ -1055,103 +1056,101 @@
 	};
 </script>
 <!--end::Global Config-->
-
-
+<!--begin::Global Theme Bundle(used by all pages)-->
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/main.js?<?= rand() ?>"></script>
 <script src="<?php echo base_url(); ?>assets_new/plugins/global/plugins.bundle.js"></script>
 <script src="<?php echo base_url(); ?>assets_new/plugins/custom/prismjs/prismjs.bundle.js"></script>
 <script src="<?php echo base_url(); ?>assets_new/js/scripts.bundle.js"></script>
-
+<!--end::Global Theme Bundle-->
+<!--begin::Page Vendors(used by this page)-->
 <script src="<?php echo base_url(); ?>assets_new/plugins/custom/fullcalendar/fullcalendar.bundle.js"></script>
-
+<!--end::Page Vendors-->
+<!--begin::Page Scripts(used by this page)-->
 <script src="<?php echo base_url(); ?>assets_new/js/pages/widgets.js"></script>
 <script src="<?php echo base_url(); ?>assets_new/plugins/custom/datatables/datatables.bundle.js"></script>
 <script src="<?php echo base_url(); ?>assets_new/js/pages/crud/datatables/basic/scrollable.js"></script>
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-<<<<<<< HEAD <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js">
-	</script> -->
-	=======
-	>>>>>>> 510c57653ad14a29f72d9a104fa50ae0946066eb
-	<script type="text/javascript">
-		// $("#filter").hide();
-		$('.table-filter').DataTable({
-			scrollY: '50vh',
-			scrollX: true,
-			scrollCollapse: true,
-			paging: false,
-			bFilter: false,
-			info: false,
+<script type="text/javascript">
+	// $("#filter").hide();
+	$('.table-filter').DataTable({
+		scrollY: '50vh',
+		scrollX: true,
+		scrollCollapse: true,
+		paging: false,
+		bFilter: false,
+		info: false,
+	});
+	$("#filter2").hide();
+	$("#filter").hide();
+	$("#filter33").hide();
+</script>
+<script type="text/javascript">
+	$(function() {
+		$('.date_sheet').datepicker({
+			format: 'yyyy-mm-dd'
 		});
-		$("#filter2").hide();
-		$("#filter").hide();
-		$("#filter33").hide();
-	</script>
-	<script type="text/javascript">
-		$(function() {
-			$('.date_sheet').datepicker({
-				format: 'yyyy-mm-dd'
+	});
+</script>
+
+<script>
+	$(document).ready(function() {
+		setTimeout(function() {
+			$(".mce-notification-warning").hide();
+		}, 1000);
+	});
+</script>
+
+<script src="<?php echo base_url(); ?>assets_new/js/pages/crud/forms/widgets/select2.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("select").select2();
+	});
+</script>
+<script src="<?php echo base_url(); ?>assets/js/jquery.repeater.min.js"></script>
+<script type="text/javascript">
+	$('.repeater').repeater({
+		show: function() {
+			$(this).slideDown();
+			$('.select2-container').remove();
+			$('select').select2({
+				dropdownCssClass: "selectheight"
 			});
-		});
-	</script>
+			$('.select2-container').css('width', '100%');
 
-	<script>
-		$(document).ready(function() {
-			setTimeout(function() {
-				$(".mce-notification-warning").hide();
-			}, 1000);
-		});
-	</script>
+		},
 
-	<script src="<?php echo base_url(); ?>assets_new/js/pages/crud/forms/widgets/select2.js"></script>
-	<script type="text/javascript">
-		$(document).ready(function() {
-			$("select").select2();
-		});
-	</script>
-	<script src="<?php echo base_url(); ?>assets/js/jquery.repeater.min.js"></script>
-	<script type="text/javascript">
-		$('.repeater').repeater({
-			show: function() {
-				$(this).slideDown();
-				$('.select2-container').remove();
-				$('select').select2({
-					dropdownCssClass: "selectheight"
-				});
-				$('.select2-container').css('width', '100%');
-			},
-			hide: function(deleteElement) {
-				if (confirm('Are you sure you want to delete this element?')) {
-					$(this).slideUp(deleteElement);
-				}
-			},
-			isFirstItemUndeletable: true,
-			repeaters: [{
-				selector: '.inner-repeater'
-			}],
-		});
+		hide: function(deleteElement) {
+			if (confirm('Are you sure you want to delete this element?')) {
+				$(this).slideUp(deleteElement);
+			}
+		},
+		isFirstItemUndeletable: true,
+		repeaters: [{
+			// (Required)`enter code here`
+			// Specify the jQuery selector for this nested repeater
+			selector: '.inner-repeater'
+		}],
+	});
 
-		// $('.repeater2').repeater({
-		//         show: function () {
-		//             $(this).slideDown();
-		//             $('.select2-container').remove();
-		//             $('select').select2({dropdownCssClass: "selectheight"});
-		//             $('.select2-container').css('width','100%');
+	// $('.repeater2').repeater({
+	//         show: function () {
+	//             $(this).slideDown();
+	//             $('.select2-container').remove();
+	//             $('select').select2({dropdownCssClass: "selectheight"});
+	//             $('.select2-container').css('width','100%');
 
-		//         },
+	//         },
 
-		//         hide: function (deleteElement) {
-		//             if(confirm('Are you sure you want to delete this element?')) {
-		//                 $(this).slideUp(deleteElement);
-		//             }
-		//         },
-		//         isFirstItemUndeletable: true
-		//   });
-	</script>
+	//         hide: function (deleteElement) {
+	//             if(confirm('Are you sure you want to delete this element?')) {
+	//                 $(this).slideUp(deleteElement);
+	//             }
+	//         },
+	//         isFirstItemUndeletable: true
+	//   });
+</script>
+<script src="<?php echo base_url(); ?>assets_new/js/pages/custom/wizard/wizard-2.js"></script>
+</body>
+<!--end::Body-->
 
-	<script src="<?php echo base_url(); ?>assets_new/js/pages/custom/wizard/wizard-2.js"></script>
-
-
-	</body>
-	<!--end::Body-->
-
-	</html>
+</html>
