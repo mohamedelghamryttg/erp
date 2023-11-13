@@ -1055,20 +1055,23 @@
 	};
 </script>
 <!--end::Global Config-->
-<!--begin::Global Theme Bundle(used by all pages)-->
+
+
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/main.js?<?= rand() ?>"></script>
 <script src="<?php echo base_url(); ?>assets_new/plugins/global/plugins.bundle.js"></script>
 <script src="<?php echo base_url(); ?>assets_new/plugins/custom/prismjs/prismjs.bundle.js"></script>
 <script src="<?php echo base_url(); ?>assets_new/js/scripts.bundle.js"></script>
-<!--end::Global Theme Bundle-->
-<!--begin::Page Vendors(used by this page)-->
+
 <script src="<?php echo base_url(); ?>assets_new/plugins/custom/fullcalendar/fullcalendar.bundle.js"></script>
-<!--end::Page Vendors-->
-<!--begin::Page Scripts(used by this page)-->
+
 <script src="<?php echo base_url(); ?>assets_new/js/pages/widgets.js"></script>
 <script src="<?php echo base_url(); ?>assets_new/plugins/custom/datatables/datatables.bundle.js"></script>
 <script src="<?php echo base_url(); ?>assets_new/js/pages/crud/datatables/basic/scrollable.js"></script>
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<<<<<<< HEAD
+<!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script> -->
+=======
+>>>>>>> 510c57653ad14a29f72d9a104fa50ae0946066eb
 <script type="text/javascript">
 	// $("#filter").hide();
 	$('.table-filter').DataTable({
@@ -1115,9 +1118,11 @@
 				dropdownCssClass: "selectheight"
 			});
 			$('.select2-container').css('width', '100%');
-
 		},
+<<<<<<< HEAD
+=======
 
+>>>>>>> 510c57653ad14a29f72d9a104fa50ae0946066eb
 		hide: function(deleteElement) {
 			if (confirm('Are you sure you want to delete this element?')) {
 				$(this).slideUp(deleteElement);
@@ -1125,11 +1130,11 @@
 		},
 		isFirstItemUndeletable: true,
 		repeaters: [{
-			// (Required)`enter code here`
-			// Specify the jQuery selector for this nested repeater
 			selector: '.inner-repeater'
 		}],
 	});
+<<<<<<< HEAD
+=======
 
 	// $('.repeater2').repeater({
 	//         show: function () {
@@ -1147,8 +1152,12 @@
 	//         },
 	//         isFirstItemUndeletable: true
 	//   });
+>>>>>>> 510c57653ad14a29f72d9a104fa50ae0946066eb
 </script>
+
 <script src="<?php echo base_url(); ?>assets_new/js/pages/custom/wizard/wizard-2.js"></script>
+
+
 </body>
 <!--end::Body-->
 
