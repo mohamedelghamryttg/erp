@@ -15,37 +15,97 @@ class Projects_model extends CI_Model
         parent::__construct();
         $this->load->database();
     }
-    public function findall($vfilter = '', $having = '')
+    public function findall($vfilter = '')
     {
-        // var_dump($having);
-        // die;
-        $this->db->select('*');
+        $sql = "select * from ( SELECT 
+        p.id AS id,
+        p.opportunity AS opportunity,
+        p.branch_name AS branch_name,
+        p.code AS code,
+        p.name AS name,
+        p.customer AS customer,
+        p.lead AS `lead`,
+        p.product_line AS product_line,
+        p.cpo_file AS cpo_file,
+        p.po AS po,
+        p.type AS type,
+        p.status AS status,
+        p.closed_date AS closed_date,
+        p.closed_by AS closed_by,
+        p.verified AS verified,
+        p.has_error AS has_error,
+        p.verified_at AS verified_at,
+        p.verified_by AS verified_by,
+        p.created_by AS created_by,
+        p.created_at AS created_at,
+        b.id AS brand,
+        b.name AS brandname,
+        j.id AS closed,
+        c.name AS customername,
+        l.name AS productline,
+        u.user_name AS username,
+        TIMESTAMPDIFF(HOUR,
+            j1.min_start,
+            j1.max_delivery) AS total_hours,
+        TIMESTAMPDIFF(HOUR,
+            j1.min_start,
+            CURRENT_TIMESTAMP()) AS interval_hours,
+        j1.min_start AS min_start,
+        j1.max_delivery AS max_delivery,
+        CURRENT_TIMESTAMP() AS now,
+        j2.allclosed AS allclosed,
+        j3.closedstat AS closedstat
+    FROM
+        ((((((((project p
+        LEFT JOIN customer c ON (c.id = p.customer))
+        LEFT JOIN brand b ON (b.id = c.brand))
+        LEFT JOIN customer_product_line l ON (l.id = p.product_line))
+        LEFT JOIN users u ON (u.id = p.created_by))
+        LEFT JOIN (SELECT 
+            job.project_id AS project_id,
+                job.status AS status,
+                job.id AS id
+        FROM
+            job
+        WHERE
+            job.status <> 1
+        GROUP BY job.project_id , job.status) j ON (j.project_id = p.id))
+        LEFT JOIN (SELECT 
+            job.project_id AS project_id,
+                MIN(job.start_date) AS min_start,
+                MAX(job.delivery_date) AS max_delivery,
+                IFNULL(COUNT(job.id), 0) AS closed
+        FROM
+            job
+        GROUP BY job.project_id) j1 ON (j1.project_id = p.id))
+        LEFT JOIN (SELECT 
+            job.project_id AS project_id,
+                IFNULL(COUNT(job.id), 0) AS allclosed
+        FROM
+            job
+        GROUP BY job.project_id) j2 ON (j2.project_id = p.id))
+        LEFT JOIN (SELECT 
+            job.project_id AS project_id,
+                IFNULL(COUNT(job.id), 0) AS closedstat
+        FROM
+            job
+        WHERE
+            job.status = 1
+        GROUP BY job.project_id) j3 ON (j3.project_id = p.id))
+        ) as tot_pro ";
         if ($vfilter != '') {
-            $this->db->where($vfilter);
+            $sql .= " WHERE " . $vfilter;
         }
-        if ($having != '') {
-            $this->db->having($having);
-        }
-        // $this->db->order_by('id asc');
-        // $query = $this->db->get('projects_view')->result();
-        // var_dump($this->db->last_query());
+        $query = $this->db->query($sql);
+        // var_dump($query);
         // die;
-        return $this->db->get('projects_view')->result();
+
+
+
+
+        return $query;
     }
-    // function make_query()
-    // {
-    //     $this->db->select($this->select_column);
-    //     $this->db->from($this->table);
-    //     if (isset($_POST["search"]["value"])) {
-    //         $this->db->like("first_name", $_POST["search"]["value"]);
-    //         $this->db->or_like("last_name", $_POST["search"]["value"]);
-    //     }
-    //     if (isset($_POST["order"])) {
-    //         $this->db->order_by($this->order_column[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
-    //     } else {
-    //         $this->db->order_by('id', 'DESC');
-    //     }
-    // }
+
     function make_datatables($rowno, $rowperpage, $vfilter)
     {
         // $this->make_query();
@@ -247,7 +307,7 @@ class Projects_model extends CI_Model
             $projectCode = 'columbuslang-' . $id->Auto_increment;
         }
         return $projectCode;
-    }   
+    }
 
     public function updateProjectCode($lead, $id, $pm)
     {
@@ -6270,22 +6330,24 @@ class Projects_model extends CI_Model
 
         return $data;
     }
-    
+
     // start project cost
 
-    public function checkManagerAccess($project_id)    {
+    public function checkManagerAccess($project_id)
+    {
         $result = false;
         $projectData = $this->projects_model->getProjectData($project_id);
         $project_user = $projectData->created_by;
         $userData = $this->admin_model->getUserData($project_user);
         $project_emp = $userData->employees_id;
         $managerAccess = $this->admin_model->checkIfUserIsEmployeeManager($project_emp);
-        if($managerAccess == TRUE)
+        if ($managerAccess == TRUE)
             $result = true;
         return $result;
     }
 
-    public function getProfitPercentageSetup($brand_id)    {
+    public function getProfitPercentageSetup($brand_id)
+    {
         $data = null;
         $row = $this->db->get_where('pm_setup', array('brand' => $brand_id))->row();
         if (!empty($row))
@@ -6293,15 +6355,16 @@ class Projects_model extends CI_Model
 
         return $data;
     }
-    
-    public function getProjectRevenue ($project_id,$job_id ='',$data ='')    {
+
+    public function getProjectRevenue($project_id, $job_id = '', $data = '')
+    {
         $total = 0;
-        if(empty($job_id))
-        $jobs = $this->db->get_where('job', array('project_id' => $project_id))->result();
+        if (empty($job_id))
+            $jobs = $this->db->get_where('job', array('project_id' => $project_id))->result();
         else
-        $jobs = $this->db->get_where('job', array('project_id' => $project_id,'id !='=>$job_id))->result();
-        if(!empty($jobs)){
-            foreach($jobs as $row){ 
+            $jobs = $this->db->get_where('job', array('project_id' => $project_id, 'id !=' => $job_id))->result();
+        if (!empty($jobs)) {
+            foreach ($jobs as $row) {
                 $priceList = $this->projects_model->getJobPriceListData($row->price_list);
                 $revenue = $this->sales_model->calculateRevenueJob($row->id, $row->type, $row->volume, $priceList->id);
                 // ConvertCurrencyToDollar
@@ -6309,255 +6372,255 @@ class Projects_model extends CI_Model
                 $total += $revenueDollar;
             }
         }
-        if(!empty($data)){  
+        if (!empty($data)) {
             $data['created_at'] =  $this->db->get_where('job', array('id' => $job_id))->row()->created_at;
             $data = (object) $data;
             $priceList = $this->projects_model->getJobPriceListData($data->price_list);
             $revenue = $this->sales_model->calculateRevenueJob($data->id, $data->type, $data->volume, $priceList->id);
             // ConvertCurrencyToDollar
             $revenueDollar = self::convertCurrencyToDollar($priceList->currency, $data->created_at, $revenue);
-            $total += $revenueDollar;            
+            $total += $revenueDollar;
         }
-       
+
         return $total;
     }
-    
-    public function getTranslationHourRate()    {
-        $result = 0;    
+
+    public function getTranslationHourRate()
+    {
+        $result = 0;
         $sql = "SELECT `employees_id` FROM `users` where `role` = 28 AND `status` = 1";
         $query = $this->db->query($sql);
         $array1 = $query->result_array();
-        $users = array_map (function($value){
+        $users = array_map(function ($value) {
             return $value['employees_id'];
-        } , $array1); 
-        $users = implode(',',$users);       
-        if(!empty($users)){
+        }, $array1);
+        $users = implode(',', $users);
+        if (!empty($users)) {
             $salary =  $this->db->query("SELECT MAX(salary) AS maxSalary FROM `emp_finance` where `emp_id` IN ($users)")->row();
-            
-            if(!empty($salary))
-                $result = $salary->maxSalary /30 / 8;
+
+            if (!empty($salary))
+                $result = $salary->maxSalary / 30 / 8;
         }
-         return $result;
+        return $result;
     }
-    
-    public function getDtpHourRate()    {
-        $result = 0;    
+
+    public function getDtpHourRate()
+    {
+        $result = 0;
         $sql = "SELECT `employees_id` FROM `users` where `role` = 24 AND `status` = 1";
         $query = $this->db->query($sql);
         $array1 = $query->result_array();
-        $users = array_map (function($value){
+        $users = array_map(function ($value) {
             return $value['employees_id'];
-        } , $array1);     
-        $users = implode(',',$users);
-        if(!empty($users)){
+        }, $array1);
+        $users = implode(',', $users);
+        if (!empty($users)) {
             $salary =  $this->db->query("SELECT MAX(salary) AS maxSalary FROM `emp_finance` where `emp_id` IN ($users)")->row();
-            if(!empty($salary))
-                $result = $salary->maxSalary /30 / 8;
+            if (!empty($salary))
+                $result = $salary->maxSalary / 30 / 8;
         }
 
         return $result;
     }
-    
-    public function getLeHourRate()    {
-        $result = 0;    
+
+    public function getLeHourRate()
+    {
+        $result = 0;
         $sql = "SELECT `employees_id` FROM `users` where `role` = 26 AND `status` = 1";
         $query = $this->db->query($sql);
         $array1 = $query->result_array();
-        $users = array_map (function($value){
+        $users = array_map(function ($value) {
             return $value['employees_id'];
-        } , $array1);  
-        $users = implode(',',$users);
-        if(!empty($users)){
+        }, $array1);
+        $users = implode(',', $users);
+        if (!empty($users)) {
             $salary =  $this->db->query("SELECT MAX(salary) AS maxSalary FROM `emp_finance` where `emp_id` IN ($users)")->row();
-            if(!empty($salary))
-                $result = $salary->maxSalary /30 / 8;
+            if (!empty($salary))
+                $result = $salary->maxSalary / 30 / 8;
         }
 
         return $result;
-    }        
-    
-    public function getProjectCost($project_id,$task_type='',$task_id ='')    {
+    }
+
+    public function getProjectCost($project_id, $task_type = '', $task_id = '')
+    {
         $cost = 0;
         $jobs = $this->db->get_where('job', array('project_id' => $project_id))->result();
-        if(!empty($jobs)){
-            foreach($jobs as $job){
+        if (!empty($jobs)) {
+            foreach ($jobs as $job) {
                 // vendor tasks 
-                if(!empty($task_type) && $task_type == 1){
-                    $vTasks = $this->db->get_where('job_task', array('job_id' => $job->id,'status !='=>2,'status !='=>3,'id !='=>$task_id))->result();
+                if (!empty($task_type) && $task_type == 1) {
+                    $vTasks = $this->db->get_where('job_task', array('job_id' => $job->id, 'status !=' => 2, 'status !=' => 3, 'id !=' => $task_id))->result();
+                } else {
+                    $vTasks = $this->db->get_where('job_task', array('job_id' => $job->id, 'status !=' => 2, 'status !=' => 3))->result();
                 }
-                else{
-                    $vTasks = $this->db->get_where('job_task', array('job_id' => $job->id,'status !='=>2,'status !='=>3))->result();
-                }
-                if(!empty($vTasks)){
-                    foreach($vTasks as $task){
-                        $taskCost = $task->rate * $task->count;                        
-                         // ConvertCurrencyToDollar
+                if (!empty($vTasks)) {
+                    foreach ($vTasks as $task) {
+                        $taskCost = $task->rate * $task->count;
+                        // ConvertCurrencyToDollar
                         $cost += self::convertCurrencyToDollar($task->currency, $task->created_at, $taskCost);
                     }
                 }
                 // translation tasks 
-                if(!empty($task_type) && $task_type == 2){
-                    $transTasks = $this->db->get_where('translation_request', array('job_id' => $job->id,'status !='=>4,'id !='=>$task_id))->result();                
+                if (!empty($task_type) && $task_type == 2) {
+                    $transTasks = $this->db->get_where('translation_request', array('job_id' => $job->id, 'status !=' => 4, 'id !=' => $task_id))->result();
+                } else {
+                    $transTasks = $this->db->get_where('translation_request', array('job_id' => $job->id, 'status !=' => 4))->result();
                 }
-                else{
-                   $transTasks = $this->db->get_where('translation_request', array('job_id' => $job->id,'status !='=>4))->result();
-                }   
-               if(!empty($transTasks)){
-                    foreach($transTasks as $task){
+                if (!empty($transTasks)) {
+                    foreach ($transTasks as $task) {
                         $hourRate = self::getTranslationHourRate();
-                        $workCost = $task->work_hours * $hourRate;                        
+                        $workCost = $task->work_hours * $hourRate;
                         $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
                         $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
                         $taskCost = $workCost + $overtimeCost + $doublepaidCost;
-                      
+
                         // ConvertCurrencyToDollar
                         $cost += self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
                     }
                 }
                 // dtp tasks 
-                if(!empty($task_type) && $task_type == 3){
-                    $dtTasks = $this->db->get_where('dtp_request', array('job_id' => $job->id,'status !='=>4,'id !='=>$task_id))->result();
+                if (!empty($task_type) && $task_type == 3) {
+                    $dtTasks = $this->db->get_where('dtp_request', array('job_id' => $job->id, 'status !=' => 4, 'id !=' => $task_id))->result();
+                } else {
+                    $dtTasks = $this->db->get_where('dtp_request', array('job_id' => $job->id, 'status !=' => 4))->result();
                 }
-                else{
-                    $dtTasks = $this->db->get_where('dtp_request', array('job_id' => $job->id,'status !='=>4))->result();
-                }
-                if(!empty($dtpTasks)){
-                    foreach($dtpTasks as $task){
+                if (!empty($dtpTasks)) {
+                    foreach ($dtpTasks as $task) {
                         $hourRate = self::getDtpHourRate();
-                        $workCost = $task->work_hours * $hourRate;                        
+                        $workCost = $task->work_hours * $hourRate;
                         $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
                         $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
                         $taskCost = $workCost + $overtimeCost + $doublepaidCost;
-                         // ConvertCurrencyToDollar
+                        // ConvertCurrencyToDollar
                         $cost += self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
                     }
                 }
                 // le tasks 
-                 if(!empty($task_type) && $task_type == 4){
-                    $leTasks = $this->db->get_where('le_request', array('job_id' => $job->id,'status !='=>4,'id !='=>$task_id))->result();
+                if (!empty($task_type) && $task_type == 4) {
+                    $leTasks = $this->db->get_where('le_request', array('job_id' => $job->id, 'status !=' => 4, 'id !=' => $task_id))->result();
+                } else {
+                    $leTasks = $this->db->get_where('le_request', array('job_id' => $job->id, 'status !=' => 4))->result();
                 }
-                else{
-                    $leTasks = $this->db->get_where('le_request', array('job_id' => $job->id,'status !='=>4))->result();
-                }
-                if(!empty($leTasks)){
-                    foreach($leTasks as $task){
+                if (!empty($leTasks)) {
+                    foreach ($leTasks as $task) {
                         $hourRate = self::getLeHourRate();
-                        $workCost = $task->work_hours * $hourRate;                        
+                        $workCost = $task->work_hours * $hourRate;
                         $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
                         $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
                         $taskCost = $workCost + $overtimeCost + $doublepaidCost;
-                         // ConvertCurrencyToDollar
+                        // ConvertCurrencyToDollar
                         $cost += self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
                     }
                 }
             }
         }
-       
-        return $cost ;
+
+        return $cost;
     }
-    
-    public function getProjectProfit($project_id){
-        $revenue = self::getProjectRevenue($project_id) ;
-        $cost = self::getProjectCost($project_id) ;
-        $result = $revenue - $cost ;
+
+    public function getProjectProfit($project_id)
+    {
+        $revenue = self::getProjectRevenue($project_id);
+        $cost = self::getProjectCost($project_id);
+        $result = $revenue - $cost;
         return $result;
-          
     }
-    
-    public function getProjectProfitPercentage($project_id){
-        
-        $revenue = self::getProjectRevenue($project_id) ;
-        $profit = self::getProjectProfit($project_id) ;
-        if($revenue != 0)
-        $result = $profit/$revenue*100 ;
+
+    public function getProjectProfitPercentage($project_id)
+    {
+
+        $revenue = self::getProjectRevenue($project_id);
+        $profit = self::getProjectProfit($project_id);
+        if ($revenue != 0)
+            $result = $profit / $revenue * 100;
         else
-            $result = 0 ;
-        
-        if($result < 0 )
+            $result = 0;
+
+        if ($result < 0)
             $result = 0;
         return $result;
-          
-    }    
-    
-    public function getProfitCurrentPercentage($revenue,$cost){
-        
-        $profit = $revenue - $cost ; 
-         if($revenue != 0)
-            $currentProjectPre = $profit/$revenue*100 ;
+    }
+
+    public function getProfitCurrentPercentage($revenue, $cost)
+    {
+
+        $profit = $revenue - $cost;
+        if ($revenue != 0)
+            $currentProjectPre = $profit / $revenue * 100;
         else
-            $currentProjectPre = 0 ; 
-        
-       if($currentProjectPre < 0 )
             $currentProjectPre = 0;
-       
+
+        if ($currentProjectPre < 0)
+            $currentProjectPre = 0;
+
         return $currentProjectPre;
-          
-    }    
-   
-    public function checkProjectProfitPercentage($project_id){
-        $project_data =  $this->db->get_where('project', array('id' => $project_id))->row();        
+    }
+
+    public function checkProjectProfitPercentage($project_id)
+    {
+        $project_data =  $this->db->get_where('project', array('id' => $project_id))->row();
         $minProjectPre = $project_data->min_profit_percentage;
-        if(!empty($minProjectPre)){
+        if (!empty($minProjectPre)) {
             $currentProjectPre = self::getProjectProfitPercentage($project_id);
             // start checking
-            if($currentProjectPre >=  $minProjectPre){
+            if ($currentProjectPre >=  $minProjectPre) {
                 $result = true;
-            }else{
+            } else {
                 $result = false;
             }
-        }else{
+        } else {
             $result = true;
-        }  
+        }
         return $result;
-          
     }
-    
-    public function checkProjectProfitPercentageForJobs($project_id,$job_id ='',$data =''){       
-        $project_data =  $this->db->get_where('project', array('id' => $project_id))->row();        
+
+    public function checkProjectProfitPercentageForJobs($project_id, $job_id = '', $data = '')
+    {
+        $project_data =  $this->db->get_where('project', array('id' => $project_id))->row();
         $minProjectPre = $project_data->min_profit_percentage;
-        if(!empty($minProjectPre)){            
-            $revenue = self::getProjectRevenue($project_id,$job_id,$data) ;
-            $cost = self::getProjectCost($project_id) ;  
-            $currentProjectPre = self::getProfitCurrentPercentage($revenue,$cost) ;  ;       
+        if (!empty($minProjectPre)) {
+            $revenue = self::getProjectRevenue($project_id, $job_id, $data);
+            $cost = self::getProjectCost($project_id);
+            $currentProjectPre = self::getProfitCurrentPercentage($revenue, $cost);;
             // start checking
-            if($currentProjectPre >=  $minProjectPre){
+            if ($currentProjectPre >=  $minProjectPre) {
                 $result = true;
-            }else{
+            } else {
                 $result = false;
             }
-        }else{
+        } else {
             $result = true;
-        }  
+        }
         return $result;
-          
     }
-    
-    public function checkProjectProfitPercentageForTasks($project_id,$task_type,$task_id ='',$new_data =''){       
-        $project_data =  $this->db->get_where('project', array('id' => $project_id))->row();        
+
+    public function checkProjectProfitPercentageForTasks($project_id, $task_type, $task_id = '', $new_data = '')
+    {
+        $project_data =  $this->db->get_where('project', array('id' => $project_id))->row();
         $minProjectPre = $project_data->min_profit_percentage;
-        if(!empty($minProjectPre)){            
-            $revenue = self::getProjectRevenue($project_id) ;           
-            if(!empty($new_data))
-                $taskCost = self::getTaskCost($task_type,$new_data);
+        if (!empty($minProjectPre)) {
+            $revenue = self::getProjectRevenue($project_id);
+            if (!empty($new_data))
+                $taskCost = self::getTaskCost($task_type, $new_data);
             else
                 $taskCost = 0;
-            
-            $cost = self::getProjectCost($project_id,$task_type,$task_id) + $taskCost ;                
-           
-            $currentProjectPre = self::getProfitCurrentPercentage($revenue,$cost) ;       
+
+            $cost = self::getProjectCost($project_id, $task_type, $task_id) + $taskCost;
+
+            $currentProjectPre = self::getProfitCurrentPercentage($revenue, $cost);
             // start checking
-            if($currentProjectPre >=  $minProjectPre){
+            if ($currentProjectPre >=  $minProjectPre) {
                 $result = true;
-            }else{
+            } else {
                 $result = false;
             }
-        }else{
+        } else {
             $result = true;
-        }  
+        }
         return $result;
-          
     }
-    
+
     public function convertCurrencyToDollar($currencyFrom, $date, $total)
     {
         if ($currencyFrom == 2) {
@@ -6568,168 +6631,165 @@ class Projects_model extends CI_Model
             $month = $dateArray[1];
             $mainCurrencyData = $this->db->get_where('currenies_rate', array('year' => $year, 'month' => $month, 'currency' => $currencyFrom, 'currency_to' => 2))->row();
             return floatval($total) * floatval($mainCurrencyData->rate ?? '');
-        }  
+        }
     }
-    
+
     // adding new task 
 
-    public function checkSingleTaskPercentage($project_id,$type,$data){
-        $project_data =  $this->db->get_where('project', array('id' => $project_id))->row();        
+    public function checkSingleTaskPercentage($project_id, $type, $data)
+    {
+        $project_data =  $this->db->get_where('project', array('id' => $project_id))->row();
         $minProjectPre = $project_data->min_profit_percentage;
-        if(!empty($minProjectPre)){
-            $revenue = self::getProjectRevenue($project_id) ;
-             if($revenue != 0){
-                $taskCost = self::getTaskCost($type,$data);
-                $cost = self::getProjectCost($project_id) + $taskCost ;
-                $profit = $revenue - $cost ;
+        if (!empty($minProjectPre)) {
+            $revenue = self::getProjectRevenue($project_id);
+            if ($revenue != 0) {
+                $taskCost = self::getTaskCost($type, $data);
+                $cost = self::getProjectCost($project_id) + $taskCost;
+                $profit = $revenue - $cost;
 
-                $currentProjectPre = $profit/$revenue*100 ;
-             } else{
-                $currentProjectPre = 0 ;
-            }        
+                $currentProjectPre = $profit / $revenue * 100;
+            } else {
+                $currentProjectPre = 0;
+            }
             $currentProjectPre = self::getProjectProfitPercentage($project_id);
             // start checking
-            if($currentProjectPre >=  $minProjectPre){
+            if ($currentProjectPre >=  $minProjectPre) {
                 $result = true;
-            }else{
+            } else {
                 $result = false;
             }
-        }else{
+        } else {
             $result = true;
-        }  
+        }
         return $result;
-          
     }
-    
-    public function getTaskCost($type,$task)    {
-        $cost = 0;  
-        $task = (object) $task;
-        if($type == 1){
-            $taskCost = $task->rate * $task->count;                        
-             // ConvertCurrencyToDollar
-            $cost += self::convertCurrencyToDollar($task->currency, $task->created_at, $taskCost);
 
+    public function getTaskCost($type, $task)
+    {
+        $cost = 0;
+        $task = (object) $task;
+        if ($type == 1) {
+            $taskCost = $task->rate * $task->count;
+            // ConvertCurrencyToDollar
+            $cost += self::convertCurrencyToDollar($task->currency, $task->created_at, $taskCost);
         }
         // translation tasks 
-        elseif($type == 2){
+        elseif ($type == 2) {
             $hourRate = self::getTranslationHourRate();
-            $workCost = $task->work_hours * $hourRate;                        
+            $workCost = $task->work_hours * $hourRate;
             $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
             $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
             $taskCost = $workCost + $overtimeCost + $doublepaidCost;
 
             // ConvertCurrencyToDollar
             $cost += self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
-        }
-        elseif($type == 3){
+        } elseif ($type == 3) {
             $hourRate = self::getDtpHourRate();
-            $workCost = $task->work_hours * $hourRate;                        
+            $workCost = $task->work_hours * $hourRate;
             $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
             $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
             $taskCost = $workCost + $overtimeCost + $doublepaidCost;
-             // ConvertCurrencyToDollar
+            // ConvertCurrencyToDollar
+            $cost += self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
+        } elseif ($type == 4) {
+            $hourRate = self::getLeHourRate();
+            $workCost = $task->work_hours * $hourRate;
+            $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
+            $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
+            $taskCost = $workCost + $overtimeCost + $doublepaidCost;
+            // ConvertCurrencyToDollar
             $cost += self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
         }
-        elseif($type == 4){
-            $hourRate = self::getLeHourRate();
-            $workCost = $task->work_hours * $hourRate;                        
-            $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
-            $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
-            $taskCost = $workCost + $overtimeCost + $doublepaidCost;
-             // ConvertCurrencyToDollar
-            $cost += self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
-        }                         
-       
-        return $cost ;
+
+        return $cost;
     }
-    
-    public function checkTaskCostError($type,$task)    {
-        $error = "";  
+
+    public function checkTaskCostError($type, $task)
+    {
+        $error = "";
         $task = (object) $task;
-        if($type == 1){
-            $taskCost = $task->rate * $task->count; 
-            if($taskCost == 0){
+        if ($type == 1) {
+            $taskCost = $task->rate * $task->count;
+            if ($taskCost == 0) {
                 $error = "Task Cost can't equal zero";
-            }else{
+            } else {
                 // ConvertCurrencyToDollar
                 $convert = self::convertCurrencyToDollar($task->currency, $task->created_at, $taskCost);
-                if($convert == 0){
+                if ($convert == 0) {
                     $error = "Currency Rate doesn't exists";
                 }
-            }  
+            }
         }
         // translation tasks 
-        elseif($type == 2){
+        elseif ($type == 2) {
             $hourRate = self::getTranslationHourRate();
-            if($hourRate == 0){
+            if ($hourRate == 0) {
                 $error = "Hour Rate doesn't exists";
-            }else{
-                $workCost = $task->work_hours * $hourRate;                        
+            } else {
+                $workCost = $task->work_hours * $hourRate;
                 $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
                 $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
                 $taskCost = $workCost + $overtimeCost + $doublepaidCost;
-                if($taskCost == 0){
+                if ($taskCost == 0) {
                     $error = "Task Cost can't equal zero";
-                }else{
+                } else {
                     // ConvertCurrencyToDollar
                     $convert = self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
-                    if($convert == 0){
+                    if ($convert == 0) {
                         $error = "Currency Rate doesn't exists";
                     }
                 }
             }
-            
-        }
-        elseif($type == 3){
+        } elseif ($type == 3) {
             $hourRate = self::getDtpHourRate();
-             if($hourRate == 0){
+            if ($hourRate == 0) {
                 $error = "Hour Rate doesn't exists";
-            }else{
-            $workCost = $task->work_hours * $hourRate;                        
-            $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
-            $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
-            $taskCost = $workCost + $overtimeCost + $doublepaidCost;
-            if($taskCost == 0){
+            } else {
+                $workCost = $task->work_hours * $hourRate;
+                $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
+                $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
+                $taskCost = $workCost + $overtimeCost + $doublepaidCost;
+                if ($taskCost == 0) {
                     $error = "Task Cost can't equal zero";
-                }else{
+                } else {
                     // ConvertCurrencyToDollar
                     $convert = self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
-                    if($convert == 0){
+                    if ($convert == 0) {
+                        $error = "Currency Rate doesn't exists";
+                    }
+                }
+            }
+        } elseif ($type == 4) {
+            $hourRate = self::getLeHourRate();
+            if ($hourRate == 0) {
+                $error = "Hour Rate doesn't exists";
+            } else {
+                $workCost = $task->work_hours * $hourRate;
+                $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
+                $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
+                $taskCost = $workCost + $overtimeCost + $doublepaidCost;
+                if ($taskCost == 0) {
+                    $error = "Task Cost can't equal zero";
+                } else {
+                    // ConvertCurrencyToDollar
+                    $convert = self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
+                    if ($convert == 0) {
                         $error = "Currency Rate doesn't exists";
                     }
                 }
             }
         }
-        elseif($type == 4){
-            $hourRate = self::getLeHourRate();
-             if($hourRate == 0){
-                $error = "Hour Rate doesn't exists";
-            }else{
-                $workCost = $task->work_hours * $hourRate;                        
-                $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
-                $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
-                $taskCost = $workCost + $overtimeCost + $doublepaidCost;
-                if($taskCost == 0){
-                    $error = "Task Cost can't equal zero";
-                }else{
-                    // ConvertCurrencyToDollar
-                    $convert = self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
-                    if($convert == 0){
-                        $error = "Currency Rate doesn't exists";
-                    }
-                }
-            }
-        }                         
-       
-        return $error ;
-    }    
-    
+
+        return $error;
+    }
+
     // planning
-    public function getPlanRevenue ($plan_id)    {
-        $total = 0;       
-        $jobs = $this->db->get_where('job', array('plan_id' => $plan_id))->result();      
-        if(!empty($jobs)){
-            foreach($jobs as $row){ 
+    public function getPlanRevenue($plan_id)
+    {
+        $total = 0;
+        $jobs = $this->db->get_where('job', array('plan_id' => $plan_id))->result();
+        if (!empty($jobs)) {
+            foreach ($jobs as $row) {
                 $priceList = $this->projects_model->getJobPriceListData($row->price_list);
                 $revenue = $this->sales_model->calculateRevenueJob($row->id, $row->type, $row->volume, $priceList->id);
                 // ConvertCurrencyToDollar
@@ -6737,124 +6797,120 @@ class Projects_model extends CI_Model
                 $total += $revenueDollar;
             }
         }
-        if(!empty($data)){  
+        if (!empty($data)) {
             $data['created_at'] =  $this->db->get_where('job', array('id' => $job_id))->row()->created_at;
             $data = (object) $data;
             $priceList = $this->projects_model->getJobPriceListData($data->price_list);
             $revenue = $this->sales_model->calculateRevenueJob($data->id, $data->type, $data->volume, $priceList->id);
             // ConvertCurrencyToDollar
             $revenueDollar = self::convertCurrencyToDollar($priceList->currency, $data->created_at, $revenue);
-            $total += $revenueDollar;            
+            $total += $revenueDollar;
         }
-       
+
         return $total;
     }
-    
-    public function getPlanCost($plan_id)    {
+
+    public function getPlanCost($plan_id)
+    {
         $cost = 0;
         $jobs = $this->db->get_where('job', array('plan_id' => $plan_id))->result();
-        if(!empty($jobs)){
-            foreach($jobs as $job){
+        if (!empty($jobs)) {
+            foreach ($jobs as $job) {
                 // vendor tasks 
-                if(!empty($task_type) && $task_type == 1){
-                    $vTasks = $this->db->get_where('job_task', array('job_id' => $job->id,'status !='=>2,'status !='=>3,'id !='=>$task_id))->result();
+                if (!empty($task_type) && $task_type == 1) {
+                    $vTasks = $this->db->get_where('job_task', array('job_id' => $job->id, 'status !=' => 2, 'status !=' => 3, 'id !=' => $task_id))->result();
+                } else {
+                    $vTasks = $this->db->get_where('job_task', array('job_id' => $job->id, 'status !=' => 2, 'status !=' => 3))->result();
                 }
-                else{
-                    $vTasks = $this->db->get_where('job_task', array('job_id' => $job->id,'status !='=>2,'status !='=>3))->result();
-                }
-                if(!empty($vTasks)){
-                    foreach($vTasks as $task){
-                        $taskCost = $task->rate * $task->count;                        
-                         // ConvertCurrencyToDollar
+                if (!empty($vTasks)) {
+                    foreach ($vTasks as $task) {
+                        $taskCost = $task->rate * $task->count;
+                        // ConvertCurrencyToDollar
                         $cost += self::convertCurrencyToDollar($task->currency, $task->created_at, $taskCost);
                     }
                 }
                 // translation tasks 
-                if(!empty($task_type) && $task_type == 2){
-                    $transTasks = $this->db->get_where('translation_request', array('job_id' => $job->id,'status !='=>4,'id !='=>$task_id))->result();                
+                if (!empty($task_type) && $task_type == 2) {
+                    $transTasks = $this->db->get_where('translation_request', array('job_id' => $job->id, 'status !=' => 4, 'id !=' => $task_id))->result();
+                } else {
+                    $transTasks = $this->db->get_where('translation_request', array('job_id' => $job->id, 'status !=' => 4))->result();
                 }
-                else{
-                   $transTasks = $this->db->get_where('translation_request', array('job_id' => $job->id,'status !='=>4))->result();
-                }   
-               if(!empty($transTasks)){
-                    foreach($transTasks as $task){
+                if (!empty($transTasks)) {
+                    foreach ($transTasks as $task) {
                         $hourRate = self::getTranslationHourRate();
-                        $workCost = $task->work_hours * $hourRate;                        
+                        $workCost = $task->work_hours * $hourRate;
                         $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
                         $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
                         $taskCost = $workCost + $overtimeCost + $doublepaidCost;
-                      
+
                         // ConvertCurrencyToDollar
                         $cost += self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
                     }
                 }
                 // dtp tasks 
-                if(!empty($task_type) && $task_type == 3){
-                    $dtTasks = $this->db->get_where('dtp_request', array('job_id' => $job->id,'status !='=>4,'id !='=>$task_id))->result();
+                if (!empty($task_type) && $task_type == 3) {
+                    $dtTasks = $this->db->get_where('dtp_request', array('job_id' => $job->id, 'status !=' => 4, 'id !=' => $task_id))->result();
+                } else {
+                    $dtTasks = $this->db->get_where('dtp_request', array('job_id' => $job->id, 'status !=' => 4))->result();
                 }
-                else{
-                    $dtTasks = $this->db->get_where('dtp_request', array('job_id' => $job->id,'status !='=>4))->result();
-                }
-                if(!empty($dtpTasks)){
-                    foreach($dtpTasks as $task){
+                if (!empty($dtpTasks)) {
+                    foreach ($dtpTasks as $task) {
                         $hourRate = self::getDtpHourRate();
-                        $workCost = $task->work_hours * $hourRate;                        
+                        $workCost = $task->work_hours * $hourRate;
                         $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
                         $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
                         $taskCost = $workCost + $overtimeCost + $doublepaidCost;
-                         // ConvertCurrencyToDollar
+                        // ConvertCurrencyToDollar
                         $cost += self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
                     }
                 }
                 // le tasks 
-                 if(!empty($task_type) && $task_type == 4){
-                    $leTasks = $this->db->get_where('le_request', array('job_id' => $job->id,'status !='=>4,'id !='=>$task_id))->result();
+                if (!empty($task_type) && $task_type == 4) {
+                    $leTasks = $this->db->get_where('le_request', array('job_id' => $job->id, 'status !=' => 4, 'id !=' => $task_id))->result();
+                } else {
+                    $leTasks = $this->db->get_where('le_request', array('job_id' => $job->id, 'status !=' => 4))->result();
                 }
-                else{
-                    $leTasks = $this->db->get_where('le_request', array('job_id' => $job->id,'status !='=>4))->result();
-                }
-                if(!empty($leTasks)){
-                    foreach($leTasks as $task){
+                if (!empty($leTasks)) {
+                    foreach ($leTasks as $task) {
                         $hourRate = self::getLeHourRate();
-                        $workCost = $task->work_hours * $hourRate;                        
+                        $workCost = $task->work_hours * $hourRate;
                         $overtimeCost = $task->overtime_hours * $hourRate * 1.5;
                         $doublepaidCost = $task->doublepaid_hours * $hourRate * 2;
                         $taskCost = $workCost + $overtimeCost + $doublepaidCost;
-                         // ConvertCurrencyToDollar
+                        // ConvertCurrencyToDollar
                         $cost += self::convertCurrencyToDollar(1, $task->created_at, $taskCost);
                     }
                 }
             }
         }
-       
-        return $cost ;
+
+        return $cost;
     }
-    
-    public function getPlanProfit($plan_id){
-        $revenue = self::getPlanRevenue($plan_id) ;
-        $cost = self::getPlanCost($plan_id) ;
-        $result = $revenue - $cost ;
+
+    public function getPlanProfit($plan_id)
+    {
+        $revenue = self::getPlanRevenue($plan_id);
+        $cost = self::getPlanCost($plan_id);
+        $result = $revenue - $cost;
         return $result;
     }
-    
-    public function checkPlanProfitPercentage($plan_id){           
+
+    public function checkPlanProfitPercentage($plan_id)
+    {
         $minProjectPre =  $this->projects_model->getProfitPercentageSetup($this->brand);
-        if(!empty($minProjectPre)){
-           $re = self::getPlanRevenue($plan_id);
+        if (!empty($minProjectPre)) {
+            $re = self::getPlanRevenue($plan_id);
             $co = self::getPlanCost($plan_id);
-            $currentProjectPre = self::getProfitCurrentPercentage($re,$co);
+            $currentProjectPre = self::getProfitCurrentPercentage($re, $co);
             // start checking
-            if($currentProjectPre >=  $minProjectPre){
+            if ($currentProjectPre >=  $minProjectPre) {
                 $result = true;
-            }else{
+            } else {
                 $result = false;
             }
-        }else{
+        } else {
             $result = true;
-        }  
+        }
         return $result;
-          
     }
-   
-   
 }

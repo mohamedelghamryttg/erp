@@ -172,6 +172,7 @@
 	<!--end::Content-->
 </div>
 <!--end::Quick Actions Panel-->
+
 <!-- begin::User Panel-->
 <div id="kt_quick_user" class="offcanvas offcanvas-right p-10">
 	<!--begin::Header-->
@@ -352,7 +353,7 @@
 										</span>
 									</div>
 								</div>
-								<div class="navi-text <?= $menuAccount->id == $this->session->userdata('id') ? 'text-danger' : '' ?>" style="">
+								<div class="navi-text <?= $menuAccount->id == $this->session->userdata('id') ? 'text-danger' : '' ?>">
 									<div class="font-weight-bold">
 										<?= $this->admin_model->getBrand($menuAccount->brand) ?>
 										<?php if ($menuAccount->id == $this->session->userdata('id')) { ?> <span class="font-weight-bold"><i class="fa fa-check-circle text-danger"></i></span>
