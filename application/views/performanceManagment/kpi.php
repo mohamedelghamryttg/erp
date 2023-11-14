@@ -134,7 +134,7 @@
                         <tr>
                             <th>Kpi Title</th>
                             <th>Employee Title</th>
-                            <th>Manager</th>
+<!--                            <th>Manager</th>-->
                             <th>Active</th>                           
                             <!--<th>Created At</th>-->                           
                             <th>Actions</th>
@@ -145,7 +145,7 @@
                             <tr> 
                                 <td><?= !empty($row->title)?$row->title:"--" ?></td>
                                 <td><?php echo $this->hr_model->getTitle($row->employee_title); ?></td>
-                                <td><?php echo $this->hr_model->getEmployee($row->manager_id); ?></td>
+                                <!--<td><?php echo $this->hr_model->getEmployee($row->manager_id); ?></td>-->
                                 <td ><?=$row->active ==1 ? "<i class='fa fa-check-circle text-success'></i>":"<i class='fa fa-times-circle text-danger'></i>" ?></td>
                                 <!--<td><?= $row->created_at?></td>-->
                                 <td>
