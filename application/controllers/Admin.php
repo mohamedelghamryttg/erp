@@ -1321,82 +1321,13 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
     }
     public function services()
     {
-        // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 123);
         if ($check) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 123);
-            if (isset($_GET['search'])) {
-                $arr2 = array();
-                if (isset($_REQUEST['name'])) {
-                    $data['name'] = $name = $_REQUEST['name'];
-                    if (!empty($name)) {
-                        array_push($arr2, 0);
-                    }
-                } else {
-                    $name = "";
-                }
-
-                // print_r($arr2);
-                $cond1 = "name LIKE '%$name%'";
-
-                $arr1 = array($cond1);
-                $arr_1_cnt = count($arr2);
-                $arr3 = array();
-                for ($i = 0; $i < $arr_1_cnt; $i++) {
-                    array_push($arr3, $arr1[$arr2[$i]]);
-                }
-                $arr4 = implode(" and ", $arr3);
-                if ($arr_1_cnt > 0) {
-                    $data['services'] = $this->admin_model->AllRecords('services', $arr4);
-                } else {
-                    $data['services'] = $this->admin_model->AllRecordsPages('services', 9, 0);
-                }
-                $data['total_rows'] = $data['services']->num_rows();
-            } else {
-                $limit = 9;
-                $offset = $this->uri->segment(3);
-                if ($this->uri->segment(3) != NULL) {
-                    $offset = $this->uri->segment(3);
-                } else {
-                    $offset = 0;
-                }
-                $data['services'] = $this->admin_model->AllRecordsPages('services', $limit, $offset);
-                $count = $data['services']->num_rows();
-
-                $config['base_url'] = base_url('admin/services');
-                $config['uri_segment'] = 3;
-                $config['display_pages'] = TRUE;
-                $config['per_page'] = $limit;
-                $config['total_rows'] = $count;
-                $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
-                $config['full_tag_close'] = "</ul>";
-                $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
-                $config['num_tag_close'] = '</li>';
-                $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
-                $config['cur_tag_close'] = "</li>";
-                $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-                $config['next_tagl_close'] = "</span></li>";
-                $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-                $config['prev_tagl_close'] = "</span></li>";
-                $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-                $config['first_tagl_close'] = "</li>";
-                $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-                $config['last_tagl_close'] = "</li>";
-                $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
-                $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
-                $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
-                $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
-                $config['num_links'] = 5;
-                $config['show_count'] = TRUE;
-                $this->pagination->initialize($config);
-
-                // $data['services'] = $this->admin_model->AllRecordsPages('services', $limit, $offset);
-                $data['total_rows'] = $count;
-            }
-            // //Pages ..
-            //$data['services'] = $this->db->get('services');
+            //body ..
+            $data['services'] = $this->db->get('services');
             // //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('admin_new/services.php');
@@ -3628,10 +3559,10 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
     }
     public function managerQCcategory()
     {
-        $check = $this->admin_model->checkPermission($this->role, 232);
+        $check = $this->admin_model->checkPermission($this->role, 237);
         if ($check) {
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
-            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 232);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 237);
 
             $limit = 10;
             $offset = $this->uri->segment(3);
@@ -3682,7 +3613,7 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
 
     public function savemanagerQCcategory()
     {
-        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 232);
+        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 237);
         if ($permission->add == 1) {
             $data['name'] = trim($_POST['name']);
             $data['created_by'] = $this->user;
@@ -3703,11 +3634,11 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
 
     public function updatemanagerQCcategory()
     {
-        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 232);
+        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 237);
         if ($permission->edit == 1) {
             $id = $_POST['id'];
             $data['name'] = trim($_POST['name']);
-            $this->admin_model->addToLoggerUpdate('qcchklist_cat', 232, 'id', $id, 0, 0, $this->user);
+            $this->admin_model->addToLoggerUpdate('qcchklist_cat', 237, 'id', $id, 0, 0, $this->user);
             if ($this->db->update('qcchklist_cat', $data, array('id' => $id))) {
                 $true = "Data Updated Successfully...";
                 $this->session->set_flashdata('true', $true);
