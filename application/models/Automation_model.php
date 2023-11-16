@@ -175,30 +175,8 @@ class Automation_model extends CI_Model
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <meta name="description" content="">
                         <meta name="author" content="">
-                        <link rel="shortcut icon" href="' . base_url() . 'assets/images/favicon.png">
-                        <title>Nexus | Site Manager</title>
-                        <style>
-                        body {
-                            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-                            font-size: 14px;
-                            line-height: 1.428571429;
-                            color: #333;
-                        }
-                        section#unseen
-                        {
-                            overflow: scroll;
-                            width: 100%
-                        }
-                        th{
-                          border: 1px solid;
-                        }
-                        td {
-                          border: 1px solid;
-                        }
-                        </style>
-                        <!--Core js-->
+                        <link rel="shortcut icon" href="' . base_url() . 'assets/images/favicon.png">                                              
                     </head>
-
                     <body>
                        
                          <p>' . $mailBody . '</p>
