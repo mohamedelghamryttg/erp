@@ -6422,8 +6422,33 @@ class ProjectManagment extends CI_Controller
                 }
                 $count = $this->projects_model->AllClientPms($data['permission'], 1)->num_rows();
                 $baseUrl = base_url('projectManagment/listClientPm');
-                $config = $this->admin_model->paginationConfig($baseUrl, $limit, $count);
+                $config['uri_segment'] = 3;
+                $config['display_pages'] = TRUE;
+                $config['per_page'] = $limit;
+                $config['total_rows'] = $count;
+                $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
+                $config['full_tag_close'] = "</ul>";
+                $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
+                $config['num_tag_close'] = '</li>';
+                $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
+                $config['cur_tag_close'] = "</li>";
+                $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
+                $config['next_tagl_close'] = "</span></li>";
+                $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
+                $config['prev_tagl_close'] = "</span></li>";
+                $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
+                $config['first_tagl_close'] = "</li>";
+                $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
+                $config['last_tagl_close'] = "</li>";
+                $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
+                $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
+                $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
+                $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
+                $config['num_links'] = 5;
+                $config['show_count'] = TRUE;
                 $this->pagination->initialize($config);
+                // $config = $this->admin_model->paginationConfig($baseUrl, $limit, $count);
+                // $this->pagination->initialize($config);
 
                 $data['clientPms'] = $this->projects_model->AllClientPmsPages($data['permission'], $limit, $offset);
                 $data['total_rows'] = $count;

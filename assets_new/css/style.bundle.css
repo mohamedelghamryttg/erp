@@ -85786,7 +85786,8 @@ code {
 .dataTables_wrapper .dataTable td.sorting_asc:after,
 .dataTables_wrapper .dataTable td.sorting:before,
 .dataTables_wrapper .dataTable td.sorting:after {
-
+  /* top: 50% !important;
+  margin-top: -0.75rem; */
   bottom: auto !important;
 }
 

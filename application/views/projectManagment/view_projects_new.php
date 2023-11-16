@@ -301,7 +301,7 @@
           <div class="card-body row py-0">
             <div class="col-sm-12 px-5">
 
-              <table id="user_data" class="table table-striped row-bordered display nowrap table-hover" cellspacing="0" width="100%">
+              <table id="user_data" class="table table-striped row-bordered display nowrap table-hover " cellspacing="0" width="100%">
 
               </table>
             </div>
