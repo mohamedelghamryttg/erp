@@ -992,7 +992,7 @@
                 <h5 class="text-dark font-weight-bold mb-2">Project Profit Percentage % </h5>
                 <p class="ml-2"><?= round($this->projects_model->getProjectProfitPercentage($project_data->id),2).' %' ?></p>
                 <h5 class="text-dark font-weight-bold mb-2">Minimum Project Profit Percentage % </h5>
-                <p class="ml-2"><?= $project_data->min_profit_percentage??$this->projects_model->getProfitPercentageSetup($this->brand)?> %</p>
+                <p class="ml-2"><?= $project_data->min_profit_percentage??'--'?> %</p>
                 <?php if(!empty($project_data->approval_by)){?>
                 <h5 class="text-dark font-weight-bold mb-2">approval By </h5>
                 <p class="ml-2"><?= $this->admin_model->getAdmin($project_data->approval_by); ?></p>

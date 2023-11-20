@@ -6654,7 +6654,7 @@ class Projects_model extends CI_Model
             } else {
                 $currentProjectPre = 0;
             }
-            $currentProjectPre = self::getProjectProfitPercentage($project_id);
+           
             // start checking
             if ($currentProjectPre >=  $minProjectPre) {
                 $result = true;
