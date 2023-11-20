@@ -173,7 +173,7 @@ class It extends CI_Controller {
                 $email_array[] = $email;
             }
             $data['cc_email'] = implode("; ",$email_array);
-            $mailSubject = "Falaq System - ".$data['subject'];
+            $mailSubject = "ERP System - ".$data['subject'];
             $mailBody = $data['body'];
             
             

@@ -185,7 +185,7 @@ class Hr_model extends CI_Model
 
     public function selectPosition($id = "", $department = 0, $division = 0)
     {
-        $title = $this->db->get_where('structure', array('division' => $division, 'department' => $department, 'brand' => $this->brand))->result();
+        $title = $this->db->get_where('structure', array('division' => $division, 'department' => $department))->result();
         $data = "<option disabled='disabled' value='' selected=''>-- Select Position --</option>";
         foreach ($title as $title) {
             if ($title->id == $id) {
@@ -276,16 +276,16 @@ class Hr_model extends CI_Model
         return $data;
     }
 
-    public function AllStructure($brand, $filter)
+    public function AllStructure($brand,$filter)
     {
 
-        $data = $this->db->query(" SELECT * FROM `structure` WHERE " . $filter . " AND brand = '$brand' ORDER BY id ASC , id DESC ");
+        $data = $this->db->query(" SELECT * FROM `structure` WHERE " . $filter . "  ORDER BY id ASC , id DESC ");
         return $data;
     }
 
     public function AllStructurePages($brand, $limit, $offset)
     {
-        $data = $this->db->query("SELECT * FROM `structure` WHERE brand = '$brand' ORDER BY id ASC , id DESC LIMIT $limit OFFSET $offset ");
+        $data = $this->db->query("SELECT * FROM `structure` ORDER BY id ASC , id DESC LIMIT $limit OFFSET $offset ");
         return $data;
     }
 
@@ -409,18 +409,29 @@ class Hr_model extends CI_Model
     public function getRequestsForDirectManager($emp_id)
     {
         $title = $this->db->query(" SELECT title FROM employees WHERE id = '$emp_id' ")->row()->title;
-        if ($title == 37) {
-            /* $data = $this->db->query("SELECT * FROM vacation_transaction WHERE emp_id in (SELECT id FROM employees WHERE title in(11,15,16,17,28,37,40,44,48,51,54,56,59))");*/
-            $data = $this->db->query("SELECT * FROM vacation_transaction WHERE emp_id in (SELECT id FROM employees WHERE manager in(13,14) || title in (SELECT id FROM structure WHERE parent = (SELECT title FROM employees WHERE id = '$emp_id')) )HAVING status = 0 ");
+        $idsArray = array();        
+        $IDs =  $this->db->query("SELECT id FROM `employees` WHERE manager = " . $emp_id)->result();
+        if(!empty($IDs)){
+            foreach ($IDs as $row2){
+                    array_push($idsArray, $row2->id);
+            }
+            $empIds = implode(" , ", $idsArray);
+        }else{
+            $empIds = 0 ;
+        }       
+       
+        if ($title == 37) {           
+            $data = $this->db->query("SELECT * FROM vacation_transaction WHERE emp_id in (SELECT id FROM employees WHERE manager in(13,14) || emp_id in ($empIds) )and status = 0 ");
         } else {
-            $data = $this->db->query("SELECT * FROM vacation_transaction WHERE emp_id in (SELECT id FROM employees WHERE title in (SELECT id FROM structure WHERE parent = (SELECT title FROM employees WHERE id = '$emp_id'))) HAVING status = 0 ");
+            $data = $this->db->query("SELECT * FROM vacation_transaction WHERE emp_id in ($empIds) and  status = 0 ");
         }
         return $data;
     }
     public function getManagerId($emp_id)
     {
-        $data = $this->db->query("SELECT id From employees WHERE title = (SELECT parent FROM structure WHERE id = (SELECT title FROM employees WHERE id = '$emp_id'))");
-        return $data->row()->id;
+       // $data = $this->db->query("SELECT id From employees WHERE title = (SELECT parent FROM structure WHERE id = (SELECT title FROM employees WHERE id = '$emp_id'))");
+        $data = $this->db->query("SELECT manager From employees WHERE id = '$emp_id'");
+        return $data->row()->manager;
     }
 
     public function getUser($emb_id)
@@ -851,7 +862,7 @@ class Hr_model extends CI_Model
 
     public function getTitleData($title)
     {
-        $structure = $this->db->get_where('structure', array('id' => $title, 'brand' => $this->brand))->row();
+        $structure = $this->db->get_where('structure', array('id' => $title))->row();
 
         $data = "<table class='table table-striped table-hover table-bordered' style='overflow:scroll;'>
                     <thead>
@@ -872,8 +883,8 @@ class Hr_model extends CI_Model
 
     public function getDirectManagerByTitle($title)
     {
-        $structure = $this->db->get_where('structure', array('id' => $title, 'brand' => $this->brand))->row();
-        $manager = $this->db->get_where('employees', array('title' => $structure->parent, 'brand' => $this->brand))->result();
+        $structure = $this->db->get_where('structure', array('id' => $title))->row();
+        $manager = $this->db->get_where('employees', array('title' => $structure->parent))->result();
         //$data = "<option disabled='disabled' selected=''>-- Select Manager --</option>";
         foreach ($manager as $manager) {
             if ($manager->id == $title) {
@@ -2631,8 +2642,8 @@ public function selectAllEmployeesByManagerID2level($emp_id, $id = "")
     public function checkAttendanceLocationDetailsFast($signin_location, $signout_location)
     {
         // 0=>Office ,1=>Work from Home
-        $data = $signin_loc = $signout_loc = '';           
-        
+        $data = $signin_loc = $signout_loc = '';
+           
         if ($signin_location == 0 && $signin_location != null) {
             $signin_loc = 'O';
         } elseif ($signin_location == 1) {
@@ -2659,8 +2670,8 @@ public function selectAllEmployeesByManagerID2level($emp_id, $id = "")
         $result = $this->db->get_where('emp_finance', array('emp_id' => $emp_id))->row();
         if (isset($result)) 
            $salary = $result->salary;
-       
+
         return $salary;
         
-    }
+}
 }
