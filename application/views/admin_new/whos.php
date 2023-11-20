@@ -36,11 +36,11 @@
                             </div>
                         </div>
                         <div class="form-group row my-2">
-                            <label class="col-lg-2 col-form-label text-lg-right">Direct Manager</label>
+                            <label class="col-lg-2 col-form-label text-lg-right">Departments</label>
                             <div class="col-lg-4">
                                 <select name="directmanager" class="form-control m-b" id="directmanager">
-                                    <option selected="" value=""> -- Select Direct Manager --</option>
-                                    <?= $this->admin_model->getDirectManagers() ?>
+                                    <option selected="" value=""> -- Select Department --</option>
+                                    <?= $this->admin_model->getDepartment() ?>
                                 </select>
                             </div>
                         </div>

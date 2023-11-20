@@ -2547,14 +2547,14 @@ class Admin_model extends CI_Model
 			return false;
 	}
 
-	function getDirectManagers($title = '')
+	function getDepartment($title = '')
 	{
-		if ($title == '') {
-			$manager = $this->db->query("select * from employees where title in (select parent from structure) and status = '0' order by name")->result();
-		} else {
-			$structure = $this->db->get_where('structure', array('id' => $title, 'brand' => $this->brand))->row();
-			$manager = $this->db->order_by('name')->get_where('employees', array('title' => $structure->parent, 'brand' => $this->brand))->result();
-		}
+
+		$manager = $this->db->query("select * from department  order by name")->result();
+		// } else {
+		// 	$structure = $this->db->get_where('structure', array('id' => $title, 'brand' => $this->brand))->row();
+		// 	$manager = $this->db->order_by('name')->get_where('employees', array('title' => $structure->parent, 'brand' => $this->brand))->result();
+		// }
 		$data = "";
 		//$data = "<option disabled='disabled' selected=''>-- Select Manager --</option>";
 		foreach ($manager as $manager) {
