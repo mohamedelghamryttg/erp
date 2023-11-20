@@ -17,84 +17,85 @@ class Projects_model extends CI_Model
     }
     public function findall($vfilter = '')
     {
-        $sql = "select * from ( SELECT 
-        p.id AS id,
-        p.opportunity AS opportunity,
-        p.branch_name AS branch_name,
-        p.code AS code,
-        p.name AS name,
-        p.customer AS customer,
-        p.lead AS `lead`,
-        p.product_line AS product_line,
-        p.cpo_file AS cpo_file,
-        p.po AS po,
-        p.type AS type,
-        p.status AS status,
-        p.closed_date AS closed_date,
-        p.closed_by AS closed_by,
-        p.verified AS verified,
-        p.has_error AS has_error,
-        p.verified_at AS verified_at,
-        p.verified_by AS verified_by,
-        p.created_by AS created_by,
-        p.created_at AS created_at,
-        b.id AS brand,
-        b.name AS brandname,
-        j.id AS closed,
-        c.name AS customername,
-        l.name AS productline,
-        u.user_name AS username,
-        TIMESTAMPDIFF(HOUR,
-            j1.min_start,
-            j1.max_delivery) AS total_hours,
-        TIMESTAMPDIFF(HOUR,
-            j1.min_start,
-            CURRENT_TIMESTAMP()) AS interval_hours,
-        j1.min_start AS min_start,
-        j1.max_delivery AS max_delivery,
-        CURRENT_TIMESTAMP() AS now,
-        j2.allclosed AS allclosed,
-        j3.closedstat AS closedstat
-    FROM
-        ((((((((project p
-        LEFT JOIN customer c ON (c.id = p.customer))
-        LEFT JOIN brand b ON (b.id = c.brand))
-        LEFT JOIN customer_product_line l ON (l.id = p.product_line))
-        LEFT JOIN users u ON (u.id = p.created_by))
-        LEFT JOIN (SELECT 
-            job.project_id AS project_id,
-                job.status AS status,
-                job.id AS id
+        $sql =
+            "select * from ( SELECT 
+            p.id AS id,
+            p.opportunity AS opportunity,
+            p.branch_name AS branch_name,
+            p.code AS code,
+            p.name AS name,
+            p.customer AS customer,
+            p.lead AS `lead`,
+            p.product_line AS product_line,
+            p.cpo_file AS cpo_file,
+            p.po AS po,
+            p.type AS type,
+            p.status AS status,
+            p.closed_date AS closed_date,
+            p.closed_by AS closed_by,
+            p.verified AS verified,
+            p.has_error AS has_error,
+            p.verified_at AS verified_at,
+            p.verified_by AS verified_by,
+            p.created_by AS created_by,
+            p.created_at AS created_at,
+            b.id AS brand,
+            b.name AS brandname,
+            j.id AS closed,
+            c.name AS customername,
+            l.name AS productline,
+            u.user_name AS username,
+            TIMESTAMPDIFF(HOUR,
+                j1.min_start,
+                j1.max_delivery) AS total_hours,
+            TIMESTAMPDIFF(HOUR,
+                j1.min_start,
+                CURRENT_TIMESTAMP()) AS interval_hours,
+            j1.min_start AS min_start,
+            j1.max_delivery AS max_delivery,
+            CURRENT_TIMESTAMP() AS now,
+            ifnull(j2.allclosed,0) AS allclosed,
+            ifnull(j3.closedstat,0) AS closedstat
         FROM
-            job
-        WHERE
-            job.status <> 1
-        GROUP BY job.project_id , job.status) j ON (j.project_id = p.id))
-        LEFT JOIN (SELECT 
-            job.project_id AS project_id,
-                MIN(job.start_date) AS min_start,
-                MAX(job.delivery_date) AS max_delivery,
-                IFNULL(COUNT(job.id), 0) AS closed
-        FROM
-            job
-        GROUP BY job.project_id) j1 ON (j1.project_id = p.id))
-        LEFT JOIN (SELECT 
-            job.project_id AS project_id,
-                IFNULL(COUNT(job.id), 0) AS allclosed
-        FROM
-            job
-        GROUP BY job.project_id) j2 ON (j2.project_id = p.id))
-        LEFT JOIN (SELECT 
-            job.project_id AS project_id,
-                IFNULL(COUNT(job.id), 0) AS closedstat
-        FROM
-            job
-        WHERE
-            job.status = 1
-        GROUP BY job.project_id) j3 ON (j3.project_id = p.id))
-        ) as tot_pro ";
+            ((((((((project p
+            LEFT JOIN customer c ON (c.id = p.customer))
+            LEFT JOIN brand b ON (b.id = c.brand))
+            LEFT JOIN customer_product_line l ON (l.id = p.product_line))
+            LEFT JOIN users u ON (u.id = p.created_by))
+            LEFT JOIN (SELECT 
+                job.project_id AS project_id,
+                    job.status AS status,
+                    job.id AS id
+            FROM
+                job
+            WHERE
+                job.status <> 1
+            GROUP BY job.project_id , job.status) j ON (j.project_id = p.id))
+            LEFT JOIN (SELECT 
+                job.project_id AS project_id,
+                    MIN(job.start_date) AS min_start,
+                    MAX(job.delivery_date) AS max_delivery,
+                    IFNULL(COUNT(job.id), 0) AS closed
+            FROM
+                job
+            GROUP BY job.project_id) j1 ON (j1.project_id = p.id))
+            LEFT JOIN (SELECT 
+                job.project_id AS project_id,
+                    IFNULL(COUNT(job.id), 0) AS allclosed
+            FROM
+                job
+            GROUP BY job.project_id) j2 ON (j2.project_id = p.id))
+            LEFT JOIN (SELECT 
+                job.project_id AS project_id,
+                    IFNULL(COUNT(job.id), 0) AS closedstat
+            FROM
+                job
+            WHERE
+                job.status = 1
+            GROUP BY job.project_id) j3 ON (j3.project_id = p.id))
+            ) as tot_pro where (allclosed <> closedstat OR closedstat = 0) ";
         if ($vfilter != '') {
-            $sql .= " WHERE " . $vfilter;
+            $sql .= " and " . $vfilter;
         }
         $query = $this->db->query($sql);
         // var_dump($query);
@@ -2592,10 +2593,12 @@ class Projects_model extends CI_Model
     public function AllTasks($permission, $user, $brand, $filter)
     {
         if ($permission->view == 1) {
-            $data = $this->db->query(" SELECT j.*,l.source,l.target,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand FROM job_task AS j 
-                LEFT OUTER JOIN job AS p on j.job_id = p.id
-                LEFT OUTER JOIN job_price_list AS l on l.id = p.price_list
-                WHERE job_id <> 0 AND " . $filter . " HAVING brand = '$brand' order by id desc ");
+            $sql = "SELECT j.*,l.source,l.target,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand FROM job_task AS j 
+            LEFT OUTER JOIN job AS p on j.job_id = p.id
+            LEFT OUTER JOIN job_price_list AS l on l.id = p.price_list
+            WHERE job_id <> 0 AND " . $filter . " HAVING brand = '$brand' order by id desc ";
+
+            $data = $this->db->query($sql);
         } elseif ($permission->view == 2) {
             $data = $this->db->query(" SELECT j.*,l.source,l.target,(SELECT brand FROM `users` WHERE users.id = j.created_by) AS brand FROM job_task AS j 
                 LEFT OUTER JOIN job AS p on j.job_id = p.id

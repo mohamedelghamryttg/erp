@@ -39,7 +39,7 @@ class ProjectManagment extends CI_Controller
 
     function findall()
     {
-        ini_set('memory_limit', '1024M');
+        ini_set('memory_limit', '-1');
         $data['group'] = $this->admin_model->getGroupByRole($this->role);
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 204);
         //body ..
@@ -602,6 +602,9 @@ class ProjectManagment extends CI_Controller
             $data['job_portal'] = 1;
             $data['status'] = 4;
             if ($_FILES['file']['size'] != 0) {
+                if (!file_exists('./assets/uploads/taskFile/')) {
+                    mkdir('./assets/uploads/taskFile/', 0777);
+                }
                 //$config['file']['upload_path']          = './assets/uploads/vendors/';
                 $config['file']['upload_path'] = './assets/uploads/taskFile/';
                 $config['file']['encrypt_name'] = TRUE;
@@ -2887,8 +2890,10 @@ class ProjectManagment extends CI_Controller
 
     public function allTasks()
     {
+        ini_set('memory_limit', '-1');
         // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 85);
+
         if ($check) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);

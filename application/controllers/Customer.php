@@ -111,7 +111,6 @@ class Customer extends CI_Controller
                     $data['customer'] = $this->customer_model->AllCustomersPages($data['permission'], $this->user, $this->brand, $limit, $offset, 1);
                     $count = $this->customer_model->AllCustomers($data['permission'], $this->user, $this->brand, 1)->num_rows();
                 }
-
             } else {
                 // if ($this->session->userdata('search') != NULL) {
                 $search = $this->session->userdata('search');
@@ -366,7 +365,6 @@ class Customer extends CI_Controller
                 $data['customer'] = $this->customer_model->AllCustomers($data['permission'], $this->user, $this->brand, $arr4);
             }
             $this->load->view('customer/exportcustomer.php', $data);
-
         }
     }
 
@@ -459,20 +457,20 @@ class Customer extends CI_Controller
             $referer = $_POST['referer'];
             if ($oldWebsite == $data['website']) {
                 $this->admin_model->addToLoggerUpdate('customer', 12, 'id', $id, 0, 0, $this->user);
-                   if ($_FILES['customer_profile']['size'] != 0 ) {                       
-                        $config['file']['upload_path'] = './assets/uploads/customer_profiles/';
-                        $config['file']['encrypt_name'] = TRUE;
-                        $config['file']['allowed_types'] = 'zip|rar';
-                        $config['file']['max_size'] = 5000000;
-                        $this->load->library('upload', $config['file'], 'file_upload');
-                        if (!$this->file_upload->do_upload('customer_profile')) {
-                            $error = $this->file_upload->display_errors();
-                            $this->session->set_flashdata('error', $error);                            
-                        } else {
-                            $data_file = $this->file_upload->data();
-                            $data['customer_profile'] = $data_file['file_name'];
-                        }
+                if ($_FILES['customer_profile']['size'] != 0) {
+                    $config['file']['upload_path'] = './assets/uploads/customer_profiles/';
+                    $config['file']['encrypt_name'] = TRUE;
+                    $config['file']['allowed_types'] = 'zip|rar';
+                    $config['file']['max_size'] = 5000000;
+                    $this->load->library('upload', $config['file'], 'file_upload');
+                    if (!$this->file_upload->do_upload('customer_profile')) {
+                        $error = $this->file_upload->display_errors();
+                        $this->session->set_flashdata('error', $error);
+                    } else {
+                        $data_file = $this->file_upload->data();
+                        $data['customer_profile'] = $data_file['file_name'];
                     }
+                }
                 if ($this->db->update('customer', $data, array('id' => $id))) {
                     $this->customer_model->addLastUpdated('customer', $id);
                     $true = "Customer Edited Successfully ...";
@@ -775,13 +773,11 @@ class Customer extends CI_Controller
                 $data['leads'] = $this->customer_model->allCustomerLeads($data['permission'], $this->user, $this->brand, $arr4);
             } else {
                 $data['leads'] = $this->customer_model->allCustomerLeads($data['permission'], $this->user, $this->brand, 1);
-
             }
 
             //Pages ..
 
             $this->load->view('customer/exportleads.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -1937,7 +1933,6 @@ class Customer extends CI_Controller
             //Pages ..
 
             $this->load->view('customer/exportbranches.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -2097,7 +2092,7 @@ class Customer extends CI_Controller
 
     public function pmCustomer()
     {
-    ini_set('memory_limit', '-1');
+        ini_set('memory_limit', '-1');
         // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 58);
         if ($check) {
@@ -2269,7 +2264,6 @@ class Customer extends CI_Controller
             //Pages ..
 
             $this->load->view('customer/exportPmCustomer.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -2456,7 +2450,6 @@ class Customer extends CI_Controller
                 $data['productLines'] = $this->customer_model->allProductLinesPages($data['permission'], $this->user, $this->brand, 9, 0);
             }
             $this->load->view('customer/exportProductLineExl.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -2864,7 +2857,6 @@ background-color: #FFFFCC;
             <td>' . $row->name . '</td>
             <td>' . $row->created_at . '</td>
             ';
-
         }
         $data .= '</tbody>
             </table>
@@ -3168,7 +3160,6 @@ background-color: #FFFFCC;
         //Pages ..
 
         return $this->load->view('customer_new/search_leads.php', $data);
-
     }
 
     public function addCustomerData()
@@ -3212,20 +3203,20 @@ background-color: #FFFFCC;
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "customer");
             } else {
-                    if ($_FILES['customer_profile']['size'] != 0 ) {                       
-                        $config['file']['upload_path'] = './assets/uploads/customer_profiles/';
-                        $config['file']['encrypt_name'] = TRUE;
-                        $config['file']['allowed_types'] = 'zip|rar';
-                        $config['file']['max_size'] = 5000000;
-                        $this->load->library('upload', $config['file'], 'file_upload');
-                        if (!$this->file_upload->do_upload('customer_profile')) {
-                            $error = $this->file_upload->display_errors();
-                            $this->session->set_flashdata('error', $error);                            
-                        } else {
-                            $data_file = $this->file_upload->data();
-                            $data['customer_profile'] = $data_file['file_name'];
-                        }
+                if ($_FILES['customer_profile']['size'] != 0) {
+                    $config['file']['upload_path'] = './assets/uploads/customer_profiles/';
+                    $config['file']['encrypt_name'] = TRUE;
+                    $config['file']['allowed_types'] = 'zip|rar';
+                    $config['file']['max_size'] = 5000000;
+                    $this->load->library('upload', $config['file'], 'file_upload');
+                    if (!$this->file_upload->do_upload('customer_profile')) {
+                        $error = $this->file_upload->display_errors();
+                        $this->session->set_flashdata('error', $error);
+                    } else {
+                        $data_file = $this->file_upload->data();
+                        $data['customer_profile'] = $data_file['file_name'];
                     }
+                }
 
                 if ($this->db->insert('customer', $data)) {
                     // after add customer add lead 
@@ -3267,7 +3258,6 @@ background-color: #FFFFCC;
                                 $contactData['created_at'] = date("Y-m-d H:i:s");
 
                                 if ($this->db->insert('customer_contacts', $contactData)) {
-
                                 } else {
                                     $t = base64_encode($lead_id);
                                     $error = "Failed To Add Customer Contacts ...";
@@ -3541,6 +3531,4 @@ background-color: #FFFFCC;
             echo "You have no permission to access this page";
         }
     }
-
 }
-?>
