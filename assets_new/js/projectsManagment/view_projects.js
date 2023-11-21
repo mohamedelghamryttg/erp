@@ -51,6 +51,7 @@ $(document).ready(function (e) {
             serverSide: false,
             bDestroy: true,
             paging: true,
+            select: false,
             searching: false,
             dom: "<'row'<'col-12 col-md-5'l><'col-sm-12 col-md-7 text-right'CB>>" +
                 "<'row'<'col-sm-12'tr>>" +
@@ -63,6 +64,7 @@ $(document).ready(function (e) {
             scrollCollapse: true,
             pageResize: true,
             responsive: true,
+
             language: {
                 lengthMenu: "_MENU_ Rows per page",
                 info: "Showing <b>_START_ to _END_</b> of _TOTAL_ entries",
@@ -81,7 +83,7 @@ $(document).ready(function (e) {
             }, responsive: {
                 details: {
                     type: 'column',
-                    target: 'tr'
+                    target: 0
                 }
             },
             order: [1, 'desc'],
@@ -192,7 +194,7 @@ $(document).ready(function (e) {
                 orderable: false,
                 targets: 0,
                 data: 0,
-                title: '<i class="fa fa-info-circle fa-lg"></i>'
+                title: '<i class="fa fa-info-circle fa-lg" ></i>'
             }],
             columns: [
                 {
@@ -229,9 +231,24 @@ $(document).ready(function (e) {
                     title: 'PROGRESS',
                     data: 'null',
                     render: function (data, type, row, meta) {
+
                         var progress = 0;
                         progRow = '<div></div>';
-                        if (row.allclosed != row.closedstat) {
+
+                        var allc;
+                        if (row.allclosed) {
+                            allc = row.allclosed;
+                        } else {
+                            allc = 0;
+                        }
+                        var alls;
+                        if (row.closedstat) {
+                            alls = row.closedstat;
+                        } else {
+                            alls = 0;
+                        }
+
+                        if (allc != alls) {
                             if (row.total_hours > 0) {
                                 progress = row.interval_hours * 100 / row.total_hours;
                                 progress = progress >= 100 ? 100 : parseInt(progress);
@@ -239,7 +256,7 @@ $(document).ready(function (e) {
                                 progress = 0;
                             }
                             progress = parseInt(progress);
-                            if (progress) {
+                            if (progress >= 0) {
                                 progRow = '<div class = "progress border border-info" >'
                                 if (progress > 100) {
                                     progRow += '<span style="position: absolute;margin: 6.5px 2.5%;color:#000"><span style="color:red">***</span></span>'
@@ -273,7 +290,7 @@ $(document).ready(function (e) {
                     title: 'STATUS',
                     data: 'null',
                     render: function (data, type, row) {
-                        if (row.allclosed == row.closedstat) {
+                        if (row.allclosed == row.closedstat && row.closedstat != 0) {
                             return 'Closed';
                         } else {
                             return 'Running';
@@ -302,7 +319,7 @@ $(document).ready(function (e) {
                     className: 'noExport',
                     orderable: false,
                     render: function (data, type, row) {
-                        if (row.allclosed == row.closedstat) {
+                        if (row.allclosed == row.closedstat && row.closedstat != 0) {
                             return '<a class="btn btn-outline-success disabled" href = "' + base_url + 'vendor/vmPmTicket?t=' + btoa(row.id) + '" ><i class="fa fa-eye "></i> View Tickets </a>';
                         } else {
                             return '<a class="btn btn-outline-success" href = "' + base_url + 'vendor/vmPmTicket?t=' + btoa(row.id) + '" ><i class="fa fa-eye "></i> View Tickets </a>';
@@ -317,14 +334,14 @@ $(document).ready(function (e) {
                     render: function (data, type, row) {
                         var action_btn = '<div>';
                         if (permissions && permissions.edit == '1') {
-                            if (row.allclosed == row.closedstat) {
+                            if (row.allclosed == row.closedstat && row.closedstat != 0) {
                                 action_btn += '<a class="btn btn-dark font-weight-bold mr-2 disabled" href="' + base_url + 'projectManagment/editProject?t=' + btoa(row.id) + '"><i class="fa fa-pen "></i> Edit</a>';
                             } else {
                                 action_btn += '<a class="btn btn-dark font-weight-bold mr-2" href="' + base_url + 'projectManagment/editProject?t=' + btoa(row.id) + '"><i class="fa fa-pen "></i> Edit</a>';
                             }
                         }
                         if (permissions && permissions.delete == '1') {
-                            if (row.allclosed == row.closedstat) {
+                            if (row.allclosed == row.closedstat && row.closedstat != 0) {
                                 action_btn += '<a class="btn btn-danger font-weight-bold mr-2 disabled" id="del_fun" title="delete" href="javascript:void(0)" data-id=' + row.id + '><i class="la la-trash"></i> Delete</a>';
                             } else {
                                 action_btn += '<a class="btn btn-danger font-weight-bold mr-2 " id="del_fun" title="delete" href="javascript:void(0)" data-id=' + row.id + '><i class="la la-trash"></i> Delete</a>';
@@ -344,10 +361,10 @@ $(document).ready(function (e) {
                 // console.log(json.projects)
                 document.getElementById("allCount").innerHTML = allCount;
                 document.getElementById("runningCount").innerHTML = Array.isArray(rowToCount) ? rowToCount.reduce(function (a, b) {
-                    return (b.allclosed != b.closedstat) ? a + 1 : a;
+                    return ((b.allclosed != b.closedstat) || (b.allclosed == 0 && b.closedstat == 0)) ? a + 1 : a;
                 }, 0) : 0;
                 document.getElementById("closedCount").innerHTML = Array.isArray(rowToCount) ? rowToCount.reduce(function (a, b) {
-                    return (b.allclosed == b.closedstat) ? a + 1 : a;
+                    return (b.allclosed == b.closedstat && b.closedstat != 0) ? a + 1 : a;
                 }, 0) : 0;
 
             },
@@ -452,9 +469,9 @@ $(document).ready(function (e) {
                 }
             }
             ],
-            fnRowCallback: function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(0)', nRow).html('<span>' + (iDisplayIndexFull + 1) + '</span>');
-            },
+            // fnRowCallback: function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            //     $('td:eq(0)', nRow).html('<span>' + (iDisplayIndexFull + 1) + '</span>');
+            // },
             initComplete: function () {
                 var samCount = samData.length
                 document.getElementById("samCount").innerHTML = samCount;

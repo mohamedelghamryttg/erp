@@ -90,7 +90,7 @@
                 <div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: linear-gradient(180deg, rgba(9,9,121,1) 90%, rgba(0,212,255,1) 100%);">
                   <div class="card-body  p-0" style="float:left;">
                     <span class="fs-3hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="samCount">...</span>
-                    <span class="card-text fs-1hx text-right">Projects From SAM </span>
+                    <span class="card-text fs-0hx text-right">Projects From SAM </span>
 
                   </div>
                 </div>
@@ -364,6 +364,7 @@
       cursor: pointer;
       font-size: 22px;
       color: #55a4be;
+      font-size: 16px;
     }
 
     table.dataTable tr.shown td.details-control:before {
@@ -385,7 +386,7 @@
 
     .dataTables_wrapper table.dataTable.collapsed>tbody>tr>td:first-child::before {
       padding: 0 !important;
-
+      font-size: 1.5em;
     }
   </style>
 

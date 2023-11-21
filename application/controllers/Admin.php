@@ -3687,7 +3687,7 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
         }
         $cond1 = "(u.first_name LIKE '%$search_name%' or u.last_name LIKE '%$search_name%' or u.user_name LIKE '%$search_name%')";
         $cond2 = "u.email LIKE '%$search_email%'";
-        $cond3 = "e.manager = '$searchmanager'";
+        $cond3 = "e.department = '$searchmanager'";
         $arr1 = array($cond1, $cond2, $cond3);
         $arr_1_cnt = count($arr2);
         $arr3 = array();
@@ -3699,7 +3699,7 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
         // die;
         if ($arr_1_cnt > 0) {
             if ($searchmanager != '') {
-                $sql = "select u.id,u.first_name,u.last_name,u.user_name,u.email from users u inner join employees e on e.id = u.employees_id where ($arr4  and u.status ='1') or e.id = $searchmanager order by e.title asc";
+                $sql = "select u.id,u.first_name,u.last_name,u.user_name,u.email from users u inner join employees e on e.id = u.employees_id where ($arr4  and u.status ='1') order by e.title asc";
             } else {
                 $sql = "select u.id,u.first_name,u.last_name,u.user_name,u.email from users u inner join employees e on e.id = u.employees_id where ($arr4  and u.status ='1')  order by e.title asc";
             }
