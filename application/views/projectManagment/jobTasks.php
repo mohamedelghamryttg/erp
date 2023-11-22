@@ -132,6 +132,9 @@
                               	<th>Target Application</th>
                               	<th>Translatio In</th>
                               	<th>Rate</th>
+                                <th>Work Hours</th>
+                                    <th>Overtime Hours</th>
+                                    <th>Double Paid Hours</th>
                               	<th>Total Cost in $</th>
                               	<th>File Attachment</th>
                              	<th>Start Date</th>
@@ -166,7 +169,11 @@
 								<td><?=$this->admin_model->getDTPApplication($row->target_application)?></td>
 								<td><?=$this->admin_model->getDTPApplication($row->translation_in)?></td>
 								<td><?=$row->rate?></td>
-								<td><?php echo $rateTrnasfared*$row->volume; ?></td>
+                                                                <td><?= $row->work_hours ?></td>
+                                                                <td><?= $row->overtime_hours ?></td>
+                                                                <td><?= $row->doublepaid_hours ?></td>                                           
+                                                                <td><?= round($this->projects_model->getTaskCost(3,$row),2) ?></td>
+								<!--<td><?php echo $rateTrnasfared*$row->volume; ?></td>-->
 								<td><?php if (strlen($row->file) > 1) { ?>
                                                                         <a href="<?= $this->projects_model->getTaskFileLink("assets/uploads/dtpRequest/",$row->file,$row->start_after_type) ?>" target="_blank">Click Here</a>
                                                                     <?php } else{
@@ -259,6 +266,9 @@
                     	   <th>TM</th>
                     	   <th>Net word count</th>
                     	   <th>Unit</th>
+                           <th>Work Hours</th>
+                                    <th>Overtime Hours</th>
+                                    <th>Double Paid Hours</th>
                     	   <th>Total Cost in $</th>
                     	   <th>Start Date</th>
                     	   <th>Delivery Date</th>
@@ -291,7 +301,11 @@
 								<td><?php echo $row->tm ;?></td>
 								<td><?php echo $row->count - $row->tm ;?></td>
 								<td><?php echo $this->admin_model->getUnit($row->unit) ;?></td>
-								<td><?php echo number_format($rateTrnasfared*$row->count,2); ?></td>
+                                                                 <td><?= $row->work_hours ?></td>
+                                                                <td><?= $row->overtime_hours ?></td>
+                                                                <td><?= $row->doublepaid_hours ?></td>                                           
+                                                                <td><?= round($this->projects_model->getTaskCost(2,$row),2) ?></td>
+								<!--<td><?php echo number_format($rateTrnasfared*$row->count,2); ?></td>-->
 								<td><?php echo $row->start_date ;?></td>
 								<td><?php echo $row->delivery_date ;?></td>
 								 <td><?php if (strlen($row->file) > 1) { ?>
@@ -537,6 +551,9 @@
                               	<th>Task Subject</th>
                               	<th>Task Type</th>
                               	<th>Subject Matter</th>
+                                <th>Work Hours</th>
+                                <th>Overtime Hours</th>
+                                <th>Double Paid Hours</th>
                               	<th>Total Cost in $</th>
                               	<th>Start Date</th>
                              	<th>Delivery Date</th>
@@ -545,9 +562,9 @@
                                 <th>Created By</th>
                                 <th>Created At</th>
                                 <th>View Task</th>
-								<th>Edit </th>
+                                <th>Edit </th>
                             	<th>Cancel </th>
-								<th>Delete</th>
+				<th>Delete</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -564,7 +581,11 @@
                               	<td><?php echo $row->subject ;?></td>
 								<td><?php echo $this->admin_model->getLETaskType($row->task_type);?></td>
 								<td><?php echo $this->admin_model->getLESubject($row->subject_matter);?></td>
-								<td><?php echo $rateTrnasfared*$row->volume; ?></td>
+								<!--<td><?php echo $rateTrnasfared*$row->volume; ?></td>-->
+                                                                 <td><?= $row->work_hours ?></td>
+                                            <td><?= $row->overtime_hours ?></td>
+                                            <td><?= $row->doublepaid_hours ?></td>                                            
+                                            <td><?= round($this->projects_model->getTaskCost(4,$row),2) ?></td>
 								<td><?php echo $row->start_date ;?></td>
 								<td><?php echo $row->delivery_date ;?></td>
 								 <td><?php if (strlen($row->file) > 1) { ?>
