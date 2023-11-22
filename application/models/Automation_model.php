@@ -45,7 +45,7 @@ class Automation_model extends CI_Model
         if ($permission->view == 1) {
             $data = $this->db->query("SELECT * FROM `automation_tickets` WHERE " . $filter . " Order By `status` ASC,`created_at` DESC");
         } elseif ($permission->view == 2) {
-            $data = $this->db->query("SELECT * FROM `automation_tickets` WHERE " . $filter . " AND emp_id = $this->emp_id Order By `status` ASC,`created_at` DESC");
+            $data = $this->db->query("SELECT * FROM `automation_tickets` WHERE " . $filter . " AND (emp_id = $this->emp_id or emp_id IN(SELECT id FROM employees WHERE manager = $this->emp_id )) Order By `status` ASC,`created_at` DESC");
         }
         return $data;
     }
@@ -54,7 +54,7 @@ class Automation_model extends CI_Model
         if ($permission->view == 1) {
             $data = $this->db->query("SELECT * FROM `automation_tickets`  Order By `status` ASC,`created_at` DESC limit " . $limit . " offset " . $offset);
         } elseif ($permission->view == 2) {
-            $data = $this->db->query("SELECT * FROM `automation_tickets` WHERE  emp_id = $this->emp_id Order By `status` ASC,`created_at` DESC limit " . $limit . " offset " . $offset);
+            $data = $this->db->query("SELECT * FROM `automation_tickets` WHERE  emp_id = $this->emp_id OR emp_id IN(SELECT id FROM employees WHERE manager = $this->emp_id ) Order By `status` ASC,`created_at` DESC limit " . $limit . " offset " . $offset);
         }
         return $data;
     }
@@ -267,13 +267,13 @@ class Automation_model extends CI_Model
                 if ($permission->view == 1) {
                     $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE  approval = 1")->row()->total;
                 } elseif ($permission->view == 2) {
-                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE approval = 1 AND emp_id = $this->emp_id ")->row()->total;
+                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE approval = 1 AND (emp_id = $this->emp_id OR emp_id IN(SELECT id FROM employees WHERE manager = $this->emp_id ))")->row()->total;
                 }
             } else {
                 if ($permission->view == 1) {
                     $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE  status = $status ")->row()->total;
                 } elseif ($permission->view == 2) {
-                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets`  status = $status AND emp_id = $this->emp_id ")->row()->total;
+                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets`  status = $status AND (emp_id = $this->emp_id OR emp_id IN(SELECT id FROM employees WHERE manager = $this->emp_id )) ")->row()->total;
                 }
             }
         } else {
@@ -281,13 +281,13 @@ class Automation_model extends CI_Model
                 if ($permission->view == 1) {
                     $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE " . $filter . " AND approval = 1")->row()->total;
                 } elseif ($permission->view == 2) {
-                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE " . $filter . " AND approval = 1 AND emp_id = $this->emp_id ")->row()->total;
+                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE " . $filter . " AND approval = 1 AND (emp_id = $this->emp_id OR emp_id IN(SELECT id FROM employees WHERE manager = $this->emp_id )) ")->row()->total;
                 }
             } else {
                 if ($permission->view == 1) {
                     $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE " . $filter . " AND status = $status ")->row()->total;
                 } elseif ($permission->view == 2) {
-                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE " . $filter . " AND status = $status AND emp_id = $this->emp_id ")->row()->total;
+                    $data = $this->db->query("SELECT count(id) as total FROM `automation_tickets` WHERE " . $filter . " AND status = $status AND (emp_id = $this->emp_id OR emp_id IN(SELECT id FROM employees WHERE manager = $this->emp_id ))")->row()->total;
                 }
             }
             return $data;

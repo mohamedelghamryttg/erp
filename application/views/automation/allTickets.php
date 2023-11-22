@@ -68,58 +68,25 @@
                         $approvalStatus = "";
                     }
                     ?>
-                    <div class="form-group row pb-0 pt-0 mb-0">
-
-                        <label class="col-lg-2 mb-5 col-form-label text-lg-right" for="role name">Ticket Type:</label>
+                    <div class="form-group row container">
+    <label class="col-lg-2 mb-5 col-form-label text-lg-right" for="role name">Ticket Type</label>
                         <div class="col-lg-4">
-                            <select name="type" class="form-control m-b">
-                                <option value="">-- Select Type --</option>
-                                <?= $this->automation_model->selectTicketType($type) ?>
+                            <select name="type" class="form-control m-b" />
+                            <option value="">-- Select Type --</option>
+                            <?= $this->automation_model->selectTicketType($type) ?>
                             </select>
                         </div>
-                        <label class="col-lg-2 mb-5 col-form-label text-lg-right" for="role name">Department</label>
-
-                        <div class="col-lg-4">
-                            <select name="department" class="form-control m-b" id="department">
-                                <option value="" selected="">-- Select Department --</option>
-                                <?= $this->hr_model->selectDepartmentKpi($department) ?>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group row pb-0 pt-0  mb-0">
-                        <label class="col-lg-2 mb-5 col-form-label text-lg-right" for="role name">Status :</label>
+                        <label class="col-lg-2 col-form-label text-lg-right">Month</label>
                         <div class="col-lg-2">
-                            <select name="status" id='status' class="form-control">
-                                <?php switch ($_REQUEST['status']) {
-                                    case '1':  ?>
-                                        <option value="">-- Select Status --</option>
-                                        <option value="1" selected>Opened</option>
-                                        <option value="2">In Progress</option>
-                                        <option value="3">Closed</option>
-                                    <?php break;
-                                    case '2':  ?>
-                                        <option value="">-- Select Status --</option>
-                                        <option value="1">Opened</option>
-                                        <option value="2" selected>In Progress</option>
-                                        <option value="3">Closed</option>
-                                    <?php break;
-                                    case '3':  ?>
-                                        <option value="">-- Select Status --</option>
-                                        <option value="1">Opened</option>
-                                        <option value="2">In Progress</option>
-                                        <option value="3" selected>Closed</option>
-
-                                    <?php break;
-                                    default: ?>
-                                        <option value="" selected>-- Select Status --</option>
-                                        <option value="1">Opened</option>
-                                        <option value="2">In Progress</option>
-                                        <option value="3">Closed</option>
-                                <?php
-                                        break;
-                                }
-                                ?>
+                            <select name="month" class="form-control m-b" id="month" />
+                            <option value="">-- Select Month --</option>
+                            <?= $this->accounting_model->selectMonth($month ? $month : ''); ?>
+                            </select>
+                        </div>
+                              <div class="col-lg-2">
+                            <select name="year" class="form-control m-b" id="year" >
+                            <option value="">-- Select Year --</option>
+                            <?= $this->accounting_model->selectYear($year? $year : ''); ?>
                             </select>
                         </div>
 
@@ -196,26 +163,34 @@
                             </select>
                         </div>
                     </div>
-                    <?php if ($permission->view == 1) { ?>
-                        <div class="form-group row pb-0 pt-0  mb-0">
-
-                            <label class="col-lg-2 mb-5 col-form-label text-lg-right" for="role name">Employee Name:</label>
+                       <?php if ($permission->view == 1 ) { ?>
+                        
+                            <label class="col-lg-2 mb-5 col-form-label text-lg-right" for="role name">Employee Name</label>
                             <div class="col-lg-4">
-                                <select name="employee_name" class="form-control m-b" id="employee_name">
-                                    <option value="">-- Select Employee --</option>
-                                    <?= $this->hr_model->selectEmployee($employee_name) ?>
+                                <select name="employee_name" class="form-control m-b" id="employee_name" />
+                                <option value="">-- Select Employee --</option>
+                                <?= $this->hr_model->selectEmployee($employee_name) ?>
                                 </select>
                             </div>
-                            <label class="col-lg-2 col-form-label text-lg-right">Month:</label>
+                            <label class="col-lg-2 mb-5 col-form-label text-lg-right" for="role name">Function</label>
+
                             <div class="col-lg-4">
-                                <select name="month" class="form-control m-b" id="month">
-                                    <option value="">-- Select Month --</option>
-                                    <?= $this->accounting_model->selectMonth($month ? $month : ''); ?>
+                                <select name="department" class="form-control m-b" id="department" />
+                                <option value="" selected="">-- Select Department --</option>
+                                <?= $this->hr_model->selectDepartmentKpi($department) ?>
                                 </select>
                             </div>
-
-                        </div>
-                    <?php } ?>
+                        <?php } elseif ($this->admin_model->checkIfUserIsManager($this->user) ) { ?>
+                        
+                            <label class="col-lg-2 mb-5 col-form-label text-lg-right" for="role name">Employee Name</label>
+                            <div class="col-lg-4">
+                                <select name="employee_name" class="form-control m-b" id="employee_name" />
+                               <option value="">-- Select Employee --</option>
+                            <option value="<?=$this->emp_id?>" <?=$employee_name == $this->emp_id?'selected': ''?>><?=$this->hr_model->getEmployee($this->emp_id)?></option>
+                            <?= $this->hr_model->selectAllEmployeesByManagerID($this->emp_id,$employee_name ?? '') ?>
+                                </select>
+                            </div>                    
+                        <?php } ?>
                     <div class="form-group row pb-0 pt-0  mb-0">
                         <label class="col-lg-2 col-form-label text-lg-right">Ticket Number</label>
                         <div class="col-lg-4">
