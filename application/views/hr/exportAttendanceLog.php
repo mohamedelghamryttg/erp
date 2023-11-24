@@ -41,10 +41,18 @@ background-color: #FFFFCC;
             </thead>
             <tbody>
             <?php foreach($attendance as $row){ 
-            $signin = $this->db->query("SELECT id FROM attendance_log AS log WHERE log.USRID = ".$row->USRID." AND TNAKEY = '1' AND SRVDT = '".$row->SignIn."' ORDER BY log.id ASC LIMIT 1")->row();
-            $signOut = $this->db->query("SELECT SRVDT FROM attendance_log AS log WHERE log.USRID = ".$row->USRID." AND TNAKEY = '2' AND
-                                        ((log.SRVDT BETWEEN '".$row->SignIn."' AND DATE_ADD('".$row->SignIn."', INTERVAL 18 hour)) AND log.SRVDT > '".$row->SignIn."') ORDER BY log.id DESC LIMIT 1")->row();
-            $department = $this->db->get_where('employees',array('id'=>$row->USRID))->row()->department;
+           try {
+                $signin = $this->db->query("SELECT id FROM attendance_log AS `log` WHERE log.USRID = " . $row->USRID . " AND `TNAKEY` = '1' AND `SRVDT` = '" . $row->SignIn  . "' ORDER BY log.id ASC LIMIT 1")->row();
+            } catch (\Throwable $th) {
+                    //throw $th;
+                }    
+             try {
+            $signOut = $this->db->query("SELECT `SRVDT`,`id` FROM attendance_log AS log WHERE log.USRID = " . $row->USRID . " AND `TNAKEY` = '2' AND
+                      ((log.SRVDT BETWEEN '" . $row->SignIn . "' AND DATE_ADD('" . $row->SignIn . "', INTERVAL 18 hour)) AND log.SRVDT > '" . $row->SignIn . "') ORDER BY log.id DESC LIMIT 1")->row();
+            } catch (\Throwable $th) {
+                    //throw $th;
+                }     
+                $department = $this->db->get_where('employees',array('id'=>$row->USRID))->row()->department;
             ?>
               <tr>
                 <td><?=$row->USRID?></td>

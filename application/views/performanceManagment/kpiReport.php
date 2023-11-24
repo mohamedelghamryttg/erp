@@ -182,8 +182,8 @@
         start_date = new Date(start_date.replace('Janaury', 'Jan'));
         var end_date = "01 " + $("#end_date").find(":selected").text();
         end_date = new Date(end_date.replace('Janaury', 'Jan'));
-        if (start_date >= end_date) {
-            alert("Please Check, End Date must be after start date ");
+        if (start_date > end_date) {
+            alert("Error !! \nEnd Date must be after OR equal Start Date ");
             return false;
         } else {
             return true;

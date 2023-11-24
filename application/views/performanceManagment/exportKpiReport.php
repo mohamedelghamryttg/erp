@@ -42,13 +42,14 @@
 
             <thead>
                 <tr>
-                    <th colspan="<?= count($months_list) + 4 ?>">Kpi Score Report From <b><?= date('F, Y', strtotime("01-$start_month-$start_year_str")) ?>  To  <?= date('F, Y', strtotime("01-$end_month-$end_year_str")) ?></b></th>
+                    <th colspan="<?= count($months_list) + 5 ?>">Kpi Score Report From <b><?= date('F, Y', strtotime("01-$start_month-$start_year_str")) ?>  To  <?= date('F, Y', strtotime("01-$end_month-$end_year_str")) ?></b></th>
 
                 </tr>
                 <tr>
                     <th>#Employee ID</th>
                     <th>Employee</th>     
-         <th >Function</th>
+                    <th>Direct Manager</th>     
+                    <th >Function</th>
                     <?php
                     foreach ($months_list as $k => $val) {
                         $year = $this->hr_model->getYear($years_list[$k]);?>
@@ -62,7 +63,8 @@
                     <tr>
                         <td ><?= $emp ?></td>
                         <td ><?= $this->hr_model->getEmployee($emp); ?></td>
-						 <td ><?= $this->automation_model->getEmpDep($emp); ?></td>
+                        <td ><?= $this->hr_model->getEmployee($this->hr_model->getManagerId($emp)); ?></td>
+                        <td ><?= $this->automation_model->getEmpDep($emp); ?></td>
                         <?php foreach ($months_list as $k => $val) { ?>                                       
                             <td ><?= $scores[$emp][$val][$years_list[$k]] ?></td>
                         <?php } ?>

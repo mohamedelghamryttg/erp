@@ -48,7 +48,14 @@
                                 <?= $this->accounting_model->selectMonth($month?$month:''); ?>
                                 </select>
                             </div>
-                          <label class="col-lg-2 col-form-label text-lg-right" for="role name">Employee Name:</label>
+                           <div class="col-lg-2 pl-0">
+                            <select name="year" class="form-control m-b" id="year" >
+                            <option value="">-- Select Year --</option>
+                            <?= $this->accounting_model->selectYear($year? $year : ''); ?>
+                            </select>
+                        </div>
+                            <?php if ($permission->add == 1 && $this->admin_model->checkIfUserIsManager($this->user)) { ?>
+                            <label class="col-lg-2 col-form-label text-lg-right" for="role name">Employee Name:</label>
                             <div class="col-lg-4">
                                 <select name="employee_name" class="form-control m-b" id="employee_name"/>
                                 <option value="">-- Select Employee --</option>
@@ -59,6 +66,7 @@
                                 <?php } ?>
                                 </select>
                             </div>
+                              <?php }?>
 
                         </div>
 
@@ -87,7 +95,7 @@
                 <div class="card-toolbar">
 
                     <!--begin::Button-->
-                    <?php if ($permission->add == 1) { ?>
+                    <?php if ($permission->add == 1 && $this->admin_model->checkIfUserIsManager($this->user)) { ?>
                         <a href="<?= base_url() ?>performanceManagment/addLog" class="btn btn-primary font-weight-bolder"> 
 
                             <span class="svg-icon svg-icon-md">
@@ -114,6 +122,7 @@
                             <th>title</th>
                             <th>Date</th>                                                 
                             <th>Created At</th>     
+                            <th>Confirmed</th>                           
                             <th></th>                           
                         </tr>
                     </thead>
@@ -123,7 +132,10 @@
                                 <td><?= $this->hr_model->getEmployee($row->emp_id); ?></td>                                
                                 <td><?= character_limiter($row->title, 30,'...') ?></td>  
                                 <td><?= $row->date ?></td>                               
-                                <td><?= $row->created_at ?></td>                                                           
+                                <td><?= $row->created_at ?></td> 
+                                <td><span class="label label-square label-light-info font-size-xs">
+                                <?= $row->confirmed == 1?'Confirmed':'--' ?>
+                                </span></td>
                                 <td><button type="button" class="btn btn-default" data-toggle="modal" data-target="#Modal_<?= $row->id ?>">View</button></td>                              
                             </tr>
                             <div class="modal fade" id="Modal_<?= $row->id ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

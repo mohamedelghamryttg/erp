@@ -48,7 +48,7 @@
                  <?php   }elseif ($score->status == 1 && $score->emp_id == $this->emp_id) {?>
                     <form class="form mt-10" style="display:inline-block" id="action" action="<?php echo base_url() ?>performanceManagment/changeScoreStatus" method="get" enctype="multipart/form-data">
                         <input type="text" name="score" hidden="" value="<?= $score->id ?>">
-                        <button class="btn btn-danger mr-2" name="reject" type="submit"><i class="fa fa-exchange-alt" aria-hidden="true"></i> Ask For HR Metting</button>
+                        <button class="btn btn-danger mr-2" name="reject" type="submit"><i class="fa fa-exchange-alt" aria-hidden="true"></i> Ask For HR Meeting</button>
                         <button class="btn btn-success mr-2" name="accept" type="submit"><i class="fa fa-check-double" aria-hidden="true"></i> Accept</button>
                     </form>
                  <?php   }?>
