@@ -1193,7 +1193,8 @@ class PerformanceManagment extends CI_Controller
 
             $log = $this->db->insert('kpi_incidents_log', $data);
             if ($log) {
-                // send email to emp
+                // send email to emp 
+                
                 
                 $true = "Records Added Successfully ...";
                 $this->session->set_flashdata('true', $true);
@@ -1580,6 +1581,28 @@ class PerformanceManagment extends CI_Controller
                 $this->session->set_flashdata('error', $error);
                 redirect($_SERVER['HTTP_REFERER']);
             }
+        }
+    }
+    
+     public function changeLogStatus()
+    {
+        // Check Permission ..
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 195);
+        $log = $this->db->get_where('kpi_incidents_log', array('id' => $_POST['id']))->row();
+        if ($log->emp_id == $this->emp_id) {
+            //header ..
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            //body ..
+            $data['emp_id'] = $this->emp_id;           
+            $data_action['confirmed'] = 1;  
+            if($this->db->update('kpi_incidents_log', $data_action, array('id' => $_POST['id']))){
+                $true = "Card Confirmed ...";
+                $this->session->set_flashdata('true', $true);
+                redirect($_SERVER['HTTP_REFERER']);
+            }
+           
+        } else {
+            echo "You have no permission to access this page";
         }
     }
 

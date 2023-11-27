@@ -133,10 +133,15 @@
                                 <td><?= character_limiter($row->title, 30,'...') ?></td>  
                                 <td><?= $row->date ?></td>                               
                                 <td><?= $row->created_at ?></td> 
-                                <td><span class="label label-square label-light-info font-size-xs">
-                                <?= $row->confirmed == 1?'Confirmed':'--' ?>
-                                </span></td>
-                                <td><button type="button" class="btn btn-default" data-toggle="modal" data-target="#Modal_<?= $row->id ?>">View</button></td>                              
+                                <td><?php if($row->confirmed == 1){?>
+                                    <span class="label label-outline-success label-inline mr-2">
+                                        Confirmed
+                                    </span>
+                                <?php }else{?>
+                                    --
+                                <?php }?>
+                                </td>
+                                <td><button type="button" class="btn btn-dark btn-sm mr-5" data-toggle="modal" data-target="#Modal_<?= $row->id ?>">View</button></td>                              
                             </tr>
                             <div class="modal fade" id="Modal_<?= $row->id ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
@@ -161,6 +166,13 @@
                                       <hr/>
                                       <p><span class="font-weight-bold text-danger">Created By : </span><?= $this->admin_model->getUser($row->created_by) ?>
                                       <span class="font-weight-bold text-danger"> At : </span><?= $row->created_at ?></p>
+                                      <?php if($this->emp_id == $row->emp_id){?>
+                                        <form class='mt-10' action="<?php echo base_url() ?>performanceManagment/changeLogStatus" method="post"> 
+                                            <input name="id" value="<?= $row->id ?>" type="hidden" />                
+                                                                                 
+                                            <button class="btn btn-dark  btn-block"  type="submit" ><i class="fa fa-check-circle fa-sm"></i>Confirm</button>
+                                        </form>
+                                      <?php }?>
                                     </div>
                                     <div class="modal-footer">                                      
                                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

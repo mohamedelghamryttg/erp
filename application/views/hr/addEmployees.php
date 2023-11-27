@@ -23,7 +23,7 @@
                                 <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact"
                                     role="tab" aria-controls="pills-contact" aria-selected="false">Communcation Info</a>
                             </li>
-                            <?php if($this->role == 31){?>
+                            <?php if($this->role == 31 || $this->role == 21 || $this->role == 1){?>
                             <li class="nav-item">
                                 <a class="nav-link" id="pills-salary-tab" data-toggle="pill" href="#pills-salary"
                                     role="tab" aria-controls="pills-salary" aria-selected="false">Salary</a>
@@ -270,7 +270,7 @@
                                     </div>
                                 </div>
                             </div>
-                              <?php if($this->role == 31){?>
+                              <?php if($this->role == 31 || $this->role == 21 || $this->role == 1){?>
                             <div class="tab-pane fade" id="pills-salary" role="tabpanel"
                                 aria-labelledby="pills-salary-tab">   
                                 <br/>
