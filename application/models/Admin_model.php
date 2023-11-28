@@ -1695,7 +1695,7 @@ class Admin_model extends CI_Model
 
 		return $fileName;
 	}
-	public function sendOperationalReportBYP($TTGfile, $start_date, $end_date)
+	public function sendOperationalReportBYPM_new($TTGfile, $start_date, $end_date)
 	{
 		$config = array(
 			'protocol' => 'smtp',
@@ -1714,7 +1714,7 @@ class Admin_model extends CI_Model
 		$this->email->attach($TTGfileName);
 
 		$this->email->from("erp@aixnexus.com");
-		$this->email->to("mohammad@thetranslationgate.com, shehab@thetranslationgate.com, sam-spocs@thetranslationgate.com, heba.adam@thetranslationgate.com, sabeeh.mohamed@thetranslationgate.com , maged.abdelmoniem@thetranslationgate.com ");
+		$this->email->to("mohammad@thetranslationgate.com, shehab@thetranslationgate.com, sam-spocs@thetranslationgate.com, heba.adam@thetranslationgate.com, sabeeh.mohamed@thetranslationgate.com, maged.abdelmoniem@thetranslationgate.com, lobna.abdou@thetranslationgate.com, asmaa@thetranslationgate.com");
 		$this->email->cc("dev@thetranslationgate.com");
 		$this->email->subject("Operational Report By PM");
 		$message = '<!DOCTYPE ><html dir=ltr>
@@ -1732,7 +1732,20 @@ class Admin_model extends CI_Model
 		$this->email->set_mailtype('html');
 		$this->email->send();
 	}
-
+	function getDirectManagers($title = '')
+	{
+		$structure = $this->db->get_where('structure', array('id' => $title, 'brand' => $this->brand))->row();
+		$manager = $this->db->get_where('employees', array('title' => $structure->parent, 'brand' => $this->brand))->result();
+		//$data = "<option disabled='disabled' selected=''>-- Select Manager --</option>";
+		foreach ($manager as $manager) {
+			if ($manager->id == $title) {
+				$data = "<option value='" . $manager->id . "' selected='selected'>" . $manager->name . "</option>";
+			} else {
+				$data = "<option value='" . $manager->id . "'>" . $manager->name . "</option>";
+			}
+		}
+		return $data;
+	}
 	public function sendOperationalReportBYPM($TTGfile, $DTPfile, $Europefile, $Columbusfile, $start_date, $end_date)
 	{
 		$config = array(

@@ -532,9 +532,11 @@ class Server extends CI_Controller
 	}
 	public function operationalReportBYPM()
 	{
+		$sql = "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))";
+		$this->db->query($sql);
+
 		$sended = true;
 		$query_tasks = $this->db->get_where('cron_tasks', array('command' => 'operationalReportBYPM'))->row();
-
 		if ($query_tasks) {
 			if ($query_tasks->report_date) {
 				if (date("d",  strtotime($query_tasks->report_date)) == date("d")) {

@@ -2,11 +2,13 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Commission extends CI_Controller {
+class Commission extends CI_Controller
+{
 
     var $role, $user, $brand;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->load->helper('url');
         $this->load->library('user_agent');
@@ -15,10 +17,11 @@ class Commission extends CI_Controller {
         $this->user = $this->session->userdata('id');
         $this->brand = $this->session->userdata('brand');
         $this->emp_id = $this->session->userdata('emp_id');
-        $this->load->model('commission_model');
+        $this->load->model('Commission_model');
     }
 
-    public function index() {
+    public function index()
+    {
         $check = $this->admin_model->checkPermission($this->role, 236);
         if ($check) {
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
@@ -66,12 +69,12 @@ class Commission extends CI_Controller {
                 $arr4 = implode(" and ", $arr3);
 
                 if ($arr_1_cnt > 0) {
-                    $data['rules'] = $this->commission_model->AllRules($data['permission'], $arr4);
+                    $data['rules'] = $this->Commission_model->AllRules($data['permission'], $arr4);
                 } else {
-                    $data['rules'] = $this->commission_model->AllRules($data['permission'], 1);
+                    $data['rules'] = $this->Commission_model->AllRules($data['permission'], 1);
                 }
             } else {
-                $data['rules'] = $this->commission_model->AllRules($data['permission'], 1);
+                $data['rules'] = $this->Commission_model->AllRules($data['permission'], 1);
             }
 
             if (isset($_REQUEST['export'])) {
@@ -79,7 +82,7 @@ class Commission extends CI_Controller {
                 $this->exportCommission($data);
             } else {
                 //Pages ..
-                $data['total_rows'] = $this->commission_model->AllRules($data['permission'], 1)->num_rows();
+                $data['total_rows'] = $this->Commission_model->AllRules($data['permission'], 1)->num_rows();
                 $this->load->view('includes_new/header.php', $data);
                 $this->load->view('commission/allRules.php');
                 $this->load->view('includes_new/footer.php');
@@ -89,7 +92,8 @@ class Commission extends CI_Controller {
         }
     }
 
-    public function addRule() {
+    public function addRule()
+    {
         // Check Permission ..
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
         if ($data['permission']->add == 1) {
@@ -106,7 +110,8 @@ class Commission extends CI_Controller {
         }
     }
 
-    public function doAddRule() {
+    public function doAddRule()
+    {
         // Check Permission ..
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
         if ($permission->add == 1) {
@@ -152,7 +157,8 @@ class Commission extends CI_Controller {
         }
     }
 
-    public function editRule() {
+    public function editRule()
+    {
         // Check Permission ..
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
         if ($data['permission']->edit == 1) {
@@ -171,7 +177,8 @@ class Commission extends CI_Controller {
         }
     }
 
-    public function doEditRule() {
+    public function doEditRule()
+    {
         // Check Permission ..
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
         if ($permission->edit == 1) {
@@ -218,7 +225,8 @@ class Commission extends CI_Controller {
         }
     }
 
-    public function exportCommission($data) {
+    public function exportCommission($data)
+    {
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
         if ($permission == 1) {
             $file_type = "vnd.ms-excel";
@@ -234,16 +242,17 @@ class Commission extends CI_Controller {
         }
     }
 
-    public function deleteRule() {
+    public function deleteRule()
+    {
         // Check Permission ..
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
-         if ($permission->delete == 1) {
+        if ($permission->delete == 1) {
             $id = base64_decode($_GET['t']);
             $this->admin_model->addToLoggerDelete('commission_setting', 236, 'id', $id, 0, 0, $this->user);
             if ($this->db->delete('commission_setting', array('id' => $id))) {
                 $true = "Rule Deleted Successfully ...";
                 $this->session->set_flashdata('true', $true);
-                 redirect($_SERVER['HTTP_REFERER']);
+                redirect($_SERVER['HTTP_REFERER']);
             } else {
                 $error = "Failed To Delete Rule ...";
                 $this->session->set_flashdata('error', $error);
@@ -253,8 +262,9 @@ class Commission extends CI_Controller {
             echo "You have no permission to access this page";
         }
     }
-   
-    public function copyRule() {
+
+    public function copyRule()
+    {
         // Check Permission ..
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
         if ($permission->edit == 1) {
@@ -310,6 +320,4 @@ class Commission extends CI_Controller {
             echo "You have no permission to access this page";
         }
     }
-
-  
 }
