@@ -115,8 +115,16 @@ class Automation extends CI_Controller
                 } else {
                     $approvalStatus = "";
                 }
-
-                $cond1 = "date_format(created_at, '%m') LIKE '%$month%'";
+                if (isset($_REQUEST['year'])) {
+                    $year = $_REQUEST['year'];
+                    if (!empty($year)) {
+                        array_push($arr2, 8);
+                        $data['year'] = $year;
+                    }
+                } else {
+                    $year = "";
+                }
+                $cond1 = "date_format(created_at, '%m') LIKE '%$month%'";               
                 $cond2 = "emp_id = '$employee_name'";
                 $cond3 = "emp_id IN ($empIds)";
                 $cond4 = "ticket_type = '$type'";
@@ -125,8 +133,8 @@ class Automation extends CI_Controller
                 $cond6 = "status = '$status'";
                 $cond7 = "action_type = '$action_type'";
                 $cond8 = "approval = '$approvalStatus'";
-
-                $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5, $cond6, $cond7, $cond8);
+                $cond9 = "date_format(created_at, '%Y') LIKE '%$year%'";
+                $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5, $cond6, $cond7, $cond8,$cond9);
                 $arr_1_cnt = count($arr2);
                 $arr3 = array();
                 for ($i = 0; $i < $arr_1_cnt; $i++) {
@@ -137,7 +145,7 @@ class Automation extends CI_Controller
                 if ($arr_1_cnt > 0) {
                     $data['tickets'] = $this->automation_model->AllTickets($data['permission'], $arr4);
                 } else {
-                    $data['tickets'] = $this->automation_model->AllTicketsPages($data['permission'], 9, 0);
+                    $data['tickets'] = $this->automation_model->AllTickets($data['permission'], 1);
                 }
             } else {
                 $limit = 20;
@@ -267,7 +275,7 @@ class Automation extends CI_Controller
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 198);
         $id = base64_decode($_GET['t']);
         $ticket = $this->db->get_where('automation_tickets', array('id' => $id))->row();
-        if ($data['permission']->view == 1 || $ticket->emp_id == $this->emp_id) {
+       if ($data['permission']->view == 1 || $ticket->emp_id == $this->emp_id || $this->hr_model->checkThisUserIsEmployeeManager($ticket->emp_id)) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             //body ..            
@@ -599,7 +607,15 @@ class Automation extends CI_Controller
             } else {
                 $approvalStatus = "";
             }
-
+               if (isset($_REQUEST['year'])) {
+                    $year = $_REQUEST['year'];
+                    if (!empty($year)) {
+                        array_push($arr2, 8);
+                        $data['year'] = $year;
+                    }
+                } else {
+                    $year = "";
+                }
             $cond1 = "date_format(created_at, '%m') LIKE '%$month%'";
             $cond2 = "emp_id = '$employee_name'";
             $cond3 = "emp_id IN ($empIds)";
@@ -609,8 +625,8 @@ class Automation extends CI_Controller
             $cond6 = "status = '$status'";
             $cond7 = "action_type = '$action_type'";
             $cond8 = "approval = '$approvalStatus'";
-
-            $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5, $cond6, $cond7, $cond8);
+            $cond9 = "date_format(created_at, '%Y') LIKE '%$year%'";
+            $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5, $cond6, $cond7, $cond8,$cond9);
             $arr_1_cnt = count($arr2);
             $arr3 = array();
             for ($i = 0; $i < $arr_1_cnt; $i++) {

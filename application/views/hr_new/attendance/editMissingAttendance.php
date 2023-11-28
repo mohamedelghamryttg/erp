@@ -30,7 +30,7 @@
 
                             <div class="col-lg-6">
                                 <select name="TNAKEY" id="TNAKEY" required class="form-control">
-                                    <option disabled="disabled">-- Select Type --</option>                                   
+                                    <option value="" disabled="disabled">-- Select Type --</option>                                   
                                         <option value="1" <?=$row->TNAKEY == 1?'selected':''?>>Sign In</option>
                                         <option value="2" <?=$row->TNAKEY == 2?'selected':''?>>Sign Out</option>
                                    

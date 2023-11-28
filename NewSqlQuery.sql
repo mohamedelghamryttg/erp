@@ -27,3 +27,5 @@ CREATE TABLE IF NOT EXISTS `emp_finance` (
 ) 
 
 ALTER TABLE `customer` ADD `customer_profile` TEXT NULL AFTER `client_type`, ADD `notes` TEXT NULL AFTER `customer_profile`; 
+
+ALTER TABLE `kpi_incidents_log` ADD `confirmed` TINYINT(1) NOT NULL DEFAULT '0' AFTER `file`; 

@@ -2673,5 +2673,82 @@ public function selectAllEmployeesByManagerID2level($emp_id, $id = "")
 
         return $salary;
         
-}
+    }
+    // send email to emp " incident log "
+      public function sendIncidentsLogEmail($managerId, $userid, $month, $emailSubject = "")
+    {
+        $head = "manager";
+        $user = $this->db->get_where('users', array('employees_id' => $userid))->row();
+        $userMail = $user->email;
+        //manager
+        $manager = $this->db->get_where('users', array('id' => $managerId))->row();
+        $managerMail = $manager->email;
+        //info
+        $monthName = $this->accounting_model->getMonth($month);
+        $user_name = $user->user_name;
+        $link = "<a href='" . base_url() . "performanceManagment/kpiScore'> Please Check </a>";
+        // hr email 
+        $hr = $this->db->get_where('users', array('role' => 31))->row();
+        $hrMail = $hr->email;
+
+        $subject = "Scorecard : " . $monthName;
+        $headers = "MIME-Version: 1.0" . "\r\n";
+        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+
+        // $headers .= "Cc: ".$hrMail. "\r\n";  
+        $mailTo = $userMail;
+
+        if ($emailSubject == "update")
+            $msg = "Kpi For Month $monthName Updated";
+        elseif ($emailSubject == "new")
+            $msg = "Kindly find $monthName ScoreCard .";
+        else {
+            $msg = "ScoreCard For Month $monthName Status : $emailSubject";
+            if ($emailSubject != "Finish 1-1 Meeting") {
+                $mailTo = $managerMail;
+                $user_name = $manager->user_name;
+                $headers .= 'From: ' . $userMail . "\r\n" . 'Reply-To: ' . $userMail . "\r\n";
+                $head = "emp";
+            }
+
+        }
+        if ($head != "emp")
+            $headers .= 'From: ' . $managerMail . "\r\n" . 'Reply-To: ' . $managerMail . "\r\n";
+
+        $message = '<!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <meta name="description" content="">
+                        <meta name="author" content="">
+                        <link rel="shortcut icon" href="' . base_url() . 'assets/images/favicon.png">
+                        <title>Falaq| Site Manager</title>
+                        <style>
+                        body {
+                            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+                            font-size: 14px;
+                            line-height: 1.428571429;
+                            color: #333;
+                        }
+                        section#unseen
+                        {
+                            overflow: scroll;
+                            width: 100%
+                        }
+                        </style>
+                        <!--Core js-->
+                    </head>
+
+                    <body>
+                    <p>Dear ' . $user_name . ' ,</p>
+                       
+                       <p>   There is Vacation Request from ' . self::getEmployee($data['emp_id']) . ' need to be <a href="' . base_url() . 'hr/vacation" target="_blank"> Approved ..</a>   </p>                     
+                                            
+                       <p> Thanks</p>
+                    </body>
+                    </html>';
+
+        mail($mailTo, $subject, $message, $headers);
+    }
 }

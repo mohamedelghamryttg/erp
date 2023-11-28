@@ -24,8 +24,8 @@
                         <label class="col-lg-3 col-form-label text-right">Signing Type:</label>
 
                         <div class="col-lg-6">
-                            <select name="TNAKEY" id="TNAKEY" required class="form-control">
-                                <option disabled="disabled" selected="selected">-- Select Type --</option>
+                            <select name="TNAKEY" id="TNAKEY" class="form-control" required>
+                                <option value="" disabled="disabled" selected="selected">-- Select Type --</option>
                                 <option value="1">Sign In</option>
                                 <option value="2">Sign Out</option>
                             </select>
