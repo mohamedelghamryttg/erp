@@ -151,8 +151,8 @@ class AccountReport extends CI_Controller
         $data['user'] = $this->user;
         $curr_type = $this->input->post('currency_type');
         $currency_id = $this->input->post('currency_id');
-        $trns_date1 = date('Y-m-d', strtotime($this->input->post('from_date')));
-        $trns_date2 = date('Y-m-d', strtotime($this->input->post('to_date')));
+        $trns_date1 = date('Y-m-d', strtotime($this->input->post('from_date') ?? ''));
+        $trns_date2 = date('Y-m-d', strtotime($this->input->post('to_date') ?? ''));
         $account_no = $this->input->post('account_id');
 
         $setup = $this->AccountModel->getSetup();
@@ -197,18 +197,22 @@ class AccountReport extends CI_Controller
                 left join account_chart a2 on a2.id = e.crd_acc_id 
     
                 where trns_code in (select trns_code from entry_data where " . $in_where . $where_date . ") and (" . $where . $where_date . " and " . $add_where . ") order by e.trns_date";
-
         }
         // print_r($sql1);
         // die;
-
-        $data['beg_ledger'] = $this->db->query($sql0)->result_array();
-        $data['trns_ledger'] = $this->db->query($sql1)->result_array();
-        // echo '<pre>';
-        // print_r($data['beg_ledger']);
-        // die;
+        if ($account_no == '') {
+            $data['beg_ledger'] =  array();
+            $data['trns_ledger'] =  array();
+        } else {
+            $data['beg_ledger'] = $this->db->query($sql0)->result_array();
+            $data['trns_ledger'] = $this->db->query($sql1)->result_array();
+        }
+        // if (!empty($account_no)) {
+        //     echo json_encode($data);
+        // } else {
+        //     echo json_encode(array('data' => ''));
+        // }
         echo json_encode($data);
-
     }
     public function generalledger()
     {
@@ -452,7 +456,6 @@ class AccountReport extends CI_Controller
                from account_chart a 
 
                where a.acc = 1 and brand = '" . $this->brand . "' and acode LIKE CONCAT('" . $account_no . "', '%') order by a.acode";
-
         }
         // var_dump($sql1);
         // $data['beg_ledger'] = $this->db->query($sql0)->result_array();
@@ -648,7 +651,6 @@ class AccountReport extends CI_Controller
                from account_chart a 
 
                where  brand = '" . $this->brand . "' and acode LIKE CONCAT('" . $account_no . "', '%') order by a.acode";
-
         }
         // var_dump($sql1);
         // $data['beg_ledger'] = $this->db->query($sql0)->result_array();
@@ -701,9 +703,7 @@ class AccountReport extends CI_Controller
         if ($curr_type === '1') {
             $sql1 = "call trialbalance(" . $this->brand . ",'" . $trns_date1 . "','" . $trns_date2 . "'," . $currency_id . ",999999999,0," . $local_currency . ")";
         } else {
-            $sql1 = "call trialbalance_ev(" . $this->brand . ",'" . $trns_date1 . "','" . $trns_date2 . "'," . $currency_id . ",999999999,0," . $local_currency . ")";
-            ;
-
+            $sql1 = "call trialbalance_ev(" . $this->brand . ",'" . $trns_date1 . "','" . $trns_date2 . "'," . $currency_id . ",999999999,0," . $local_currency . ")";;
         }
         // print_r($sql1);
         // die;

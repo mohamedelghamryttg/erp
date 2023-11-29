@@ -673,7 +673,7 @@
                                             <td><?= $row->overtime_hours ?></td>
                                             <td><?= $row->doublepaid_hours ?></td>
                                             <!--<td><?php echo number_format(floatval($rateTrnasfared) * floatval($row->count), 2); ?></td>-->
-                                            <td><?= round($this->projects_model->getTaskCost(2,$row),2) ?></td>
+                                            <td><?= round($this->projects_model->getTaskCost(2, $row), 2) ?></td>
                                             <td><?php echo $row->start_date; ?></td>
                                             <td><?php echo $row->delivery_date; ?></td>
                                             <td><?php if (strlen($row->file ?? '') > 1) { ?>
@@ -793,10 +793,10 @@
                                             <td><?= $this->admin_model->getDTPApplication($row->target_application); ?></td>
                                             <td><?= $this->admin_model->getDTPApplication($row->translation_in); ?></td>
                                             <td><?= $row->rate; ?></td>
-                                             <td><?= $row->work_hours ?></td>
+                                            <td><?= $row->work_hours ?></td>
                                             <td><?= $row->overtime_hours ?></td>
-                                            <td><?= $row->doublepaid_hours ?></td>                                           
-                                            <td><?= round($this->projects_model->getTaskCost(3,$row),2) ?></td>
+                                            <td><?= $row->doublepaid_hours ?></td>
+                                            <td><?= round($this->projects_model->getTaskCost(3, $row), 2) ?></td>
                                             <!--<td><?php echo $rateTrnasfared * $row->volume; ?></td>-->
                                             <td><?php if (strlen($row->file ?? '') > 1) { ?>
                                                     <a href="<?= $this->projects_model->getTaskFileLink("assets/uploads/dtpRequest/", $row->file, $row->start_after_type); ?>" target="_blank">Click Here</a>
@@ -908,9 +908,9 @@
                                             <td><?php echo $this->admin_model->getLESubject($row->subject_matter); ?></td>
                                             <td><?= $row->work_hours ?></td>
                                             <td><?= $row->overtime_hours ?></td>
-                                            <td><?= $row->doublepaid_hours ?></td>                                           
-                                            <td><?= round($this->projects_model->getTaskCost(4,$row),2) ?></td>
-<!--                                            <td><?php echo $rateTrnasfared * $row->volume; ?></td>-->
+                                            <td><?= $row->doublepaid_hours ?></td>
+                                            <td><?= round($this->projects_model->getTaskCost(4, $row), 2) ?></td>
+                                            <!--                                            <td><?php echo $rateTrnasfared * $row->volume; ?></td>-->
                                             <td><?php echo $row->start_date; ?></td>
                                             <td><?php echo $row->delivery_date; ?></td>
                                             <td><?php if (strlen($row->file ?? '') > 1) { ?>
@@ -1003,29 +1003,30 @@
 
                 <h5 class="text-dark font-weight-bold mb-2">Created At</h5>
                 <p class="ml-2"><?= $project_data->created_at; ?></p>
-                <hr/>
+                <hr />
                 <h5 class="text-dark font-weight-bold mb-2">Project Revenue </h5>
-                <p class="ml-2"><?= round($this->projects_model->getProjectRevenue($project_data->id),2).' $' ?></p>               
-                <h5 class="text-dark font-weight-bold mb-2">Project Cost  </h5>
-                <p class="ml-2"><?= round($this->projects_model->getProjectCost($project_data->id),2).' $' ?></p>                
-                <h5 class="text-dark font-weight-bold mb-2">Project Profit   </h5>
-                <p class="ml-2"><?= round($this->projects_model->getProjectProfit($project_data->id),2).' $' ?></p>                
+                <p class="ml-2"><?= round($this->projects_model->getProjectRevenue($project_data->id), 2) . ' $' ?></p>
+                <h5 class="text-dark font-weight-bold mb-2">Project Cost </h5>
+                <p class="ml-2"><?= round($this->projects_model->getProjectCost($project_data->id), 2) . ' $' ?></p>
+                <h5 class="text-dark font-weight-bold mb-2">Project Profit </h5>
+                <p class="ml-2"><?= round($this->projects_model->getProjectProfit($project_data->id), 2) . ' $' ?></p>
                 <h5 class="text-dark font-weight-bold mb-2">Project Profit Percentage % </h5>
-                <p class="ml-2"><?= round($this->projects_model->getProjectProfitPercentage($project_data->id),2).' %' ?></p>
+                <p class="ml-2"><?= round($this->projects_model->getProjectProfitPercentage($project_data->id), 2) . ' %' ?></p>
                 <h5 class="text-dark font-weight-bold mb-2">Minimum Project Profit Percentage % </h5>
-                <p class="ml-2"><?= $project_data->min_profit_percentage??'--'?> %</p>
-                <?php if(!empty($project_data->approval_by)){?>
-                <h5 class="text-dark font-weight-bold mb-2">approval By </h5>
-                <p class="ml-2"><?= $this->admin_model->getAdmin($project_data->approval_by); ?></p>
-                <h5 class="text-dark font-weight-bold mb-2">approval At </h5>
-                <p class="ml-2"><?= $project_data->approval_at; ?></p>
-                <?php }if($permission->edit == 1 && $project_data->status == 0 && $this->projects_model->checkManagerAccess($project_data->id) == TRUE){?>
-                 <p>                  
-                      <a href="<?php echo base_url() ?>projectManagment/editProjectPercentage?t=<?= base64_encode($project_data->id); ?>" class=" btn btn-primary font-size-xs">
-                        <i class="fa fa-pencil"></i> Edit Min. Percentage
-                      </a>
-                  </p>
-                  <?php }?>
+                <p class="ml-2"><?= $project_data->min_profit_percentage ?? '--' ?> %</p>
+                <?php if (!empty($project_data->approval_by)) { ?>
+                    <h5 class="text-dark font-weight-bold mb-2">approval By </h5>
+                    <p class="ml-2"><?= $this->admin_model->getAdmin($project_data->approval_by); ?></p>
+                    <h5 class="text-dark font-weight-bold mb-2">approval At </h5>
+                    <p class="ml-2"><?= $project_data->approval_at; ?></p>
+                <?php }
+                if ($permission->edit == 1 && $project_data->status == 0 && $this->projects_model->checkManagerAccess($project_data->id) == TRUE) { ?>
+                    <p>
+                        <a href="<?php echo base_url() ?>projectManagment/editProjectPercentage?t=<?= base64_encode($project_data->id); ?>" class=" btn btn-primary font-size-xs">
+                            <i class="fa fa-pencil"></i> Edit Min. Percentage
+                        </a>
+                    </p>
+                <?php } ?>
 
             </div>
         </section>

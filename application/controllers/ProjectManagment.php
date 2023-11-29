@@ -1671,6 +1671,9 @@ class ProjectManagment extends CI_Controller
             $data['insrtuctions'] = $_POST['insrtuctions'];
             $data['status'] = 1;
             if ($_FILES['file']['size'] != 0) {
+                if (!file_exists('./assets/uploads/leRequest/')) {
+                    mkdir('./assets/uploads/leRequest/', 0777);
+                }
                 $config['file']['upload_path'] = './assets/uploads/leRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
@@ -1772,6 +1775,9 @@ class ProjectManagment extends CI_Controller
             $data['assigned_to'] = $_POST['assigned_to'];
 
             if ($_FILES['file']['size'] != 0) {
+                if (!file_exists('./assets/uploads/dtpRequest/')) {
+                    mkdir('./assets/uploads/dtpRequest/', 0777);
+                }
                 $config['file']['upload_path'] = './assets/uploads/dtpRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
