@@ -1007,7 +1007,7 @@ class PerformanceManagment extends CI_Controller
     // log
     public function incidentLog()
     {
-
+       
         // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 195);
         if ($check) {
@@ -1193,9 +1193,8 @@ class PerformanceManagment extends CI_Controller
 
             $log = $this->db->insert('kpi_incidents_log', $data);
             if ($log) {
-                // send email to emp 
-                
-                
+                // send email to emp                 
+                $this->hr_model->sendIncidentsLogEmail($data);
                 $true = "Records Added Successfully ...";
                 $this->session->set_flashdata('true', $true);
                 redirect(base_url() . "performanceManagment/incidentLog");

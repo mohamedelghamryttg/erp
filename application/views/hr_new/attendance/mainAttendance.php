@@ -142,8 +142,8 @@
                                         <div class="col-md-4">
                                             <select name="user" class="form-control m-b" id="user" required="" >
                                             <option value="">-- Select Employee --</option>
-                                            <option value="<?=$this->emp_id?>" <?=$_REQUEST['user'] == $this->emp_id?'selected': ''?>><?=$this->hr_model->getEmployee($this->emp_id)?></option>
-                                            <?= $this->hr_model->selectAllEmployeesByManagerID($this->emp_id,$_REQUEST['user'] ?? '') ?>
+                                            <option value="<?=$this->emp_id?>" <?=isset($_REQUEST['user']) && $_REQUEST['user'] == $this->emp_id?'selected': ''?>><?=$this->hr_model->getEmployee($this->emp_id)?></option>
+                                            <?= $this->hr_model->getEmployeesNameByManager($this->emp_id,$_REQUEST['user'] ?? '') ?>
                                             </select>
                                         </div>
                                     </div>

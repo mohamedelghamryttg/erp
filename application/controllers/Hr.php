@@ -5481,7 +5481,8 @@ class Hr extends CI_Controller
             if ($permission->view == 1 && (isset($_REQUEST['search']) || isset($_REQUEST['export']))) {
                 $data['employees'] = $this->db->query("SELECT id,name FROM employees WHERE status = 0 $where")->result();
             } elseif ($permission->view == 2) {
-                $data['employees'] = $this->db->query("SELECT id,name FROM employees WHERE status = 0 AND( manager = $this->emp_id || id = $this->emp_id) $where")->result();
+                $subordinates = $this->hr_model->getEmpIdsByManagerIDMultiLevels($this->emp_id);
+                $data['employees'] = $this->db->query("SELECT id,name FROM employees WHERE status = 0 AND( id IN($subordinates)|| id = $this->emp_id) $where")->result();
             }
         
             $endDate = date('Y-m-d', strtotime("+1 day", strtotime($date_to)));
