@@ -408,17 +408,8 @@ class Hr_model extends CI_Model
 
     public function getRequestsForDirectManager($emp_id)
     {
-        $title = $this->db->query(" SELECT title FROM employees WHERE id = '$emp_id' ")->row()->title;
-        $idsArray = array();        
-        $IDs =  $this->db->query("SELECT id FROM `employees` WHERE manager = " . $emp_id)->result();
-        if(!empty($IDs)){
-            foreach ($IDs as $row2){
-                    array_push($idsArray, $row2->id);
-            }
-            $empIds = implode(" , ", $idsArray);
-        }else{
-            $empIds = 0 ;
-        }       
+        $title = $this->db->query(" SELECT title FROM employees WHERE id = '$emp_id' ")->row()->title;  
+        $empIds = self::getEmpIdsByManagerIDMultiLevels($emp_id);
        
         if ($title == 37) {           
             $data = $this->db->query("SELECT * FROM vacation_transaction WHERE emp_id in (SELECT id FROM employees WHERE manager in(13,14) || emp_id in ($empIds) )and status = 0 ");
@@ -2374,7 +2365,7 @@ class Hr_model extends CI_Model
     {
         $data = False;
         $row = $this->db->get_where('employees', array('id' => $emp_id))->row();
-        if ($row > 0 && $row->manager == $this->emp_id) {
+        if (!empty($row) && $row->manager == $this->emp_id) {
             $data = True;
         }
 
@@ -2714,5 +2705,21 @@ class Hr_model extends CI_Model
         return $data;
 
     }
+    // check miising kpi
+    public function numOfMissingKpiToManager(){
+        $num = 0;
+        $date = date("Y-m-d", strtotime("-1 month"));  
+        $month =   date("m",strtotime($date));
+        $year = $this->db->get_where('years',array('name'=> date('Y',strtotime($date))))->row()->id;
+        $employees = $this->db->query("SELECT id FROM employees WHERE manager = '$this->emp_id'AND status = '0'")->result();
+        foreach ($employees as $row){
+            $kpiRecord = $this->db->query("SELECT id FROM kpi_score WHERE emp_id = '$row->id'AND month = $month AND year = $year")->num_rows();
+            if($kpiRecord < 1){
+                $num ++;
+            }
+        }
+        return $num ;
+    }
+    
        
 }

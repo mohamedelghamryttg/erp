@@ -1628,9 +1628,9 @@ class Hr extends CI_Controller
             $data['vacation'] = $this->db->query(" SELECT * FROM `vacation_transaction` WHERE emp_id = '$this->emp_id' and EXTRACT(YEAR FROM created_at) = '$year'");
             $data['requests'] = $this->hr_model->getRequestsForDirectManager($this->emp_id);
             //Pages ..
-            $this->load->view('includes/header.php', $data);
-            $this->load->view('hr/vacation.php');
-            $this->load->view('includes/footer.php');
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('hr_new/vacation/vacationList.php');
+            $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";
         }
@@ -5537,7 +5537,7 @@ class Hr extends CI_Controller
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             //Pages ..
             $this->load->view('includes_new/header.php', $data);
-            $this->load->view('hr_new/addVacationForEmployees.php');
+            $this->load->view('hr_new/vacation/addVacationForEmployees.php');
             $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";

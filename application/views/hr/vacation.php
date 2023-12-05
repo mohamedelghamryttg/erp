@@ -111,7 +111,7 @@
                   <tr class="">
                     <td><?= $request->id ;?></td>
                     <td><?= $this->hr_model->getEmpName($request->emp_id) ;?></td>
-                    <td><?= $this->hr_model->getEmpName($this->emp_id);?></td>
+                    <td><?= $this->hr_model->getEmpName($this->hr_model->getManagerId($request->emp_id));?></td>
                     <td><?= $this->hr_model->getAllVacationTypies($request->type_of_vacation) ; 
                     if($request->requested_days == 0.5){?>
                             <span class="badge badge-default p-2"> ½ Day</span>
@@ -120,9 +120,13 @@
                     <td><?= $request->start_date;?></td>
                     <td><?= $request->end_date;?></td>
                     <td><?=$this->hr_model->getVacationStatus($request->status);?></td>
-                    <td><a href="<?php echo base_url()?>hr/responseToVacation?i=<?php echo base64_encode($request->id);?>" class="">
-                        <i class="fa fa-pencil"></i> Take Action
-                      </a></td>
+                    <td> 
+                        <?php if($this->hr_model->checkThisUserIsEmployeeManager($request->emp_id)){?> 
+                        <a href="<?php echo base_url()?>hr/responseToVacation?i=<?php echo base64_encode($request->id);?>" class="">
+                            <i class="fa fa-pencil"></i> Take Action
+                          </a>
+                       <?php }?>
+                    </td>
 
                   </tr>
                       <?php } } ?>          
