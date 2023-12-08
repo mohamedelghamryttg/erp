@@ -1511,18 +1511,13 @@ class Hr_model extends CI_Model
     public function AllKpiScore($permission, $filter)
     {
        
-    //	  $check = $this->admin_model->getUserEmployees2Level($this->emp_id);
-     //   if($check != false)
-    //        $where2Level = " OR emp_id IN ($check)";
-     //   else
-      //      $where2Level="";
-    
+     $subordinates = self::getEmpIdsByManagerIDMultiLevels($this->emp_id);
         if ($permission->view == 2) {
-            $data = $this->db->query("SELECT id,emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE " . $filter . " AND emp_id = $this->emp_id Order By Id Desc");
+            $data = $this->db->query("SELECT id,emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE " . $filter . " AND emp_id = $this->emp_id OR emp_id IN($subordinates) Order By Id Desc");
         } else if ($permission->view == 1) {
             //follow team  leader & view all
             if ($permission->follow == 2) {
-                $data = $this->db->query("SELECT id,emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE " . $filter . " AND created_by = $this->user   Order By Id Desc");
+                $data = $this->db->query("SELECT id,emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE " . $filter . " AND (emp_id = $this->emp_id OR emp_id IN($subordinates)) Order By Id Desc");
             } else {
                 $data = $this->db->query("SELECT id,emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE " . $filter . " Order By Id Desc ");
             }
@@ -1532,17 +1527,12 @@ class Hr_model extends CI_Model
 
     public function AllKpiScorePages($permission, $limit, $offset)
     {	  
-    	//$check = $this->admin_model->getUserEmployees2Level($this->emp_id);
-       // if($check != false)
-       //     $where2Level = " OR emp_id IN ($check)";
-     //   else
-       //     $where2Level="";
-     
+     $subordinates = self::getEmpIdsByManagerIDMultiLevels($this->emp_id);
         if ($permission->view == 2) {
-            $data = $this->db->query("SELECT id, emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE emp_id = $this->emp_id Order By Id Desc LIMIT $limit OFFSET $offset ");
+            $data = $this->db->query("SELECT id, emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE emp_id = $this->emp_id OR emp_id IN($subordinates) Order By Id Desc LIMIT $limit OFFSET $offset ");
         } else if ($permission->view == 1) {
             if ($permission->follow == 2) {
-                $data = $this->db->query("SELECT id, emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE created_by = $this->user OR emp_id = $this->emp_id  Order By Id Desc LIMIT $limit OFFSET $offset ");
+                $data = $this->db->query("SELECT id, emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE emp_id = $this->emp_id OR emp_id IN($subordinates) Order By Id Desc LIMIT $limit OFFSET $offset ");
             } else {
                 $data = $this->db->query("SELECT id, emp_id,year,month,kpi_id,created_by FROM `kpi_score` Order By Id Desc LIMIT $limit OFFSET $offset ");
             }
@@ -2662,7 +2652,7 @@ class Hr_model extends CI_Model
                     </head>
                     <body>
                     <p>Hi ' . $user_name . ' ,</p>                      
-                    <p>A new incident has been added. <br/> This Incident Created By : '.$this->admin_model->getEmpNameFromUser($data['created_by']) . ' At : '.$data['created_at'].'<br/><a href="' . base_url() . 'performanceManagment/incidentLog">Please Check And Confirm</a></p>                     
+                    <p>A new incident has been added. <br/> This Incident Added By : '.$this->admin_model->getEmpNameFromUser($data['created_by']) . ' At : '.$data['created_at'].'<br/><a href="' . base_url() . 'performanceManagment/incidentLog">Please Check And Confirm</a></p>                     
                     <p> Thanks</p>
                     </body>
                     </html>';
@@ -2677,7 +2667,7 @@ class Hr_model extends CI_Model
     }
     
     public function getEmpIdsByManagerIDMultiLevels($emp_id){
-        $sql = "SELECT GROUP_CONCAT(Level SEPARATOR ',') as IDS FROM ( SELECT @Ids := ( SELECT GROUP_CONCAT(`ID` SEPARATOR ',') FROM `employees` WHERE FIND_IN_SET(`manager`, @Ids) ) Level FROM `employees` JOIN (SELECT @Ids := $emp_id) temp1 ) temp2; ";
+        $sql = "SELECT GROUP_CONCAT(Level SEPARATOR ',') as IDS FROM ( SELECT @Ids := ( SELECT GROUP_CONCAT(`ID` SEPARATOR ',') FROM `employees` WHERE STATUS = 0 AND FIND_IN_SET(`manager`, @Ids) ) Level FROM `employees` JOIN (SELECT @Ids := $emp_id) temp1 ) temp2; ";
         $query = $this->db->query($sql)->row();
         if(!empty($query->IDS))
             $ids = $query->IDS;
@@ -2705,7 +2695,7 @@ class Hr_model extends CI_Model
         return $data;
 
     }
-    // check miising kpi
+    // check missing kpi
     public function numOfMissingKpiToManager(){
         $num = 0;
         $date = date("Y-m-d", strtotime("-1 month"));  
@@ -2719,6 +2709,27 @@ class Hr_model extends CI_Model
             }
         }
         return $num ;
+    }
+    
+    // KPI Select Titles
+    public function selectAllEmployeesByTitleMultiLevels($emp_id = "", $title = "")
+    {       
+        if (!empty($emp_id) && $emp_id != 'none') {
+            $subordinates = self::getEmpIdsByManagerIDMultiLevels($emp_id);
+            $employees = $this->db->query("SELECT DISTINCT title FROM employees WHERE id IN ($subordinates) and status = 0")->result();
+        } else {
+            $employees = $this->db->query("SELECT DISTINCT title FROM employees WHERE status = 0")->result();
+        }       
+        $data = "";
+        foreach ($employees as $employee) {
+            if ($employee->title == $title) {
+                $data .= "<option value='" . $employee->title . "' selected='selected'>" . $this->getTitle($employee->title) . "</option>";
+            } else {
+                $data .= "<option value='" . $employee->title . "'>" . $this->getTitle($employee->title) . "</option>";
+            }
+
+        }
+        return $data;
     }
     
        

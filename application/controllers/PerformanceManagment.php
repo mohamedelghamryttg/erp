@@ -596,7 +596,8 @@ class PerformanceManagment extends CI_Controller
         if ($this->role == 21 || $this->role == 31) {
             $data = $this->db->query("SELECT name,id FROM employees WHERE title = '$employee_title' and status = 0")->result_array();
         } else {
-            $data = $this->db->query("SELECT name,id FROM employees WHERE title = '$employee_title' and (manager = '$this->emp_id' or id = '$this->emp_id') and status = 0")->result_array();
+            $subordinates = $this->hr_model->getEmpIdsByManagerIDMultiLevels($this->emp_id);
+            $data = $this->db->query("SELECT name,id FROM employees WHERE title = '$employee_title' and ID IN ($subordinates) and status = 0")->result_array();
         }
         echo json_encode($data);
     }

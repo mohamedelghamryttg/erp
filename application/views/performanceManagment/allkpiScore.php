@@ -57,6 +57,25 @@
                             </div>
                         </div>
                         <div class="form-group row">
+                            <label class="col-lg-2 col-form-label text-lg-right" for="role name">Performance Matrix :
+                            </label>
+
+                            <div class="col-lg-4">
+                                <select name="matrix" class="form-control m-b" id="matrix" />
+                                <option value="" selected="">-- Select --</option>
+                                <?= $this->hr_model->selectPerformanceMatrix($matrix) ?>
+                                </select>
+                            </div>
+                            <label class="col-lg-2 col-form-label text-lg-right" for="role name">Status : </label>
+
+                            <div class="col-lg-4">
+                                <select name="status" class="form-control m-b" id="status" />
+                                <option value="" selected="">-- Select --</option>
+                                <?= $this->hr_model->selectKpiScoreStatus($status) ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <?php if ($permission->add == 1) {
                                 if ($permission->view == 1 && $permission->follow != 2) { ?>
 
@@ -80,37 +99,17 @@
                                     <div class="col-lg-4">
                                         <select name="employee_name" class="form-control m-b" id="employee_name" />
                                         <option value="">-- Select Employee --</option>
-                                        <?= $this->hr_model->selectAllEmployeesByManagerID($this->emp_id, $employee_name) ?>
+                                        <?= $this->hr_model->selectEmployeesByManagerIDMultiLevels($this->emp_id, $employee_name) ?>
                                         </select>
                                     </div>
                                 <?php }
                             } ?>
                         </div>
-                        <div class="form-group row">
-                            <label class="col-lg-2 col-form-label text-lg-right" for="role name">Performance Matrix :
-                            </label>
-
-                            <div class="col-lg-4">
-                                <select name="matrix" class="form-control m-b" id="matrix" />
-                                <option value="" selected="">-- Select --</option>
-                                <?= $this->hr_model->selectPerformanceMatrix($matrix) ?>
-                                </select>
-                            </div>
-                            <label class="col-lg-2 col-form-label text-lg-right" for="role name">Status : </label>
-
-                            <div class="col-lg-4">
-                                <select name="status" class="form-control m-b" id="status" />
-                                <option value="" selected="">-- Select --</option>
-                                <?= $this->hr_model->selectKpiScoreStatus($status) ?>
-                                </select>
-                            </div>
-                        </div>
-
+                        
                         <div class="card-footer">
-                            <div class="row">
-                                <div class="col-lg-2"></div>
-                                <div class="col-lg-10">
-                                    <button class="btn btn-success mr-2" name="search" type="submit">Search</button>
+                            <div class="row text-center">                               
+                                <div class="col-lg-12">
+                                    <button class="btn btn-success" name="search" type="submit">Search</button>
                                     <a href="<?= base_url() ?>performanceManagment/kpiScore" class="btn btn-warning"><i
                                             class="la la-trash"></i>Clear Filter</a>
 
@@ -137,7 +136,7 @@
                 <div class="card-toolbar">
                     <?php if ($permission->add == 1) { ?>
                         <a href="<?= base_url() ?>performanceManagment/addKpiScore"
-                            class="btn btn-primary font-weight-bolder">
+                            class="btn btn-sm btn-primary font-weight-bolder">
 
                             <span class="svg-icon svg-icon-md">
                                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -163,11 +162,12 @@
                     <thead>
                         <tr>
                             <th>Employee NAme</th>
-                            <th>Year</th>
                             <th>Month</th>
+                            <th>Year</th>
                             <th>Score%</th>
                             <th>Performance Matrix</th>
                             <th>Status</th>
+                            <th>Created BY </th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -180,11 +180,11 @@
                                 <td>
                                     <?php echo $this->hr_model->getEmployee($row->emp_id); ?>
                                 </td>
-                                <td>
-                                    <?php echo $this->hr_model->getYear($row->year); ?>
-                                </td>
-                                <td>
+                               <td>
                                     <?php echo $this->accounting_model->getMonth($row->month); ?>
+                                </td>
+                                 <td>
+                                    <?php echo $this->hr_model->getYear($row->year); ?>
                                 </td>
                                 <td><span
                                         class="label label-square label-<?= $this->hr_model->performanceMatrix($score, $row->year)['color'] ?>"><?= number_format((float) $score, 2, '.', '') ?>%</span></td>
@@ -194,8 +194,11 @@
                                     <?php echo $this->hr_model->getScoreStatus($row->id); ?>
                                 </td>
                                 <td>
+                                    <?= $this->admin_model->getEmpNameFromUser($row->created_by) ?> 
+                                </td>
+                                <td>
                                     <a href="<?php echo base_url() ?>performanceManagment/viewSingleKpiScore/<?= $row->id ?>"
-                                        class="">
+                                        class="btn btn-sm font-weight-bolder btn-dark">
                                         <i class="fa fa-file-alt"></i> View Card
                                     </a>
                             

@@ -169,7 +169,7 @@
                                       <hr/> <p class="font-weight-bold text-center"><?php if($row->confirmed == 1){?>
                                            <i class="fa fa-sm fa-check-circle text-success"></i><span class="text-success"> Confirmed </span>
                                        <?php }else{?>
-                                           <i class="fa fa-sm fa-times-circle text-danger"></i><span class="text-danger"> Not Confirmed Yet </span>
+                                           <i class="fa fa-sm fa-times-circle text-danger"></i><span class="text-danger"> Not Confirmed </span>
                                        <?php }?>
                                        </p>
                                        

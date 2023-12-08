@@ -28,14 +28,9 @@
                             <select name="employee_title" class="form-control" id="employee_title" required="" onchange="getEmployeesNameByTitle(), drawKpiScoreTable();">
                                 <option value="" disabled='' selected=''>-- Select --</option>
                                  <?php if($this->role == 31 || $this->role == 21){?>
-                                    <?= $this->hr_model->selectAllEmployeesByTitle(); ?>  
-                                 <?php }elseif($emp_title == 107 || $emp_title == 15 || $emp_title == 16 || $emp_title == 17 ){?>
-                                    <?= $this->hr_model->selectAllEmployeesByTitleSelf($emp_id);?>  
+                                    <?= $this->hr_model->selectAllEmployeesByTitle(); ?>                                
                                     <?php }else{?>
-                                <?= 
-                                        //$this->hr_model->selectAllEmployeesByTitle($emp_id);
-                                        $this->hr_model->selectAllEmployeesByTitleSelf($emp_id);
-                                        ?> 
+                                        <?= $this->hr_model->selectAllEmployeesByTitleMultiLevels($emp_id); ?> 
                                 <?php }?>
                             </select>
                         </div>
