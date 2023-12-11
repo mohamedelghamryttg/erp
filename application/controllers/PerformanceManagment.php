@@ -657,7 +657,7 @@ class PerformanceManagment extends CI_Controller
 
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 193);
 
-        if (($data['permission']->view == 1 && $data['permission']->follow != 2) || ($data['permission']->view == 1 && $score->created_by == $this->user) || ($data['permission']->view == 2 && $score->emp_id == $this->emp_id) || ($this->hr_model->getManagerId($this->hr_model->getEmpId($score->created_by)) == $this->emp_id)) {
+        if (($data['permission']->view == 1 && $data['permission']->follow != 2) || ($data['permission']->view == 1 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id) || ($data['permission']->view == 2 && $score->emp_id == $this->emp_id) || ($this->hr_model->getManagerId($this->hr_model->getEmpId($score->created_by)) == $this->emp_id)) {
 
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
@@ -818,7 +818,7 @@ class PerformanceManagment extends CI_Controller
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 193);
         $id = base64_decode($_GET['score_id']);
         $data['score'] = $score = $this->db->get_where('kpi_score', array('id' => $id))->row();
-        if ($data['permission']->add == 1 && (($data['permission']->view == 1 && $data['permission']->follow != 2) || $score->created_by == $this->user)) {
+        if ($data['permission']->add == 1 && (($data['permission']->view == 1 && $data['permission']->follow != 2) || $this->hr_model->getEmpId($score->created_by) == $this->emp_id)) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             //body ..
@@ -842,7 +842,7 @@ class PerformanceManagment extends CI_Controller
         // Check Permission ..
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 193);
         $score = $this->db->get_where('kpi_score', array('id' => $id))->row();
-        if ($data['permission']->edit == 1 && $score->created_by == $this->user) {
+        if ($data['permission']->edit == 1 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             //body ..

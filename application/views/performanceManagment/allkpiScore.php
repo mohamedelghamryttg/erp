@@ -202,7 +202,7 @@
                                         <i class="fa fa-file-alt"></i> View Card
                                     </a>
                             
-                                    <?php if ($permission->add == 1 && $row->created_by == $this->user) { ?>
+                                    <?php if ($permission->add == 1 && $this->hr_model->getEmpId($row->created_by) == $this->emp_id) { ?>
                                         <a title='Clone'
                                             href="<?= base_url() ?>performanceManagment/copyEmployeeKpiScore?score_id=<?= base64_encode($row->id) ?>"
                                             class="ml-5">
