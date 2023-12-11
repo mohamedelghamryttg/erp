@@ -41,7 +41,7 @@
                     <div class="card-title">
                         <h3 class="card-label">Employees KPIs <i class="fa fa-arrow-alt-circle-right"></i> <?= $this->hr_model->getEmployee($employee_id).'('. $this->accounting_model->getMonth($score->month).')' ?> <i class="fa fa-arrow-alt-circle-right"></i>Score Card</h3>
                     </div>
-                    <?php if($score->status < 1 && $score->created_by == $this->user){?>
+                    <?php if($score->status < 1 && $score->manager_approval == 0 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id){?>
                     <a href="<?php echo base_url() ?>performanceManagment/editEmployeeKpiScore/<?=$score->id?>" class="btn btn-xs btn-success"><i class="fa fa-pencil"></i>Edit</a>
                     <?php }elseif ($score->status == 3) {?>
                     <button class="btn btn-success mr-2" disabled=""><?= $this->hr_model->getScoreStatus($score->id); ?></button>
@@ -98,10 +98,8 @@
 
                     </table>
                     <!--end: Datatable-->               
-                    <hr style='border-top-width: thick;margin: 30px 0;'>
-                    <?php if($permission->edit == 1){?>
-                    <a href="<?= base_url() ?>performanceManagment/viewEmployeeincidentLog/<?=$employee_id."/".$month?>" class="btn btn-dark text-white float-right mb-5" target="_blank">View Incidents Log</a>
-                    <?php }?>
+                    <hr style='border-top-width: thick;margin: 30px 0;'>                    
+                        <a href="<?= base_url() ?>performanceManagment/viewEmployeeincidentLog/<?=$employee_id."/".$month?>" class="btn btn-dark btn-sm text-white float-right mb-5" target="_blank">View Incidents Log</a>
                     <?php if($gab > 0){?>
                     <h3 class="text-danger">Gap Performance Analysis </h3>
                    <!--gab table-->
@@ -125,7 +123,7 @@
                                 <td width='10%'><?=$action->comment?></td>
                             </tr>
                     <?php  }}else{
-                        if($permission->edit == 1 && $score->created_by == $this->user && $score->status < 1){      ?>   
+                        if($permission->edit == 1 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id && $score->manager_approval == 1 && $score->status < 1){      ?>   
                             <form class="form" action="<?php echo base_url() ?>performanceManagment/saveKpiAction" method="post" enctype="multipart/form-data">
                            <input type="hidden" name="kpi_score_id"value="<?=$score->id?>">
                       <?php     $score_data = $this->db->query("SELECT * From kpi_score_data WHERE kpi_score_id = '$score->id'")->result();
@@ -150,7 +148,7 @@
                     <?php } }?>
                      </tbody>
                     </table>
-                   <?php } else{ if($score->status < 1 && $score->created_by == $this->user){?>                     
+                   <?php } else{ if($score->status == 0 && $score->manager_approval == 1 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id){?>                     
                         <form class="form mb-10" id="action" action="<?php echo base_url() ?>performanceManagment/changeScoreStatus" method="get" enctype="multipart/form-data">
                         <input type="text" name="score" hidden="" value="<?= $score->id ?>">
                         <button class="btn btn-success mr-2"  type="submit"><i class="fa fa-save" aria-hidden="true"></i> Finish & Send To Employee</button>

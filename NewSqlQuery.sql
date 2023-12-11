@@ -84,3 +84,5 @@ ALTER TABLE `commission_setting`
 ALTER TABLE `commission_setting`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 COMMIT;
+
+ALTER TABLE `kpi_score` ADD `manager_approval` TINYINT(1) NOT NULL DEFAULT '0' AFTER `status`; 

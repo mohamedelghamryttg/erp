@@ -1561,8 +1561,10 @@ class Hr_model extends CI_Model
             $data = "Finish 1-1 Meeting";
         else if ($status == 2)
             $data = "HR Meeting";
-        else
+        else if ($status == 3)
             $data = "Accepted";
+        else if ($status == 4)
+            $data = "Waiting Manager Approval";
 
 
         return $data;

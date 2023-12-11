@@ -117,7 +117,7 @@
                     <td><?= $request->end_date;?></td>
                     <td><?=$this->hr_model->getVacationStatus($request->status);?></td>
                     <td>
-                        <?php if($this->hr_model->checkThisUserIsEmployeeManager($request->emp_id)){?>
+                        <?php if($this->hr_model->checkThisUserIsEmployeeManager($request->emp_id) || ($this->role == 31 && ($this->hr_model->getManagerId($request->emp_id) == 13 || $this->hr_model->getManagerId($request->emp_id) == 14))){?>
                          <a href="<?php echo base_url()?>hr/responseToVacation?i=<?php echo base64_encode($request->id);?>" class="font-weight-bold">
                         <i class="flaticon2-sheet"></i> Take Action
                       </a>
