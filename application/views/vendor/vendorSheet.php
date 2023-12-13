@@ -1,3 +1,12 @@
+<style>
+	.blocked,
+	.blocked a,
+	.blocked td {
+		background-color: darkgray !important;
+		color: white !important;
+		font-weight: bold;
+	}
+</style>
 <div class="row">
 	<div class="col-sm-12">
 		<section class="panel">
@@ -7,8 +16,7 @@
 			</header>
 
 			<div class="panel-body">
-				<form class="cmxform form-horizontal " id="vendorForm"
-					action="<?php echo base_url() ?>vendor/vendorSheet" method="get" enctype="multipart/form-data">
+				<form class="cmxform form-horizontal " id="vendorForm" action="<?php echo base_url() ?>vendor/vendorSheet" method="get" enctype="multipart/form-data">
 					<?php
 					if (isset($_REQUEST['vendor'])) {
 						$vendorName = $_REQUEST['vendor'];
@@ -100,9 +108,7 @@
 					<div class="form-group">
 						<div class="col-lg-offset-3 col-lg-6">
 							<button class="btn btn-primary" name="search" type="submit">Search</button>
-							<button class="btn btn-success"
-								onclick="var e2 = document.getElementById('vendorForm'); e2.action='<?= base_url() ?>vendor/exportAllVendors'; e2.submit();"
-								name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export To
+							<button class="btn btn-success" onclick="var e2 = document.getElementById('vendorForm'); e2.action='<?= base_url() ?>vendor/exportAllVendors'; e2.submit();" name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export To
 								Excel</button>
 							<a href="<?= base_url() ?>vendor/vendorSheet" class="btn btn-warning">(x) Clear Filter</a>
 
@@ -166,7 +172,9 @@
 								<th>Currency</th>
 								<th>Subject Matter</th>
 								<th>Tools</th>
-                            <th>Num. Of Tasks</th>
+								<th>Num. Of Tasks</th>
+								<th>Blocked/Num. of Bad Review</th>
+								<th>Rank</th>
 								<th>Created By</th>
 								<th>Created At</th>
 								<th>Edit</th>
@@ -177,13 +185,12 @@
 						<tbody>
 							<?php
 							foreach ($vendor->result() as $row) {
-								?>
+							?>
 								<tr class="">
 									<td>
 										<?= $row->id ?>
 									</td>
-									<td><a href="<?= base_url() ?>vendor/vendorProfile?t=<?= base64_encode($row->vendor) ?>"
-											target="_blank"><?= $this->vendor_model->getVendorName($row->vendor) ?></a></td>
+									<td><a href="<?= base_url() ?>vendor/vendorProfile?t=<?= base64_encode($row->vendor) ?>" target="_blank"><?= $this->vendor_model->getVendorName($row->vendor) ?></a></td>
 									<td>
 										<?= $this->admin_model->getLanguage($row->source_lang) ?>
 									</td>
@@ -230,8 +237,34 @@
 										}
 										?>
 									</td>
-                                             <td>
+									<td>
 										<?= $this->vendor_model->getVendorTaskCount($row->vendor); ?>
+									</td>
+									<td>
+										<?php
+										if ($this->vendor_model->getVendorData($row->vendor)) {
+											if ($this->vendor_model->getVendorData($row->vendor)->ev_block == 1) {
+												echo 'YES';
+												if ($this->vendor_model->getVendorData($row->vendor)->ev_block_count > 0) {
+													echo ' (' . $this->vendor_model->getVendorData($row->vendor)->ev_block_count . ')';
+												}
+											} else {
+												echo 'NO';
+												if ($this->vendor_model->getVendorData($row->vendor)->ev_block_count > 0) {
+													echo $this->vendor_model->getVendorData($row->vendor)->ev_block_count;
+												}
+											}
+										}
+
+										?>
+									</td>
+									<td>
+
+										<?php
+										if ($this->vendor_model->getVendorRank($row->vendor) > 0) {
+											echo $this->vendor_model->getVendorRank($row->vendor) . '%';
+										}
+										?>
 									</td>
 									<td>
 										<?php echo $this->admin_model->getAdmin($row->created_by); ?>
@@ -241,23 +274,20 @@
 									</td>
 									<td>
 										<?php if ($permission->edit == 1) { ?>
-											<a href="<?php echo base_url() ?>vendor/editVendorSheet?t=<?= base64_encode($row->id) ?>"
-												class="">
+											<a href="<?php echo base_url() ?>vendor/editVendorSheet?t=<?= base64_encode($row->id) ?>" class="">
 												<i class="fa fa-pencil"></i> Edit
 											</a>
 										<?php } ?>
 									</td>
 									<td>
 										<?php if ($permission->delete == 1) { ?>
-											<a href="<?php echo base_url() ?>vendor/deleteVendorSheet?t=<?= base64_encode($row->id) ?>"
-												title="delete" class=""
-												onclick="return confirm('Are you sure you want to delete this Record ?');">
+											<a href="<?php echo base_url() ?>vendor/deleteVendorSheet?t=<?= base64_encode($row->id) ?>" title="delete" class="" onclick="return confirm('Are you sure you want to delete this Record ?');">
 												<i class="fa fa-times text-danger text"></i> Delete
 											</a>
 										<?php } ?>
 									</td>
 								</tr>
-								<?php
+							<?php
 							}
 							?>
 						</tbody>

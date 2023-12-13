@@ -3,39 +3,32 @@
     <!--begin::Container-->
     <div class="container">
         <!--begin::Card-->
-        <form class="cmxform form-horizontal " id="form" method="post" enctype="multipart/form-data"
-            style="border: 1px solid brown;border-radius: 105px;">
-            <?php if (isset($_SERVER['HTTP_REFERER'])): ?>
+        <form class="cmxform form-horizontal " id="form" method="post" enctype="multipart/form-data">
+            <?php if (isset($_SERVER['HTTP_REFERER'])) : ?>
                 <input type="text" name="referer" value="<?= $_SERVER['HTTP_REFERER'] ?>" hidden>
-            <?php else: ?>
+            <?php else : ?>
                 <input type="text" name="referer" value="<?= base_url() ?>account" hidden>
             <?php endif; ?>
 
-            <div class="card card-custom example example-compact"
-                style="text-align: center;width: 73%;left: 15%;padding-top: 20px;">
-                <!-- <div class="card-header">
+            <div class="card text-center">
+                <div class="card-header">
+                    <h3>Treasury Receipt</h3>
+                    <h3>Add Cash In</h3>
 
-                </div> -->
-                <div class="card-title">
-                    <h3 class="card-title">Treasury Receipt</h3>
-                    <h3 class="card-title">Add Cash In</h3>
+
                 </div>
             </div>
             <!--begin::Form-->
-            <div class="card-body" style="padding-bottom: 0;">
-                <div class="form-group row">
-                    <input type="hidden" name="brand" id="brand" value="<?= $brand ?>">
-                    <label class="col-lg-3 col-form-label text-right">Brand</label>
-                    <div class="col-lg-6">
-                        <input type="text" class="form-control" name="brand_name" id="brand_name"
-                            value="<?= $this->admin_model->getbrand($brand) ?>" disabled>
-                    </div>
-                </div>
+
+
+            <div class="card-body py-0 shadow-lg p-3 mb-5 bg-white rounded">
+
+                <input type="hidden" name="brand" id="brand" value="<?= $brand ?>">
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">Cash</label>
                     <div class="col-lg-6">
                         <select name='cash_id' class='form-control m-b' id="cash_id" required>
-                            <option value="" selected=''>-- Select Cash --</option>
+                            <option value="" selected='' disabled>-- Select Cash --</option>
                             <?= $this->AccountModel->selectPaymentCombo('payment_method', '', $brand, '1'); ?>
                         </select>
                     </div>
@@ -45,25 +38,24 @@
                 </div>
 
                 <div class="form-group row">
-                    <label class="col-lg-3 col-form-label text-right">Document Internal Number</label>
-                    <div class="col-lg-6">
-                        <input type="text" class="form-control" name="doc_no" id="doc_no">
-                    </div>
-                </div>
-
-                <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">Document Date</label>
                     <div class="col-lg-6">
-                        <input type="text" class="date_sheet form-control" name="cdate" id="cdate"
-                            value="<?= date("Y-m-d") ?>" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}" required>
+                        <input type="text" class="date_sheet form-control" name="cdate" id="cdate" value="<?= date("Y-m-d") ?>" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}" required>
                     </div>
                 </div>
-
                 <div class="form-group row">
+                    <label class="col-lg-3 col-form-label text-right">Document Internal Number</label>
+                    <div class="col-lg-2">
+                        <input type="text" class="form-control" name="doc_no" id="doc_no">
+                    </div>
+                    <div class="col-lg-2">
+                        <button type="button" id="auto_num" class="btn btn-success mr-2"> Auto Number</button>
+                    </div>
+                </div>
+                <div class="form-group row" hidden>
                     <label class="col-lg-3 col-form-label text-right">Transaction Type </label>
                     <div class="col-lg-6">
-                        <select class="form-control" name="trn_typ" id="trn_typ" required
-                            value="<?= $cashin->trn_typ ?>">
+                        <select class="form-control" name="trn_typ" id="trn_typ" required value="<?= $cashin->trn_typ ?>">
                             <option disabled="disabled" value="">-- Select Transaction Type --</option>
                             <option selected='selected' value="other" selected="selected">Other</option>
                         </select>
@@ -85,9 +77,7 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">Amount</label>
                     <div class="col-lg-3">
-                        <input type="text" class="form-control" name="amount" id="amount" required step="any"
-                            placeholder="0.00" pattern="^\d*(\.\d{0,2})?$"
-                            onkeypress='return (event.charCode == 46 || event.charCode >= 48 && event.charCode <= 57)'>
+                        <input type="text" class="form-control" name="amount" id="amount" required step="any" placeholder="0.00" pattern="^\d*(\.\d{0,2})?$" onkeypress='return (event.charCode == 46 || event.charCode >= 48 && event.charCode <= 57)'>
                     </div>
                 </div>
 
@@ -106,10 +96,7 @@
                     <label class="col-lg-3 col-form-label text-right">Rate</label>
                     <input type="hidden" id="rate_h" name="rate_h">
                     <div class="col-lg-3">
-                        <input type="number" class="form-control" name="rate" id="rate" required step="any"
-                            placeholder="0.00000" pattern="^\d*(\.\d{0,5})?$"
-                            onkeypress='return (event.charCode == 46 || event.charCode >= 48 && event.charCode <= 57)'
-                            disabled>
+                        <input type="number" class="form-control" name="rate" id="rate" required step="any" placeholder="0.00000" pattern="^\d*(\.\d{0,5})?$" onkeypress='return (event.charCode == 46 || event.charCode >= 48 && event.charCode <= 57)' disabled>
                     </div>
                 </div>
 
@@ -126,16 +113,14 @@
                     <div class="col-lg-3"></div>
                     <div class="col-lg-6">
                         <button type="button" id="submit" class="btn btn-success mr-2">Submit</button>
-                        <a class="btn btn-secondary" href="<?php echo base_url() ?>account/cashintrnlist"
-                            class="btn btn-default" type="button">Cancel</a>
+                        <a class="btn btn-secondary" href="<?php echo base_url() ?>account/cashintrnlist" class="btn btn-default" type="button">Cancel</a>
                     </div>
                 </div>
             </div>
         </form>
         <br />
         <div class="datatable datatable-default datatable-bordered datatable-loaded">
-            <table class="datatable-bordered datatable-head-custom datatable-table" id="kt_datatable"
-                style="display: block;border-top: 1px solid #3F4254; border-button: 1px solid #3F4254;">
+            <table class="datatable-bordered datatable-head-custom datatable-table" id="kt_datatable" style="display: block;border-top: 1px solid #3F4254; border-button: 1px solid #3F4254;">
                 <thead class="datatable-head">
                     <tr class="datatable-row" style="left: 0px;">
                         <th data-field="debit" class="datatable-cell datatable-cell-sort">
@@ -156,8 +141,7 @@
                         <th data-field="rate" class="datatable-cell datatable-cell-sort">
                             <span style="width: 112px;">Rate</span>
                         </th>
-                        <th data-field="evamount" data-autohide-disabled="false"
-                            class="datatable-cell datatable-cell-sort">
+                        <th data-field="evamount" data-autohide-disabled="false" class="datatable-cell datatable-cell-sort">
                             <span style="width: 112px;">Ev. Amount</span>
                         </th>
                     </tr>
@@ -176,22 +160,21 @@
 </div>
 
 <script>
-    $(document).ready(function () {
-        $("#amount").blur(function () {
+    $(document).ready(function() {
+        $("#amount").blur(function() {
             if (this.value === 'NaN') {
                 this.value = 0;
             }
             this.value = parseFloat(this.value).toFixed(2);
         });
-        $("#rate").blur(function () {
+        $("#rate").blur(function() {
             if ($('#rate_h').val() === 0) {
                 $('#rate_h').val() = this.value;
             }
             this.value = parseFloat(this.value).toFixed(5);
             if ($(this).val() == 0) {
                 $("#rate").prop("readonly", false);
-            }
-            else {
+            } else {
                 $("#rate").prop("readonly", true);
             }
         });
@@ -200,19 +183,19 @@
             autoClose: true
         });
 
-        $("#submit").click(function (event) {
+        $("#submit").click(function(event) {
             $.ajax({
                 url: "<?= base_url() . "account/doAddCashinTrn" ?>",
                 type: "POST",
                 data: $("#form").serialize(),
-                beforeSend: function () {
-                    $empty = $('#form').find("input").filter(function () {
+                beforeSend: function() {
+                    $empty = $('#form').find("input").filter(function() {
                         return this.value === "";
                     });
-                    $empty1 = $('#form').find("select").filter(function () {
+                    $empty1 = $('#form').find("select").filter(function() {
                         return this.value === "";
                     });
-                    $empty2 = $('#form').find("textarea").filter(function () {
+                    $empty2 = $('#form').find("textarea").filter(function() {
                         return this.value === "";
                     });
 
@@ -228,7 +211,7 @@
                         return true;
                     }
                 },
-                success: function (data) {
+                success: function(data) {
                     var data = JSON.parse(data);
                     if (data.records != 0)
                         alert("Cash In Already Exists!");
@@ -238,7 +221,7 @@
             });
         });
 
-        $("#cash_id").on('change', function () {
+        $("#cash_id").on('change', function() {
             var cash_id = $("#cash_id").val();
             var date = $("#cdate").val();
             if (cash_id != '') {
@@ -251,7 +234,7 @@
                         'cash_id': cash_id,
                         'date': date
                     },
-                    success: function (data) {
+                    success: function(data) {
                         if (data != '') {
                             $('select[name="currency_id"]').html(data.options);
                             $("#currency_hid").val(data.currency_id);
@@ -278,7 +261,7 @@
                             $('#cash_acc_id').val('')
                         }
                     },
-                    error: function (jqXHR, exception) {
+                    error: function(jqXHR, exception) {
                         console.log(jqXHR.responseText);
                     }
                 });
@@ -294,7 +277,7 @@
             }
         });
 
-        $("#cdate").on('click', function () {
+        $("#cdate").on('click', function() {
             var cash_id = $("#cash_id").val();
             var date = $('#cdate').val();
             var currency_hid = $("#currency_hid").val();
@@ -309,7 +292,7 @@
                         'cash_id': cash_id,
                         'date': date
                     },
-                    success: function (data) {
+                    success: function(data) {
                         if (data != '') {
                             $("#rate").val(parseFloat(data.rate).toFixed(5));
                             $("#rate_h").val(parseFloat(data.rate).toFixed(5));
@@ -326,7 +309,7 @@
                                 $("#rate").prop("disabled", false);
                         }
                     },
-                    error: function (jqXHR, exception) {
+                    error: function(jqXHR, exception) {
                         console.log(jqXHR.responseText);
                     }
                 });
@@ -340,10 +323,10 @@
             }
         });
 
-        $("#trn_id").on('change', function () {
+        $("#trn_id").on('change', function() {
             create_entry();
         })
-        $("#amount").on('focusout', function () {
+        $("#amount").on('focusout', function() {
             this.value = parseFloat(this.value).toFixed(2);
             create_entry();
         })
@@ -424,16 +407,16 @@
 
             }
         }
-        $(document).keypress(function (e) {
+        $(document).keypress(function(e) {
             if (e.keyCode === 13) {
                 $(document.activeElement).next().focus();
             }
         });
-        $("#rate").on('change', function () {
+        $("#rate").on('change', function() {
             $("#rate_h").val($(this).val());
             create_entry();
         })
-        $("#currency_id").on('change', function () {
+        $("#currency_id").on('change', function() {
             var cash_id = $("#cash_id").val();
             var date = $('#cdate').val();
             var currency_hid = $("#currency_hid").val();
@@ -448,7 +431,7 @@
                         'cash_id': cash_id,
                         'date': date
                     },
-                    success: function (data) {
+                    success: function(data) {
                         if (data != '') {
                             $("#rate").val(parseFloat(data.rate).toFixed(5));
                             $("#rate_h").val(parseFloat(data.rate).toFixed(5));
@@ -465,7 +448,7 @@
                                 $("#rate").prop("disabled", false);
                         }
                     },
-                    error: function (jqXHR, exception) {
+                    error: function(jqXHR, exception) {
                         console.log(jqXHR.responseText);
                     }
                 });
@@ -477,5 +460,22 @@
                 $("#rate").prop("disabled", false);
             }
         })
+
     });
+    $('#auto_num').click(function() {
+        var date_trns = $('#cdate').val();
+
+        $.ajax({
+            url: "<?= base_url("account/auto_num_CashIn") ?>",
+            type: "POST",
+            data: {
+                'cdate': date_trns,
+            },
+            success: function(data) {
+                //var data = JSON.parse(data);
+                console.log(data);
+                document.getElementById("doc_no").value = data;
+            }
+        });
+    })
 </script>

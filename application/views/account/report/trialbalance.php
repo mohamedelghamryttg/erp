@@ -9,8 +9,7 @@
             <div class="container-fluid">
 
                 <!-- start search form card -->
-                <div class="card card-custom gutter-b example example-compact"
-                    style="text-align: center;padding-top: 20px;">
+                <div class="card card-custom gutter-b example example-compact" style="text-align: center;padding-top: 20px;">
                     <div class="card-title" style="margin-bottom: auto;">
                         <!-- <label class="col-lg-10 col-form-label col-sm-10"> -->
                         <!-- <legend>Trial Balance</legend> -->
@@ -24,57 +23,42 @@
                             <form class="form" id="form" method="post" enctype="multipart/form-data">
                                 <div class="form-group row">
 
-                                    <label class="col-lg-2 col-form-label col-md-3 col-sm-2" for="role form_date"
-                                        style="text-align: initial;">From
+                                    <label class="col-lg-2 col-form-label col-md-3 col-sm-2" for="role form_date" style="text-align: initial;">From
                                         Date</label>
                                     <div class="col-lg-3 col-md-3 col-sm-3">
-                                        <input type="text" class="input-group date_sheet form-control" name="from_date"
-                                            id="from_date" required value="<?= $vs_date1 ?>">
+                                        <input type="text" class="input-group date_sheet form-control" name="from_date" id="from_date" required value="<?= $vs_date1 ?>">
                                     </div>
 
-                                    <label class="col-lg-3 col-form-label col-md-3 col-sm-3" for="role to_date"
-                                        style="text-align: initial;">To
+                                    <label class="col-lg-3 col-form-label col-md-3 col-sm-3" for="role to_date" style="text-align: initial;">To
                                         Date</label>
                                     <div class="col-lg-3 col-md-3 col-sm-3">
-                                        <input type="text" class="date_sheet form-control" name="to_date" id="to_date"
-                                            required value="<?= $vs_date2 ?>">
+                                        <input type="text" class="date_sheet form-control" name="to_date" id="to_date" required value="<?= $vs_date2 ?>">
                                     </div>
                                     <div class="col-lg1 col-md-1 col-sm-1 " style="margin: auto;">
                                         <div class="dropdown dropdown-inline">
-                                            <button type="button" class="btn btn-primary btn-icon btn-sm"
-                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                                style="border-color: #ffff;background-color: white;">
-                                                <i class="ki ki-bold-menu"
-                                                    style="font-size: 2.3rem;color: #F64060;background-color: #FFFF;border-color: white;">
+                                            <button type="button" class="btn btn-primary btn-icon btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-color: #ffff;background-color: white;">
+                                                <i class="ki ki-bold-menu" style="font-size: 2.3rem;color: #F64060;background-color: #FFFF;border-color: white;">
                                                 </i>
                                             </button>
                                             <!-- <div class="dropdown-menu">
                                                         ...
                                                     </div> -->
                                             <div class="dropdown-menu ">
-                                                <button class="dropdown-item" id="today" onclick="changeValue('today')"
-                                                    type="button">Today</button>
-                                                <button class="dropdown-item" id="month" onclick="changeValue('month')"
-                                                    type="button">This
+                                                <button class="dropdown-item" id="today" onclick="changeValue('today')" type="button">Today</button>
+                                                <button class="dropdown-item" id="month" onclick="changeValue('month')" type="button">This
                                                     Month</button>
-                                                <button class="dropdown-item" id="year" onclick="changeValue('year')"
-                                                    type="button">This
+                                                <button class="dropdown-item" id="year" onclick="changeValue('year')" type="button">This
                                                     Year</button>
                                                 <button class="dropdown-divider"></button>
-                                                <button class="dropdown-item" id="fyear" onclick="changeValue('fyear')"
-                                                    type="button">Financial
+                                                <button class="dropdown-item" id="fyear" onclick="changeValue('fyear')" type="button">Financial
                                                     Year</button>
-                                                <button class="dropdown-item" id="fyear1"
-                                                    onclick="changeValue('fyear1')" type="button">First
+                                                <button class="dropdown-item" id="fyear1" onclick="changeValue('fyear1')" type="button">First
                                                     Quarter</button>
-                                                <button class="dropdown-item" id="fyear2"
-                                                    onclick="changeValue('fyear2')" type="button">Secand
+                                                <button class="dropdown-item" id="fyear2" onclick="changeValue('fyear2')" type="button">Secand
                                                     Quarter</button>
-                                                <button class="dropdown-item" id="fyear3"
-                                                    onclick="changeValue('fyear3')" type="button">Theard
+                                                <button class="dropdown-item" id="fyear3" onclick="changeValue('fyear3')" type="button">Theard
                                                     Quarter</button>
-                                                <button class="dropdown-item" id="fyear4"
-                                                    onclick="changeValue('fyear4')" type="button">Forth
+                                                <button class="dropdown-item" id="fyear4" onclick="changeValue('fyear4')" type="button">Forth
                                                     Quarter</button>
 
                                             </div>
@@ -83,8 +67,7 @@
 
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-lg-2 col-form-label col-md-3 col-sm-2" for="role currency_id"
-                                        style="text-align: initial;">Currency</label>
+                                    <label class="col-lg-2 col-form-label col-md-3 col-sm-2" for="role currency_id" style="text-align: initial;">Currency</label>
                                     <div class="col-lg-3 col-md-3 col-sm-3">
                                         <select class="form-control" name="currency_id" id="currency_id" required>
                                             <option disabled="disabled" selected="selected" value="">--
@@ -94,8 +77,7 @@
                                             <?= $this->admin_model->selectCurrency($currency_id) ?>
                                         </select>
                                     </div>
-                                    <label class="col-lg-3 col-form-label col-md-3 col-sm-3" for="role currency_type"
-                                        style="text-align: initial;">Currency Type</label>
+                                    <label class="col-lg-3 col-form-label col-md-3 col-sm-3" for="role currency_type" style="text-align: initial;">Currency Type</label>
                                     <div class="col-lg-3 col-md-3 col-sm-4">
                                         <select class="form-control" name="currency_type" id="currency_type" required>
                                             <option value="1">Currency Transaction
@@ -112,8 +94,7 @@
                             <div class=" row">
                                 <div class="col-lg-2 col-md-2 col-sm-4">
 
-                                    <button class="btn btn-primary btn-block" name="run" id="run"
-                                        type="text">Run</button>
+                                    <button class="btn btn-primary btn-block" name="run" id="run" type="text">Run</button>
                                 </div>
                                 <div class="col-lg-2 col-md-2 col-sm-4">
                                     <button class="btn btn-warning btn-block" name="clear" id="clear" type="text">
@@ -184,8 +165,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <table class="table table-hover table-bordered" style="overflow:scroll;"
-                                        data-excel-name="Trial Balance Details" id="table_Details">
+                                    <table class="table table-hover table-bordered" style="overflow:scroll;" data-excel-name="Trial Balance Details" id="table_Details">
 
                                         <thead>
                                             <th scope="col" class="text-nowrap">#</th>
@@ -225,8 +205,7 @@
 </div>
 
 <script>
-
-    $('#export').on('click', function (e) {
+    $('#export').on('click', function(e) {
         var table2excel = new table2excel({
 
             defaultFileName: "Trial Balance",
@@ -237,9 +216,9 @@
     });
 
 
-    $(document).ready(function () {
+    $(document).ready(function() {
 
-        $('#run').on('click', function (e) {
+        $('#run').on('click', function(e) {
             e.preventDefault();
             var date1 = $("#from_date").val();
             var date2 = $("#to_date").val();
@@ -251,10 +230,10 @@
                 async: true,
                 dataType: 'json',
                 data: $('#form').serialize(),
-                beforeSend: function () {
+                beforeSend: function() {
                     $('#loading').show();
                 },
-                success: function (data) {
+                success: function(data) {
                     if (data != '') {
                         biuld_rep(data)
                     } else {
@@ -262,7 +241,7 @@
                     }
                     $('#loading').hide();
                 },
-                error: function (jqXHR, exception) {
+                error: function(jqXHR, exception) {
                     $('#loading').hide();
 
                 }
@@ -270,7 +249,7 @@
         });
 
     });
-    $("#btnPrint").on("click", function () {
+    $("#btnPrint").on("click", function() {
         //alert($(window).height());
         // var ht = $(window).height();
         // var wt = $(window).width();
@@ -292,6 +271,7 @@
         // printWindow.print();
         window.print();
     });
+
     function printPageArea(areaID) {
         // var printContent = document.getElementById(areaID).innerHTML;
         // var originalContent = document.body.innerHTML;
@@ -304,24 +284,26 @@
 
         //redirect('account/report/tr_report.php');
     }
+
     function biuld_rep_null(data) {
         var date1 = $("#from_date").val();
         var date2 = $("#to_date").val();
         $('#account_name').html('<h2 style="color: darkred;">From Date : ' +
             date1 + "  -  To Date : " +
-            date2 + "<br> "
-            + " Currency :" +
+            date2 + "<br> " +
+            " Currency :" +
             document.getElementById('currency_id').options[document.getElementById('currency_id').selectedIndex].innerHTML + '</h2>');
 
     }
+
     function biuld_rep(data) {
 
         var date1 = $("#from_date").val();
         var date2 = $("#to_date").val();
         $('#account_name').html('<h2 style="color: darkred;">From Date : ' +
             date1 + "  -  To Date : " +
-            date2 + "<br> "
-            + " Currency :" +
+            date2 + "<br> " +
+            " Currency :" +
             document.getElementById('currency_id').options[document.getElementById('currency_id').selectedIndex].innerHTML + '</h2>');
 
 
@@ -344,7 +326,7 @@
         let trn_b_balance = 0.0;
         let trn_balance = 0.0;
 
-        $.each(data.trns_ledger, function (index, value) {
+        $.each(data.trns_ledger, function(index, value) {
 
             if (parseFloat(value.beg_debit) != 0 || parseFloat(value.beg_credit) != 0 || parseFloat(value.debit) != 0 || parseFloat(value.credit) != 0) {
                 ix++;
@@ -446,6 +428,7 @@
 
         $("#rep_body").html(html);
     }
+
     function number_conv(r) {
         if (Number.isNaN(Number.parseFloat(r))) {
             return parseFloat('0').toFixed(2);
@@ -518,5 +501,4 @@
         }
         return
     }
-
 </script>

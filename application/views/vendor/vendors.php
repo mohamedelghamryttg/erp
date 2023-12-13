@@ -2,8 +2,9 @@
 	.blocked,
 	.blocked a,
 	.blocked td {
-		background-color: black !important;
+		background-color: darkgray !important;
 		color: white !important;
+		font-weight: bold;
 	}
 </style>
 <div class="row">
@@ -300,11 +301,13 @@
 						<a href="" class="toggle-vis" data-column="23">Tools</a> -
 						<a href="" class="toggle-vis" data-column="24">Type</a> -
 						<a href="" class="toggle-vis" data-column="26">Num. Of Tasks</a> -
-						<a href="" class="toggle-vis" data-column="27">Created By</a> -
-						<a href="" class="toggle-vis" data-column="28">Created At</a> -
-						<a href="" class="toggle-vis" data-column="29">Favourite</a> -
-						<a href="" class="toggle-vis" data-column="30">Edit</a> -
-						<a href="" class="toggle-vis" data-column="31">Delete</a>
+						<a href="" class="toggle-vis" data-column="27">Blocked/Num. of Bad Review</a> -
+						<a href="" class="toggle-vis" data-column="28">Rank</a> -
+						<a href="" class="toggle-vis" data-column="29">Created By</a> -
+						<a href="" class="toggle-vis" data-column="30">Created At</a> -
+						<a href="" class="toggle-vis" data-column="31">Favourite</a> -
+						<a href="" class="toggle-vis" data-column="32">Edit</a> -
+						<a href="" class="toggle-vis" data-column="33">Delete</a>
 						</br></br></br>
 
 					</div>
@@ -341,10 +344,12 @@
 								<th>Type</th>
 								<th>Color Reason</th>
 								<th>Num. Of Tasks</th>
+								<th>Blocked/Num. of Bad Review</th>
+								<th>Rank</th>
 								<th>Created By</th>
 								<th>Created At</th>
 								<th>Favourite</th>
-								<th>Blocked/Num. of Bad Review</th>
+
 								<th>Edit</th>
 								<th>Delete</th>
 							</tr>
@@ -470,6 +475,17 @@
 										<?= $this->vendor_model->getVendorTaskCount($row->id); ?>
 									</td>
 									<td>
+										<?= $row->ev_block == 1 ? 'YES' : 'NO' ?>
+										<?= $row->ev_block_count > 0 ? "( $row->ev_block_count)" : '' ?>
+									</td>
+									<td>
+										<?php
+										if ($this->vendor_model->getVendorRank($row->id) > 0) {
+											echo $this->vendor_model->getVendorRank($row->id) . '%';
+										}
+										?>
+									</td>
+									<td>
 										<?php echo $this->admin_model->getAdmin($row->sheetCreatedBy); ?>
 									</td>
 									<td>
@@ -486,10 +502,7 @@
 											</a>
 										<?php } ?>
 									</td>
-									<td>
-										<?= $row->ev_block == 1 ? 'YES' : 'NO' ?>
-										<?= $row->ev_block_count > 0 ? "( $row->ev_block_count)" : '' ?>
-									</td>
+
 									<td>
 										<?php if ($permission->edit == 1) { ?>
 											<a href="<?php echo base_url() ?>vendor/editVendor?t=<?= base64_encode($row->id) ?>" class="">

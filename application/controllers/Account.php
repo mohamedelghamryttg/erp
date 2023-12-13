@@ -1868,7 +1868,7 @@ class Account extends CI_Controller
             $data['created_by'] = $this->user;
 
             if ($this->db->insert('cashin', $data)) {
-                $cashin_id = $this->db->inster_id('cashin');
+                $cashin_id = $this->db->insert_id();;
                 $this->admin_model->addToLoggerUpdate('cashin', 221, 'id', $cashin_id, 0, 0, $this->user);
 
                 $entry_data['brand'] = $this->brand;
@@ -1930,6 +1930,7 @@ class Account extends CI_Controller
                         $entry_data['ev_crd'] = $entry_data['crd_amount'] * $_POST['rate_h'];
                         $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->rev_acc_id;
                         $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->rev_acc_acode;
+                        $entry_data['data2'] = $_POST['rem'];
 
                         if ($this->db->insert('entry_data', $entry_data)) {
                             $true = "Cash In Add Successfully ...";
@@ -4768,6 +4769,26 @@ class Account extends CI_Controller
         $month_trns = date('m', strtotime($date_trns));
         $year_trns = date('Y', strtotime($date_trns));
         $sql = "SELECT SUBSTRING(trns_code,-5) as trns_code from entry_data_total where trns_type ='Manual Entry' and month(trns_date) = '" . $month_trns . "' and year(trns_date) = '" . $year_trns . "' and brand = '" . $this->brand . "' order by trns_code  DESC limit 1";
+
+        $qu = $this->db->query($sql);
+        $query = $qu->result_array();
+        //var_dump($query[0]['trns_code']);
+        if ($qu->num_rows() > 0) {
+            $auto_num = intval($query[0]['trns_code']) + 1;
+        } else {
+            $auto_num = 1;
+        }
+
+        $new_auto_num = str_pad($month_trns, 2, '0', STR_PAD_LEFT) . "-" . str_pad($auto_num, 5, '0', STR_PAD_LEFT);
+
+        echo $new_auto_num;
+    }
+    function auto_num_CashIn()
+    {
+        $date_trns = $this->input->post('cdate', TRUE);
+        $month_trns = date('m', strtotime($date_trns));
+        $year_trns = date('Y', strtotime($date_trns));
+        $sql = "SELECT SUBSTRING(trns_code,-5) as trns_code from entry_data_total where trns_type ='Cash In' and month(trns_date) = '" . $month_trns . "' and year(trns_date) = '" . $year_trns . "' and brand = '" . $this->brand . "' order by trns_code  DESC limit 1";
 
         $qu = $this->db->query($sql);
         $query = $qu->result_array();

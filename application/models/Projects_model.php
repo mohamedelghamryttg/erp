@@ -15,7 +15,7 @@ class Projects_model extends CI_Model
         parent::__construct();
         $this->load->database();
     }
-    public function findall($vfilter = '')
+    public function findall($vfilter = '', $screen_type = '')
     {
         $sql =
             "select * from ( SELECT 
@@ -27,8 +27,7 @@ class Projects_model extends CI_Model
             p.customer AS customer,
             p.lead AS `lead`,
             p.product_line AS product_line,
-            p.cpo_file AS cpo_file,
-            p.po AS po,
+           
             p.type AS type,
             p.status AS status,
             p.closed_date AS closed_date,
@@ -61,16 +60,17 @@ class Projects_model extends CI_Model
             LEFT JOIN customer c ON (c.id = p.customer))
             LEFT JOIN brand b ON (b.id = c.brand))
             LEFT JOIN customer_product_line l ON (l.id = p.product_line))
-            LEFT JOIN users u ON (u.id = p.created_by))
+            LEFT JOIN users u ON (u.id = p.created_by))           
             LEFT JOIN (SELECT 
                 job.project_id AS project_id,
                     job.status AS status,
-                    job.id AS id
+                    job.id AS id     
             FROM
                 job
             WHERE
                 job.status <> 1
             GROUP BY job.project_id , job.status) j ON (j.project_id = p.id))
+
             LEFT JOIN (SELECT 
                 job.project_id AS project_id,
                     MIN(job.start_date) AS min_start,
@@ -79,12 +79,14 @@ class Projects_model extends CI_Model
             FROM
                 job
             GROUP BY job.project_id) j1 ON (j1.project_id = p.id))
+
             LEFT JOIN (SELECT 
                 job.project_id AS project_id,
                     IFNULL(COUNT(job.id), 0) AS allclosed
             FROM
                 job
             GROUP BY job.project_id) j2 ON (j2.project_id = p.id))
+
             LEFT JOIN (SELECT 
                 job.project_id AS project_id,
                     IFNULL(COUNT(job.id), 0) AS closedstat
@@ -93,17 +95,22 @@ class Projects_model extends CI_Model
             WHERE
                 job.status = 1
             GROUP BY job.project_id) j3 ON (j3.project_id = p.id))
-            ) as tot_pro where (allclosed <> closedstat OR closedstat = 0) ";
+
+           
+            ) as tot_pro  where 1 ";
+        // LEFT JOIN job j0 ON (p.id = j0.project_id))
+        // LEFT JOIN po pos ON (j0.po = pos.id))
+        if ($screen_type == 'Running') {
+            $sql .= " and (allclosed <> closedstat OR closedstat = 0) ";
+        }
+
+
         if ($vfilter != '') {
             $sql .= " and " . $vfilter;
         }
-        $query = $this->db->query($sql);
-        // var_dump($query);
+        // var_dump($sql);
         // die;
-
-
-
-
+        $query = $this->db->query($sql);
         return $query;
     }
 
@@ -6654,7 +6661,7 @@ class Projects_model extends CI_Model
             } else {
                 $currentProjectPre = 0;
             }
-           
+
             // start checking
             if ($currentProjectPre >=  $minProjectPre) {
                 $result = true;

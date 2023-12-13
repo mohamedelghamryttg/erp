@@ -96,7 +96,7 @@
                 </div>
               </div>
 
-              <div class="col-sm-6 col-lg-3 d-flex align-items-stretch">
+              <div class="col-sm-6 col-lg-3 d-flex align-items-stretch" style="display: none !important;">
                 <div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: linear-gradient(180deg,  rgba(28,173,17,.8) 90%, rgba(0,212,255,.5) 100%);">
                   <div class="card-body p-0" style="float:left;">
 
@@ -115,7 +115,7 @@
                 </div>
               </div>
 
-              <div class="col-sm-6 col-lg-3 d-flex align-items-stretch">
+              <div class="col-sm-6 col-lg-3 d-flex align-items-stretch" style="display: none !important;">
                 <div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: linear-gradient(180deg,  rgba(63,66,84,.8) 90%, rgba(0,212,255,.5) 100%);">
                   <div class="card-body p-0" style="float:left;">
                     <span class="fs-4hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="closedCount">...</span>
@@ -221,7 +221,6 @@
 
                   <form class="cmxform form-horizontal" id="searchform" method="post" enctype="multipart/form-data">
                     <input type="text" name="screen_type" value="<?= $screen_type ?>" hidden>
-
                     <div class="card-body  py-3 my-0">
                       <div class="form-group row">
                         <label class="col-lg-2 control-label text-lg-right" for="role code">Project Code</label>
@@ -252,20 +251,30 @@
                       <div class="form-group row">
                         <label class="col-lg-2 control-label text-lg-right" for="role status">Status</label>
                         <div class="col-lg-3 " style="width: 100%;">
-                          <select name="status" class="form-control m-b" id="status" style="width: 100% Iimportant;">
-                            <option value="">-- Select Status --</option>
-                            <?php
-                            if ($status == 2) { ?>
-                              <option selected="" value="<?= $_REQUEST['status'] ?>">Running</option>
+                          <?php if ($screen_type == 'All') { ?>
+                            <select name="status" class="form-control m-b" id="status" style="width: 100% Iimportant;">
+                              <option value="">-- Select Status --</option>
+                              <?php
+                              if ($status == 2) { ?>
+                                <option selected="" value="<?= $_REQUEST['status'] ?>">Running</option>
+                                <option value="1">Closed</option>
+                              <?php } elseif ($status == 1) { ?>
+                                <option selected="" value="<?= $_REQUEST['status'] ?>">Closed</option>
+                                <option value="2">Running</option>
+                              <?php } else { ?>
+                                <option value="2">Running</option>
+                                <option value="1">Closed</option>
+                              <?php } ?>
+                            </select>
+                          <?php } else { ?>
+                            <select name="status" class="form-control m-b" id="status" style="width: 100% Iimportant;" disabled>
+                              <option value="">-- Select Status --</option>
+                              <option selected value="2">Running</option>
                               <option value="1">Closed</option>
-                            <?php } elseif ($status == 1) { ?>
-                              <option selected="" value="<?= $_REQUEST['status'] ?>">Closed</option>
-                              <option value="2">Running</option>
-                            <?php } else { ?>
-                              <option value="2">Running</option>
-                              <option value="1">Closed</option>
-                            <?php } ?>
-                          </select>
+
+                            </select>
+                          <?php } ?>
+
                         </div>
 
                         <label class="col-lg-2 col-form-label text-lg-right">Created by</label>
@@ -295,7 +304,7 @@
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 <button class="btn btn-primary" name="search" data-toggle="filter11Modal" id="search" type="button" value="search">Search</button>
-                <a href="<?= base_url() ?>ProjectManagment/" class="btn btn-warning">(x) Clear Filter</a>
+                <a href="<?= base_url() ?>ProjectManagment/runningProject" class="btn btn-warning">(x) Clear Filter</a>
 
               </div>
             </div>
@@ -326,7 +335,7 @@
             </div>
           </div>
 
-          <div class="card-body row py-0">
+          <div class="card-body row py-0 px-0">
             <div class="col-sm-12 px-5">
 
               <table id="user_data" class="table table-striped row-bordered display nowrap table-hover " cellspacing="0" width="100%">
@@ -338,101 +347,91 @@
       </div>
     </div>
   </div>
-  <style>
-    div.dataTables_wrapper div.dataTables_processing {
-      background-color: transparent;
-      border: none;
-    }
+</div>
+<style>
+  div.dataTables_wrapper div.dataTables_processing {
+    background-color: transparent;
+    border: none;
+  }
 
-    .text-wrap-datatable {
-      white-space: pre-line !important;
-      min-width: 30ch;
-    }
+  .text-wrap-datatable {
+    white-space: pre-line !important;
+    min-width: 30ch;
+  }
 
-    .text-nowrap-datatable {
-      white-space: nowrap !important;
-    }
+  .text-nowrap-datatable {
+    white-space: nowrap !important;
+  }
 
-    .dataTables_paginate ul li {
-      padding: 0px !important;
-      border: 0px !important;
-      background: transparent;
-    }
+  .dataTables_paginate ul li {
+    padding: 0px !important;
+    border: 0px !important;
+    background: transparent;
+  }
 
-    .text-flix-datatable {
-      display: flex,
-    }
+  .text-flix-datatable {
+    display: flex,
+  }
 
-    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
 
-      background: transparent !important;
-    }
+    background: transparent !important;
+  }
 
-    .dataTables_wrapper .dataTables_paginate .paginate_button:active {
-      /* box-shadow: unset; */
-    }
+  .dataTables_wrapper .dataTables_paginate .paginate_button:active {
+    /* box-shadow: unset; */
+  }
 
-    .demo .select2 {
-      width: auto !important;
-    }
+  .demo .select2 {
+    width: auto !important;
+  }
 
-    .btn-group>.btn:not(:last-child):not(.dropdown-toggle),
-    .btn-group>.btn-group:not(:last-child)>.btn {
-      border-radius: 1;
-      margin-right: 0.5em;
-    }
+  .btn-group>.btn:not(:last-child):not(.dropdown-toggle),
+  .btn-group>.btn-group:not(:last-child)>.btn {
+    border-radius: 1;
+    margin-right: 0.5em;
+  }
 
-    .datepicker {
-      z-index: 10052;
-    }
+  .datepicker {
+    z-index: 10052;
+  }
 
-    table.dataTable td.details-control:before {
-      content: '\f044';
-      font-family: FontAwesome;
-      cursor: pointer;
-      font-size: 22px;
-      color: #55a4be;
-      font-size: 16px;
-    }
+  table.dataTable td.details-control:before {
+    content: '\f044';
+    font-family: FontAwesome;
+    cursor: pointer;
+    font-size: 22px;
+    color: #55a4be;
+    font-size: 16px;
+  }
 
-    table.dataTable tr.shown td.details-control:before {
-      content: '\f00d';
-      font-family: FontAwesome;
-      color: black;
-    }
+  table.dataTable tr.shown td.details-control:before {
+    content: '\f00d';
+    font-family: FontAwesome;
+    color: black;
+  }
 
-    table.dataTable.dtr-inline.collapsed>tbody>tr.parent>td.dtr-control:before,
-    table.dataTable.dtr-inline.collapsed>tbody>tr.parent>th.dtr-control:before {
-      background-color: #e91e63 !important;
-    }
+  table.dataTable.dtr-inline.collapsed>tbody>tr.parent>td.dtr-control:before,
+  table.dataTable.dtr-inline.collapsed>tbody>tr.parent>th.dtr-control:before {
+    background-color: #e91e63 !important;
+  }
 
-    table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>td.dtr-control:before,
-    table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>th.dtr-control:before {
-      background-color: #e91e63 !important;
-    }
-
-
-    .dataTables_wrapper table.dataTable.collapsed>tbody>tr>td:first-child::before {
-      padding: 0 !important;
-      font-size: 1.5em;
-    }
-
-    .swal2-content .select2 {
-      display: none;
-    }
-  </style>
-  <!-- <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap.min.css" rel="stylesheet">
+  table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>td.dtr-control:before,
+  table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>th.dtr-control:before {
+    background-color: #e91e63 !important;
+  }
 
 
-  <link href="https://nightly.datatables.net/css/jquery.dataTables.min.css" rel="stylesheet"> -->
-  <!-- <link href="https://nightly.datatables.net/buttons/css/buttons.dataTables.min.css" rel="stylesheet"> -->
+  .dataTables_wrapper table.dataTable.collapsed>tbody>tr>td:first-child::before {
+    padding: 0 !important;
+    font-size: 1.5em;
+  }
+
+  .swal2-content .select2 {
+    display: none;
+  }
+</style>
 
 
-  <!-- <script src="https://nightly.datatables.net/js/jquery.dataTables.min.js"></script>
-  <script src="https://nightly.datatables.net/buttons/js/dataTables.buttons.min.js"></script>
-  <script src="https://nightly.datatables.net/buttons/js/buttons.colVis.min.js"></script>
-  <script src="https://nightly.datatables.net/buttons/js/buttons.html5.min.js"></script>
-  <script src="https://nightly.datatables.net/buttons/js/buttons.print.min.js"></script> -->
-
-
-  <script src="<?php echo base_url(); ?>assets_new/js/projectsManagment/view_projects.js"></script>
+<link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap.min.css" rel="stylesheet">
+<script src="<?php echo base_url(); ?>assets_new/js/projectsManagment/view_projects.js"></script>

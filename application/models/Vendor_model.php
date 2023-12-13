@@ -112,7 +112,6 @@ class Vendor_model extends CI_Model
                     $data = $this->db->order_by('id', 'desc')->get_where('vm_ticket', array('from_id' => 0, 'ticket_from' => 3, 'created_by' => $filter_created_by));
                 else
                     $data = $this->db->order_by('id', 'desc')->get_where('vm_ticket', array('from_id' => 0, 'ticket_from' => 3));
-
             } elseif ($permission->view == 2) {
                 $data = $this->db->order_by('id', 'desc')->get_where('vm_ticket', array('from_id' => 0, 'ticket_from' => 3, 'created_by' => $user));
             }
@@ -502,7 +501,7 @@ class Vendor_model extends CI_Model
         return $data;
     }
 
-    public function sendNewTicketEmail($user,$ticketNumber,$brand,$emailSubject = "",$opportunity = 0)
+    public function sendNewTicketEmail($user, $ticketNumber, $brand, $emailSubject = "", $opportunity = 0)
     {
         $config = array(
             'protocol' => 'smtp',
@@ -625,7 +624,7 @@ class Vendor_model extends CI_Model
                                     </tr>
                                     <tr>
                                          <td style="background-color: #f9f9f9;">Source Language</td>
-                                         <td style="background-color:#ddd;">' . $this->admin_model->getLanguage($row->source_lang). '</td>
+                                         <td style="background-color:#ddd;">' . $this->admin_model->getLanguage($row->source_lang) . '</td>
                                     </tr>
                                     <tr>
                                          <td style="background-color: #f9f9f9;">Target Language</td>
@@ -657,7 +656,7 @@ class Vendor_model extends CI_Model
         $this->email->send();
     }
 
-    public function sendTicketMail($user,$ticketNumber,$mailSubject,$msg,$brand)
+    public function sendTicketMail($user, $ticketNumber, $mailSubject, $msg, $brand)
     {
         $config = array(
             'protocol' => 'smtp',
@@ -751,7 +750,7 @@ class Vendor_model extends CI_Model
         $this->email->send();
     }
 
-    public function TicketReplyMail($user,$ticketNumber,$brand,$comment,$emailSubject = "")
+    public function TicketReplyMail($user, $ticketNumber, $brand, $comment, $emailSubject = "")
     {
         $userData = $this->admin_model->getUserData($user);
         $MailTo = $userData->email;
@@ -1151,14 +1150,12 @@ class Vendor_model extends CI_Model
             } else {
                 $data = $this->db->query(" SELECT v.*,(SELECT brand FROM `users` WHERE users.id = v.created_by) AS brand FROM `vm_ticket` AS v WHERE issue_status = 1 AND v.issue_by = '$user' AND " . $filter . " HAVING brand = '$brand' order by id desc");
             }
-
         } else {
             if ($role == 32) {
                 $data = $this->db->query(" SELECT v.*,(SELECT brand FROM `users` WHERE users.id = v.created_by) AS brand FROM `vm_ticket` AS v WHERE issue_status = 1 HAVING brand = '$brand' order by id desc");
             } else {
                 $data = $this->db->query(" SELECT v.*,(SELECT brand FROM `users` WHERE users.id = v.created_by) AS brand FROM `vm_ticket` AS v WHERE issue_status = 1 AND v.issue_by = '$user' HAVING brand = '$brand' order by id desc");
             }
-
         }
         return $data;
     }
@@ -1232,12 +1229,10 @@ class Vendor_model extends CI_Model
     {
         return $this->db->select('vr.*,vsr.id AS sheetid,vsr.source_lang,vsr.target_lang,vsr.dialect,vsr.service,vsr.task_type,vsr.rate,vsr.special_rate,vsr.currency,vsr.status,vsr.unit')->from('vendor_request as vr')
             ->join('vendor_sheet_request AS vsr', 'vsr.vendor = vr.id')->where("vsr.id", $sheet_id)->get()->row();
-
     }
     public function getVendor($external_vendor)
     {
         return $this->db->select('id')->from('vendor')->where("external_id", $external_vendor)->get()->row();
-
     }
 
     public function generateVendorPassword()
@@ -1310,14 +1305,42 @@ class Vendor_model extends CI_Model
         return $data;
     }
 
-	 public function getVendorTaskCount($vendor_id)
+    public function getVendorTaskCount($vendor_id)
     {
         $data = $this->db->query(" SELECT count(id) as task_count FROM `job_task` WHERE vendor = $vendor_id")->row()->task_count;
         return $data;
     }
+    public function getVendorRank($vendor_id)
+    {
+        $this->db->where('vendor', $vendor_id);
+        $this->db->where('verified', 1);
+        $this->db->from("job_task");
+        $task_count = $this->db->count_all_results();
+
+        $this->db->from("task_evaluation");
+        $this->db->where('vendor_id', $vendor_id);
+        $task_evaluation_count  = $this->db->count_all_results();
+
+        $old_ev = ($task_count - $task_evaluation_count) * 100;
+
+        $all_ev_100 = $task_count  * 100;
+
+        $this->db->select('sum(COALESCE(pm_ev_val1,0))+sum(COALESCE(pm_ev_val2,0))+sum(COALESCE(pm_ev_val3,0))+sum(COALESCE(pm_ev_val4,0))+sum(COALESCE(pm_ev_val5,0))+sum(COALESCE(pm_ev_val6,0)) as ev');
+        $this->db->where('vendor_id', $vendor_id);
+        $this->db->from("task_evaluation");
+        $task_evaluation = $this->db->get()->result();
+
+        if ($all_ev_100) {
+            $vend_ev = ($task_evaluation[0]->ev + $old_ev) / $all_ev_100 * 100;
+        } else {
+            $vend_ev = '';
+        }
+
+        return  intval($vend_ev);
+    }
     // vendor campaign
     public function CreateCampaignTable($tableName)
-    { 
+    {
         $sql = "CREATE TABLE $tableName(
             id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
             vendor_id INT(11) NOT NULL, 
@@ -1332,29 +1355,29 @@ class Vendor_model extends CI_Model
         )";
         $query = $this->db->query($sql);
         return $query;
-    } 
-    
+    }
+
     public function sendCampaignVendors($tableName)
     {
- 
-       $config = array(
-                    'protocol' => 'smtp',
-                    'smtp_host' => 'email-smtp.us-west-2.amazonaws.com',
-                    'smtp_port' => 25,
-                    'smtp_user' => 'erp@aixnexus.com',
-                    'smtp_pass' => 'EXoYlsum6Do@',
-                    'charset' => 'utf-8',
-                    'validate' => TRUE,
-                    'wordwrap' => TRUE,
-		);
-       
+
+        $config = array(
+            'protocol' => 'smtp',
+            'smtp_host' => 'email-smtp.us-west-2.amazonaws.com',
+            'smtp_port' => 25,
+            'smtp_user' => 'erp@aixnexus.com',
+            'smtp_pass' => 'EXoYlsum6Do@',
+            'charset' => 'utf-8',
+            'validate' => TRUE,
+            'wordwrap' => TRUE,
+        );
+
         $this->load->library('email', $config);
-        $this->email->set_newline("\r\n");     
+        $this->email->set_newline("\r\n");
         $this->email->from('vm@thetranslationgate.com');
         $subject = "You made our top 100 vendor list! Tell us what you think.";
-        $this->email->subject($subject); 
-        $vendor = $this->db->get_where("$tableName", array('send_flag' => 0))->row();  
-        if(!empty($vendor)){
+        $this->email->subject($subject);
+        $vendor = $this->db->get_where("$tableName", array('send_flag' => 0))->row();
+        if (!empty($vendor)) {
             $msg = '<!DOCTYPE html>
                     <html lang="en">
                     <head>
@@ -1400,38 +1423,33 @@ class Vendor_model extends CI_Model
             $this->email->to($mailTo);
             $this->email->message($msg);
             $this->email->set_header('Reply-To', 'vm@thetranslationgate.com');
-            $this->email->set_mailtype('html');             
+            $this->email->set_mailtype('html');
             if ($this->email->send()) {
-            // if send update flag = 1
+                // if send update flag = 1
                 $data['send_flag'] = 1;
                 $data['camp_date'] = date("Y-m-d H:i:s");
                 $this->db->update("$tableName", $data, array('id' => $vendor->id));
-               
             }
-        }else{           
+        } else {
             $data['status'] = "closed";
             $this->db->update("$tableName", $data);
-            
         }
-        
-    }  
-    
-    public function getActiveVendors($brand,$campaignID){
-        
-        $tableName = 'camp_'.$campaignID;
-      //  $vendors = $this->db->query("SELECT DISTINCT(vendor.id),name ,email,brand FROM `vendor` join `job_task` ON `job_task`.vendor = `vendor`.`id` where brand=$brand  and name like '%test%'")->result();
+    }
+
+    public function getActiveVendors($brand, $campaignID)
+    {
+
+        $tableName = 'camp_' . $campaignID;
+        //  $vendors = $this->db->query("SELECT DISTINCT(vendor.id),name ,email,brand FROM `vendor` join `job_task` ON `job_task`.vendor = `vendor`.`id` where brand=$brand  and name like '%test%'")->result();
         $vendors = $this->db->query("SELECT DISTINCT(vendor.id),name ,email,brand FROM `vendor` join `job_task` ON `job_task`.vendor = `vendor`.`id` where brand=$brand  ")->result();
-                
+
         foreach ($vendors as $vendor) {
             $data['vendor_id'] = $vendor->id;
             $data['vendor_name'] = $vendor->name;
             $data['vendor_email'] = $vendor->email;
             $data['brand'] = $vendor->brand;
             $data['camp_id'] = $campaignID;
-            $this->db->insert("$tableName", $data);                
+            $this->db->insert("$tableName", $data);
         }
-        
-    } 
-
-
+    }
 }

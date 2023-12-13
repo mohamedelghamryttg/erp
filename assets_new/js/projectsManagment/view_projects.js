@@ -1,5 +1,5 @@
 var base_url = $('#base').val();
-var projectsTable;
+let projectsTable;
 let permissions;
 var projectData;
 var samData;
@@ -22,7 +22,17 @@ $(document).ready(function (e) {
                 }
             },
             beforeSend: function () {
-                $('#loading').show();
+
+                Swal.fire({
+                    title: 'Please Wait !',
+                    text: 'Data Loading ....',
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    onOpen: function () {
+                        Swal.showLoading()
+                    }
+                });
+
             },
 
             success: function (data) {
@@ -32,12 +42,12 @@ $(document).ready(function (e) {
                 samData = data['opportunity'];
                 permissions = data['permission'];
 
-                $('#loading').hide();
+                swal.close();
                 createTables(projectData, samData, permissions);
                 return
             },
             error: function (jqXHR, exception) {
-                $('#loading').hide();
+                swal.close();
                 console.log(jqXHR.responseText);
             }
         });
@@ -64,7 +74,7 @@ $(document).ready(function (e) {
             scrollCollapse: true,
             pageResize: true,
             responsive: true,
-
+            // bProcessing: true,
             language: {
                 lengthMenu: "_MENU_ Rows per page",
                 info: "Showing <b>_START_ to _END_</b> of _TOTAL_ entries",
@@ -79,7 +89,10 @@ $(document).ready(function (e) {
                 aria: {
                     sortAscending: ": activate to sort column ascending",
                     sortDescending: ": activate to sort column descending"
-                }
+                },
+
+                // processing: '<i class="fas fa-asterisk fa-spin fa-6x fa-fw"></i> < br > PROCESSING < br > Please wait...',
+
             }, responsive: {
                 details: {
                     type: 'column',
@@ -89,6 +102,7 @@ $(document).ready(function (e) {
             order: [1, 'desc'],
             autoWidth: true,
             orderCellsTop: true,
+            deferRender: false,
 
             buttons: [
 
@@ -136,6 +150,9 @@ $(document).ready(function (e) {
                         excelStyles: {
                             template: "blue_medium"
                         },
+                        init: function (api, node, config) {
+                            $(node).removeClass('btn-secondary')
+                        }
                     },
                     {
                         extend: 'pdfHtml5',
@@ -146,11 +163,7 @@ $(document).ready(function (e) {
                             orientation: 'landscape',
                             columns: "thead th:not(.noExport)",
                         },
-                        action: function (e, dt, node, config) {
-                            setTimeout(function () {
-                                $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, node, config);
-                            }, 50);
-                        }
+
                     },
                     {
                         extend: 'print',
@@ -186,19 +199,26 @@ $(document).ready(function (e) {
             ],
 
             columnDefs: [{
-                defaultContent: "-",
-                targets: "_all",
+                // targets: 0,
+                // orderable: false,
+                // defaultContent: "-",
+                // targets: "_all",
 
 
-                className: 'dtr-control',
-                orderable: false,
-                targets: 0,
-                data: 0,
-                title: '<i class="fa fa-info-circle fa-lg" ></i>'
+                // className: 'dtr-control',
+                // orderable: false,
+                // targets: 0,
+                // data: 0,
+                // title: '<i class="fa fa-info-circle fa-lg" ></i>'
             }],
             columns: [
                 {
-                    title: '<i class="fa fa-info-circle fa-lg"></i>'
+                    data: null,
+                    title: '<i class="fa fa-info-circle fa-lg"></i>',
+                    className: 'noExport dtr-control',
+
+                    defaultContent: '',
+                    orderable: false
 
                 },
                 {
@@ -287,6 +307,10 @@ $(document).ready(function (e) {
                     },
                 },
                 {
+                    title: 'OPPORTUNITY NO',
+                    data: 'opportunity'
+                },
+                {
                     title: 'STATUS',
                     data: 'null',
                     render: function (data, type, row) {
@@ -297,10 +321,11 @@ $(document).ready(function (e) {
                         }
                     }
                 },
-                {
-                    title: 'OPPORTUNITY NO',
-                    data: 'opportunity'
-                },
+
+                // {
+                //     title: 'PO',
+                //     data: 'po_number',
+                // },
                 {
                     title: 'PRODUCT LINE',
                     data: 'productline',
@@ -335,14 +360,14 @@ $(document).ready(function (e) {
                         var action_btn = '<div>';
                         if (permissions && permissions.edit == '1') {
                             if (row.allclosed == row.closedstat && row.closedstat != 0) {
-                                action_btn += '<a class="btn btn-dark font-weight-bold mr-2 disabled" href="' + base_url + 'projectManagment/editProject?t=' + btoa(row.id) + '"><i class="fa fa-pen "></i> Edit</a>';
+                                // action_btn += '<a class="btn btn-dark font-weight-bold mr-2 disabled" href="' + base_url + 'projectManagment/editProject?t=' + btoa(row.id) + '"><i class="fa fa-pen "></i> Edit</a>';
                             } else {
                                 action_btn += '<a class="btn btn-dark font-weight-bold mr-2" href="' + base_url + 'projectManagment/editProject?t=' + btoa(row.id) + '"><i class="fa fa-pen "></i> Edit</a>';
                             }
                         }
                         if (permissions && permissions.delete == '1') {
                             if (row.allclosed == row.closedstat && row.closedstat != 0) {
-                                action_btn += '<a class="btn btn-danger font-weight-bold mr-2 disabled" id="del_fun" title="delete" href="javascript:void(0)" data-id=' + row.id + '><i class="la la-trash"></i> Delete</a>';
+                                // action_btn += '<a class="btn btn-danger font-weight-bold mr-2 disabled" id="del_fun" title="delete" href="javascript:void(0)" data-id=' + row.id + '><i class="la la-trash"></i> Delete</a>';
                             } else {
                                 action_btn += '<a class="btn btn-danger font-weight-bold mr-2 " id="del_fun" title="delete" href="javascript:void(0)" data-id=' + row.id + '><i class="la la-trash"></i> Delete</a>';
                             }
@@ -368,6 +393,21 @@ $(document).ready(function (e) {
                 }, 0) : 0;
 
             },
+        }).on('buttons-processing', function (e, indicator) {
+            if (indicator) {
+                Swal.fire({
+                    title: 'Please Wait !',
+                    html: 'Descargar excel',// add html attribute if you want or remove
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    onBeforeOpen: () => {
+                        Swal.showLoading()
+                    }
+                });
+            }
+            else {
+                swal.close();
+            }
         });
 
         ////////////////////////////////////// samTable
@@ -385,36 +425,20 @@ $(document).ready(function (e) {
 
             pagingType: "full_numbers",
 
-            scrollY: "40vh",
+            scrollY: 400,
+            scrollX: true,
             scrollCollapse: true,
-            pageResize: true,
+            // pageResize: true,
             pageLength: 5,
-            responsive: true,
-            responsive: {
-                details: false,
-                breakpoints: [
-                    { name: 'bigdesktop', width: Infinity },
-                    { name: 'meddesktop', width: 1480 },
-                    { name: 'smalldesktop', width: 1280 },
-                    { name: 'medium', width: 1188 },
-                    { name: 'tabletl', width: 1024 },
-                    { name: 'btwtabllandp', width: 848 },
-                    { name: 'tabletp', width: 768 },
-                    { name: 'mobilel', width: 480 },
-                    { name: 'mobilep', width: 320 }
-                ]
-            },
 
-            // scrollY: 250,
-            scrollX: false,
             order: [1, 'desc'],
-            autoWidth: true,
+            autoWidth: false,
 
             dom: "<'row'<'col-sm-12 col-md-5'i>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'><'col-sm-12 col-md-7'p>>",
 
-            renderer: 'bootstrap',
+            // renderer: 'bootstrap',
             language: {
                 lengthMenu: "_MENU_ Rows per page",
                 info: "Showing <b>_START_ to _END_</b> of _TOTAL_ entries",
@@ -430,51 +454,51 @@ $(document).ready(function (e) {
                 targets: "_all",
             }],
             columns: [{
-                title: '+',
+                // title: '#',
                 data: null,
 
             },
             {
-                title: 'ID',
+                // title: 'ID',
                 data: 'id'
             },
             {
-                title: 'PROJECT NAME',
+                // title: 'PROJECT NAME',
                 data: 'project_name',
                 className: 'text-wrap-datatable',
             },
             {
-                title: 'Client',
-                data: 'customer_name'
+                // title: 'Client',
+                data: 'customer_name',
+                className: 'text-wrap-datatable',
             },
             {
-                title: 'Assigned Date',
+                // title: 'Assigned Date',
                 data: 'assigned_at',
                 className: 'text-nowrap-datatable',
 
             },
             {
-                title: 'SAM',
+                // title: '',
                 data: 'sam_name',
 
             },
             {
-                title: 'SAVE',
+                // title: 'SAVE',
                 data: 'null',
-
-                // className: 'noExport noVis',
                 orderable: false,
                 render: function (data, type, row) {
                     return '<a class="btn btn-sm  py-1 btn-outline-primary " href="' + base_url + 'projects/saveProject?t=' + btoa(row.id) + '" style="font-size: 0.8em;"><i class="fas fa-search fa-sm" ></i> View </a>';
                 }
             }
             ],
-            // fnRowCallback: function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-            //     $('td:eq(0)', nRow).html('<span>' + (iDisplayIndexFull + 1) + '</span>');
-            // },
+            fnRowCallback: function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(0)', nRow).html('<span>' + (iDisplayIndexFull + 1) + '</span>');
+            },
             initComplete: function () {
                 var samCount = samData.length
                 document.getElementById("samCount").innerHTML = samCount;
+
             },
         });
 
@@ -482,12 +506,8 @@ $(document).ready(function (e) {
     //////////////////////////////
     $('#search').on('click', function (e) {
         e.preventDefault();
-        // $('#filter11Modal').modal('toggle');
-        // projectsTable.ajax.reload();(
         loadAjaxData();
         $('#filter11Modal').modal('toggle');
-        // projectsTable.ajax.reload(); (
-        // alert(data)
     });
     //////////////////////////////
     $('#filter21Modal').on('shown.bs.modal', function (e) {
@@ -496,4 +516,11 @@ $(document).ready(function (e) {
             api: true
         }).columns.adjust();
     });
+
+    // Add filtering
+
+
 })
+
+
+
