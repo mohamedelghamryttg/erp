@@ -150,7 +150,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										</svg>
 										<!--end::Svg Icon-->
 									</span>
-									<span class="menu-text">Dashboard</span>                                                                      
+									<span class="menu-text">Dashboard</span>
 								</a>
 							</li>
 							<li class="menu-section">
@@ -169,17 +169,20 @@ License: You must have a valid license purchased only from themeforest(the above
 										<span class="menu-text">
 											<?= ucfirst($this->admin_model->getGroup($group1->groups)->name) ?>
 										</span>
-                                                                              <?php if($this->admin_model->checkIfUserIsManager($this->user) && date("d")>=5 && date("d")<=10){
-                                                                                    if($group1->groups == 19 ){
-                                                                                    if($this->hr_model->numOfMissingKpiToManager() > 0){                                                                           
-                                                                                    ?>
-                                                                               <span class="menu-label">
-                                                                                    <span class="label pulse pulse-danger bg-transparent">
-                                                                                         <span class="position-relative"><i class="flaticon2-information text-danger"></i></span>
-                                                                                        <span class="pulse-ring"></span>
-                                                                                    </span>                                                                                
-                                                                                </span>                                                                              
-                                                                        <?php }}}?>                                                                             
+										<?php
+										if ($this->admin_model->checkIfUserIsManager($this->user) && date("d") >= 5 && date("d") <= 10) {
+											if ($group1->groups == 19) {
+												if ($this->hr_model->numOfMissingKpiToManager() > 0) {
+										?>
+													<span class="menu-label">
+														<span class="label pulse pulse-danger bg-transparent">
+															<span class="position-relative"><i class="flaticon2-information text-danger"></i></span>
+															<span class="pulse-ring"></span>
+														</span>
+													</span>
+										<?php }
+											}
+										} ?>
 										<i class="menu-arrow"></i>
 									</a>
 									<div class="menu-submenu">
@@ -195,25 +198,27 @@ License: You must have a valid license purchased only from themeforest(the above
 											<?php foreach ($permission as $permission) {
 												$screen = $this->admin_model->getScreen($permission->screen);
 											?>
-                                                                                            <li class="menu-item" aria-haspopup="true">
-                                                                                                <a href="<?php echo base_url() . $screen->url; ?>" class="menu-link">
-                                                                                                    <i class="menu-bullet menu-bullet-dot">
-                                                                                                            <span></span>
-                                                                                                    </i>
-                                                                                                    <span class="menu-text">
-                                                                                                            <?= $screen->name; ?>
-                                                                                                    </span>
-                                                                                                     <?php if($this->admin_model->checkIfUserIsManager($this->user) && date("d")>=5 && date("d")<=10){
-                                                                                                        if($screen->id == 193 ){
-                                                                                                            $numKpi = $this->hr_model->numOfMissingKpiToManager();
-                                                                                                        if($numKpi > 0){   ?>
-                                                                                                            <span class="menu-label"> 
-                                                                                                                <span class="label label-rounded label-danger"><?=$numKpi?></span>
-                                                                                                            </span>
-                                                                                                    <?php }}}?>
-                                                                                            </a>
-                                                                                    </li>
-                                                                                    <?php } ?>
+												<li class="menu-item" aria-haspopup="true">
+													<a href="<?php echo base_url() . $screen->url; ?>" class="menu-link">
+														<i class="menu-bullet menu-bullet-dot">
+															<span></span>
+														</i>
+														<span class="menu-text">
+															<?= $screen->name; ?>
+														</span>
+														<?php if ($this->admin_model->checkIfUserIsManager($this->user) && date("d") >= 5 && date("d") <= 10) {
+															if ($screen->id == 193) {
+																$numKpi = $this->hr_model->numOfMissingKpiToManager();
+																if ($numKpi > 0) {   ?>
+																	<span class="menu-label">
+																		<span class="label label-rounded label-danger"><?= $numKpi ?></span>
+																	</span>
+														<?php }
+															}
+														} ?>
+													</a>
+												</li>
+											<?php } ?>
 										</ul>
 									</div>
 								</li>

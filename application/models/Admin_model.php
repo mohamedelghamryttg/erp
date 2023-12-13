@@ -2187,15 +2187,16 @@ class Admin_model extends CI_Model
 	}
 
 	// new
-	public function checkIfUserIsManager($user_id)
+	public function checkIfUserIsManager($user_id = '')
 	{
 		$data = False;
-		$emp_id = $this->db->get_where('users', array('id' => $user_id))->row()->employees_id;
-		$rows = $this->db->get_where('employees', array('manager' => $emp_id))->num_rows();
-		if ($rows > 0) {
-			$data = True;
+		if ($this->db->get_where('users', array('id' => $user_id))->row()) {
+			$emp_id = $this->db->get_where('users', array('id' => $user_id))->row()->employees_id;
+			$rows = $this->db->get_where('employees', array('manager' => $emp_id))->num_rows();
+			if ($rows > 0) {
+				$data = True;
+			}
 		}
-
 		return $data;
 	}
 	// send new password for users
@@ -2561,14 +2562,14 @@ class Admin_model extends CI_Model
 		}
 		return $data;
 	}
-        // get employee name from user id 
-        public function getEmpNameFromUser($user)
+	// get employee name from user id 
+	public function getEmpNameFromUser($user)
 	{
-            $name = '';
+		$name = '';
 		$row = $this->db->get_where('users', array('id' => $user))->row();
-                if (!empty($row)) {                       
-                    $name = word_limiter($this->hr_model->getEmployee($row->employees_id),2,'');
-                }		
-                return $name;
+		if (!empty($row)) {
+			$name = word_limiter($this->hr_model->getEmployee($row->employees_id), 2, '');
+		}
+		return $name;
 	}
 }
