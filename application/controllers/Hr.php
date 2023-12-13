@@ -1628,9 +1628,9 @@ class Hr extends CI_Controller
             $data['vacation'] = $this->db->query(" SELECT * FROM `vacation_transaction` WHERE emp_id = '$this->emp_id' and EXTRACT(YEAR FROM created_at) = '$year'");
             $data['requests'] = $this->hr_model->getRequestsForDirectManager($this->emp_id);
             //Pages ..
-            $this->load->view('includes/header.php', $data);
-            $this->load->view('hr/vacation.php');
-            $this->load->view('includes/footer.php');
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('hr_new/vacation/vacationList.php');
+            $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";
         }
@@ -5481,7 +5481,8 @@ class Hr extends CI_Controller
             if ($permission->view == 1 && (isset($_REQUEST['search']) || isset($_REQUEST['export']))) {
                 $data['employees'] = $this->db->query("SELECT id,name FROM employees WHERE status = 0 $where")->result();
             } elseif ($permission->view == 2) {
-                $data['employees'] = $this->db->query("SELECT id,name FROM employees WHERE status = 0 AND( manager = $this->emp_id || id = $this->emp_id) $where")->result();
+                $subordinates = $this->hr_model->getEmpIdsByManagerIDMultiLevels($this->emp_id);
+                $data['employees'] = $this->db->query("SELECT id,name FROM employees WHERE status = 0 AND( id IN($subordinates)|| id = $this->emp_id) $where")->result();
             }
         
             $endDate = date('Y-m-d', strtotime("+1 day", strtotime($date_to)));
@@ -5536,7 +5537,7 @@ class Hr extends CI_Controller
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             //Pages ..
             $this->load->view('includes_new/header.php', $data);
-            $this->load->view('hr_new/addVacationForEmployees.php');
+            $this->load->view('hr_new/vacation/addVacationForEmployees.php');
             $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";

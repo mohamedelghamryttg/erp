@@ -164,9 +164,16 @@
                                           <i class="fa fa-sm fa-arrow-circle-right text-danger"></i> <?= $this->hr_model->getSubCoreName($row->kpi_sub_id) ?></p>
                                       <?php }?>
                                       <hr/>
-                                      <p><span class="font-weight-bold text-danger">Created By : </span><?= $this->admin_model->getUser($row->created_by) ?>
+                                      <p><span class="font-weight-bold text-danger">Created By : </span><?= $this->admin_model->getEmpNameFromUser($row->created_by) ?>
                                       <span class="font-weight-bold text-danger"> At : </span><?= $row->created_at ?></p>
-                                      <?php if($this->emp_id == $row->emp_id){?>
+                                      <hr/> <p class="font-weight-bold text-center"><?php if($row->confirmed == 1){?>
+                                           <i class="fa fa-sm fa-check-circle text-success"></i><span class="text-success"> Confirmed </span>
+                                       <?php }else{?>
+                                           <i class="fa fa-sm fa-times-circle text-danger"></i><span class="text-danger"> Not Confirmed </span>
+                                       <?php }?>
+                                       </p>
+                                       
+                                      <?php if($this->emp_id == $row->emp_id && $row->confirmed == 0){?>
                                         <form class='mt-10' action="<?php echo base_url() ?>performanceManagment/changeLogStatus" method="post"> 
                                             <input name="id" value="<?= $row->id ?>" type="hidden" />                
                                                                                  

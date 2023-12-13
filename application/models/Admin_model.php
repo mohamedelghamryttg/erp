@@ -2542,24 +2542,6 @@ class Admin_model extends CI_Model
 		return $data;
 	}
 
-	public function getUserEmployees2Level($emp_id)
-	{
-		$idsArray = array();
-		$firstIDs = $this->db->query("SELECT id FROM `employees` WHERE manager = " . $emp_id)->result();
-		foreach ($firstIDs as $row) {
-			//  array_push($idsArray, $row->id);                
-			$secondIDs =  $this->db->query("SELECT id FROM `employees` WHERE manager = " . $row->id)->result();
-			foreach ($secondIDs as $row2)
-				array_push($idsArray, $row2->id);
-		}
-
-		if (!empty($idsArray)) {
-			$empIds = implode(" , ", $idsArray);
-			return $empIds;
-		} else
-			return false;
-	}
-
 	function getDepartment($title = '')
 	{
 
@@ -2578,5 +2560,15 @@ class Admin_model extends CI_Model
 			}
 		}
 		return $data;
+	}
+        // get employee name from user id 
+        public function getEmpNameFromUser($user)
+	{
+            $name = '';
+		$row = $this->db->get_where('users', array('id' => $user))->row();
+                if (!empty($row)) {                       
+                    $name = word_limiter($this->hr_model->getEmployee($row->employees_id),2,'');
+                }		
+                return $name;
 	}
 }

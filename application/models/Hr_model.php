@@ -408,17 +408,8 @@ class Hr_model extends CI_Model
 
     public function getRequestsForDirectManager($emp_id)
     {
-        $title = $this->db->query(" SELECT title FROM employees WHERE id = '$emp_id' ")->row()->title;
-        $idsArray = array();        
-        $IDs =  $this->db->query("SELECT id FROM `employees` WHERE manager = " . $emp_id)->result();
-        if(!empty($IDs)){
-            foreach ($IDs as $row2){
-                    array_push($idsArray, $row2->id);
-            }
-            $empIds = implode(" , ", $idsArray);
-        }else{
-            $empIds = 0 ;
-        }       
+        $title = $this->db->query(" SELECT title FROM employees WHERE id = '$emp_id' ")->row()->title;  
+        $empIds = self::getEmpIdsByManagerIDMultiLevels($emp_id);
        
         if ($title == 37) {           
             $data = $this->db->query("SELECT * FROM vacation_transaction WHERE emp_id in (SELECT id FROM employees WHERE manager in(13,14) || emp_id in ($empIds) )and status = 0 ");
@@ -1520,18 +1511,13 @@ class Hr_model extends CI_Model
     public function AllKpiScore($permission, $filter)
     {
        
-    //	  $check = $this->admin_model->getUserEmployees2Level($this->emp_id);
-     //   if($check != false)
-    //        $where2Level = " OR emp_id IN ($check)";
-     //   else
-      //      $where2Level="";
-    
+     $subordinates = self::getEmpIdsByManagerIDMultiLevels($this->emp_id);
         if ($permission->view == 2) {
-            $data = $this->db->query("SELECT id,emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE " . $filter . " AND emp_id = $this->emp_id Order By Id Desc");
+            $data = $this->db->query("SELECT id,emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE " . $filter . " AND emp_id = $this->emp_id OR emp_id IN($subordinates) Order By Id Desc");
         } else if ($permission->view == 1) {
             //follow team  leader & view all
             if ($permission->follow == 2) {
-                $data = $this->db->query("SELECT id,emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE " . $filter . " AND created_by = $this->user   Order By Id Desc");
+                $data = $this->db->query("SELECT id,emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE " . $filter . " AND (emp_id = $this->emp_id OR emp_id IN($subordinates)) Order By Id Desc");
             } else {
                 $data = $this->db->query("SELECT id,emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE " . $filter . " Order By Id Desc ");
             }
@@ -1541,17 +1527,12 @@ class Hr_model extends CI_Model
 
     public function AllKpiScorePages($permission, $limit, $offset)
     {	  
-    	//$check = $this->admin_model->getUserEmployees2Level($this->emp_id);
-       // if($check != false)
-       //     $where2Level = " OR emp_id IN ($check)";
-     //   else
-       //     $where2Level="";
-     
+     $subordinates = self::getEmpIdsByManagerIDMultiLevels($this->emp_id);
         if ($permission->view == 2) {
-            $data = $this->db->query("SELECT id, emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE emp_id = $this->emp_id Order By Id Desc LIMIT $limit OFFSET $offset ");
+            $data = $this->db->query("SELECT id, emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE emp_id = $this->emp_id OR emp_id IN($subordinates) Order By Id Desc LIMIT $limit OFFSET $offset ");
         } else if ($permission->view == 1) {
             if ($permission->follow == 2) {
-                $data = $this->db->query("SELECT id, emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE created_by = $this->user OR emp_id = $this->emp_id  Order By Id Desc LIMIT $limit OFFSET $offset ");
+                $data = $this->db->query("SELECT id, emp_id,year,month,kpi_id,created_by FROM `kpi_score` WHERE emp_id = $this->emp_id OR emp_id IN($subordinates) Order By Id Desc LIMIT $limit OFFSET $offset ");
             } else {
                 $data = $this->db->query("SELECT id, emp_id,year,month,kpi_id,created_by FROM `kpi_score` Order By Id Desc LIMIT $limit OFFSET $offset ");
             }
@@ -1580,8 +1561,10 @@ class Hr_model extends CI_Model
             $data = "Finish 1-1 Meeting";
         else if ($status == 2)
             $data = "HR Meeting";
-        else
+        else if ($status == 3)
             $data = "Accepted";
+        else if ($status == 4)
+            $data = "Waiting Manager Approval";
 
 
         return $data;
@@ -1716,10 +1699,12 @@ class Hr_model extends CI_Model
     public function getEmployeesNameByManager($emp_id = "", $id = "")
     {
 
-        if ($emp_id)
-            $where = "manager = $emp_id and status = 0";
-        else
+        if ($emp_id){
+            $subordinates = self::getEmpIdsByManagerIDMultiLevels($emp_id);
+            $where = "id IN ($subordinates) and status = 0";
+        }else{
             $where = "status = 0";
+        }
         $employees = $this->db->query("SELECT name,id FROM employees WHERE $where ")->result_array();
         $data = "";
         foreach ($employees as $value) {
@@ -1735,19 +1720,21 @@ class Hr_model extends CI_Model
 
     public function AllIncidentLog($permission, $filter)
     {
+        $subordinates = self::getEmpIdsByManagerIDMultiLevels($this->emp_id);
         if ($permission->view == 1) {
             $data = $this->db->query("SELECT * FROM `kpi_incidents_log` WHERE " . $filter . " ORDER BY id DESC ");
         } elseif ($permission->view == 2) {
-            $data = $this->db->query("SELECT * FROM `kpi_incidents_log` WHERE " . $filter . " AND (created_by = $this->user OR emp_id = $this->emp_id) ORDER BY id DESC");
+            $data = $this->db->query("SELECT * FROM `kpi_incidents_log` WHERE " . $filter . " AND (emp_id = $this->emp_id OR emp_id IN($subordinates)) ORDER BY id DESC");
         }
         return $data;
     }
     public function AllIncidentLogPages($permission, $limit, $offset)
     {
+         $subordinates = self::getEmpIdsByManagerIDMultiLevels($this->emp_id);
         if ($permission->view == 1) {
             $data = $this->db->query("SELECT * FROM `kpi_incidents_log` ORDER BY id DESC LIMIT $limit OFFSET $offset ");
         } elseif ($permission->view == 2) {
-            $data = $this->db->query("SELECT * FROM `kpi_incidents_log` where created_by = $this->user OR emp_id = $this->emp_id ORDER BY id DESC LIMIT $limit OFFSET $offset");
+            $data = $this->db->query("SELECT * FROM `kpi_incidents_log` where  emp_id = $this->emp_id OR emp_id IN($subordinates) ORDER BY id DESC LIMIT $limit OFFSET $offset");
         }
         return $data;
     }
@@ -2370,7 +2357,7 @@ class Hr_model extends CI_Model
     {
         $data = False;
         $row = $this->db->get_where('employees', array('id' => $emp_id))->row();
-        if ($row > 0 && $row->manager == $this->emp_id) {
+        if (!empty($row) && $row->manager == $this->emp_id) {
             $data = True;
         }
 
@@ -2509,27 +2496,6 @@ class Hr_model extends CI_Model
                     </body>
                     </html>';
         mail($mailTo, $subject, $message, $headers);
-    }
-
-public function selectAllEmployeesByManagerID2level($emp_id, $id = "")
-    {
-        $check = $this->admin_model->getUserEmployees2Level($emp_id);
-        if($check != false)
-            $where2Level = " OR id IN ($check)";
-         else
-            $where2Level="";
-         
-        $employees = $this->db->query("SELECT * FROM employees WHERE manager = '$emp_id'". $where2Level)->result();
-        $data = "";
-        foreach ($employees as $employee) {
-            if ($employee->id == $id) {
-                $data .= "<option value='" . $employee->id . "' selected='selected'>" . $employee->name . "</option>";
-            } else {
-                $data .= "<option value='" . $employee->id . "'>" . $employee->name . "</option>";
-            }
-
-        }
-        return $data;
     }
     
     // test
@@ -2675,80 +2641,98 @@ public function selectAllEmployeesByManagerID2level($emp_id, $id = "")
         
     }
     // send email to emp " incident log "
-      public function sendIncidentsLogEmail($managerId, $userid, $month, $emailSubject = "")
-    {
-        $head = "manager";
-        $user = $this->db->get_where('users', array('employees_id' => $userid))->row();
-        $userMail = $user->email;
-        //manager
-        $manager = $this->db->get_where('users', array('id' => $managerId))->row();
-        $managerMail = $manager->email;
-        //info
-        $monthName = $this->accounting_model->getMonth($month);
-        $user_name = $user->user_name;
-        $link = "<a href='" . base_url() . "performanceManagment/kpiScore'> Please Check </a>";
-        // hr email 
-        $hr = $this->db->get_where('users', array('role' => 31))->row();
-        $hrMail = $hr->email;
-
-        $subject = "Scorecard : " . $monthName;
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-
-        // $headers .= "Cc: ".$hrMail. "\r\n";  
-        $mailTo = $userMail;
-
-        if ($emailSubject == "update")
-            $msg = "Kpi For Month $monthName Updated";
-        elseif ($emailSubject == "new")
-            $msg = "Kindly find $monthName ScoreCard .";
-        else {
-            $msg = "ScoreCard For Month $monthName Status : $emailSubject";
-            if ($emailSubject != "Finish 1-1 Meeting") {
-                $mailTo = $managerMail;
-                $user_name = $manager->user_name;
-                $headers .= 'From: ' . $userMail . "\r\n" . 'Reply-To: ' . $userMail . "\r\n";
-                $head = "emp";
-            }
-
-        }
-        if ($head != "emp")
-            $headers .= 'From: ' . $managerMail . "\r\n" . 'Reply-To: ' . $managerMail . "\r\n";
-
+    public function sendIncidentsLogEmail($data)
+    {       
+        $user = $this->db->get_where('master_user', array('employees_id' => $data['emp_id']))->row();
+        $userMail = $user->email;        
+        $user_name = $user->user_name; 
         $message = '<!DOCTYPE html>
                     <html lang="en">
                     <head>
                         <meta charset="utf-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <meta name="description" content="">
-                        <meta name="author" content="">
-                        <link rel="shortcut icon" href="' . base_url() . 'assets/images/favicon.png">
-                        <title>Falaq| Site Manager</title>
-                        <style>
-                        body {
-                            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-                            font-size: 14px;
-                            line-height: 1.428571429;
-                            color: #333;
-                        }
-                        section#unseen
-                        {
-                            overflow: scroll;
-                            width: 100%
-                        }
-                        </style>
-                        <!--Core js-->
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">                                               
                     </head>
-
                     <body>
-                    <p>Dear ' . $user_name . ' ,</p>
-                       
-                       <p>   There is Vacation Request from ' . self::getEmployee($data['emp_id']) . ' need to be <a href="' . base_url() . 'hr/vacation" target="_blank"> Approved ..</a>   </p>                     
-                                            
-                       <p> Thanks</p>
+                    <p>Hi ' . $user_name . ' ,</p>                      
+                    <p>A new incident has been added. <br/> This Incident Added By : '.$this->admin_model->getEmpNameFromUser($data['created_by']) . ' At : '.$data['created_at'].'<br/><a href="' . base_url() . 'performanceManagment/incidentLog">Please Check And Confirm</a></p>                     
+                    <p> Thanks</p>
                     </body>
                     </html>';
-
-        mail($mailTo, $subject, $message, $headers);
+        
+                $this->email->from("erp@aixnexus.com");
+                $this->email->to($userMail);		
+		$this->email->subject("Incidents Log ");
+                $this->email->message($message);		
+		$this->email->set_mailtype('html');
+		$this->email->send();
+       
     }
+    
+    public function getEmpIdsByManagerIDMultiLevels($emp_id){
+        $sql = "SELECT GROUP_CONCAT(Level SEPARATOR ',') as IDS FROM ( SELECT @Ids := ( SELECT GROUP_CONCAT(`ID` SEPARATOR ',') FROM `employees` WHERE STATUS = 0 AND FIND_IN_SET(`manager`, @Ids) ) Level FROM `employees` JOIN (SELECT @Ids := $emp_id) temp1 ) temp2; ";
+        $query = $this->db->query($sql)->row();
+        if(!empty($query->IDS))
+            $ids = $query->IDS;
+        else
+            $ids = 0;
+        return $ids;
+    }
+    
+    public function selectEmployeesByManagerIDMultiLevels($emp_id,$id=""){
+        $data = "";
+        // check if manager
+        $rows = $this->db->get_where('employees', array('manager' => $emp_id))->num_rows();
+        if ($rows > 0) {
+                $ids = self::getEmpIdsByManagerIDMultiLevels($emp_id);
+        }
+        $employees = $this->db->query("SELECT * FROM employees WHERE id IN ($ids)")->result();
+        foreach ($employees as $employee) {
+            if ($employee->id == $id) {
+                $data .= "<option value='" . $employee->id . "' selected='selected'>" . $employee->name . "</option>";
+            } else {
+                $data .= "<option value='" . $employee->id . "'>" . $employee->name . "</option>";
+            }
+
+        }
+        return $data;
+
+    }
+    // check missing kpi
+    public function numOfMissingKpiToManager(){
+        $num = 0;
+        $date = date("Y-m-d", strtotime("-1 month"));  
+        $month =   date("m",strtotime($date));
+        $year = $this->db->get_where('years',array('name'=> date('Y',strtotime($date))))->row()->id;
+        $employees = $this->db->query("SELECT id FROM employees WHERE manager = '$this->emp_id'AND status = '0'")->result();
+        foreach ($employees as $row){
+            $kpiRecord = $this->db->query("SELECT id FROM kpi_score WHERE emp_id = '$row->id'AND month = $month AND year = $year")->num_rows();
+            if($kpiRecord < 1){
+                $num ++;
+            }
+        }
+        return $num ;
+    }
+    
+    // KPI Select Titles
+    public function selectAllEmployeesByTitleMultiLevels($emp_id = "", $title = "")
+    {       
+        if (!empty($emp_id) && $emp_id != 'none') {
+            $subordinates = self::getEmpIdsByManagerIDMultiLevels($emp_id);
+            $employees = $this->db->query("SELECT DISTINCT title FROM employees WHERE id IN ($subordinates) and status = 0")->result();
+        } else {
+            $employees = $this->db->query("SELECT DISTINCT title FROM employees WHERE status = 0")->result();
+        }       
+        $data = "";
+        foreach ($employees as $employee) {
+            if ($employee->title == $title) {
+                $data .= "<option value='" . $employee->title . "' selected='selected'>" . $this->getTitle($employee->title) . "</option>";
+            } else {
+                $data .= "<option value='" . $employee->title . "'>" . $this->getTitle($employee->title) . "</option>";
+            }
+
+        }
+        return $data;
+    }
+    
+       
 }

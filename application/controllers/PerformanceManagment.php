@@ -596,7 +596,8 @@ class PerformanceManagment extends CI_Controller
         if ($this->role == 21 || $this->role == 31) {
             $data = $this->db->query("SELECT name,id FROM employees WHERE title = '$employee_title' and status = 0")->result_array();
         } else {
-            $data = $this->db->query("SELECT name,id FROM employees WHERE title = '$employee_title' and (manager = '$this->emp_id' or id = '$this->emp_id') and status = 0")->result_array();
+            $subordinates = $this->hr_model->getEmpIdsByManagerIDMultiLevels($this->emp_id);
+            $data = $this->db->query("SELECT name,id FROM employees WHERE title = '$employee_title' and ID IN ($subordinates) and status = 0")->result_array();
         }
         echo json_encode($data);
     }
@@ -616,7 +617,7 @@ class PerformanceManagment extends CI_Controller
         // Check Permission ..
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 193);
         $score = $this->db->get_where('kpi_score', array('id' => $id))->row();
-        if (($data['permission']->view == 1 && $data['permission']->follow != 2) || ($data['permission']->view == 1 && $score->created_by == $this->user) || ($score->emp_id == $this->emp_id)) {
+        if (($data['permission']->view == 1 && $data['permission']->follow != 2) || ($data['permission']->view == 1 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id) || ($score->emp_id == $this->emp_id) || ($this->hr_model->getManagerId($this->hr_model->getEmpId($score->created_by)) == $this->emp_id)) {
             //header ..          
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['score'] = $score = $this->db->get_where('kpi_score', array('id' => $id))->row();
@@ -656,7 +657,7 @@ class PerformanceManagment extends CI_Controller
 
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 193);
 
-        if (($data['permission']->view == 1 && $data['permission']->follow != 2) || ($data['permission']->view == 1 && $score->created_by == $this->user) || ($data['permission']->view == 2 && $score->emp_id == $this->emp_id)) {
+        if (($data['permission']->view == 1 && $data['permission']->follow != 2) || ($data['permission']->view == 1 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id) || ($data['permission']->view == 2 && $score->emp_id == $this->emp_id) || ($this->hr_model->getManagerId($this->hr_model->getEmpId($score->created_by)) == $this->emp_id)) {
 
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
@@ -817,7 +818,7 @@ class PerformanceManagment extends CI_Controller
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 193);
         $id = base64_decode($_GET['score_id']);
         $data['score'] = $score = $this->db->get_where('kpi_score', array('id' => $id))->row();
-        if ($data['permission']->add == 1 && (($data['permission']->view == 1 && $data['permission']->follow != 2) || $score->created_by == $this->user)) {
+        if ($data['permission']->add == 1 && (($data['permission']->view == 1 && $data['permission']->follow != 2) || $this->hr_model->getEmpId($score->created_by) == $this->emp_id)) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             //body ..
@@ -841,7 +842,7 @@ class PerformanceManagment extends CI_Controller
         // Check Permission ..
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 193);
         $score = $this->db->get_where('kpi_score', array('id' => $id))->row();
-        if ($data['permission']->edit == 1 && $score->created_by == $this->user) {
+        if ($data['permission']->edit == 1 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             //body ..
@@ -1007,7 +1008,7 @@ class PerformanceManagment extends CI_Controller
     // log
     public function incidentLog()
     {
-
+       
         // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 195);
         if ($check) {
@@ -1117,9 +1118,10 @@ class PerformanceManagment extends CI_Controller
 
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 195);
         // get emp manager to check permissions
-        $manager_id = $this->db->get_where('employees', array('id' => $employee_id))->row()->manager;
-
-        if ($data['permission']->view == 1 || ($data['permission']->view == 2 && $this->emp_id == $manager_id)) {
+        $ids = $this->hr_model->getEmpIdsByManagerIDMultiLevels($this->emp_id);
+        $checkPer = $this->db->query("SELECT * FROM employees WHERE id IN ($ids) AND id = $employee_id")->num_rows();       
+       
+        if ($data['permission']->view == 1 || ($data['permission']->view == 2 && $checkPer > 0)) {
 
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['emp_id'] = $this->emp_id;
@@ -1193,9 +1195,8 @@ class PerformanceManagment extends CI_Controller
 
             $log = $this->db->insert('kpi_incidents_log', $data);
             if ($log) {
-                // send email to emp 
-                
-                
+                // send email to emp                 
+                $this->hr_model->sendIncidentsLogEmail($data);
                 $true = "Records Added Successfully ...";
                 $this->session->set_flashdata('true', $true);
                 redirect(base_url() . "performanceManagment/incidentLog");

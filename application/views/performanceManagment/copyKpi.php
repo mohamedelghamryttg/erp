@@ -52,7 +52,7 @@
                             <?php if($permission->view == 1){?>
                             <?= $this->hr_model->selectAllEmployeesByTitle('none',$kpi->employee_title); ?>  
                             <?php }else{?>
-                            <?= $this->hr_model->selectAllEmployeesByTitleSelf($emp_id,$kpi->employee_title); ?>
+                            <?= $this->hr_model->selectAllEmployeesByTitleMultiLevels($emp_id,$kpi->employee_title); ?>
                             <?php }?>
                               
                         </select>

@@ -1,54 +1,39 @@
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-   <?php if($this->session->flashdata('true')){ ?>
-      <div class="alert alert-success" role="alert">
-              <span class="fa fa-check-circle"></span>
-              <span><strong><?=$this->session->flashdata('true')?></strong></span>
-            </div>
-  <?php  } ?>
-  <?php if($this->session->flashdata('error')){ ?>
-            <div class="alert alert-danger" role="alert">
-              <span class="fa fa-warning"></span>
-              <span><strong><?=$this->session->flashdata('error')?></strong></span>
-            </div>
-   <?php  } ?>
-<!--begin::Content-->
-          <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
 
+<!--begin::Content-->
+          <div class="content d-flex flex-column flex-column-fluid" id="kt_content">           
             <!--begin::Entry-->
             <div class="d-flex flex-column-fluid">
               <!--begin::Container-->
               <div class="container">
-
-
+                        <?php if($this->session->flashdata('true')){ ?>
+                    <div class="alert alert-success" role="alert">
+                            <span class="fa fa-check-circle"></span>
+                            <span><strong><?=$this->session->flashdata('true')?></strong></span>
+                          </div>
+                <?php  } ?>
+                <?php if($this->session->flashdata('error')){ ?>
+                          <div class="alert alert-danger" role="alert">
+                            <span class="fa fa-warning"></span>
+                            <span><strong><?=$this->session->flashdata('error')?></strong></span>
+                          </div>
+                 <?php  } ?>
               <!--begin::Card-->
-                <div class="card">
+                <div class="card card-custom gutter-b example example-compact">
                   <div class="card-header flex-wrap border-0 pt-6 pb-0">
                     <div class="card-title">
                       <h3 class="card-label">Vacation List </h3>
-                    </div>
-                    <div class="card-toolbar">
-                     
-                     <!--begin::Button-->
-                      <?php if($permission->add == 1){ ?>
-                        <a href="<?=base_url()?>hr/addVacation" class="btn btn-primary font-weight-bolder"> 
-                      
-                      <span class="svg-icon svg-icon-md">
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
-                          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                            <rect x="0" y="0" width="24" height="24" />
-                            <circle fill="#000000" cx="9" cy="15" r="6" />
-                            <path d="M8.8012943,7.00241953 C9.83837775,5.20768121 11.7781543,4 14,4 C17.3137085,4 20,6.6862915 20,10 C20,12.2218457 18.7923188,14.1616223 16.9975805,15.1987057 C16.9991904,15.1326658 17,15.0664274 17,15 C17,10.581722 13.418278,7 9,7 C8.93357256,7 8.86733422,7.00080962 8.8012943,7.00241953 Z" fill="#000000" opacity="0.3" />
-                          </g>
-                        </svg>
-                        <!--end::Svg Icon-->
-                      </span>Add New Vacation Request</a>
-                      <?php } ?>
-                      <!--end::Button-->
-                    </div>
+                    </div>                   
                   </div>
-                  <div class="card-body">
+                  <div class="card-body pt-2">
+                         <!--begin::Button-->
+                          <?php if($permission->add == 1){ ?>
+                         <a href="<?=base_url()?>hr/addVacation" class="btn btn-primary btn-sm font-weight-bolder mr-3"><i class="flaticon-file-1"></i> Add New Vacation Request</a>
+              <?php if($permission->role == 31 || $permission->role == 21 ||$permission->role == 46){ ?>
+                  <a href="<?=base_url()?>hr/addVacationForEmployees" class="btn btn-info btn-sm font-weight-bolder"><i class="fa fa-users"></i>  Add New Vacation For Employees</a>
+       
+            <?php }} ?>
                     <!--begin: Datatable-->
-                    <table class="table table-separate table-head-custom table-checkable table-hover" id="kt_datatable2">
+                    <table class="table mt-10" >
                         <thead>
         
               <tr>
@@ -89,24 +74,23 @@
                 </div>
                 <!--end::Card-->
 
-
-
+                <div class="clear-fix"></div>
 
                 <!--begin::Card-->
                 <div class="card card-custom gutter-b example example-compact">
-                  <div class="card-header flex-wrap border-0 pt-6 pb-0">
-                    <div class="card-title btn_lightgray">
-                      <h3 class="card-label">Vacation Requests List <span class="btn btn-danger"><span><?=$requests->num_rows()?></span></span></h3> 
-                       <button id="button_filter" onclick="showAndHide('filter','button_filter');" style="padding-top:0pc; float: right;font-size: 15px;" class="btn btn-success "><i class="fa fa-chevron-down"></i></button>
+                    <div class="card-header flex-wrap border-1 pt-5 pb-5">
+                        <div class="card-title btn_lightgray">
+                            <h3 class="card-label">Vacation Requests List | 
+                                  <span class="text-dark-50 font-weight-bold"style="font-size: 14px !important;">
+                                      <?=$requests->num_rows()?> Total
+                                  </span>
+                            </h3> 
+                        </div>
+                        <button id="button_filter" onclick="showAndHide('filter11', 'button_filter');" class="btn btn-clean "><i class="fa fa-chevron-down"></i></button>                         
                     </div>
-                    <div class="card-toolbar">
-                     
-                    
-                    </div>
-                  </div>
-                  <div class="card-body" id="filter">
+                  <div class="card-body" id="filter11">
                     <!--begin: Datatable-->
-                    <table class="table table-separate table-filter table-head-custom table-checkable table-hover">
+                    <table class="table table-striped">
                       <thead>
 
               <tr>
@@ -127,14 +111,18 @@
                   <tr class="">
                     <td><?= $request->id ;?></td>
                     <td><?= $this->hr_model->getEmpName($request->emp_id) ;?></td>
-                    <td><?= $this->hr_model->getEmpName($this->emp_id);?></td>
+                    <td><?= $this->hr_model->getEmpName($this->hr_model->getManagerId($request->emp_id));?></td>
                     <td><?= $this->hr_model->getAllVacationTypies($request->type_of_vacation) ;?></td>
                     <td><?= $request->start_date;?></td>
                     <td><?= $request->end_date;?></td>
                     <td><?=$this->hr_model->getVacationStatus($request->status);?></td>
-                    <td><a href="<?php echo base_url()?>hr/responseToVacation?i=<?php echo base64_encode($request->id);?>" class="font-weight-bold">
-                        <i class="fa fa-pencil"></i> Take Action
-                      </a></td>
+                    <td>
+                        <?php if($this->hr_model->checkThisUserIsEmployeeManager($request->emp_id) || ($this->role == 31 && ($this->hr_model->getManagerId($request->emp_id) == 13 || $this->hr_model->getManagerId($request->emp_id) == 14))){?>
+                         <a href="<?php echo base_url()?>hr/responseToVacation?i=<?php echo base64_encode($request->id);?>" class="font-weight-bold">
+                        <i class="flaticon2-sheet"></i> Take Action
+                      </a>
+                 <?php }?>
+                    </td>
 
                   </tr>
                       <?php } } ?>          
