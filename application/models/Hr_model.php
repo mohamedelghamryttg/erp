@@ -1564,45 +1564,54 @@ class Hr_model extends CI_Model
         else if ($status == 3)
             $data = "Accepted";
         else if ($status == 4)
-            $data = "Waiting Manager Approval";
+            $data = "Pending(Waiting Manager Approval)";
 
 
         return $data;
     }
-    public function sendKpiEmail($managerId, $userid, $month, $emailSubject = "")
+    public function sendKpiEmail($score_id, $emailSubject = "")
     {
+        $score = $this->db->get_where('kpi_score', array('id' => $score_id))->row();
+        $userid = $score->emp_id;
+        $managerId = $score->created_by;
+        $month = $score->month;
+        
+        // default
+        $headers = "MIME-Version: 1.0" . "\r\n";
+        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";    
+        $subject = "Kpi Scorecard" ;
+        $monthName = $this->accounting_model->getMonth($month);       
+        $link = "<a href='" . base_url() . "performanceManagment/viewSingleKpiScore/$score_id'> Please Check </a>";
+         //info
         $head = "manager";
         $user = $this->db->get_where('users', array('employees_id' => $userid))->row();
         $userMail = $user->email;
+        $user_name = $user->user_name;
         //manager
         $manager = $this->db->get_where('users', array('id' => $managerId))->row();
-        $managerMail = $manager->email;
-        //info
-        $monthName = $this->accounting_model->getMonth($month);
-        $user_name = $user->user_name;
-        $link = "<a href='" . base_url() . "performanceManagment/kpiScore'> Please Check </a>";
-        // hr email 
-        $hr = $this->db->get_where('users', array('role' => 31))->row();
-        $hrMail = $hr->email;
-
-        $subject = "Scorecard : " . $monthName;
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-
-        // $headers .= "Cc: ".$hrMail. "\r\n";  
+        $managerMail = $manager->email;       
         $mailTo = $userMail;
 
         if ($emailSubject == "update")
-            $msg = "Kpi For Month $monthName Updated";
+            $msg = "The Scorecard data has been updated for $monthName.";
         elseif ($emailSubject == "new")
-            $msg = "Kindly find $monthName ScoreCard .";
+            $msg = "You have a new scorecard for $monthName";
         else {
-            $msg = "ScoreCard For Month $monthName Status : $emailSubject";
+            $msg = "The Scorecard status has been updated for : $monthName -> $emailSubject";
             if ($emailSubject != "Finish 1-1 Meeting") {
-                $mailTo = $managerMail;
-                $user_name = $manager->user_name;
                 $headers .= 'From: ' . $userMail . "\r\n" . 'Reply-To: ' . $userMail . "\r\n";
-                $head = "emp";
+                $head = "emp";               
+                if($emailSubject == "HR Meeting"){
+                    $hrTeamLeader = $this->db->get_where('users', array('role' => 31,'brand'=>1))->row()->email;
+                    $hr = $this->db->get_where('users', array('role' => 50,'brand'=>1))->row();                   
+                    $mailTo = $hr->email; 
+                    $user_name = $hr->user_name;
+                    $headers .= "Cc: ".$hrTeamLeader. "\r\n";  
+                    $msg .= "<br/>The card has been rejected by $user_name";
+                }else{
+                    $mailTo = $managerMail;
+                    $user_name = $manager->user_name;
+                }
             }
 
         }
@@ -1617,26 +1626,10 @@ class Hr_model extends CI_Model
                         <meta name="description" content="">
                         <meta name="author" content="">
                         <link rel="shortcut icon" href="' . base_url() . 'assets/images/favicon.png">
-                        <title>Falaq| Site Manager</title>
-                        <style>
-                        body {
-                            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-                            font-size: 14px;
-                            line-height: 1.428571429;
-                            color: #333;
-                        }
-                        section#unseen
-                        {
-                            overflow: scroll;
-                            width: 100%
-                        }
-                        </style>
-                        <!--Core js-->
+                        <title>Nexus| Site Manager</title>                
                     </head>
-
                     <body>
-                    <p>Dear ' . $user_name . ' ,</p>
-                       
+                    <p>Hello ' . $user_name . ',</p>                       
                        <p>  ' . $msg . ' </p>                     
                        <p>' . $link . '</p>                     
                        <p> Thanks</p>
@@ -2734,5 +2727,42 @@ class Hr_model extends CI_Model
         return $data;
     }
     
+     public function sendKpiApproveEmail()
+    {
+        $userMail = $this->db->get_where('master_user', array('employees_id' => $this->emp_id))->row()->email;        
+        $user_name =  word_limiter(self::getEmployee($this->emp_id), 2, '');
+        $subject = "Kpi Score Approval ";
+        $headers = "MIME-Version: 1.0" . "\r\n";
+        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+        $headers .= 'From: ' . $userMail . "\r\n" . 'Reply-To: ' . $userMail . "\r\n";
+        $manager_email = $this->db->get_where('master_user', array('employees_id' => self::getManagerId($this->emp_id), 'status' => '1'))->row()->email;        
+        $manager_name = word_limiter(self::getEmployee(self::getManagerId($this->emp_id)), 2, '');     
+        $message = '<!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <meta name="description" content="">
+                        <meta name="author" content="">
+                        <link rel="shortcut icon" href="' . base_url() . 'assets/images/favicon.png">
+                        <title>Nexus| Site Manager</title>
+                     
+                    </head>
+
+                    <body>
+                    <p>Hello ' . $manager_name . ',</p>                       
+                       <p> There is Kpi Card from ' . $user_name . ' need to be <a href="' . base_url() . 'performanceManagment/viewSingleKpiScore/'.$kpi_score_id.'" target="_blank"> Approved ..</a>  </p>                   
+                     
+                    </body>
+                    </html>';
+
+        mail($manager_email, $subject, $message, $headers);
+    }
+    
+    public function getUserEmp($id)
+    {
+            $user = $this->db->get_where('users', array('id' => $id))->row();
+            return $user->employees_id;
+    }
        
 }

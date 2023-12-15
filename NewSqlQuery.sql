@@ -86,3 +86,5 @@ ALTER TABLE `commission_setting`
 COMMIT;
 
 ALTER TABLE `kpi_score` ADD `manager_approval` TINYINT(1) NOT NULL DEFAULT '0' AFTER `status`; 
+ALTER TABLE `kpi_score` ADD `approved_by` INT(11) NULL AFTER `created_at`;
+ALTER TABLE `kpi_score` ADD `approved_at` DATETIME NULL AFTER `approved_by`; 

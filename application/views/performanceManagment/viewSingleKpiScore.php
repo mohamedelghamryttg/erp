@@ -39,21 +39,49 @@
             <div class="card">
                 <div class="card-header flex-wrap border-0 pt-6 pb-0">
                     <div class="card-title">
-                        <h3 class="card-label">Employees KPIs <i class="fa fa-arrow-alt-circle-right"></i> <?= $this->hr_model->getEmployee($employee_id).'('. $this->accounting_model->getMonth($score->month).')' ?> <i class="fa fa-arrow-alt-circle-right"></i>Score Card</h3>
+                        <h3 class="card-label">ScoreCard <i class="fa fa-arrow-alt-circle-right"></i> <?= $this->hr_model->getEmployee($employee_id).'<span class="font-size-h5" style="color:#B5B5C3">('. $this->accounting_model->getMonth($score->month).','. $this->hr_model->getYear($score->year).')</span>' ?></h3>
                     </div>
                     <?php if($score->status < 1 && $score->manager_approval == 0 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id){?>
                     <a href="<?php echo base_url() ?>performanceManagment/editEmployeeKpiScore/<?=$score->id?>" class="btn btn-xs btn-success"><i class="fa fa-pencil"></i>Edit</a>
                     <?php }elseif ($score->status == 3) {?>
                     <button class="btn btn-success mr-2" disabled=""><?= $this->hr_model->getScoreStatus($score->id); ?></button>
                  <?php   }elseif ($score->status == 1 && $score->emp_id == $this->emp_id) {?>
-                    <form class="form mt-10" style="display:inline-block" id="action" action="<?php echo base_url() ?>performanceManagment/changeScoreStatus" method="get" enctype="multipart/form-data">
+                    <form class="form mt-10" style="display:inline-block" id="action" action="<?php echo base_url() ?>performanceManagment/changeScoreStatus" method="post">
                         <input type="text" name="score" hidden="" value="<?= $score->id ?>">
                         <button class="btn btn-danger mr-2" name="reject" type="submit"><i class="fa fa-exchange-alt" aria-hidden="true"></i> Ask For HR Meeting</button>
                         <button class="btn btn-success mr-2" name="accept" type="submit"><i class="fa fa-check-double" aria-hidden="true"></i> Accept</button>
                     </form>
+                 <?php }elseif($score->status == 4 && $score->manager_approval == 0 && $this->hr_model->getManagerId($this->hr_model->getUserEmp($score->created_by)) == $this->emp_id){?>
+                     <form class="form mt-10" style="display:inline-block" id="action" action="<?php echo base_url() ?>performanceManagment/changeScoreStatus" method="post" >
+                        <input type="text" name="score" hidden="" value="<?= $score->id ?>">
+                        <button class="btn btn-success mr-2" name="approve" type="submit"><i class="fa fa-check-double" aria-hidden="true"></i> Approve </button>
+                    </form>
                  <?php   }?>
                 </div>
-                <div class="card-body">
+                <div class="card-body pt-0">
+                     <table class="table table-dark table-head-custom table-hover mb-10 ">                        
+                        <tbody>
+                            <tr>
+                                <td class="text-danger font-weight-bolder">User </td>
+                                <td ><?= $this->hr_model->getEmpName($score->emp_id); ?></td>
+                            </tr>
+                            <tr>
+                                <td class="text-danger font-weight-bolder">Created By</td>
+                                <td ><?= $this->admin_model->getEmpNameFromUser($score->created_by); ?> <i class="fa fa-arrow-circle-right fa-sm"></i> <?= $score->created_at ?></td>
+                            </tr>                            
+                            <tr>
+                                <td class="text-danger font-weight-bolder">Approved By  </td>
+                                <td ><?php if($score->approved_by)echo $this->admin_model->getEmpNameFromUser($score->approved_by)." <i class='fa fa-arrow-circle-right fa-sm'></i>". $score->approved_at;else echo"--"?></td>
+                            </tr> 
+                            <tr>
+                                <td class="text-danger font-weight-bolder">Status</td>
+                                <td><?= $this->hr_model->getScoreStatus($score->id) ?> </td>
+                            </tr>
+
+
+                        </tbody>
+                    </table>
+                    
                     <!--begin: Datatable-->
                     <table class="table table-head-custom table-checkable table-hover table-responsive" width="100%" id="kt_datatable2">
                         <thead>
