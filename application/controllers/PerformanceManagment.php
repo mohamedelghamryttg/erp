@@ -930,14 +930,20 @@ class PerformanceManagment extends CI_Controller
             $approval = 0;
             $score = $this->db->get_where('kpi_score', array('id' => $_POST['score']))->row();
             if (isset($_POST['accept'])) {
-                if($score->status == 1 && $score->emp_id == $this->emp_id){
+                if(($score->status == 1 || $score->status == 5 ) && $score->emp_id == $this->emp_id){
                     $data_action['status'] = 3;
                 }else{
                     echo "You have no permission to access this page";
                 }
             } elseif (isset($_POST['reject'])) {
-                if($score->status == 1 && $score->emp_id == $this->emp_id){
+                if(($score->status == 1 || $score->status == 5 )&& $score->emp_id == $this->emp_id){
                     $data_action['status'] = 2;      
+                }else{
+                    echo "You have no permission to access this page";
+                }           
+            } elseif (isset($_POST['meeting'])) {
+                if($score->status == 1 && $score->emp_id == $this->emp_id){
+                    $data_action['status'] = 5;      
                 }else{
                     echo "You have no permission to access this page";
                 }

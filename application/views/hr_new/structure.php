@@ -90,7 +90,9 @@
                   <button class="btn btn-success mr-2" name="search"
                     onclick="var e2 = document.getElementById('structure'); e2.action='<?= base_url() ?>hr/structure'; e2.submit();"
                     type="submit">Search</button>
-                  <!-- <button class="btn btn-secondary" onclick="var e2 = document.getElementById('customerfilter'); e2.action='<?= base_url() ?>customer/exportcustomer'; e2.submit();" name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export To Excel</button>   -->
+                     <button class="btn btn-secondary"
+                onclick="var e2 = document.getElementById('structure'); e2.action='<?= base_url() ?>hr/exportStructure'; e2.submit();"
+                name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export To Excel</button>
                   <a href="<?= base_url() ?>hr/structure" class="btn btn-warning"><i class="la la-trash"></i>Clear
                     Filter</a>
 

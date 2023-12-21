@@ -14,6 +14,7 @@ class Hr_model extends CI_Model
     {
         parent::__construct();
         $this->load->database();
+        $this->emp_id = $this->session->userdata('emp_id');
     }
 
     public function meetingMail($data)
@@ -1560,11 +1561,13 @@ class Hr_model extends CI_Model
         else if ($status == 1)
             $data = "Finish 1-1 Meeting";
         else if ($status == 2)
-            $data = "HR Meeting";
+            $data = "Rejected (HR Meeting)";
         else if ($status == 3)
             $data = "Accepted";
         else if ($status == 4)
             $data = "Pending(Waiting Manager Approval)";
+        else if ($status == 5)
+            $data = "Rejected (Manager Meeting)";
 
 
         return $data;
@@ -1584,7 +1587,7 @@ class Hr_model extends CI_Model
         $link = "<a href='" . base_url() . "performanceManagment/viewSingleKpiScore/$score_id'> Please Check </a>";
          //info
         $head = "manager";
-        $user = $this->db->get_where('users', array('employees_id' => $userid))->row();
+        $user = $this->db->get_where('master_user', array('employees_id' => $userid))->row();
         $userMail = $user->email;
         $user_name = $user->user_name;
         //manager
@@ -1601,13 +1604,25 @@ class Hr_model extends CI_Model
             if ($emailSubject != "Finish 1-1 Meeting") {
                 $headers .= 'From: ' . $userMail . "\r\n" . 'Reply-To: ' . $userMail . "\r\n";
                 $head = "emp";               
-                if($emailSubject == "HR Meeting"){
+                if( $score->status == 2){
                     $hrTeamLeader = $this->db->get_where('users', array('role' => 31,'brand'=>1))->row()->email;
                     $hr = $this->db->get_where('users', array('role' => 50,'brand'=>1))->row();                   
                     $mailTo = $hr->email; 
                     $user_name = $hr->user_name;
                     $headers .= "Cc: ".$hrTeamLeader. "\r\n";  
                     $msg .= "<br/>The card has been rejected by $user_name";
+                }elseif( $score->status == 5){
+                    $grand_id = self::checkIfEmpHasGrandParent(self::getEmpId($score->created_by));
+                    if($grand_id > 0){
+                        $grand = $this->db->get_where('master_user', array('employees_id' => $grand_id))->row();
+                                       
+                    $hr = $this->db->get_where('users', array('role' => 50,'brand'=>1))->row();                   
+                    $mailTo = $grand->email; 
+                    $user_name = $grand->user_name;
+                    $headers .= "Cc: ".$hr->email. "\r\n";  
+                    $msg .= "<br/>The card has been rejected by $user_name";
+                    $msg .= "  and ask you for a meeting.";
+                    }
                 }else{
                     $mailTo = $managerMail;
                     $user_name = $manager->user_name;
@@ -1637,6 +1652,7 @@ class Hr_model extends CI_Model
                     </html>';
 
         mail($mailTo, $subject, $message, $headers);
+        
     }
 
     public function performanceMatrix($score, $scoreYear = '')
@@ -1860,8 +1876,7 @@ class Hr_model extends CI_Model
 
     }
     public function selectKpiScoreStatus($select = "")
-    {
-
+    {        
         if ($select == 1) {
             $selected1 = 'selected';
         } elseif ($select == 2) {
@@ -1869,13 +1884,19 @@ class Hr_model extends CI_Model
         } elseif ($select == 3) {
             $selected3 = 'selected';
         } elseif ($select == 4) {
+            $selected4 = 'selected';        
+        } elseif ($select == 5) {
+            $selected4 = 'selected';        
+        } elseif ($select == 6) {
             $selected4 = 'selected';
         }
 
-        $outpt = '<option value="1" ' . $selected1 . '>Pending(Waiting 1-1 Meeting)</option>
-                  <option value="2" ' . $selected2 . '>Finish 1-1 Meeting</option>
-                  <option value="3" ' . $selected3 . '>HR Meeting</option>
-                  <option value="4" ' . $selected4 . '>Accepted</option>';
+        $outpt = '<option value="5" ' . $selected5 . '>Pending(Waiting Manager Approval)</option>
+                    <option value="1" ' . $selected1 . '>Pending(Waiting 1-1 Meeting)</option>
+                    <option value="2" ' . $selected2 . '>Finish 1-1 Meeting</option>
+                    <option value="4" ' . $selected4 . '>Accepted</option>
+                    <option value="3" ' . $selected3 . '>Rejected (HR Meeting)</option>
+                    <option value="6" ' . $selected6 . '>Rejected (Manager Meeting)</option>';
 
         return $outpt;
 
@@ -2727,16 +2748,27 @@ class Hr_model extends CI_Model
         return $data;
     }
     
-     public function sendKpiApproveEmail()
+     public function sendKpiApproveEmail($kpi_score_id)
     {
-        $userMail = $this->db->get_where('master_user', array('employees_id' => $this->emp_id))->row()->email;        
+         $config = array(
+			'protocol' => 'smtp',
+			'smtp_host' => 'email-smtp.us-west-2.amazonaws.com',
+			'smtp_port' => 25,
+			'smtp_user' => 'erp@aixnexus.com',
+			'smtp_pass' => 'EXoYlsum6Do@',
+			'charset' => 'utf-8',
+			'validate' => TRUE,
+			'wordwrap' => TRUE,
+		);
+		$this->load->library('email', $config);
+		$this->email->set_newline("\r\n");               
+        
         $user_name =  word_limiter(self::getEmployee($this->emp_id), 2, '');
-        $subject = "Kpi Score Approval ";
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        $headers .= 'From: ' . $userMail . "\r\n" . 'Reply-To: ' . $userMail . "\r\n";
         $manager_email = $this->db->get_where('master_user', array('employees_id' => self::getManagerId($this->emp_id), 'status' => '1'))->row()->email;        
-        $manager_name = word_limiter(self::getEmployee(self::getManagerId($this->emp_id)), 2, '');     
+        $manager_name = word_limiter(self::getEmployee(self::getManagerId($this->emp_id)), 2, ''); 
+        $this->email->from("erp@aixnexus.com");
+        $this->email->to($manager_email);        
+        $this->email->subject("Kpi Scorecard Approval");        
         $message = '<!DOCTYPE html>
                     <html lang="en">
                     <head>
@@ -2745,18 +2777,19 @@ class Hr_model extends CI_Model
                         <meta name="description" content="">
                         <meta name="author" content="">
                         <link rel="shortcut icon" href="' . base_url() . 'assets/images/favicon.png">
-                        <title>Nexus| Site Manager</title>
-                     
+                        <title>Nexus| Site Manager</title>                     
                     </head>
-
                     <body>
                     <p>Hello ' . $manager_name . ',</p>                       
-                       <p> There is Kpi Card from ' . $user_name . ' need to be <a href="' . base_url() . 'performanceManagment/viewSingleKpiScore/'.$kpi_score_id.'" target="_blank"> Approved ..</a>  </p>                   
-                     
+                       <p>There is a new scorecard added by ' . $user_name . '</p>                   
+                       <p>that needs your approval <a href="' . base_url() . 'performanceManagment/viewSingleKpiScore/'.$kpi_score_id.'" target="_blank"> Click Here ..</a>  </p>                   
+                      
                     </body>
                     </html>';
-
-        mail($manager_email, $subject, $message, $headers);
+        $this->email->message($message);
+        $this->email->set_header('Reply-To', "dev@thetranslationgate.com");
+        $this->email->set_mailtype('html');
+        $this->email->send();
     }
     
     public function getUserEmp($id)
@@ -2764,5 +2797,39 @@ class Hr_model extends CI_Model
             $user = $this->db->get_where('users', array('id' => $id))->row();
             return $user->employees_id;
     }
+    
+    public function checkIfEmpHasGrandParent($emp_id)
+    {
+        $manager_id = self::getManagerId($emp_id);
+        if($manager_id == 13 || $manager_id == 14){
+            $result = 0;
+        }else{
+            $result = $manager_id;
+        }
+        return $result;
+    }
+    
+    // check vacation approval num
+    public function numOfVacationToManager(){
+        $num = 0;
+        if($this->admin_model->checkIfUserIsManager($this->user)){
+            $requests = self::getRequestsForDirectManager($this->emp_id);
+            $num = $requests->num_rows();
+        }
+        return $num ;
+    }
+    
+    public function numOfmissingToManager(){
+        $num = 0;
+        if($this->admin_model->checkIfUserIsManager($this->user)){
+            $title = $this->db->query(" SELECT title FROM employees WHERE id = '$this->emp_id' ")->row()->title;
+            $start_date = date("Y-m-d", strtotime("-45 days"));
+            $end_date = date("Y-m-d", strtotime("+1 day"));
+            $num = self::getMissingAttendanceRequests($this->emp_id, $title, $start_date, $end_date)->num_rows();
+           
+        }
+        return $num ;
+    }
+    
        
 }

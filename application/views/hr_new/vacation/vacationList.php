@@ -75,7 +75,7 @@
                 <!--end::Card-->
 
                 <div class="clear-fix"></div>
-
+                <?php if($this->admin_model->checkIfUserIsManager($this->user)){?>
                 <!--begin::Card-->
                 <div class="card card-custom gutter-b example example-compact">
                     <div class="card-header flex-wrap border-1 pt-5 pb-5">
@@ -132,7 +132,7 @@
                   </div>
                 </div>
                 <!--end::Card-->
-        
+                <?php }?>
 
         </div>
       </div>

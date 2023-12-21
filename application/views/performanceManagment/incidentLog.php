@@ -54,7 +54,7 @@
                             <?= $this->accounting_model->selectYear($year? $year : ''); ?>
                             </select>
                         </div>
-                            <?php if ($permission->add == 1 && $this->admin_model->checkIfUserIsManager($this->user)) { ?>
+                            <?php if ($permission->add == 1 && ($this->admin_model->checkIfUserIsManager($this->user) || $permission->view == 1)) { ?>
                             <label class="col-lg-2 col-form-label text-lg-right" for="role name">Employee Name:</label>
                             <div class="col-lg-4">
                                 <select name="employee_name" class="form-control m-b" id="employee_name"/>

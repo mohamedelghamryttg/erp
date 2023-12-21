@@ -5677,4 +5677,75 @@ class Hr extends CI_Controller
             redirect($_SERVER['HTTP_REFERER']);
         }
     }
+    // export 
+     public function exportStructure()
+    {
+        $file_type = "vnd.ms-excel";
+        $file_ending = "xls";     
+        header("Content-Type: application/$file_type");
+        header("Content-Disposition: attachment; filename=Structure.$file_ending");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        // Check Permission ..
+        $check = $this->admin_model->checkPermission($this->role, 139);
+        if ($check) {
+            //header ..
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 139);
+            //body ..           
+                $arr2 = array();
+                if (isset($_REQUEST['division'])) {
+                    $division = $_REQUEST['division'];
+                    if (!empty($division)) {
+                        array_push($arr2, 0);
+                    }
+                } else {
+                    $division = "";
+                }
+
+                if (isset($_REQUEST['department'])) {
+                    $department = $_REQUEST['department'];
+                    if (!empty($department)) {
+                        array_push($arr2, 1);
+                    }
+                } else {
+                    $department = "";
+                }
+
+                if (isset($_REQUEST['title'])) {
+                    $title = $_REQUEST['title'];
+                    if (!empty($title)) {
+                        array_push($arr2, 2);
+                    }
+                } else {
+                    $title = "";
+                }
+
+                $cond1 = "division = '$division'";
+                $cond2 = "department = '$department'";
+                $cond3 = "title LIKE '%$title%'";
+                $arr1 = array($cond1, $cond2, $cond3);
+                $arr_1_cnt = count($arr2);
+                $arr3 = array();
+                for ($i = 0; $i < $arr_1_cnt; $i++) {
+                    array_push($arr3, $arr1[$arr2[$i]]);
+                }
+                $arr4 = implode(" and ", $arr3);
+
+                if ($arr_1_cnt > 0) {
+                    $data['structure'] = $this->hr_model->AllStructure($this->brand, $arr4);
+                } else {
+                    $data['structure'] = $this->hr_model->AllStructure($this->brand,1);
+                }
+                $data['total_rows'] = $data['structure']->num_rows();
+            
+      
+            // //Pages ..
+
+            $this->load->view('hr/exportStructure.php', $data);
+
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
 } ?> 
