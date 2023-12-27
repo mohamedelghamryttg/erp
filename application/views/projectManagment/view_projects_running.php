@@ -206,6 +206,11 @@
                 } else {
                   $created_by = "";
                 }
+                if (isset($_REQUEST['pono'])) {
+                  $pono = $_REQUEST['pono'];
+                } else {
+                  $pono = "";
+                }
                 if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
                   $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
                   $date_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
@@ -283,6 +288,12 @@
                             <option value="">-- Select PM --</option>
                             <?= $this->admin_model->selectAllPm($created_by, $this->brand) ?>
                           </select>
+                        </div>
+                      </div>
+                      <div class="form-group row" style="display: none">
+                        <label class="col-lg-2 control-label text-lg-right" for="role pono">Po</label>
+                        <div class="col-lg-3">
+                          <input type="text" class="form-control" name="pono" value="<?= $pono ?>">
                         </div>
                       </div>
                       <div class="form-group row">

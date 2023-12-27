@@ -87,7 +87,7 @@
             <!--begin::Col-->
             <div class="col-12" style="display: flex;">
               <div class="col-sm-6 col-lg-3 d-flex align-items-stretch">
-                <div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: linear-gradient(180deg, rgba(9,9,121,1) 90%, rgba(0,212,255,1) 100%);">
+                <div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: linear-gradient(180deg, rgb(71, 71, 204) 90%, rgb(0, 212, 255) 100%);">
                   <div class="card-body  p-0" style="float:left;">
                     <span class="fs-3hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="samCount">...</span>
                     <span class="card-text fs-0hx text-right">Projects From SAM </span>
@@ -206,6 +206,11 @@
                 } else {
                   $created_by = "";
                 }
+                if (isset($_REQUEST['pono'])) {
+                  $pono = $_REQUEST['pono'];
+                } else {
+                  $pono = "";
+                }
                 if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
                   $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
                   $date_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
@@ -276,6 +281,12 @@
                           </select>
                         </div>
                       </div>
+                      <div class="form-group row" style="display: none">
+                        <label class="col-lg-2 control-label text-lg-right" for="role pono">Po</label>
+                        <div class="col-lg-3">
+                          <input type="text" class="form-control" name="pono" value="<?= $pono ?>">
+                        </div>
+                      </div>
                       <div class="form-group row">
                         <label class="col-lg-2 control-label text-lg-right" for="role date">Date From</label>
                         <div class="col-lg-3">
@@ -319,14 +330,14 @@
               </strong></span>
           </div>
         <?php } ?>
-        <div class="card">
+        <div class="card-fluid">
           <div class="card-header flex-wrap border-0 pt-6 pb-0">
             <div class="card-title">
               <h3 class="text-uppercase border-bottom mb-4">Projects List</h3>
             </div>
           </div>
 
-          <div class="card-body row py-0">
+          <div class="card-body row py-0 px-0">
             <div class="col-sm-12 px-5">
 
               <table id="user_data" class="table table-striped row-bordered display nowrap table-hover " cellspacing="0" width="100%">
@@ -421,18 +432,5 @@
       display: none;
     }
   </style>
-  <!-- <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap.min.css" rel="stylesheet">
-
-
-  <link href="https://nightly.datatables.net/css/jquery.dataTables.min.css" rel="stylesheet"> -->
-  <!-- <link href="https://nightly.datatables.net/buttons/css/buttons.dataTables.min.css" rel="stylesheet"> -->
-
-
-  <!-- <script src="https://nightly.datatables.net/js/jquery.dataTables.min.js"></script>
-  <script src="https://nightly.datatables.net/buttons/js/dataTables.buttons.min.js"></script>
-  <script src="https://nightly.datatables.net/buttons/js/buttons.colVis.min.js"></script>
-  <script src="https://nightly.datatables.net/buttons/js/buttons.html5.min.js"></script>
-  <script src="https://nightly.datatables.net/buttons/js/buttons.print.min.js"></script> -->
-
 
   <script src="<?php echo base_url(); ?>assets_new/js/projectsManagment/view_projects.js"></script>

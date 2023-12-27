@@ -20,15 +20,14 @@
     <!--begin::Entry-->
     <div class="d-flex flex-column-fluid">
         <!--begin::Container-->
-        <div class="container">
+        <div class="container-fluid">
             <!-- start search form card -->
             <div class="card card-custom gutter-b example example-compact">
                 <div class="card-header">
                     <h3 class="card-title">Search Cash Out Transaction</h3>
                 </div>
 
-                <form class="form" id="poList" action="<?php echo base_url() ?>account/cashouttrnlist" method="post"
-                    enctype="multipart/form-data">
+                <form class="form" id="poList" action="<?php echo base_url() ?>account/cashouttrnlist" method="post" enctype="multipart/form-data">
                     <input type="hidden" value="<?= $vs_date1 ?>" id="vs_date1">
                     <input type="hidden" value="<?= $vs_date2 ?>" id="vs_date2">
                     <div class="card-body">
@@ -70,8 +69,7 @@
                             <div class="col-lg-3 col-md-9 col-sm-12">
 
                                 <div class='input-group' id='kt_daterangepicker_6'>
-                                    <input type='text' class="form-control" placeholder="Select date range"
-                                        name="cdaterange" id="cdaterange" />
+                                    <input type='text' class="form-control" placeholder="Select date range" name="cdaterange" id="cdaterange" />
 
                                 </div>
                             </div>
@@ -107,19 +105,16 @@
                         <a href="<?= base_url() ?>account/addCashoutTrn" class="btn btn-primary font-weight-bolder">
                         <?php } ?>
                         <span class="svg-icon svg-icon-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
                                 <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                     <rect x="0" y="0" width="24" height="24" />
                                     <circle fill="#000000" cx="9" cy="15" r="6" />
-                                    <path
-                                        d="M8.8012943,7.00241953 C9.83837775,5.20768121 11.7781543,4 14,4 C17.3137085,4 20,6.6862915 20,10 C20,12.2218457 18.7923188,14.1616223 16.9975805,15.1987057 C16.9991904,15.1326658 17,15.0664274 17,15 C17,10.581722 13.418278,7 9,7 C8.93357256,7 8.86733422,7.00080962 8.8012943,7.00241953 Z"
-                                        fill="#000000" opacity="0.3" />
+                                    <path d="M8.8012943,7.00241953 C9.83837775,5.20768121 11.7781543,4 14,4 C17.3137085,4 20,6.6862915 20,10 C20,12.2218457 18.7923188,14.1616223 16.9975805,15.1987057 C16.9991904,15.1326658 17,15.0664274 17,15 C17,10.581722 13.418278,7 9,7 C8.93357256,7 8.86733422,7.00080962 8.8012943,7.00241953 Z" fill="#000000" opacity="0.3" />
                                 </g>
                             </svg>
                             <!--end::Svg Icon-->
                         </span>Add New Cash Out Note</a>
-                    <!--end::Button-->
+                        <!--end::Button-->
                 </div>
             </div>
             <div class="card-body">
@@ -145,22 +140,20 @@
                     </thead>
                     <tbody>
                         <?php $i = 0; ?>
-                        <?php foreach ($cash_trn->result() as $row): ?>
+                        <?php foreach ($cash_trn->result() as $row) : ?>
                             <?php $i++; ?>
                             <tr>
                                 <td>
                                     <?= $i ?>
                                 </td>
                                 <td>
-                                    <a href="<?= base_url() ?>account/editCashoutTrn?t=<?= base64_encode($row->id); ?>"
-                                        class="">
+                                    <a href="<?= base_url() ?>account/editCashoutTrn?t=<?= base64_encode($row->id); ?>" class="">
                                         <?= $row->ccode ?>
                                     </a>
                                 </td>
                                 <td>
                                     <a href="#">
-                                        <a href="<?= base_url() ?>account/editCashoutTrn?t=<?= base64_encode($row->id); ?>"
-                                            class=""><?= $row->doc_no; ?> </a>
+                                        <a href="<?= base_url() ?>account/editCashoutTrn?t=<?= base64_encode($row->id); ?>" class=""><?= $row->doc_no; ?> </a>
                                     </a>
                                 </td>
                                 <td>
@@ -194,17 +187,14 @@
                                 </td>
 
                                 <td>
-                                    <?php if ($permission->edit == 1): ?>
-                                        <a href="<?= base_url() ?>account/editCashoutTrn?t=<?= base64_encode($row->id); ?>"
-                                            class="">
+                                    <?php if ($permission->edit == 1) : ?>
+                                        <a href="<?= base_url() ?>account/editCashoutTrn?t=<?= base64_encode($row->id); ?>" class="">
                                             <i class="fa fa-pencil"></i> Edit
                                         </a>
                                     <?php endif; ?>
                                 <td>
-                                    <?php if ($permission->delete == 1): ?>
-                                        <a href="<?= base_url() ?>account/deleteCashoutTrn/<?= base64_encode($row->id); ?>"
-                                            title="delete" class=""
-                                            onclick="return confirm('Are you sure you want to delete this Cash out Transaction ?');">
+                                    <?php if ($permission->delete == 1) : ?>
+                                        <a href="<?= base_url() ?>account/deleteCashoutTrn/<?= base64_encode($row->id); ?>" title="delete" class="" onclick="return confirm('Are you sure you want to delete this Cash out Transaction ?');">
                                             <i class="fa fa-times text-danger text"></i> Delete
                                         </a>
                                     <?php endif; ?>
@@ -225,15 +215,15 @@
     <!--end::Container-->
 </div>
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         var startDate;
         var endDate;
 
         KTBootstrapDaterangepicker.init();
 
     })
-    var KTBootstrapDaterangepicker = function () {
-        var demos = function () {
+    var KTBootstrapDaterangepicker = function() {
+        var demos = function() {
             var start = moment().subtract(29, 'days');
             var end = moment();
             var s_date1 = new Date($('#vs_date1').val());
@@ -254,14 +244,14 @@
                     'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
                     'Financial Year': [s_date1, s_date2]
                 }
-            }, function (start, end, label) {
+            }, function(start, end, label) {
                 $('#kt_daterangepicker_6 .form-control').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
                 startDate = start;
                 endDate = end;
             });
         }
         return {
-            init: function () {
+            init: function() {
                 demos();
             }
         };

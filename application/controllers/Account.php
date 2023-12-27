@@ -1670,9 +1670,6 @@ class Account extends CI_Controller
             $id = base64_decode($_GET['t']);
             $data['cashin'] = $this->db->get_where('cashin', array('id' => $id, 'brand' => $this->brand))->row();
             $data['acc_setup'] = $setup;
-            $data['parent_id'] = $setup->cash_acc_id;
-            $data['parent_acode'] = $setup->cash_acc_acode;
-            $data['parent_name'] = $this->AccountModel->getByID('account_chart', $data['parent_id']);
             if ($setup->rev_acc_id != 0) {
                 $data['rev_id'] = $setup->rev_acc_id;
                 $data['rev_acode'] = $setup->rev_acc_acode;
@@ -1680,9 +1677,13 @@ class Account extends CI_Controller
             } else {
                 $data['rev_name'] = "-";
             }
+            $cash_select = $this->db->get_where('payment_method', array('id' => $data['cashin']->cash_id))->row()->account_id;
+            $account_select = $this->db->get_where('account_chart', array('id' => $cash_select))->row();
+            $data['cash_acc_id'] = $account_select->id;
+            $data['cash_acc'] = $account_select->acode;
+            $data['cash_acc_name'] = $account_select->name;
 
             $data['brand'] = $this->brand;
-            // $data['brand'] = $this->admin_model->getbrand($this->brand);
 
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('account/cash/editCashinTrn');
@@ -1712,10 +1713,15 @@ class Account extends CI_Controller
             $data['date'] = date("Y-m-d", strtotime($_POST['cdate']));
             $data['trn_type'] = $_POST['trn_typ'];
             $data['trn_id'] = $_POST['trn_id'];
+            $data['trn_code'] = $this->AccountModel->get_accountRowID($_POST['trn_id'])->acode;
+
             $data['amount'] = $_POST['amount'];
             $data['currency_id'] = $_POST['currency_hid'];
             $data['rate'] = $_POST['rate_h'];
             $data['rem'] = $_POST['rem'];
+            $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['cash_id']);
+            $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
+
 
             $this->admin_model->addToLoggerUpdate('cashin', 221, 'id', $id, 0, 0, $this->user);
             if ($this->db->update('cashin', $data, array('id' => $id))) {
@@ -1731,15 +1737,16 @@ class Account extends CI_Controller
                 $entry_data['currency_id'] = $_POST['currency_hid'];
                 $entry_data['rate'] = $_POST['rate_h'];
                 $entry_data['typ_account'] = $_POST['trn_typ'];
-                $entry_data['deb_account'] = $_POST['cash_id'];
+                $entry_data['deb_account'] =  (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']);
                 $entry_data['crd_account'] = '';
                 $entry_data['data1'] = $_POST['rem'];
+                $entry_data['data2'] = $_POST['rem'];
                 $entry_data['created_at'] = date('Y-m-d H:i:s');
                 $entry_data['created_by'] = $this->user;
 
                 $entry_data['deb_amount'] = $_POST['amount'];
-                $entry_data['deb_acc_id'] = $_POST['cash_acc_id'];
-                $entry_data['deb_acc_acode'] = $this->AccountModel->getAcodeByID($_POST['cash_acc_id']);
+                $entry_data['deb_acc_id'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']);
+                $entry_data['deb_acc_acode'] = $dep_acc_row->acode;
                 $entry_data['ev_deb'] = $entry_data['deb_amount'] * $_POST['rate_h'];
                 $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->cash_acc_id;
                 $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->cash_acc_acode;
@@ -1758,7 +1765,9 @@ class Account extends CI_Controller
                     'trns_date' => date("Y-m-d", strtotime($_POST['cdate'])),
                     'currency_id' => $_POST['currency_hid'],
                     'rate' => $_POST['rate_h'],
-                    'deb_account' => $_POST['cash_id'],
+                    'data1' => $_POST['rem'],
+                    'data2' => $_POST['rem'],
+                    'deb_account' => (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']),
                     'crd_account' => $_POST['trn_id'],
                     'ev_amount' => $entry_data['ev_deb'],
                     'created_at' => date('Y-m-d H:i:s'),
@@ -1858,6 +1867,7 @@ class Account extends CI_Controller
             $data['date'] = date("Y-m-d", strtotime($_POST['cdate']));
             $data['trn_type'] = $_POST['trn_typ'];
             $data['trn_id'] = $_POST['trn_id'];
+            $data['trn_code'] = $this->AccountModel->get_accountRowID($_POST['trn_id'])->acode;
 
             $data['amount'] = $_POST['amount'];
             $data['currency_id'] = $_POST['currency_hid'];
@@ -1867,9 +1877,12 @@ class Account extends CI_Controller
             $data['created_at'] = date('Y-m-d H:i:s');
             $data['created_by'] = $this->user;
 
+            $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['cash_id']);
+            $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
+
             if ($this->db->insert('cashin', $data)) {
-                $cashin_id = $this->db->insert_id();;
-                $this->admin_model->addToLoggerUpdate('cashin', 221, 'id', $cashin_id, 0, 0, $this->user);
+                $cashin_id = $this->db->insert_id();
+                // $this->admin_model->addToLoggerUpdate('cashin', 221, 'id', $cashin_id, 0, 0, $this->user);
 
                 $entry_data['brand'] = $this->brand;
                 $entry_data['trns_type'] = "Cash In";
@@ -1880,15 +1893,16 @@ class Account extends CI_Controller
                 $entry_data['currency_id'] = $_POST['currency_hid'];
                 $entry_data['rate'] = $_POST['rate_h'];
                 $entry_data['typ_account'] = $_POST['trn_typ'];
-                $entry_data['deb_account'] = $_POST['cash_id'];
+                $entry_data['deb_account'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']);
                 $entry_data['crd_account'] = '';
                 $entry_data['data1'] = $_POST['rem'];
+                $entry_data['data2'] = $_POST['rem'];
                 $entry_data['created_by'] = $this->user;
                 $entry_data['created_at'] = date('Y-m-d H:i:s');
 
                 $entry_data['deb_amount'] = $_POST['amount'];
-                $entry_data['deb_acc_id'] = $_POST['cash_acc_id'];
-                $entry_data['deb_acc_acode'] = $this->AccountModel->getAcodeByID($_POST['cash_acc_id']);
+                $entry_data['deb_acc_id'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']);
+                $entry_data['deb_acc_acode'] = $dep_acc_row->acode;
                 $entry_data['ev_deb'] = $entry_data['deb_amount'] * $_POST['rate_h'];
                 $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->cash_acc_id;
                 $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->cash_acc_acode;
@@ -1909,7 +1923,8 @@ class Account extends CI_Controller
                     'rate' => $_POST['rate_h'],
                     'ev_amount' => $entry_data['ev_deb'],
                     'data1' => $_POST['rem'],
-                    'deb_account' => $_POST['cash_id'],
+                    'data2' => $_POST['rem'],
+                    'deb_account' => (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']),
                     'crd_account' => $_POST['trn_id'],
 
                     'created_at' => date('Y-m-d H:i:s'),
@@ -1930,7 +1945,7 @@ class Account extends CI_Controller
                         $entry_data['ev_crd'] = $entry_data['crd_amount'] * $_POST['rate_h'];
                         $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->rev_acc_id;
                         $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->rev_acc_acode;
-                        $entry_data['data2'] = $_POST['rem'];
+                        // $entry_data['data2'] = $_POST['rem'];
 
                         if ($this->db->insert('entry_data', $entry_data)) {
                             $true = "Cash In Add Successfully ...";
@@ -2000,8 +2015,8 @@ class Account extends CI_Controller
     }
     public function get_trn_currency_rate()
     {
-        $currency_hid = $this->input->post('currency_hid', TRUE);
-        $date = $this->input->post('date', TRUE);
+        $currency_hid = $this->input->post('currency_hid');
+        $date = $this->input->post('date');
         $setup = $this->AccountModel->getsetup();
 
         if (isset($setup->local_currency_id)) {
@@ -2014,7 +2029,7 @@ class Account extends CI_Controller
             $data['rate'] = 1;
             echo json_encode($data);
         } else {
-            if ($currency_hid != '') {
+            if ($currency_hid != '' && $date) {
                 if ($this->AccountModel->getrate($currency_hid, $date)) {
                     $data['rate'] = $this->AccountModel->getrate($currency_hid, $date);
                     echo json_encode($data);
@@ -2215,9 +2230,9 @@ class Account extends CI_Controller
             $id = base64_decode($_GET['t']);
             $data['cashout'] = $this->db->get_where('cashout', array('id' => $id, 'brand' => $this->brand))->row();
             $data['acc_setup'] = $setup;
-            $data['parent_id'] = $setup->cash_acc_id;
-            $data['parent_acode'] = $setup->cash_acc_acode;
-            $data['parent_name'] = $this->AccountModel->getByID('account_chart', $data['parent_id']);
+            // $data['parent_id'] = $setup->cash_acc_id;
+            // $data['parent_acode'] = $setup->cash_acc_acode;
+            // $data['parent_name'] = $this->AccountModel->getByID('account_chart', $data['parent_id']);
             if ($setup->rev_acc_id != 0) {
                 $data['exp_id'] = $setup->exp_acc_id;
                 $data['exp_acode'] = $setup->exp_acc_acode;
@@ -2225,6 +2240,11 @@ class Account extends CI_Controller
             } else {
                 $data['exp_name'] = "-";
             }
+            $cash_select = $this->db->get_where('payment_method', array('id' => $data['cashout']->cash_id))->row()->account_id;
+            $account_select = $this->db->get_where('account_chart', array('id' => $cash_select))->row();
+            $data['cash_acc_id'] = $account_select->id;
+            $data['cash_acc'] = $account_select->acode;
+            $data['cash_acc_name'] = $account_select->name;
 
             $data['brand'] = $this->brand;
 
@@ -2248,19 +2268,22 @@ class Account extends CI_Controller
                 }
             }
             $id = base64_decode($_POST['id']);
-            $serial = $_POST['serial'];
+            $serial = str_pad($_POST['serial'], 10, '0', STR_PAD_LEFT);
             $data['ccode'] = $serial;
             $data['doc_no'] = $_POST['doc_no'];
             $data['cash_id'] = $_POST['cash_id'];
             $data['date'] = date("Y-m-d", strtotime($_POST['cdate']));
             $data['trn_type'] = $_POST['trn_typ'];
             $data['trn_id'] = $_POST['trn_id'];
+            $data['trn_code'] = $this->AccountModel->get_accountRowID($_POST['trn_id'])->acode;
             $data['amount'] = $_POST['amount'];
             $data['currency_id'] = $_POST['currency_hid'];
             $data['rate'] = $_POST['rate_h'];
             $data['rem'] = $_POST['rem'];
-            $data['brand'] = $this->brand;
+            $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['cash_id']);
+            $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
 
+            $data['brand'] = $this->brand;
             $this->admin_model->addToLoggerUpdate('cashout', 222, 'id', $id, 0, 0, $this->user);
             if ($this->db->update('cashout', $data, array('id' => $id))) {
 
@@ -2276,14 +2299,15 @@ class Account extends CI_Controller
                 $entry_data['rate'] = $_POST['rate_h'];
                 $entry_data['typ_account'] = $_POST['trn_typ'];
                 $entry_data['deb_account'] = '';
-                $entry_data['crd_account'] = $_POST['cash_id'];
+                $entry_data['crd_account'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']);
                 $entry_data['data1'] = $_POST['rem'];
+                $entry_data['data2'] = $_POST['rem'];
                 $entry_data['created_at'] = date('Y-m-d H:i:s');
                 $entry_data['created_by'] = $this->user;
 
                 $entry_data['crd_amount'] = $_POST['amount'];
-                $entry_data['crd_acc_id'] = $_POST['cash_acc_id'];
-                $entry_data['crd_acc_acode'] = $this->AccountModel->getAcodeByID($_POST['cash_acc_id']);
+                $entry_data['crd_acc_id'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']);
+                $entry_data['crd_acc_acode'] = $dep_acc_row->acode;
                 $entry_data['ev_crd'] = $entry_data['crd_amount'] * $_POST['rate_h'];
                 $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->cash_acc_id;
                 $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->cash_acc_acode;
@@ -2302,14 +2326,16 @@ class Account extends CI_Controller
                     'trns_date' => date("Y-m-d", strtotime($_POST['cdate'])),
                     'currency_id' => $_POST['currency_hid'],
                     'rate' => $_POST['rate_h'],
-                    'crd_account' => $_POST['cash_id'],
+                    'data1' => $_POST['rem'],
+                    'data2' => $_POST['rem'],
+                    'crd_account' => (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']),
                     'deb_account' => $_POST['trn_id'],
-                    'ev_amount' => $entry_data['ev_deb'],
+                    'ev_amount' => $entry_data['ev_crd'],
                     'created_at' => date('Y-m-d H:i:s'),
                     'created_by' => $this->user
                 );
                 if ($this->db->insert('entry_data_total', $data_t)) {
-                    $entry_data['tot_id'] = $this->db->insert_id('entry_data_total');
+                    $entry_data['tot_id'] = $this->db->get('entry_data_total', array('trns_type' => "Cash Out", 'trns_id' => $id))->row()->id;
                     if ($this->db->insert('entry_data', $entry_data)) {
                         $entry_data['crd_amount'] = 0;
                         $entry_data['crd_acc_id'] = '';
@@ -2333,6 +2359,7 @@ class Account extends CI_Controller
             } else {
                 $error = "Failed To Edit Cash Out ...";
                 $this->session->set_flashdata('error', $error);
+                echo json_encode(['records' => 1]);
             }
             echo "account/cashouttrnlist";
         } else {
@@ -2372,8 +2399,8 @@ class Account extends CI_Controller
     {
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 222);
         if ($permission->add == 1) {
-            $setup = $this->AccountModel->getsetup();
 
+            $setup = $this->AccountModel->getsetup();
             $cash_code = doubleval($setup->cashout_num);
             $newcash = $cash_code + 1;
             $this->db->where('brand', $this->brand);
@@ -2388,6 +2415,7 @@ class Account extends CI_Controller
             $data['date'] = date("Y-m-d", strtotime($_POST['cdate']));
             $data['trn_type'] = $_POST['trn_typ'];
             $data['trn_id'] = $_POST['trn_id'];
+            $data['trn_code'] = $this->AccountModel->get_accountRowID($_POST['trn_id'])->acode;
 
             $data['amount'] = $_POST['amount'];
             $data['currency_id'] = $_POST['currency_hid'];
@@ -2397,12 +2425,16 @@ class Account extends CI_Controller
             $data['created_at'] = date('Y-m-d H:i:s');
             $data['created_by'] = $this->user;
 
+            $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['cash_id']);
+            $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
+
             if ($this->db->insert('cashout', $data)) {
-                $cashin_id = $this->db->query("SELECT id FROM cashout WHERE ccode='" . $data['ccode'] . "'")->row()->id;
+                $cashout_id = $this->db->insert_id();
+                // $this->admin_model->addToLoggerUpdate('cashout', 222, 'id', $cashout_id, 0, 0, $this->user);
 
                 $entry_data['brand'] = $this->brand;
                 $entry_data['trns_type'] = "Cash Out";
-                $entry_data['trns_id'] = $cashin_id;
+                $entry_data['trns_id'] = $cashout_id;
                 $entry_data['trns_ser'] = $serial;
                 $entry_data['trns_code'] = $_POST['doc_no'];
                 $entry_data['trns_date'] = date("Y-m-d", strtotime($_POST['cdate']));
@@ -2410,14 +2442,15 @@ class Account extends CI_Controller
                 $entry_data['rate'] = $_POST['rate_h'];
                 $entry_data['typ_account'] = $_POST['trn_typ'];
                 $entry_data['deb_account'] = '';
-                $entry_data['crd_account'] = $_POST['cash_id'];
+                $entry_data['crd_account'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']);
                 $entry_data['data1'] = $_POST['rem'];
+                $entry_data['data2'] = $_POST['rem'];
                 $entry_data['created_by'] = $this->user;
                 $entry_data['created_at'] = date('Y-m-d H:i:s');
 
                 $entry_data['crd_amount'] = $_POST['amount'];
-                $entry_data['crd_acc_id'] = $_POST['cash_acc_id'];
-                $entry_data['crd_acc_acode'] = $this->AccountModel->getAcodeByID($_POST['cash_acc_id']);
+                $entry_data['crd_acc_id'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']);
+                $entry_data['crd_acc_acode'] = $dep_acc_row->acode;
                 $entry_data['ev_crd'] = $entry_data['crd_amount'] * $_POST['rate_h'];
                 $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->cash_acc_id;
                 $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->cash_acc_acode;
@@ -2429,7 +2462,7 @@ class Account extends CI_Controller
                 $data_t = array(
                     'brand' => $this->brand,
                     'trns_type' => "Cash Out",
-                    'trns_id' => $cashin_id,
+                    'trns_id' => $cashout_id,
                     'trns_ser' => $serial,
                     'trns_code' => $_POST['doc_no'],
                     'amount' => $_POST['amount'],
@@ -2438,18 +2471,21 @@ class Account extends CI_Controller
                     'rate' => $_POST['rate_h'],
                     'ev_amount' => $entry_data['ev_crd'],
                     'data1' => $_POST['rem'],
-                    'crd_account' => $_POST['cash_id'],
-                    'deb_account' => '',
+                    'data2' => $_POST['rem'],
+                    'crd_account' => (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']),
+                    'deb_account' => $_POST['trn_id'],
                     'created_at' => date('Y-m-d H:i:s'),
                     'created_by' => $this->user
                 );
                 if ($this->db->insert('entry_data_total', $data_t)) {
-                    $entry_data['tot_id'] = $this->db->get('entry_data_total', array('trns_type' => "Cash Out", 'trns_id' => $cashin_id))->row()->id;
+                    $entry_data['tot_id'] = $this->db->get('entry_data_total', array('trns_type' => "Cash Out", 'trns_id' => $cashout_id))->row()->id;
                     if ($this->db->insert('entry_data', $entry_data)) {
                         $entry_data['crd_amount'] = 0;
                         $entry_data['crd_acc_id'] = '';
                         $entry_data['crd_acc_acode'] = '';
                         $entry_data['ev_crd'] = 0;
+                        $entry_data['crd_account'] = '';
+                        $entry_data['deb_account'] = $_POST['trn_id'];
 
                         $entry_data['deb_amount'] = $_POST['amount'];
                         $entry_data['deb_acc_id'] = $_POST['trn_id'];
@@ -2459,16 +2495,21 @@ class Account extends CI_Controller
                         $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->rev_acc_acode;
 
                         if ($this->db->insert('entry_data', $entry_data)) {
-                            $true = "Cash In Edited Successfully ...";
+                            $true = "Cash Out Added Successfully ...";
                             $this->session->set_flashdata('true', $true);
+                            echo json_encode(['records' => 0]);
                         }
+                    } else {
+                        $error = "Failed To Add Cash Out Entry ...";
+                        $this->session->set_flashdata('error', $error);
+                        echo json_encode(['records' => 1]);
                     }
                 }
             } else {
                 $error = "Failed To Add Cash out ...";
                 $this->session->set_flashdata('error', $error);
+                echo json_encode(['records' => 1]);
             }
-            echo "account/cashouttrnlist";
         } else {
             echo "You have no permission to access this page";
         }
@@ -2479,12 +2520,18 @@ class Account extends CI_Controller
         // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 222);
         if ($check) {
+            $id =  base64_decode($id);
             $this->admin_model->addToLoggerDelete('cashout', 222, 'id', $id, 0, 0, $this->user);
             if ($this->db->delete('cashout', array('id' => $id))) {
                 if ($this->db->delete('entry_data_total', array('trns_id' => $id, 'trns_type' => 'Cash out'))) {
                     if ($this->db->delete('entry_data', array('trns_id' => $id, 'trns_type' => 'Cash out'))) {
-                        $true = "Cash out Deleted Successfully ...";
-                        $this->session->set_flashdata('true', $true);
+                        if ($this->db->affected_rows() > 0) {
+                            $true = "Cash out Deleted Successfully ...";
+                            $this->session->set_flashdata('true', $true);
+                        } else {
+                            $error = "Failed To Delete Cash out ...";
+                            $this->session->set_flashdata('error', $error);
+                        }
                     }
                 }
             } else {
@@ -2578,9 +2625,9 @@ class Account extends CI_Controller
                 $arr4 = implode(" and ", $arr3);
                 //************//
                 if ($arr_1_cnt > 0) {
-                    $data['bank_trn'] = $this->AccountModel->Allbankin($this->brand, $type, $arr4);
+                    $data['bank_trn'] = $this->AccountModel->Allbanktrn($this->brand, $type, $arr4);
                 } else {
-                    $data['bank_trn'] = $this->AccountModel->AllbankinPages($this->brand, $type, 9, 0);
+                    $data['bank_trn'] = $this->AccountModel->AllbanktrnPages($this->brand, $type, 9, 0);
                 }
             } else {
                 $limit = 9;
@@ -2591,7 +2638,7 @@ class Account extends CI_Controller
                     $offset = 0;
                 }
                 $count = $this->AccountModel->Allbankin($this->brand, $type, 1)->num_rows();
-                $config['base_url'] = base_url('accounting/invoices');
+                $config['base_url'] = base_url('account/bankintrnlist');
                 $config['uri_segment'] = 3;
                 $config['display_pages'] = TRUE;
                 $config['per_page'] = $limit;
@@ -2618,7 +2665,7 @@ class Account extends CI_Controller
                 $config['show_count'] = TRUE;
                 $this->pagination->initialize($config);
 
-                $data['bank_trn'] = $this->AccountModel->AllbankinPages($this->brand, $type, $limit, $offset);
+                $data['bank_trn'] = $this->AccountModel->AllbanktrnPages($this->brand, $type, $limit, $offset);
             }
             $data['brand'] = $this->brand;
             $data['parent_id'] = $this->db->get_where('acc_setup', array('brand' => $this->brand))->row()->bank_acc_id;
@@ -2640,14 +2687,24 @@ class Account extends CI_Controller
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 224);
             //body ..
+            $id = base64_decode($_GET['t']);
+            $data['bankin'] = $this->db->get_where('bankin', array('id' => $id, 'brand' => $this->brand))->row();
+            $data['acc_setup'] = $setup = $this->AccountModel->getsetup();
 
-            $data['id'] = base64_decode($_GET['t']);
-            $data['bankin'] = $this->db->get_where('bankin', array('id' => $data['id'], 'brand' => $this->brand))->row();
-            $data['entry_data'] = $this->db->get_where('entry_data', array('id' => $data['bankin']->trn_id, 'brand' => $this->brand))->row();
+            if ($setup->rev_acc_id != 0) {
+                $data['rev_id'] = $setup->rev_acc_id;
+                $data['rev_acode'] = $setup->rev_acc_acode;
+                $data['rev_name'] = $this->AccountModel->getByID('account_chart', $data['rev_id']);
+            } else {
+                $data['rev_name'] = "-";
+            }
+            $cash_select = $this->db->get_where('payment_method', array('id' => $data['bankin']->bank_id))->row()->account_id;
+            $account_select = $this->db->get_where('account_chart', array('id' => $cash_select))->row();
+            $data['cash_acc_id'] = $account_select->id;
+            $data['cash_acc'] = $account_select->acode;
+            $data['cash_acc_name'] = $account_select->name;
+
             $data['brand'] = $this->brand;
-
-            $data['date'] = $data['bankin']->date;
-            $data['acc_setup'] = $this->AccountModel->getsetup();
             //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('account/bank/editbankinTrn');
@@ -2657,72 +2714,132 @@ class Account extends CI_Controller
         }
     }
 
-    public function doEditbankhinTrn()
+    public function doEditbankinTrn()
     {
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 224);
         if ($permission->edit == 1) {
+            if (isset($_POST['doc_no'])) {
+                $records = $this->db->select('*')->from('bankin')->where('doc_no=', $_POST['doc_no'])->where('brand=', $this->brand)->order_by('id')->get();
+                if ($records->num_rows() != 0 && $records->row()->id != base64_decode($_POST['id'])) {
+                    echo json_encode(['records' => 1]);
+                    return;
+                }
+            }
 
-            $data['id'] = base64_decode($_POST['id']);
+            $id = base64_decode($_POST['id']);
+            $serial = str_pad($_POST['serial'], 10, '0', STR_PAD_LEFT);
             $data['ccode'] = $_POST['serial'];
             $data['doc_no'] = $_POST['doc_no'];
             $data['bank_id'] = $_POST['bank_id'];
             $data['date'] = date("Y-m-d", strtotime($_POST['cdate']));
             $data['trn_type'] = $_POST['trn_typ'];
             $data['trn_id'] = $_POST['trn_id'];
+            $data['trn_code'] = $this->AccountModel->get_accountRowID($_POST['trn_id'])->acode;
+
             $data['amount'] = $_POST['amount'];
-            $data['date1'] = date("Y-m-d", strtotime($_POST['cdate1']));
-            $data['check_no'] = $_POST['check_no'];
             $data['currency_id'] = $_POST['currency_hid'];
             $data['rate'] = $_POST['rate_h'];
+            $data['cheque_date'] = date("Y-m-d", strtotime($_POST['cdate1']));
+            $data['cheque_no'] = $_POST['check_no'];
             $data['rem'] = $_POST['rem'];
             $data['brand'] = $this->brand;
 
-            $this->admin_model->addToLoggerUpdate('bankin', 224, 'id', $data['id'], 0, 0, $this->user);
-            if ($this->db->update('bankin', $data, array('id' => $data['id']))) {
-                $this->db->delete('entry_data', array('trns_id' => $data['id']));
-                $trn_id = $this->db->query("SELECT id FROM bankin WHERE ccode='" . $_POST['serial'] . "'")->row()->id;
-                $crd_acc_acode = $this->db->query("SELECT acode FROM account_chart WHERE id='" . $_POST['trn_id'] . "'")->row();
-                $deb_acc_acode = $this->db->query("SELECT acode FROM account_chart WHERE id='" . $_POST['trn_id'] . "'")->row();
+            $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['bank_id']);
+            $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
+
+            $this->admin_model->addToLoggerUpdate('bankin', 224, 'id', $id, 0, 0, $this->user);
+            if ($this->db->update('bankin', $data, array('id' => $id))) {
+
+                $this->db->delete('entry_data_total', array('trns_type' => "Bank In", 'trns_id' => $id));
+                $this->db->delete('entry_data', array('trns_type' => "Bank In", 'trns_id' => $id));
+
+                // $trn_id = $this->db->query("SELECT id FROM bankin WHERE ccode='" . $_POST['serial'] . "'")->row()->id;
+                // $crd_acc_acode = $this->db->query("SELECT acode FROM account_chart WHERE id='" . $_POST['trn_id'] . "'")->row();
+                // $deb_acc_acode = $this->db->query("SELECT acode FROM account_chart WHERE id='" . $_POST['trn_id'] . "'")->row();
                 $entry_data['brand'] = $this->brand;
-                $entry_data['trns_type'] = "bank In";
-                $entry_data['trns_id'] = $trn_id;
-                $entry_data['trns_ser'] = $_POST['serial'];
+                $entry_data['trns_type'] = "Bank In";
+                $entry_data['trns_id'] = $id;
+                $entry_data['trns_ser'] = $serial;
                 $entry_data['trns_code'] = $_POST['doc_no'];
-                $entry_data['deb_amount'] = $_POST['amount'];
-                $entry_data['deb_acc_id'] = $_POST['bank_id'];
-                $entry_data['deb_acc_acode'] = $deb_acc_acode->acode;
                 $entry_data['trns_date'] = date("Y-m-d", strtotime($_POST['cdate']));
-                // $entry_data['trns_date1'] = date("Y-m-d", strtotime($_POST['cdate1']));
                 $entry_data['currency_id'] = $_POST['currency_hid'];
                 $entry_data['rate'] = $_POST['rate_h'];
-                $entry_data['ev_deb'] = $entry_data['deb_amount'] * $_POST['rate_h'];
                 $entry_data['typ_account'] = $_POST['trn_typ'];
+                $entry_data['deb_account'] =  (($dep_pay_acco) ? $dep_pay_acco  : $_POST['bank_acc_id']);
+                $entry_data['crd_account'] = '';
+                $entry_data['data1'] = $_POST['rem'];
+                $entry_data['data2'] = $_POST['rem'];
                 $entry_data['created_at'] = date('Y-m-d H:i:s');
                 $entry_data['created_by'] = $this->user;
-                if ($this->db->insert('entry_data', $entry_data)) {
-                    //   $entry_data['check_no'] = $_POST['check_no'];
-                    $entry_data['crd_amount'] = $_POST['amount'];
-                    $entry_data['crd_acc_id'] = $_POST['trn_id'];
-                    $entry_data['crd_acc_acode'] = $crd_acc_acode->acode;
-                    $entry_data['ev_crd'] = $entry_data['crd_amount'] * $_POST['rate_h'];
-                    $entry_data['deb_amount'] = null;
-                    $entry_data['deb_acc_id'] = null;
-                    $entry_data['deb_acc_acode'] = null;
-                    $entry_data['ev_deb'] = null;
+
+                $entry_data['deb_amount'] = $_POST['amount'];
+                $entry_data['deb_acc_id'] = $_POST['bank_id'];
+                $entry_data['deb_acc_id'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['bank_acc_id']);
+                $entry_data['deb_acc_acode'] = $dep_acc_row->acode;
+                $entry_data['ev_deb'] = $entry_data['deb_amount'] * $_POST['rate_h'];
+                $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->bank_acc_id;
+                $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->bank_acc_acode;
+
+                $entry_data['crd_amount'] = 0;
+                $entry_data['crd_acc_id'] = '';
+                $entry_data['crd_acc_acode'] = '';
+                $entry_data['ev_crd'] = 0;
+                $data_t = array(
+                    'brand' => $this->brand,
+                    'trns_type' => "Bank In",
+                    'trns_id' => $id,
+                    'trns_ser' => $serial,
+                    'trns_code' => $_POST['doc_no'],
+                    'amount' => $_POST['amount'],
+                    'trns_date' => date("Y-m-d", strtotime($_POST['cdate'])),
+                    'currency_id' => $_POST['currency_hid'],
+                    'rate' => $_POST['rate_h'],
+                    'data1' => $_POST['rem'],
+                    'data2' => $_POST['rem'],
+                    'deb_account' => (($dep_pay_acco) ? $dep_pay_acco  : $_POST['bank_acc_id']),
+                    'crd_account' => $_POST['trn_id'],
+                    'ev_amount' => $entry_data['ev_deb'],
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'created_by' => $this->user
+                );
+                if ($this->db->insert('entry_data_total', $data_t)) {
+                    $entry_data['tot_id'] = $this->db->get('entry_data_total', array('trns_type' => "Bank In", 'trns_id' => $id))->row()->id;
                     if ($this->db->insert('entry_data', $entry_data)) {
-                        $true = "bank In Edited Successfully ...";
-                        $this->session->set_flashdata('true', $true);
+                        $entry_data['deb_amount'] = 0;
+                        $entry_data['deb_acc_id'] = '';
+                        $entry_data['deb_acc_acode'] = '';
+                        $entry_data['ev_deb'] = 0;
+                        $entry_data['deb_account'] = '';
+                        $entry_data['crd_account'] = $_POST['trn_id'];
+
+                        $entry_data['crd_amount'] = $_POST['amount'];
+                        $entry_data['crd_acc_id'] = $_POST['trn_id'];
+                        $entry_data['crd_acc_acode'] = $this->AccountModel->getAcodeByID($_POST['trn_id']);
+                        $entry_data['ev_crd'] = $entry_data['crd_amount'] * $_POST['rate_h'];
+                        $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->rev_acc_id;
+                        $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->rev_acc_acode;
+
+                        if ($this->db->insert('entry_data', $entry_data)) {
+                            $true = "Bank In Edited Successfully ...";
+                            $this->session->set_flashdata('true', $true);
+                            echo json_encode(['records' => 0]);
+                        }
+                    } else {
+                        $error = "Failed To Edit bank In ...";
+                        $this->session->set_flashdata('error', $error);
+                        echo json_encode(['records' => 1]);
                     }
                 }
             } else {
-                $error = "Failed To Edit bank In ...";
+                $error = "Failed To Edit Cash In Entry ...";
                 $this->session->set_flashdata('error', $error);
+                echo json_encode(['records' => 1]);
             }
-            echo "account/bankintrnlist";
         } else {
             echo "You have no permission to access this page";
         }
     }
+
     public function addbankinTrn()
     {
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 224);
@@ -2731,8 +2848,8 @@ class Account extends CI_Controller
             $setup = $this->AccountModel->getsetup();
 
             $data['acc_setup'] = $setup;
-            $data['parent_id'] = $setup->cash_acc_id;
-            $data['parent_acode'] = $setup->cash_acc_acode;
+            $data['parent_id'] = $setup->bank_acc_id;
+            $data['parent_acode'] = $setup->bank_acc_acode;
             $data['parent_name'] = $this->AccountModel->getByID('account_chart', $data['parent_id']);
             if ($setup->rev_acc_id != 0) {
                 $data['rev_id'] = $setup->rev_acc_id;
@@ -2773,7 +2890,7 @@ class Account extends CI_Controller
             $this->db->update('acc_setup', array('bankin_num' => str_pad($newcash, 10, "0", STR_PAD_LEFT)));
 
             $serial = str_pad($newcash, 10, '0', STR_PAD_LEFT);
-            $data['bank_type'] = 1; //1 for cash in - 2 for cash out
+            $data['bank_type'] = 1; //1 for bank in - 2 for bank out
             $data['ccode'] = $serial;
             $data['doc_no'] = $_POST['doc_no'];
             $data['bank_id'] = $_POST['cash_id'];
@@ -2781,6 +2898,9 @@ class Account extends CI_Controller
             $data['date'] = date("Y-m-d", strtotime($_POST['cdate']));
             $data['trn_type'] = $_POST['trn_typ'];
             $data['trn_id'] = $_POST['trn_id'];
+            $data['trn_code'] = $this->AccountModel->get_accountRowID($_POST['trn_id'])->acode;
+            $data['cheque_no'] = $_POST['check_no'];
+            $data['cheque_date'] = date("Y-m-d", strtotime($_POST['cdate1']));
 
             $data['amount'] = $_POST['amount'];
             $data['currency_id'] = $_POST['currency_hid'];
@@ -2790,11 +2910,14 @@ class Account extends CI_Controller
             $data['created_at'] = date('Y-m-d H:i:s');
             $data['created_by'] = $this->user;
 
+            $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['cash_id']);
+            $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
+
             if ($this->db->insert('bankin', $data)) {
-                $bankin_id = $this->db->query("SELECT id FROM bankin WHERE ccode='" . $data['ccode'] . "'")->row()->id;
+                $bankin_id =  $this->db->insert_id();
 
                 $entry_data['brand'] = $this->brand;
-                $entry_data['trns_type'] = "Cash In";
+                $entry_data['trns_type'] = "Bank In";
                 $entry_data['trns_id'] = $bankin_id;
                 $entry_data['trns_ser'] = $serial;
                 $entry_data['trns_code'] = $_POST['doc_no'];
@@ -2802,18 +2925,19 @@ class Account extends CI_Controller
                 $entry_data['currency_id'] = $_POST['currency_hid'];
                 $entry_data['rate'] = $_POST['rate_h'];
                 $entry_data['typ_account'] = $_POST['trn_typ'];
-                $entry_data['deb_account'] = $_POST['cash_id'];
+                $entry_data['deb_account'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']);
                 $entry_data['crd_account'] = '';
                 $entry_data['data1'] = $_POST['rem'];
+                $entry_data['data2'] = $_POST['rem'];
                 $entry_data['created_by'] = $this->user;
                 $entry_data['created_at'] = date('Y-m-d H:i:s');
 
                 $entry_data['deb_amount'] = $_POST['amount'];
-                $entry_data['deb_acc_id'] = $_POST['cash_acc_id'];
-                $entry_data['deb_acc_acode'] = $this->AccountModel->getAcodeByID($_POST['cash_acc_id']);
+                $entry_data['deb_acc_id'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']);
+                $entry_data['deb_acc_acode'] =  $dep_acc_row->acode;
                 $entry_data['ev_deb'] = $entry_data['deb_amount'] * $_POST['rate_h'];
-                $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->cash_acc_id;
-                $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->cash_acc_acode;
+                $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->bank_acc_id;
+                $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->bank_acc_acode;
 
                 $entry_data['crd_amount'] = 0;
                 $entry_data['crd_acc_id'] = '';
@@ -2821,7 +2945,7 @@ class Account extends CI_Controller
                 $entry_data['ev_crd'] = 0;
                 $data_t = array(
                     'brand' => $this->brand,
-                    'trns_type' => "Cash In",
+                    'trns_type' => "Bank In",
                     'trns_id' => $bankin_id,
                     'trns_ser' => $serial,
                     'trns_code' => $_POST['doc_no'],
@@ -2831,18 +2955,22 @@ class Account extends CI_Controller
                     'rate' => $_POST['rate_h'],
                     'ev_amount' => $entry_data['ev_deb'],
                     'data1' => $_POST['rem'],
-                    'deb_account' => $_POST['cash_id'],
+                    'data2' => $_POST['rem'],
+                    'deb_account' => (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']),
+                    'crd_account' => $_POST['trn_id'],
                     'created_at' => date('Y-m-d H:i:s'),
                     'created_by' => $this->user
                 );
                 if ($this->db->insert('entry_data_total', $data_t)) {
-                    $entry_data['tot_id'] = $this->db->get('entry_data_total', array('trns_type' => "Cash In", 'trns_id' => $bankin_id))->row()->id;
+                    $entry_data['tot_id'] = $this->db->get('entry_data_total', array('trns_type' => "Bank In", 'trns_id' => $bankin_id))->row()->id;
                     if ($this->db->insert('entry_data', $entry_data)) {
                         $entry_data['deb_amount'] = 0;
                         $entry_data['deb_acc_id'] = '';
                         $entry_data['deb_acc_acode'] = '';
                         $entry_data['ev_deb'] = 0;
+                        $entry_data['deb_account'] = '';
 
+                        $entry_data['crd_account'] = $_POST['trn_id'];
                         $entry_data['crd_amount'] = $_POST['amount'];
                         $entry_data['crd_acc_id'] = $_POST['trn_id'];
                         $entry_data['crd_acc_acode'] = $this->AccountModel->getAcodeByID($_POST['trn_id']);
@@ -2955,7 +3083,7 @@ class Account extends CI_Controller
             //body ..
             $data['user'] = $this->user;
             $data['brand'] = $this->brand;
-            $type = "1";
+            $type = "2";
 
             if (isset($_POST['search'])) {
                 $arr2 = array();
@@ -3022,9 +3150,9 @@ class Account extends CI_Controller
                 $arr4 = implode(" and ", $arr3);
                 //************//
                 if ($arr_1_cnt > 0) {
-                    $data['bank_trn'] = $this->AccountModel->Allbankout($this->brand, $type, $arr4);
+                    $data['bank_trn'] = $this->AccountModel->Allbanktrn($this->brand, $type, $arr4);
                 } else {
-                    $data['bank_trn'] = $this->AccountModel->AllbankoutPages($this->brand, $type, 9, 0);
+                    $data['bank_trn'] = $this->AccountModel->AllbanktrnPages($this->brand, $type, 9, 0);
                 }
             } else {
                 $limit = 9;
@@ -3034,8 +3162,8 @@ class Account extends CI_Controller
                 } else {
                     $offset = 0;
                 }
-                $count = $this->AccountModel->Allbankout($this->brand, $type, 1)->num_rows();
-                $config['base_url'] = base_url('accounting/invoices');
+                $count = $this->AccountModel->Allbanktrn($this->brand, $type, 1)->num_rows();
+                $config['base_url'] = base_url('account/bankouttrnlist');
                 $config['uri_segment'] = 3;
                 $config['display_pages'] = TRUE;
                 $config['per_page'] = $limit;
@@ -3062,11 +3190,10 @@ class Account extends CI_Controller
                 $config['show_count'] = TRUE;
                 $this->pagination->initialize($config);
 
-                $data['bank_trn'] = $this->AccountModel->AllbankoutPages($this->brand, $type, $limit, $offset);
+                $data['bank_trn'] = $this->AccountModel->AllbanktrnPages($this->brand, $type, $limit, $offset);
             }
             $data['brand'] = $this->brand;
             $data['parent_id'] = $this->db->get_where('acc_setup', array('brand' => $this->brand))->row()->bank_acc_id;
-
             // //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('account/bank/bankouttrnlist');
@@ -3084,13 +3211,25 @@ class Account extends CI_Controller
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 225);
-            $data['id'] = base64_decode($_GET['t']);
-            $data['bankout'] = $this->db->get_where('bankout', array('id' => $data['id'], 'brand' => $this->brand))->row();
-            $data['entry_data'] = $this->db->get_where('entry_data', array('id' => $data['bankout']->trn_id, 'brand' => $this->brand))->row();
+            $id = base64_decode($_GET['t']);
+            $data['bankout'] = $this->db->get_where('bankout', array('id' => $id, 'brand' => $this->brand))->row();
+            $data['acc_setup'] = $setup = $this->AccountModel->getsetup();
+
+            if ($setup->rev_acc_id != 0) {
+                $data['rev_id'] = $setup->exp_acc_id;
+                $data['rev_acode'] = $setup->exp_acc_acode;
+                $data['rev_name'] = $this->AccountModel->getByID('account_chart', $data['rev_id']);
+            } else {
+                $data['rev_name'] = "-";
+            }
+            $cash_select = $this->db->get_where('payment_method', array('id' => $data['bankout']->bank_id))->row()->account_id;
+            $account_select = $this->db->get_where('account_chart', array('id' => $cash_select))->row();
+            $data['cash_acc_id'] = $account_select->id;
+            $data['cash_acc'] = $account_select->acode;
+            $data['cash_acc_name'] = $account_select->name;
+
             $data['brand'] = $this->brand;
-            $data['brand'] = $this->admin_model->getbrand($this->brand);
-            $data['date'] = $data['bankout']->date;
-            $data['acc_setup'] = $this->AccountModel->getsetup();
+            //Pages ..
             //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('account/bank/editbankoutTrn');
@@ -3100,70 +3239,129 @@ class Account extends CI_Controller
         }
     }
 
-    public function doEditbankhoutTrn()
+    public function doEditbankoutTrn()
     {
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 225);
         if ($permission->edit == 1) {
+            if (isset($_POST['doc_no'])) {
+                $records = $this->db->select('*')->from('bankout')->where('doc_no=', $_POST['doc_no'])->where('brand=', $this->brand)->order_by('id')->get();
+                if ($records->num_rows() != 0 && $records->row()->id != base64_decode($_POST['id'])) {
+                    echo json_encode(['records' => 1]);
+                    return;
+                }
+            }
 
-            $data['id'] = base64_decode($_POST['id']);
+            $id = base64_decode($_POST['id']);
+            $serial = str_pad($_POST['serial'], 10, '0', STR_PAD_LEFT);
             $data['ccode'] = $_POST['serial'];
             $data['doc_no'] = $_POST['doc_no'];
             $data['bank_id'] = $_POST['bank_id'];
             $data['date'] = date("Y-m-d", strtotime($_POST['cdate']));
             $data['trn_type'] = $_POST['trn_typ'];
             $data['trn_id'] = $_POST['trn_id'];
+            $data['trn_code'] = $this->AccountModel->get_accountRowID($_POST['trn_id'])->acode;
+
             $data['amount'] = $_POST['amount'];
-            $data['date1'] = date("Y-m-d", strtotime($_POST['cdate1']));
-            $data['check_no'] = $_POST['check_no'];
             $data['currency_id'] = $_POST['currency_hid'];
             $data['rate'] = $_POST['rate_h'];
+            $data['cheque_date'] = date("Y-m-d", strtotime($_POST['cdate1']));
+            $data['cheque_no'] = $_POST['check_no'];
             $data['rem'] = $_POST['rem'];
             $data['brand'] = $this->brand;
 
-            $this->admin_model->addToLoggerUpdate('bankout', 24, 'id', $data['id'], 0, 0, $this->user);
-            if ($this->db->update('bankout', $data, array('id' => $data['id']))) {
-                $this->db->delete('entry_data', array('trns_id' => $data['id']));
-                $trn_id = $this->db->query("SELECT id FROM bankout WHERE ccode='" . $_POST['serial'] . "'")->row()->id;
-                $crd_acc_acode = $this->db->query("SELECT acode FROM account_chart WHERE id='" . $_POST['trn_id'] . "'")->row();
-                $deb_acc_acode = $this->db->query("SELECT acode FROM account_chart WHERE id='" . $_POST['trn_id'] . "'")->row();
+            $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['bank_id']);
+            $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
+
+            $this->admin_model->addToLoggerUpdate('bankout', 224, 'id', $id, 0, 0, $this->user);
+            if ($this->db->update('bankout', $data, array('id' => $id))) {
+
+                $this->db->delete('entry_data_total', array('trns_type' => "Bank Out", 'trns_id' => $id));
+                $this->db->delete('entry_data', array('trns_type' => "Bank Out", 'trns_id' => $id));
+
                 $entry_data['brand'] = $this->brand;
-                $entry_data['trns_type'] = "bank out";
-                $entry_data['trns_id'] = $trn_id;
-                $entry_data['trns_ser'] = $_POST['serial'];
+                $entry_data['trns_type'] = "Bank Out";
+                $entry_data['trns_id'] = $id;
+                $entry_data['trns_ser'] = $serial;
                 $entry_data['trns_code'] = $_POST['doc_no'];
-                $entry_data['deb_amount'] = $_POST['amount'];
-                $entry_data['deb_acc_id'] = $_POST['bank_id'];
-                $entry_data['deb_acc_acode'] = $deb_acc_acode->acode;
                 $entry_data['trns_date'] = date("Y-m-d", strtotime($_POST['cdate']));
                 $entry_data['currency_id'] = $_POST['currency_hid'];
                 $entry_data['rate'] = $_POST['rate_h'];
-                $entry_data['ev_deb'] = $entry_data['deb_amount'] * $_POST['rate_h'];
                 $entry_data['typ_account'] = $_POST['trn_typ'];
+                $entry_data['deb_account'] =  '';
+                $entry_data['crd_account'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['bank_acc_id']);
+                $entry_data['data1'] = $_POST['rem'];
+                $entry_data['data2'] = $_POST['rem'];
                 $entry_data['created_at'] = date('Y-m-d H:i:s');
                 $entry_data['created_by'] = $this->user;
-                if ($this->db->insert('entry_data', $entry_data)) {
-                    $entry_data['crd_amount'] = $_POST['amount'];
-                    $entry_data['crd_acc_id'] = $_POST['trn_id'];
-                    $entry_data['crd_acc_acode'] = $crd_acc_acode->acode;
-                    $entry_data['ev_crd'] = $entry_data['crd_amount'] * $_POST['rate_h'];
-                    $entry_data['deb_amount'] = null;
-                    $entry_data['deb_acc_id'] = null;
-                    $entry_data['deb_acc_acode'] = null;
-                    $entry_data['ev_deb'] = null;
+
+                $entry_data['crd_amount'] = $_POST['amount'];
+                $entry_data['crd_acc_id'] = $_POST['bank_id'];
+                $entry_data['crd_acc_id'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['bank_acc_id']);
+                $entry_data['crd_acc_acode'] = $dep_acc_row->acode;
+                $entry_data['ev_crd'] = $entry_data['crd_amount'] * $_POST['rate_h'];
+                $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->bank_acc_id;
+                $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->bank_acc_acode;
+
+                $entry_data['deb_amount'] = 0;
+                $entry_data['deb_acc_id'] = '';
+                $entry_data['deb_acc_acode'] = '';
+                $entry_data['ev_deb'] = 0;
+                $data_t = array(
+                    'brand' => $this->brand,
+                    'trns_type' => "Bank Out",
+                    'trns_id' => $id,
+                    'trns_ser' => $serial,
+                    'trns_code' => $_POST['doc_no'],
+                    'amount' => $_POST['amount'],
+                    'trns_date' => date("Y-m-d", strtotime($_POST['cdate'])),
+                    'currency_id' => $_POST['currency_hid'],
+                    'rate' => $_POST['rate_h'],
+                    'data1' => $_POST['rem'],
+                    'data2' => $_POST['rem'],
+                    'crd_account' => (($dep_pay_acco) ? $dep_pay_acco  : $_POST['bank_acc_id']),
+                    'deb_account' => $_POST['trn_id'],
+                    'ev_amount' => $entry_data['ev_deb'],
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'created_by' => $this->user
+                );
+                if ($this->db->insert('entry_data_total', $data_t)) {
+                    $entry_data['tot_id'] = $this->db->get('entry_data_total', array('trns_type' => "Bank Out", 'trns_id' => $id))->row()->id;
                     if ($this->db->insert('entry_data', $entry_data)) {
-                        $true = "bank out Edited Successfully ...";
-                        $this->session->set_flashdata('true', $true);
+                        $entry_data['crd_amount'] = 0;
+                        $entry_data['crd_acc_id'] = '';
+                        $entry_data['crd_acc_acode'] = '';
+                        $entry_data['ev_crd'] = 0;
+                        $entry_data['crd_account'] = '';
+                        $entry_data['deb_account'] = $_POST['trn_id'];
+
+                        $entry_data['deb_amount'] = $_POST['amount'];
+                        $entry_data['deb_acc_id'] = $_POST['trn_id'];
+                        $entry_data['deb_acc_acode'] = $this->AccountModel->getAcodeByID($_POST['trn_id']);
+                        $entry_data['ev_deb'] = $entry_data['crd_amount'] * $_POST['rate_h'];
+                        $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->rev_acc_id;
+                        $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->rev_acc_acode;
+
+                        if ($this->db->insert('entry_data', $entry_data)) {
+                            $true = "Bank Out Edited Successfully ...";
+                            $this->session->set_flashdata('true', $true);
+                            echo json_encode(['records' => 0]);
+                        }
+                    } else {
+                        $error = "Failed To Edit bank Out ...";
+                        $this->session->set_flashdata('error', $error);
+                        echo json_encode(['records' => 1]);
                     }
                 }
             } else {
-                $error = "Failed To Edit bank out ...";
+                $error = "Failed To Edit Cash Out Entry ...";
                 $this->session->set_flashdata('error', $error);
+                echo json_encode(['records' => 1]);
             }
-            echo "account/bankouttrnlist";
         } else {
             echo "You have no permission to access this page";
         }
     }
+
     public function addbankoutTrn()
     {
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 225);
@@ -3172,14 +3370,24 @@ class Account extends CI_Controller
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 225);
             //body ..
+            $setup = $this->AccountModel->getsetup();
 
-            $data['acc_setup'] = $this->AccountModel->getsetup();
-            $data['parent_id'] = $data['acc_setup']->bank_acc_id;
+            $data['acc_setup'] = $setup;
+            $data['parent_id'] = $setup->bank_acc_id;
+            $data['parent_acode'] = $setup->bank_acc_acode;
+            $data['parent_name'] = $this->AccountModel->getByID('account_chart', $data['parent_id']);
+            if ($setup->exp_acc_id != 0) {
+                $data['rev_id'] = $setup->exp_acc_id;
+                $data['rev_acode'] = $setup->exp_acc_acode;
+                $data['rev_name'] = $this->AccountModel->getByID('account_chart', $data['rev_id']);
+            } else {
+                $data['rev_name'] = "-";
+            }
 
             $data['brand'] = $this->brand;
-            $data['brand'] = $this->admin_model->getbrand($this->brand);
-            $data['date'] = date("d-m-Y");
-            $data['date1'] = date("d-m-Y");
+
+            $data['date'] = date("Y-m-d");
+
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('account/bank/addbankoutTrn');
             $this->load->view('includes_new/footer.php');
@@ -3192,75 +3400,128 @@ class Account extends CI_Controller
     {
         // Check Permission ..
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 225);
+
         if ($permission->add == 1) {
-            if (isset($_POST['name'])) {
-                $records = $this->db->select('*')->from('bank')->where('name=', $_POST['name'])->order_by('id')->get()->num_rows();
+            if (isset($_POST['doc_no'])) {
+                $records = $this->db->select('*')->from('bankout')->where('doc_no=', $_POST['doc_no'])->where('brand=', $this->brand)->order_by('id')->get()->num_rows();
                 if ($records != 0) {
                     echo json_encode(['records' => 1]);
                     return;
                 }
             }
+            $setup = $this->AccountModel->getsetup();
 
-            $acc_setup = $this->AccountModel->getsetup();
-            $bank = doubleval($acc_setup->bankout_num);
-            $newbank = $bank + 1;
+            $cash_code = doubleval($setup->bankout_num);
+            $newcash = $cash_code + 1;
             $this->db->where('brand', $this->brand);
-            $this->db->update('acc_setup', array('bankin_num' => str_pad($newbank, 10, "0", STR_PAD_LEFT)));
+            $this->db->update('acc_setup', array('bankout_num' => str_pad($newcash, 10, "0", STR_PAD_LEFT)));
 
-            $data['bank_type'] = 1;
-            $data['ccode'] = str_pad($bank, 10, '0', STR_PAD_LEFT);
+            $serial = str_pad($newcash, 10, '0', STR_PAD_LEFT);
+            $data['bank_type'] = 1; //1 for bank in - 2 for bank out
+            $data['ccode'] = $serial;
             $data['doc_no'] = $_POST['doc_no'];
-            $data['bank_id'] = $_POST['bank_id'];
+            $data['bank_id'] = $_POST['cash_id'];
+
             $data['date'] = date("Y-m-d", strtotime($_POST['cdate']));
             $data['trn_type'] = $_POST['trn_typ'];
             $data['trn_id'] = $_POST['trn_id'];
+            $data['trn_code'] = $this->AccountModel->get_accountRowID($_POST['trn_id'])->acode;
+            $data['cheque_no'] = $_POST['check_no'];
+            $data['cheque_date'] = date("Y-m-d", strtotime($_POST['cdate1']));
+
             $data['amount'] = $_POST['amount'];
-            $data['currency_id'] = $_POST['curreny_hid'];
+            $data['currency_id'] = $_POST['currency_hid'];
             $data['rate'] = $_POST['rate_h'];
-            $data['check_no'] = $_POST['check_no'];
-            $data['date1'] = date("Y-m-d", strtotime($_POST['cdate1']));
+            $data['rem'] = $_POST['rem'];
             $data['brand'] = $this->brand;
             $data['created_at'] = date('Y-m-d H:i:s');
             $data['created_by'] = $this->user;
 
+            $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['cash_id']);
+            $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
+
             if ($this->db->insert('bankout', $data)) {
-                $trn_id = $this->db->query("SELECT id FROM bankout  WHERE ccode='" . $data['ccode'] . "'")->row()->id;
-                $crd_acc_acode = $this->db->query("SELECT acode FROM account_chart WHERE id='" . $_POST['trn_id'] . "'")->row();
-                $deb_acc_acode = $this->db->query("SELECT acode FROM account_chart WHERE id='" . $_POST['trn_id'] . "'")->row();
+                $bankin_id =  $this->db->insert_id();
+
                 $entry_data['brand'] = $this->brand;
-                $entry_data['trns_type'] = "bank out";
-                $entry_data['trns_id'] = $trn_id;
-                $entry_data['trns_ser'] = str_pad($bank, 10, '0', STR_PAD_LEFT);
+                $entry_data['trns_type'] = "Bank Out";
+                $entry_data['trns_id'] = $bankin_id;
+                $entry_data['trns_ser'] = $serial;
                 $entry_data['trns_code'] = $_POST['doc_no'];
-                $entry_data['deb_amount'] = $_POST['amount'];
-                $entry_data['deb_acc_id'] = $_POST['bank_id'];
-                $entry_data['deb_acc_acode'] = $deb_acc_acode->acode;
                 $entry_data['trns_date'] = date("Y-m-d", strtotime($_POST['cdate']));
-                $entry_data['currency_id'] = $_POST['curreny_hid'];
+                $entry_data['currency_id'] = $_POST['currency_hid'];
                 $entry_data['rate'] = $_POST['rate_h'];
-                $entry_data['ev_deb'] = $entry_data['deb_amount'] * $_POST['rate_h'];
                 $entry_data['typ_account'] = $_POST['trn_typ'];
-                $entry_data['created_at'] = date('Y-m-d H:i:s');
+
+                $entry_data['deb_account'] = '';
+                $entry_data['crd_account'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']);
+                $entry_data['data1'] = $_POST['rem'];
+                $entry_data['data2'] = $_POST['rem'];
                 $entry_data['created_by'] = $this->user;
-                if ($this->db->insert('entry_data', $entry_data)) {
-                    $entry_data['crd_amount'] = $_POST['amount'];
-                    $entry_data['crd_acc_id'] = $_POST['trn_id'];
-                    $entry_data['crd_acc_acode'] = $crd_acc_acode->acode;
-                    $entry_data['ev_crd'] = $entry_data['crd_amount'] * $_POST['rate_h'];
-                    $entry_data['deb_amount'] = null;
-                    $entry_data['deb_acc_id'] = null;
-                    $entry_data['deb_acc_acode'] = null;
-                    $entry_data['ev_deb'] = null;
+                $entry_data['created_at'] = date('Y-m-d H:i:s');
+
+                $entry_data['crd_amount'] = $_POST['amount'];
+                $entry_data['crd_acc_id'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']);
+                $entry_data['crd_acc_acode'] =  $dep_acc_row->acode;
+                $entry_data['ev_crd'] = $entry_data['crd_amount'] * $_POST['rate_h'];
+                $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->bank_acc_id;
+                $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->bank_acc_acode;
+
+                $entry_data['deb_amount'] = 0;
+                $entry_data['deb_acc_id'] = '';
+                $entry_data['deb_acc_acode'] = '';
+                $entry_data['ev_deb'] = 0;
+                $data_t = array(
+                    'brand' => $this->brand,
+                    'trns_type' => "Bank Out",
+                    'trns_id' => $bankin_id,
+                    'trns_ser' => $serial,
+                    'trns_code' => $_POST['doc_no'],
+                    'amount' => $_POST['amount'],
+                    'trns_date' => date("Y-m-d", strtotime($_POST['cdate'])),
+                    'currency_id' => $_POST['currency_hid'],
+                    'rate' => $_POST['rate_h'],
+                    'ev_amount' => $entry_data['ev_deb'],
+                    'data1' => $_POST['rem'],
+                    'data2' => $_POST['rem'],
+                    'deb_account' => $_POST['trn_id'],
+                    'crd_account' => (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']),
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'created_by' => $this->user
+                );
+                if ($this->db->insert('entry_data_total', $data_t)) {
+                    $entry_data['tot_id'] = $this->db->get('entry_data_total', array('trns_type' => "Bank Out", 'trns_id' => $bankin_id))->row()->id;
                     if ($this->db->insert('entry_data', $entry_data)) {
-                        $true = "bank out Added Successfully ...";
-                        $this->session->set_flashdata('true', $true);
+                        $entry_data['crd_amount'] = 0;
+                        $entry_data['crd_acc_id'] = '';
+                        $entry_data['crd_acc_acode'] = '';
+                        $entry_data['ev_crd'] = 0;
+                        $entry_data['crd_account'] = '';
+
+                        $entry_data['deb_account'] = $_POST['trn_id'];
+                        $entry_data['deb_amount'] = $_POST['amount'];
+                        $entry_data['deb_acc_id'] = $_POST['trn_id'];
+                        $entry_data['deb_acc_acode'] = $this->AccountModel->getAcodeByID($_POST['trn_id']);
+                        $entry_data['ev_deb'] = $entry_data['deb_amount'] * $_POST['rate_h'];
+                        $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->exp_acc_id;
+                        $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->exp_acc_acode;
+
+                        if ($this->db->insert('entry_data', $entry_data)) {
+                            $true = "Bank Out Add Successfully ...";
+                            $this->session->set_flashdata('true', $true);
+                            echo json_encode(['records' => 0]);
+                        }
+                    } else {
+                        $error = "Failed To Add Bank Out Entry ...";
+                        $this->session->set_flashdata('error', $error);
+                        echo json_encode(['records' => 1]);
                     }
                 }
             } else {
-                $error = "Failed To Add bank out ...";
+                $error = "Failed To Add Bank Out Entry ...";
                 $this->session->set_flashdata('error', $error);
+                echo json_encode(['records' => 1]);
             }
-            echo "account/bankouttrnlist";
         } else {
             echo "You have no permission to access this page";
         }
@@ -4372,8 +4633,8 @@ class Account extends CI_Controller
         $is = 0;
         foreach ($cust_pay->result() as $row) {
 
-            $crd_account_id = $this->accountModel->getpayment_method_account_id($row->currency);
-            $crd_account_acode = $this->accountModel->getAcodeByID($crd_account_id);
+            $crd_account_id = $this->AccountModel->getpayment_method_account_id($row->currency);
+            $crd_account_acode = $this->AccountModel->getAcodeByID($crd_account_id);
 
             $paymentCurrency = $row->currency;
             $crd_account_id =
@@ -4762,7 +5023,27 @@ class Account extends CI_Controller
             }
         }
     }
+    function auto_num_Transaction()
+    {
+        $transaction_type = $this->input->post('transaction', TRUE);
+        $date_trns = $this->input->post('cdate', TRUE);
+        $month_trns = date('m', strtotime($date_trns));
+        $year_trns = date('Y', strtotime($date_trns));
+        $sql = "SELECT SUBSTRING(trns_code,-5) as trns_code from entry_data_total where trns_type ='" . $transaction_type . "' and month(trns_date) = '" . $month_trns . "' and year(trns_date) = '" . $year_trns . "' and brand = '" . $this->brand . "' order by trns_code  DESC limit 1";
 
+        $qu = $this->db->query($sql);
+        $query = $qu->result_array();
+        //var_dump($query[0]['trns_code']);
+        if ($qu->num_rows() > 0) {
+            $auto_num = intval($query[0]['trns_code']) + 1;
+        } else {
+            $auto_num = 1;
+        }
+
+        $new_auto_num = str_pad($month_trns, 2, '0', STR_PAD_LEFT) . "-" . str_pad($auto_num, 5, '0', STR_PAD_LEFT);
+
+        echo $new_auto_num;
+    }
     function auto_num()
     {
         $date_trns = $this->input->post('cdate', TRUE);
@@ -4793,6 +5074,25 @@ class Account extends CI_Controller
         $qu = $this->db->query($sql);
         $query = $qu->result_array();
         //var_dump($query[0]['trns_code']);
+        if ($qu->num_rows() > 0) {
+            $auto_num = intval($query[0]['trns_code']) + 1;
+        } else {
+            $auto_num = 1;
+        }
+
+        $new_auto_num = str_pad($month_trns, 2, '0', STR_PAD_LEFT) . "-" . str_pad($auto_num, 5, '0', STR_PAD_LEFT);
+
+        echo $new_auto_num;
+    }
+    function auto_num_CashOut()
+    {
+        $date_trns = $this->input->post('cdate', TRUE);
+        $month_trns = date('m', strtotime($date_trns));
+        $year_trns = date('Y', strtotime($date_trns));
+        $sql = "SELECT SUBSTRING(trns_code,-5) as trns_code from entry_data_total where trns_type ='Cash Out' and month(trns_date) = '" . $month_trns . "' and year(trns_date) = '" . $year_trns . "' and brand = '" . $this->brand . "' order by trns_code  DESC limit 1";
+
+        $qu = $this->db->query($sql);
+        $query = $qu->result_array();
         if ($qu->num_rows() > 0) {
             $auto_num = intval($query[0]['trns_code']) + 1;
         } else {

@@ -2801,164 +2801,112 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
             //body ..
             $data['user'] = $this->user;
             $data['brand'] = $this->brand;
-            $limit = 9;
-            $offset = $data['page'] = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
 
-            $config['base_url'] = base_url('admin/userLogger');
-            $config['uri_segment'] = 3;
-            $config['display_pages'] = TRUE;
-            $config['per_page'] = $limit;
-            // $config['total_rows'] = $count;
-            $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
-            $config['full_tag_close'] = "</ul>";
-            $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
-            $config['num_tag_close'] = '</li>';
-            $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
-            $config['cur_tag_close'] = "</li>";
-            $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-            $config['next_tagl_close'] = "</span></li>";
-            $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-            $config['prev_tagl_close'] = "</span></li>";
-            $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-            $config['first_tagl_close'] = "</li>";
-            $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-            $config['last_tagl_close'] = "</li>";
-            $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
-            $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
-            $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
-            $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
-            $config['num_links'] = 5;
-            $config['show_count'] = TRUE;
+            if (isset($_GET['search'])) {
+                $arr2 = array();
+                if (isset($_REQUEST['created_by'])) {
+                    $data['created_by'] = $created_by = $_REQUEST['created_by'];
+                    if (!empty($created_by)) {
+                        array_push($arr2, 0);
+                    }
+                } else {
+                    $created_by = "";
+                }
+                if (isset($_REQUEST['table_name'])) {
+                    $data['table_name'] = $table_name = $_REQUEST['table_name'];
+                    if (!empty($table_name)) {
+                        array_push($arr2, 1);
+                    }
+                } else {
+                    $table_name = "";
+                }
+                if (isset($_REQUEST['screen'])) {
+                    $data['screen'] = $screen = $_REQUEST['screen'];
+                    if (!empty($screen)) {
+                        array_push($arr2, 2);
+                    }
+                } else {
+                    $screen = "";
+                }
+                if (isset($_REQUEST['type'])) {
+                    $data['type'] = $type = $_REQUEST['type'];
+                    if (!empty($type)) {
+                        array_push($arr2, 3);
+                    }
+                } else {
+                    $type = "";
+                }
+                if (isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])) {
+                    $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
+                    $date_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
+                    if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
+                        array_push($arr2, 4);
+                        $data['date_from'] = $date_from;
+                        $data['date_to'] = $date_to;
+                    }
+                } else {
+                    $date_to = "";
+                    $date_from = "";
+                }
 
-            $data['page'] = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
-            $arr2 = $arr1 = array();
+                $cond1 = "created_by = '$created_by'";
+                $cond2 = "table_name like '%$table_name%'";
+                $cond3 = "screen = '$screen'";
+                $cond4 = "type = '$type'";
+                $cond5 = "created_at BETWEEN '$date_from' AND '$date_to' ";
+                $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5);
+                $arr_1_cnt = count($arr2);
+                $arr3 = array();
+                for ($i = 0; $i < $arr_1_cnt; $i++) {
+                    array_push($arr3, $arr1[$arr2[$i]]);
+                }
+                $arr4 = implode(" and ", $arr3);
+                //  print_r($arr4);     
+                if ($arr_1_cnt <= 0) {
+                    $arr4 = 1;
+                }
 
-            if ($this->session->userdata('created_by')) {
-                $created_by = $data['created_by'] = $this->session->userdata('created_by');
-            }
-            if ($this->session->userdata('table_name')) {
-                $table_name = $data['table_name'] = $this->session->userdata('table_name');
-            }
-            if ($this->session->userdata('screen')) {
-                $screen = $data['screen'] = $this->session->userdata('screen');
-            }
-            if ($this->session->userdata('type')) {
-                $type = $data['type'] = $this->session->userdata('type');
-            }
-            if ($this->session->userdata('date_from')) {
-                $date_from = $data['date_from'] = $this->session->userdata('date_from');
-            }
-            if ($this->session->userdata('date_to')) {
-                $date_to = $data['date_to'] = $this->session->userdata('date_to');
-            }
-            //***********//
-            if ($this->input->post('search')) {
-                $created_by = $this->input->post('created_by');
-                $table_name = $this->input->post('table_name');
-                $screen = $this->input->post('screen');
-                $type = $this->input->post('type');
-                $date_from = date("Y-m-d", strtotime($this->input->post('date_from')));
-                $date_to = date("Y-m-d", strtotime($this->input->post('date_to')));
+                $limit = 50;
+                $offset = $this->uri->segment(3);
+                if ($this->uri->segment(3) != NULL) {
+                    $offset = $this->uri->segment(3);
+                } else {
+                    $offset = 0;
+                }
 
-                if (!empty($created_by)) {
-                    $this->session->set_userdata('created_by', $created_by);
-                } else {
-                    $this->session->unset_userdata('created_by');
-                }
-                if (!empty($table_name)) {
-                    $this->session->set_userdata('table_name', $table_name);
-                } else {
-                    $this->session->unset_userdata('table_name');
-                }
-                if (!empty($screen)) {
-                    $this->session->set_userdata('screen', $screen);
-                } else {
-                    $this->session->unset_userdata('screen');
-                }
-                if (!empty($type)) {
-                    $this->session->set_userdata('type', $type);
-                } else {
-                    $this->session->unset_userdata('type');
-                }
-                if (!empty($date_from)) {
-                    $this->session->set_userdata('date_from', $date_from);
-                } else {
-                    $this->session->unset_userdata('date_from');
-                }
-                if (!empty($date_to)) {
-                    $this->session->set_userdata('date_to', $date_to);
-                } else {
-                    $this->session->unset_userdata('date_to');
-                }
-                //********************//
-            } elseif ($this->input->post('submitReset')) {
-                $this->session->unset_userdata('created_by');
-                $created_by = "";
-                $this->session->unset_userdata('table_name');
-                $table_name = "";
-                $this->session->unset_userdata('screen');
-                $screen = "";
-                $this->session->unset_userdata('type');
-                $type = "";
-                $this->session->unset_userdata('date_from');
-                $date_from = "";
-                $this->session->unset_userdata('date_to');
-                $date_to = "";
-                //**********************//
-            }
-            $created_by = $data['created_by'] = $this->session->userdata('created_by');
-            $table_name = $data['table_name'] = $this->session->userdata('table_name');
-            $screen = $data['screen'] = $this->session->userdata('screen');
-            $type = $data['type'] = $this->session->userdata('type');
-            $date_from = $data['date_from'] = $this->session->userdata('date_from');
-            $date_to = $data['date_to'] = $this->session->userdata('date_to');
-            //**********************//
-            if (!empty($created_by)) {
-                $data['created_by'] = $created_by;
-                array_push($arr2, 0);
-                array_push($arr1, "created_by = '$created_by'");
-            }
-            if (!empty($table_name)) {
-                $data['table_name'] = $table_name;
-                array_push($arr2, 1);
-                array_push($arr1, "table_name LIKE '%" . $table_name . "%'");
-            }
-            if (!empty($screen)) {
-                $data['screen'] = $screen;
-                array_push($arr2, 2);
-                array_push($arr1, "screen = '$screen'");
-            }
-            if (!empty($type)) {
-                $data['type'] = $type;
-                array_push($arr2, 3);
-                array_push($arr1, "type = '$type'");
-            }
-            if (!empty($date_from) && !empty($date_to)) {
-                $data['date_from'] = $date_from;
-                $data['date_to'] = $date_to;
-                array_push($arr2, 4);
-                array_push($arr1, "created_at BETWEEN '$date_from' AND '$date_to' ");
-            }
-            //************************//
-            $arr_1_cnt = count($arr2);
-            $arr3 = array();
-            for ($i = 0; $i < $arr_1_cnt; $i++) {
-                array_push($arr3, $arr1[$i]);
-            }
-            $arr4 = implode(" and ", $arr3);
-            ini_set('memory_limit', '-1');
-            if ($arr_1_cnt > 0) {
-                $data['logger'] = $this->admin_model->AllRecordsPagesLib('logger', $arr4, $limit, $offset, 'id');
-                $count = $this->admin_model->AllRecordsLib('logger', $arr4)->num_rows();
-            } else {
-                $data['logger'] = $this->admin_model->AllRecordsPagesLib('logger', '1', $limit, $offset, 'id');
-                $count = $this->admin_model->AllRecordsLib('logger', '1')->num_rows();
-            }
-            $data['total_rows'] = $count;
+                $data['logger'] = $this->admin_model->AllUsersLogger($data['permission'], $limit, $offset, $arr4);
 
-            $config['total_rows'] = $count;
-            $this->pagination->initialize($config);
+                $count = $this->admin_model->AllUsersLoggerCount($arr4);
+                $config['base_url'] = base_url('admin/listUserActivity');
+                $config['uri_segment'] = 3;
+                $config['display_pages'] = TRUE;
+                $config['per_page'] = $limit;
+                $config['total_rows'] = $count;
+                $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
+                $config['full_tag_close'] = "</ul>";
+                $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
+                $config['num_tag_close'] = '</li>';
+                $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
+                $config['cur_tag_close'] = "</li>";
+                $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
+                $config['next_tagl_close'] = "</span></li>";
+                $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
+                $config['prev_tagl_close'] = "</span></li>";
+                $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
+                $config['first_tagl_close'] = "</li>";
+                $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
+                $config['last_tagl_close'] = "</li>";
+                $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
+                $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
+                $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
+                $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
+                $config['num_links'] = 5;
+                $config['show_count'] = TRUE;
+                $config['reuse_query_string'] = TRUE;
+                $this->pagination->initialize($config);
 
+                $data['total_rows'] = $count;
+            }
             // //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('admin_new/userLogger.php');
@@ -2967,7 +2915,6 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
             echo "You have no permission to access this page";
         }
     }
-
     public function userLoggerRestoreData($id)
     {
         // Check Permission ..

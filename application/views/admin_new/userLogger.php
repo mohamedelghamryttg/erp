@@ -8,19 +8,15 @@
       <?php if ($this->session->flashdata('true')) { ?>
         <div class="alert alert-success" role="alert">
           <span class="fa fa-check-circle"></span>
-          <span><strong>
-              <?= $this->session->flashdata('true') ?>
-            </strong></span>
+          <span><strong><?= $this->session->flashdata('true') ?></strong></span>
         </div>
-      <?php } ?>
+      <?php  } ?>
       <?php if ($this->session->flashdata('error')) { ?>
         <div class="alert alert-danger" role="alert">
           <span class="fa fa-warning"></span>
-          <span><strong>
-              <?= $this->session->flashdata('error') ?>
-            </strong></span>
+          <span><strong><?= $this->session->flashdata('error') ?></strong></span>
         </div>
-      <?php } ?>
+      <?php  } ?>
 
       <!-- start search form card -->
       <div class="card card-custom gutter-b example example-compact">
@@ -28,8 +24,7 @@
           <h3 class="card-title">Search Logger</h3>
         </div>
 
-        <form class="form" id="customerfilter" action="<?php echo base_url() ?>admin/listUserActivity" method="post"
-          enctype="multipart/form-data">
+        <form class="form" id="customerfilter" action="<?php echo base_url() ?>admin/listUserActivity" method="get" enctype="multipart/form-data">
           <div class="card-body">
 
             <div class="form-group row">
@@ -42,9 +37,9 @@
 
               <label class="col-lg-2 col-form-label text-lg-right" for="role name">Screen</label>
               <div class="col-lg-3">
-                <select name="screen" class="form-control m-b" id="screen">
-                  <option value="" selected="selected">-- Select Screen --</option>
-                  <?= $this->admin_model->selectScreen($screen ?? '') ?>
+                <select name="screen" class="form-control m-b" id="screen" />
+                <option value="" selected="selected">-- Select Screen --</option>
+                <?= $this->admin_model->selectScreen($screen ?? '') ?>
                 </select>
               </div>
             </div>
@@ -73,29 +68,20 @@
 
               <label class="col-lg-2 col-form-label text-lg-right">Date From</label>
               <div class="col-lg-3">
-                <input class="form-control date_sheet" type="text" name="date_from" value="<?= $date_from ?? '' ?>"
-                  autocomplete="off">
+                <input class="form-control date_sheet" type="text" name="date_from" value="<?= $date_from ?? '' ?>" autocomplete="off">
               </div>
 
               <label class="col-lg-2 col-form-label text-lg-right" for="role name">Date To</label>
               <div class="col-lg-3">
-                <input class="form-control date_sheet" type="text" name="date_to" value="<?= $date_to ?? '' ?>"
-                  autocomplete="off">
+                <input class="form-control date_sheet" type="text" name="date_to" value="<?= $date_to ?? '' ?>" autocomplete="off">
               </div>
             </div>
             <div class="card-footer">
               <div class="row">
                 <div class="col-lg-2"></div>
                 <div class="col-lg-10">
-                  <button class="btn btn-success mr-2" name="search" type="submit" value="search"><i
-                      class="la la-search"></i>Search</button>
-                  <button class="btn btn-warning mr-2" name="submitReset" type="submit" value="submitReset"><i
-                      class="la la-trash"></i>Clear
-                    Filter</button>
-
-                  <!-- <button class="btn btn-success mr-2" name="search" type="submit">Search</button>
-                  <a href="<?= base_url() ?>admin/listUserActivity" class="btn btn-warning"><i
-                      class="la la-trash"></i>Clear Filter</a> -->
+                  <button class="btn btn-success mr-2" name="search" type="submit">Search</button>
+                  <a href="<?= base_url() ?>admin/listUserActivity" class="btn btn-warning"><i class="la la-trash"></i>Clear Filter</a>
 
                 </div>
               </div>
@@ -134,47 +120,31 @@
           <tbody>
             <?php if (!empty($logger)) {
               foreach ($logger->result() as $row) {
-                ?>
+            ?>
                 <tr>
 
-                  <td>
-                    <?= $row->id ?>
-                  </td>
-                  <td>
-                    <?php echo $this->admin_model->getScreenName($row->screen); ?>
-                  </td>
-                  <td>
-                    <?= $row->table_name ?>
-                  </td>
-                  <td>
-                    <?= $row->transaction_id_name . " => " . $row->transaction_id ?>
-                  </td>
-                  <td>
-                    <?php if ($row->type == 1)
-                      echo 'Update';
-                    elseif ($row->type == 2)
-                      echo 'Delete';
-                    elseif ($row->type == 5)
-                      echo 'Restore';
-                    ?>
-                  </td>
-                  <td>
-                    <?php echo $this->admin_model->getAdmin($row->created_by); ?>
-                  </td>
-                  <td>
-                    <?php echo $row->created_at; ?>
-                  </td>
+                  <td><?= $row->id ?></td>
+                  <td><?php echo $this->admin_model->getScreenName($row->screen); ?></td>
+                  <td><?= $row->table_name ?></td>
+                  <td><?= $row->transaction_id_name . " => " . $row->transaction_id ?></td>
+                  <td><?php if ($row->type == 1)
+                        echo 'Update';
+                      elseif ($row->type == 2)
+                        echo 'Delete';
+                      elseif ($row->type == 5)
+                        echo 'Restore';
+                      ?></td>
+                  <td><?php echo $this->admin_model->getAdmin($row->created_by); ?></td>
+                  <td><?php echo $row->created_at; ?></td>
                   <td><code style="white-space: normal;"><?= $row->data ?></code></td>
                   <td>
-                    <?php if ($row->type == 2 && $row->parent_id == 0 && $permission->delete == 1) { ?>
-                      <a href="<?= base_url() . 'admin/userLoggerRestoreData/' . $row->id ?>" class="btn p-2 btn-dark"
-                        onclick="return confirm('Warning!!! Are you sure you want to Restore this data ?');"><i
-                          class="fa fa-recycle"></i> Restore</a>
+                    <?php if ($row->type == 2 && $row->parent_id == 0 && $permission->delete == 1) {    ?>
+                      <a href="<?= base_url() . 'admin/userLoggerRestoreData/' . $row->id ?>" class="btn p-2 btn-dark" onclick="return confirm('Warning!!! Are you sure you want to Restore this data ?');"><i class="fa fa-recycle"></i> Restore</a>
                     <?php } ?>
                   </td>
 
                 </tr>
-              <?php }
+            <?php }
             } ?>
           </tbody>
 

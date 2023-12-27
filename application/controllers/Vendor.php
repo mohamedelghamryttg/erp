@@ -424,13 +424,9 @@ class Vendor extends CI_Controller
             // //Pages ..
 
             $this->load->view('vendor/exportVendors.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
-
-
-
     }
 
 
@@ -1294,7 +1290,6 @@ class Vendor extends CI_Controller
                         $dataSheet['created_by'] = $this->user;
                         $dataSheet['created_at'] = date("Y-m-d H:i:s");
                         if ($this->db->insert('vendor_sheet', $dataSheet)) {
-
                         } else {
                             $error = "Failed To Add Vendor Sheet ...";
                             $this->session->set_flashdata('error', $error);
@@ -1325,7 +1320,6 @@ class Vendor extends CI_Controller
                     $dataSheet['created_by'] = $this->user;
                     $dataSheet['created_at'] = date("Y-m-d H:i:s");
                     if ($this->db->insert('vendor_sheet', $dataSheet)) {
-
                     } else {
                         $error = "Failed To Add Vendor Sheet ...";
                         $this->session->set_flashdata('error', $error);
@@ -1336,7 +1330,6 @@ class Vendor extends CI_Controller
                 $this->session->set_flashdata('true', $true);
                 redirect(base_url() . "vendor/");
             }
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -1859,14 +1852,13 @@ class Vendor extends CI_Controller
                 $this->session->set_flashdata('error', $error);
                 //redirect(base_url()."vendor/vendorSheet");
                 redirect($_SERVER['HTTP_REFERER']);
-
             }
         } else {
             echo "You have no permission to access this page";
         }
     }
 
-   public function tickets()
+    public function tickets()
     {
         // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 56);
@@ -2139,13 +2131,9 @@ class Vendor extends CI_Controller
             // //Pages ..
 
             $this->load->view('vendor/exportTickets.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
-
-
-
     }
 
     public function vmTicketView()
@@ -2298,8 +2286,6 @@ class Vendor extends CI_Controller
                 }
                 $this->db->insert('vm_ticket_resource', $ticketResource);
             }
-
-
         }
         if ($ticket_data->request_type == 4) {
             $ticketResource['ticket'] = $ticket;
@@ -2307,7 +2293,6 @@ class Vendor extends CI_Controller
 
             if (isset($_POST['resource_row'])) {
                 $this->db->update('vm_ticket_resource', $ticketResource, array('id' => $_POST['resource_row']));
-
             } else {
                 $this->db->insert('vm_ticket_resource', $ticketResource);
             }
@@ -2455,7 +2440,6 @@ class Vendor extends CI_Controller
 
                     if (isset($_POST['resource_row_' . $i])) {
                         $this->db->update('vm_ticket_resource', $ticketResource, array('id' => $_POST['resource_row_' . $i]));
-
                     } else {
                         $this->db->insert('vm_ticket_resource', $ticketResource);
                         $vendorSheet['i'] = $this->db->insert_id();
@@ -2469,7 +2453,6 @@ class Vendor extends CI_Controller
                             $this->db->insert('vendor_sheet', $vendorSheet);
                         }
                     }
-
                 } elseif ($_POST['ticket_response_type_' . $i] == 2) {
                     // echo "Select Existing Resource"."</br>";
                     $ticketResource['ticket'] = $ticket;
@@ -2479,7 +2462,6 @@ class Vendor extends CI_Controller
                     $ticketResource['created_by'] = $this->user;
                     if (isset($_POST['resource_row_' . $i])) {
                         $this->db->update('vm_ticket_resource', $ticketResource, array('id' => $_POST['resource_row_' . $i]));
-
                     } else {
                         $this->db->insert('vm_ticket_resource', $ticketResource);
                     }
@@ -2508,7 +2490,6 @@ class Vendor extends CI_Controller
 
                     if (isset($_POST['resource_row_' . $i])) {
                         $this->db->update('vm_ticket_resource', $ticketResource, array('id' => $_POST['resource_row_' . $i]));
-
                     } else {
                         $this->db->insert('vm_ticket_resource', $ticketResource);
                         $vendorSheet['i'] = $this->db->insert_id();
@@ -2717,12 +2698,15 @@ class Vendor extends CI_Controller
     public function getVendorData()
     {
         $id = $_POST['vendor'];
-        $source_lang = $_POST['source'];
-        $target_lang = $_POST['target'];
-        $task_type = $_POST['task_type'];
-        $vendor = $this->db->get_where('vendor', array('id' => $id))->row();
-        $row = $this->db->get_where('vendor_sheet', array('vendor' => $id, 'task_type' => $task_type, 'source_lang' => $source_lang, 'target_lang' => $target_lang))->result();
-        $data = '<table class="table table-striped table-hover table-bordered" id="" style="overflow:scroll;">
+        $data = "";
+        if ($id != "") {
+            $source_lang = $_POST['source'];
+            $target_lang = $_POST['target'];
+            $task_type = $_POST['task_type'];
+            $vendor = $this->db->get_where('vendor', array('id' => $id))->row();
+            $row = $this->db->get_where('vendor_sheet', array('vendor' => $id, 'task_type' => $task_type, 'source_lang' => $source_lang, 'target_lang' => $target_lang))->result();
+
+            $data = '<table class="table table-striped table-hover table-bordered" id="" style="overflow:scroll;">
                             <thead>
                                 <tr>
                                      <th>#</th>
@@ -2734,15 +2718,15 @@ class Vendor extends CI_Controller
                                 </tr>
                             </thead>                            
                             <tbody>';
-        $i = 1;
-        foreach ($row as $row) {
-            if ($i == 1) {
-                $radio = "required";
-            } else {
-                $radio = "";
-            }
-            if (isset($row->rate)) {
-                $data .= '<tr class="">
+            $i = 1;
+            foreach ($row as $row) {
+                if ($i == 1) {
+                    $radio = "required";
+                } else {
+                    $radio = "";
+                }
+                if (isset($row->rate)) {
+                    $data .= '<tr class="">
                         <input type="text" id="unit_' . $i . '" name="unit_' . $i . '" value="' . $row->unit . '" hidden="">
                         <input type="text" id="currency_' . $i . '" name="currency_' . $i . '" value="' . $row->currency . '" hidden="">
                         <td><input type="radio" name="select" id="select" onclick="calculateVendorCostChecked()" ' . $radio . ' value="' . $i . '"></td>
@@ -2752,10 +2736,11 @@ class Vendor extends CI_Controller
                         <td>' . $vendor->email . '</td>
                         <td>' . $row->special_rate . '</td>
                         </tr>';
+                }
+                $i++;
             }
-            $i++;
+            $data .= '</tbody></table>';
         }
-        $data .= '</tbody></table>';
         echo $data;
     }
 
@@ -2804,6 +2789,7 @@ class Vendor extends CI_Controller
     public function getVendorByTask($flag = 0)
     {
         $brand = $this->brand;
+
         $task_type = $_POST['task_type'];
         $service = $_POST['service'];
         $source = $_POST['source'];
@@ -3172,8 +3158,7 @@ class Vendor extends CI_Controller
                     $target_lang = "";
                 }
                 if (isset($_REQUEST['field'])) {
-                    $field = implode(",", $_REQUEST['field']);
-                    ;
+                    $field = implode(",", $_REQUEST['field']);;
                     if (!empty($field)) {
                         array_push($arr2, 2);
                     }
@@ -3442,7 +3427,6 @@ class Vendor extends CI_Controller
             if (isset($_REQUEST['created_by']) && !empty($_REQUEST['created_by'])) {
                 $data['created_by'] = $filter_created_by = $_REQUEST['created_by'];
                 $data['ticket'] = $this->vendor_model->viewVmTicketWithoutOpp($data['permission'], $this->brand, $this->user, $data, $filter_created_by);
-
             } else {
                 $data['ticket'] = $this->vendor_model->viewVmTicketWithoutOpp($data['permission'], $this->brand, $this->user, $data);
             }
@@ -3797,7 +3781,6 @@ class Vendor extends CI_Controller
             $this->session->set_flashdata('error', $error);
             redirect($_SERVER['HTTP_REFERER']);
         }
-
     }
 
     ///
@@ -4350,13 +4333,9 @@ class Vendor extends CI_Controller
             // //Pages ..
 
             $this->load->view('vendor/exportCompanies.php', $data);
-
         } else {
             echo "You have no permission to access this page";
         }
-
-
-
     }
 
     public function addCompany()
@@ -4918,7 +4897,6 @@ class Vendor extends CI_Controller
             // //  // redirect(base_url()."vendor/");
             redirect($_SERVER['HTTP_REFERER']);
         }
-
     }
 
     public function addVendor_test()
@@ -5144,7 +5122,6 @@ class Vendor extends CI_Controller
         }
         $data .= '</tbody></table>';
         echo $data;
-
     }
     //add & remove Vendor from Favourite list
     public function changeVendorFavourite()
@@ -5258,7 +5235,6 @@ class Vendor extends CI_Controller
                 } else {
                     $this->session->set_flashdata('error', $error);
                 }
-
             }
 
             redirect(base_url() . "vendor/vendorProfile?t=" . base64_encode($id));
@@ -5372,10 +5348,8 @@ class Vendor extends CI_Controller
                 if ($this->db->insert('vm_ticket', $data)) {
                     $ticketNumber = $this->db->insert_id();
                     $this->vendor_model->sendNewTicketEmail($this->user, $ticketNumber, $this->brand, $subject, 0);
-
                 } else {
                     $error .= "Failed To Add Ticket For " . $target_lang . "<br/>";
-
                 }
             }
             if (strlen($error) > 0) {
@@ -5386,7 +5360,6 @@ class Vendor extends CI_Controller
                 $this->session->set_flashdata('true', $true);
                 redirect(base_url() . "vendor/salesVmTickets");
             }
-
         } else {
             echo "You have no permission to access this page";
         }
@@ -5475,10 +5448,8 @@ class Vendor extends CI_Controller
                 if ($this->db->insert('vm_ticket', $data)) {
                     $ticketNumber = $this->db->insert_id();
                     $this->vendor_model->sendNewTicketEmail($this->user, $ticketNumber, $this->brand, $data['ticket_subject'], $data['from_id']);
-
                 } else {
                     $error .= "Failed To Add Ticket For " . $target_lang . "<br/>";
-
                 }
             }
 
@@ -5490,48 +5461,41 @@ class Vendor extends CI_Controller
                 $this->session->set_flashdata('true', $true);
                 redirect(base_url() . "vendor/vmTicket?t=" . base64_encode($data['from_id']));
             }
-
         } else {
             echo "You have no permission to access this page";
         }
     }
 
-      // send vendor Campaign
-    public function vendorCampaignEmail($campaignID,$brand)
+    // send vendor Campaign
+    public function vendorCampaignEmail($campaignID, $brand)
     {
         // check if table exists
         // then if not create it        
         // if yes get active vendor with brand & add to table
         // if has data already get data from this with send_flag = 0 & limit 1 
         // send email // after send update_flag = 1
-        
-        $tableName = 'camp_'.$campaignID;
-  // step 1  
-        if (!$this->db->table_exists('camp_'.$campaignID) )
-        {               
+
+        $tableName = 'camp_' . $campaignID;
+        // step 1  
+        if (!$this->db->table_exists('camp_' . $campaignID)) {
             $this->vendor_model->CreateCampaignTable($tableName);
             echo 'Table Created Successfully';
-        }           
-// end step 1
-// step 2
-        $query = $this->db->get("$tableName");
-        if($query->num_rows() > 0) {  
-           //  $this->vendor_model->sendCampaignVendors($tableName);
-           echo 'Table already exists.... Please send emails';
-        }else{
-            $this->vendor_model->getActiveVendors($brand,$campaignID);
-         //   $this->vendor_model->sendCampaignVendors($tableName);
-             echo 'Data added Successfully';
         }
-        
-        
+        // end step 1
+        // step 2
+        $query = $this->db->get("$tableName");
+        if ($query->num_rows() > 0) {
+            //  $this->vendor_model->sendCampaignVendors($tableName);
+            echo 'Table already exists.... Please send emails';
+        } else {
+            $this->vendor_model->getActiveVendors($brand, $campaignID);
+            //   $this->vendor_model->sendCampaignVendors($tableName);
+            echo 'Data added Successfully';
+        }
     }
     public function sendVendorCampaignEmail($tableName)
     {
 
-        $this->vendor_model->sendCampaignVendors($tableName);      
-        
-        
+        $this->vendor_model->sendCampaignVendors($tableName);
     }
 }
-?>

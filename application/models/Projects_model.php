@@ -40,7 +40,7 @@ class Projects_model extends CI_Model
             p.created_at AS created_at,
             b.id AS brand,
             b.name AS brandname,
-            j.id AS closed,
+          
             c.name AS customername,
             l.name AS productline,
             u.user_name AS username,
@@ -53,39 +53,25 @@ class Projects_model extends CI_Model
             j1.min_start AS min_start,
             j1.max_delivery AS max_delivery,
             CURRENT_TIMESTAMP() AS now,
-            ifnull(j2.allclosed,0) AS allclosed,
+            ifnull(j1.allclosed,0) AS allclosed,
             ifnull(j3.closedstat,0) AS closedstat
         FROM
-            ((((((((project p
+            ((((((project p
             LEFT JOIN customer c ON (c.id = p.customer))
             LEFT JOIN brand b ON (b.id = c.brand))
             LEFT JOIN customer_product_line l ON (l.id = p.product_line))
             LEFT JOIN users u ON (u.id = p.created_by))           
-            LEFT JOIN (SELECT 
-                job.project_id AS project_id,
-                    job.status AS status,
-                    job.id AS id     
-            FROM
-                job
-            WHERE
-                job.status <> 1
-            GROUP BY job.project_id , job.status) j ON (j.project_id = p.id))
-
+           
             LEFT JOIN (SELECT 
                 job.project_id AS project_id,
                     MIN(job.start_date) AS min_start,
                     MAX(job.delivery_date) AS max_delivery,
-                    IFNULL(COUNT(job.id), 0) AS closed
+                    IFNULL(COUNT(job.id), 0) AS allclosed
             FROM
                 job
             GROUP BY job.project_id) j1 ON (j1.project_id = p.id))
 
-            LEFT JOIN (SELECT 
-                job.project_id AS project_id,
-                    IFNULL(COUNT(job.id), 0) AS allclosed
-            FROM
-                job
-            GROUP BY job.project_id) j2 ON (j2.project_id = p.id))
+            
 
             LEFT JOIN (SELECT 
                 job.project_id AS project_id,

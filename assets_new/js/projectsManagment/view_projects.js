@@ -15,7 +15,7 @@ $(document).ready(function (e) {
             url: base_url + 'projectManagment/findall',
             type: "POST",
             async: true,
-            dataType: 'json',
+            // dataType: 'json',
             data: {
                 filter_data: function () {
                     return $('#searchform').serialize();
@@ -36,19 +36,16 @@ $(document).ready(function (e) {
             },
 
             success: function (data) {
-                var data = data;
-
+                var data = JSON.parse(atob(data));
                 projectData = data['projects'];
                 samData = data['opportunity'];
                 permissions = data['permission'];
-
                 swal.close();
                 createTables(projectData, samData, permissions);
                 return
             },
             error: function (jqXHR, exception) {
                 swal.close();
-                console.log(jqXHR.responseText);
             }
         });
     }

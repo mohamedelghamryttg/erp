@@ -1,4 +1,6 @@
-<?php use PHPUnit\SebastianBergmann\Environment\Console;
+<?php
+
+use PHPUnit\SebastianBergmann\Environment\Console;
 
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
@@ -604,14 +606,25 @@ class AccountModel extends CI_Model
         return $data;
     }
 
-    function Allbankout($filter)
+    function Allbanktrn($brand, $type, $filter)
     {
-        $data = $this->db->query(" SELECT * FROM `bankout` WHERE " . $filter . "  ORDER BY id ASC , id DESC ");
-        return $data;
+        if ($type == '1') {
+            return $data = $this->db->query(" SELECT * FROM `bankin` where '$filter'  HAVING brand = '$brand' ORDER BY date ");
+        } else {
+
+            return $data = $this->db->query(" SELECT *  FROM `bankout` where '$filter' HAVING brand = '$brand' ORDER BY date ");
+        }
     }
 
-    function AllbankoutPages($limit, $offset)
+    function AllbanktrnPages($brand, $type, $limit, $offset)
     {
+        if ($type == '1') {
+            return $data = $this->db->query(" SELECT * FROM `bankin` HAVING brand = '$brand' ORDER BY date   LIMIT $limit OFFSET $offset  ");
+        } else {
+
+            return $data = $this->db->query(" SELECT *  FROM `bankout`  HAVING brand = '$brand' ORDER BY date   LIMIT $limit OFFSET $offset  ");
+        }
+
         $data = $this->db->query("SELECT * FROM `bankout`  ORDER BY id ASC , id DESC LIMIT $limit OFFSET $offset ");
         return $data;
     }

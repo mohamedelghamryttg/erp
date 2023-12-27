@@ -347,6 +347,15 @@ class Vendor_model extends CI_Model
             return '';
         }
     }
+    public function getVendorEmail($vendor)
+    {
+        $result = $this->db->get_where('vendor', array('id' => $vendor))->row();
+        if (isset($result->email)) {
+            return $result->email;
+        } else {
+            return '';
+        }
+    }
 
     public function selectVendor($id = "", $brand = "")
     {
@@ -405,7 +414,7 @@ class Vendor_model extends CI_Model
         // return $data;
 
         $vendor = $this->db->query(" SELECT DISTINCT v.id,v.name FROM `vendor` AS v LEFT OUTER JOIN vendor_sheet AS s ON s.vendor = v.id WHERE v.brand = '$brand' AND s.source_lang = '$source' AND s.target_lang = '$target' AND s.service = '$service' AND v.status = '0' ORDER BY v.name ASC ")->result();
-
+        $data = "";
         foreach ($vendor as $vendor) {
             if ($vendor->id == $id) {
                 $data .= "<option value='" . $vendor->id . "' selected='selected'>" . $vendor->name . "</option>";
@@ -419,7 +428,7 @@ class Vendor_model extends CI_Model
     public function selectVendorByJobLEFreelancer($id, $brand)
     {
         $vendor = $this->db->query(" SELECT DISTINCT v.id,v.name FROM `vendor` AS v LEFT OUTER JOIN vendor_sheet AS s ON s.vendor = v.id WHERE v.brand = '$brand' AND s.service = '19' AND v.status = '0' ORDER BY v.name ASC ")->result();
-
+        $data = "";
         foreach ($vendor as $vendor) {
             if ($vendor->id == $id) {
                 $data .= "<option value='" . $vendor->id . "' selected='selected'>" . $vendor->name . "</option>";
@@ -1130,6 +1139,7 @@ class Vendor_model extends CI_Model
     public function selectVmEmployeeId($id = "", $brand = "")
     {
         $vm = $this->db->query(" SELECT * FROM users WHERE (role = '11' OR role = '32') AND brand = '$this->brand' AND status = '1' ")->result();
+        $data = "";
         foreach ($vm as $vm) {
             if ($vm->id == $id) {
                 $data .= "<option value='" . $vm->employees_id . "' selected='selected'>" . $vm->user_name . "</option>";

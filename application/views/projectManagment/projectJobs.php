@@ -83,9 +83,9 @@
             </header>
             <div class="panel-body">
                 <ul>
-                    <li><b>You have to add client pm to each job before close jobs.</b></li>
-                    <li><b>You have to add Q.C. to each job before close jobs.</b></li>
-                    <li><b>You have to add Vendor Evaluation to each vendor Task before close jobs.</b></li>
+                    <li><b>You have to Add Client PM to each job before close jobs.</b></li>
+                    <li><b>You have to Add Q.C. to each job before close jobs.</b></li>
+                    <li><b>You have to Add Vendor Evaluation to each vendor Task before close jobs.</b></li>
                 </ul>
                 <?php $this->view('projectManagment/projectJobs_includes'); ?>
             </div>
@@ -257,7 +257,7 @@
                                                 <!--qc log-->
                                                 <?php if ($row->status == 0 && $qc_type != null && $job_qc_exists == false) { ?>
                                                     <a class="btn btn-dark btn-sm font-weight-bolder text-white" data-toggle="modal" data-target="#qcModal_<?= $row->id; ?>">
-                                                        <i class="fa fa-plus-circle"></i> add Q.C.
+                                                        <i class="fa fa-plus-circle"></i> Add Q.C.
                                                     </a>
                                                 <?php } elseif ($row->status == 0 && $qc_type != null && $job_qc_exists == true) { ?>
                                                     <a class="btn btn-dark btn-sm font-weight-bolder text-white" data-toggle="modal" data-target="#qcEditModal_<?= $row->id; ?>">

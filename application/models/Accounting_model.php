@@ -1850,17 +1850,17 @@ WHERE project_id <> 0 AND " . $filter . " HAVING brand = '$brand' order by id de
             return '';
         }
     }
-    
+
     public function getCreditNoteInvoice($po_number)
     {
         $invoice = '';
         $po = $this->db->query("SELECT id FROM `po` WHERE `number` LIKE '$po_number'")->row();
-         if(!empty($po)){
+        if (!empty($po)) {
             $po_id = $po->id;
             $data = $this->db->query(" SELECT id FROM invoices WHERE po_ids like '$po_id ,%' or po_ids like '%,$po_id,%' or po_ids like '%,$po_id' or po_ids = '$po_id'")->row();
-            if(!empty($data))
+            if (!empty($data))
                 $invoice = $data->id;
-         }
+        }
         return $invoice;
     }
 }

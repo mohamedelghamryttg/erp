@@ -198,7 +198,7 @@ class AccountReport extends CI_Controller
             $in_where = ' (brand = "' . $this->brand . '")   and (deb_acc_id = "' . $account_no . '" or crd_acc_id = "' . $account_no . '")';
             $currency_where_e = ' and (e.currency_id = "' . $currency_id . '") ';
             $currency_where = ' and (currency_id = "' . $currency_id . '") ';
-            $rate_currency = "/ ifnull((select rate from currenies_rate where currency = e.currency_id and currency_to = '" . $local_currency . "' and month = month(e.trns_date) and year = year(e.trns_date) limit 1),1) ";
+            $rate_currency = "/ ifnull(ROUND((select rate from currenies_rate where currency = e.currency_id and currency_to = '" . $local_currency . "' and month = month(e.trns_date) and year = year(e.trns_date) limit 1),5),1) ";
         } else {
             $curr_type = "";
             $currency_id = "";
@@ -220,20 +220,30 @@ class AccountReport extends CI_Controller
     
                 where trns_code in (select trns_code from entry_data where " . $in_where . $where_date . $currency_where . ") and (" . $where . $currency_where_e . $where_date . " and " . $add_where . ") order by e.trns_date";
         } else {
-            $sql0 = "select sum(ifnull(e.ev_deb,0) " . $rate_currency . ")  as debit,sum(ifnull(e.ev_crd,0) " . $rate_currency . ") as credit,sum(ifnull(e.ev_deb,0)) as ev_debit,sum(ifnull(e.ev_crd,0)) as ev_credit 
-            from entry_data e             
+            if ($currency_id == $local_currency) {
+                $sql0 = "select ROUND(sum(ROUND(ifnull(e.ev_deb,0),5) ),3)  as debit,ROUND(sum(ROUND(ifnull(e.ev_crd,0),5) ),3) as credit,sum(ifnull(e.ev_deb,0)) as ev_debit,sum(ifnull(e.ev_crd,0)) as ev_credit ";
+            } else {
+                $sql0 = "select ROUND(sum(ROUND(ifnull(e.ev_deb,0),5) " . $rate_currency . "),3)  as debit,ROUND(sum(ROUND(ifnull(e.ev_crd,0),5) " . $rate_currency . "),3) as credit,sum(ifnull(e.ev_deb,0)) as ev_debit,sum(ifnull(e.ev_crd,0)) as ev_credit ";
+            }
+            //" select sum(ifnull(e.ev_deb,0) " . $rate_currency . ")  as debit,sum(ifnull(e.ev_crd,0) " . $rate_currency . ") as credit,sum(ifnull(e.ev_deb,0)) as ev_debit,sum(ifnull(e.ev_crd,0)) as ev_credit 
+            $sql0 .= " from entry_data e             
             where trns_code in (select trns_code from entry_data where  " . $in_where . $where_date_befor . ") and (" . $where . $where_date_befor . " and " . $add_where . ") order by e.trns_date";
 
+            if ($currency_id == $local_currency) {
+                $sql1 = "select e.*,(ifnull(e.ev_deb,0) ) as debit,(ifnull(e.ev_crd,0) ) as credit,ifnull(e.ev_deb,0) as ev_debit,ifnull(e.ev_crd,0) as ev_credit ,c.name as currency,a1.acode as deb_acode,a1.name as deb_name,a2.acode as crd_acode ,a2.name as crd_name ";
+            } else {
+                $sql1 = "select e.*,ROUND((ROUND(ifnull(e.ev_deb,0),5) " . $rate_currency . "),3) as debit,ROUND((ROUND(ifnull(e.ev_crd,0),5) " . $rate_currency . "),3) as credit,ifnull(e.ev_deb,0) as ev_debit,ifnull(e.ev_crd,0) as ev_credit ,c.name as currency,a1.acode as deb_acode,a1.name as deb_name,a2.acode as crd_acode ,a2.name as crd_name ";
+            }
 
-            $sql1 = "select e.*,(ifnull(e.ev_deb,0) " . $rate_currency . ") as debit,(ifnull(e.ev_crd,0) " . $rate_currency . ") as credit,ifnull(e.ev_deb,0) as ev_debit,ifnull(e.ev_crd,0) as ev_credit ,c.name as currency,a1.acode as deb_acode,a1.name as deb_name,a2.acode as crd_acode ,a2.name as crd_name 
-                from entry_data e 
+            $sql1 .= " from entry_data e 
                 left join currency c on c.id = e.currency_id 
                 left join account_chart a1 on a1.id = e.deb_acc_id 
                 left join account_chart a2 on a2.id = e.crd_acc_id 
     
                 where trns_code in (select trns_code from entry_data where " . $in_where . $where_date . ") and (" . $where . $where_date . " and " . $add_where . ") order by e.trns_date";
         }
-
+        // var_dump($sql1);
+        // die;
 
         if ($account_no == '') {
             $beg_ledger =  "";
@@ -291,7 +301,8 @@ class AccountReport extends CI_Controller
 
                 $deb =  round((($row['debit']) ?? 0), 3);
                 $crd =  round((($row['credit']) ?? 0), 3);
-
+                // var_dump($row['credit']);
+                // die;
                 $trn_arr['deb'] = $deb; //debit
                 $trn_arr['crd'] = $crd; //credit
 
@@ -313,8 +324,7 @@ class AccountReport extends CI_Controller
             $data['trns_ledger'] = $account_data;
         }
 
-        // var_dump($data['trns_ledger']);
-        // die;
+
         echo json_encode($data);
     }
     public function generalledger()

@@ -1071,6 +1071,7 @@
 <script src="<?php echo base_url(); ?>assets_new/js/pages/crud/datatables/basic/scrollable.js"></script>
 
 <!-- <script src="<?php echo base_url(); ?>assets_new/plugins/custom/datatables/jquery.dataTables.min.js"></script> -->
+<script type="text/javascript" src="<?php echo base_url(); ?>assets_new/plugins/global/moment.min.js"></script>
 
 
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>

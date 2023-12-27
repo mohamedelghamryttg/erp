@@ -465,52 +465,56 @@ class CreateDatabase extends CI_Model
     }
     // end manual_details //
     // start bank in out //
+
     if ($this->db->table_exists('bankin') == FALSE) {
       $this->db->query("CREATE TABLE `bankin` (
-                `id` int  NOT NULL AUTO_INCREMENT,
-                `ccode` varchar(10) DEFAULT NULL,
-                `doc_no` varchar(10) DEFAULT NULL,
-                `date` date NOT NULL,
-                `trn_type` int NOT NULL,
-                `trn_id` int DEFAULT NULL,
-                `trn_code` int NOT NULL,
-                `amount` decimal(18,3) NOT NULL,
-                `currency_id` int NOT NULL,
-                `rate` decimal(18,5) NOT NULL,
-                `check_no` varchar(10) DEFAULT NULL,
-                `rem` text,
-                `brand` int NOT NULL,
-                `bank_id` int NOT NULL,
-                `bank_type` int NOT NULL,
-                `created_by` int NOT NULL,
-                `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`id`)
-
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;");
+                  `id` int NOT NULL AUTO_INCREMENT,
+                  `bank_type` int NOT NULL,
+                  `ccode` varchar(10) DEFAULT NULL,
+                  `doc_no` varchar(10) DEFAULT NULL,
+                  `bank_id` int DEFAULT NULL,
+                  `date` date NOT NULL,
+                  `trn_type` varchar(20) NULL,
+                  `trn_id` int DEFAULT NULL,
+                  `trn_code` int NULL,
+                  `amount` decimal(18,3) NOT NULL,
+                  `currency_id` int NOT NULL,
+                  `rate` decimal(18,5) NOT NULL,
+                  `cheque_no` varchar(50) DEFAULT NULL,
+                  `cheque_date` date,
+                  `rem` text,
+                  `brand` int NOT NULL,
+                  `created_by` int NOT NULL,
+                  `created_at` varchar(20),
+                  PRIMARY KEY (`id`)
+  
+              ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;");
     }
+
 
     if ($this->db->table_exists('bankout') == FALSE) {
       $this->db->query("CREATE TABLE `bankout` (
-                `id` int  NOT NULL AUTO_INCREMENT,
-                `ccode` varchar(10) DEFAULT NULL,
-                `doc_no` varchar(10) DEFAULT NULL,
-                `date` date NOT NULL,
-                `trn_type` int NOT NULL,
-                `trn_id` int DEFAULT NULL,
-                `trn_code` int NOT NULL,
-                `amount` decimal(18,3) NOT NULL,
-                `currency_id` int NOT NULL,
-                `rate` decimal(18,5) NOT NULL,
-                `check_no` varchar(10) DEFAULT NULL,
-                `rem` text,
-                `brand` int NOT NULL,
-                `bank_id` int NOT NULL,
-                `bank_type` int NOT NULL,
-                `created_by` int NOT NULL,
-                `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`id`)
+        `id` int NOT NULL AUTO_INCREMENT,
+        `bank_type` int NOT NULL,
+        `ccode` varchar(10) DEFAULT NULL,
+        `doc_no` varchar(10) DEFAULT NULL,
+        `bank_id` int DEFAULT NULL,
+        `date` date NOT NULL,
+        `trn_type` varchar(20) NULL,
+        `trn_id` int DEFAULT NULL,
+        `trn_code` int NULL,
+        `amount` decimal(18,3) NOT NULL,
+        `currency_id` int NOT NULL,
+        `rate` decimal(18,5) NOT NULL,
+        `cheque_no` varchar(50) DEFAULT NULL,
+        `cheque_date` date,
+        `rem` text,
+        `brand` int NOT NULL,
+        `created_by` int NOT NULL,
+        `created_at` varchar(20),
+        PRIMARY KEY (`id`)
 
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;");
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;");
     }
 
     // account type //
@@ -1067,7 +1071,6 @@ class CreateDatabase extends CI_Model
           $this->dbforge->add_column('services', $fields);
         }
       }
-
     }
     // end services // 
     // Q. C. Checklist Category   

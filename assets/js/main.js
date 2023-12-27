@@ -609,17 +609,36 @@ function getVendorDataLEFreelancer() {
 function getVendorByTask(service, source, target) {
     var task_type = $("#task_type").val();
     var flag = $("#flag").val() ? $("#flag").val() : 0;
-    $.ajaxSetup({
+
+    $.ajax({
+        type: "POST",
+        url: base_url + "vendor/getVendorByTask/" + flag,
+        data: { service: service, task_type: task_type, source: source, target: target },
+        cache: false,
         beforeSend: function () {
             $('#loading').show();
         },
+        success: function (data) {
+            $('#loading').hide();
+            $("#vendor").html(data);
+        },
+        error: function (request, status, error) {
+            $('#loading').hide();
+            $("#vendor").html("");
+        }
     });
-    $.post(base_url + "vendor/getVendorByTask/" + flag, { service: service, task_type: task_type, source: source, target: target }, function (data) {
-        $('#loading').hide();
-        //alert(data);
-        $("#vendor").html(data);
-    });
-    $("#vendorData").html("");
+
+    // $.ajaxSetup({
+    //     beforeSend: function () {
+    //         $('#loading').show();
+    //     },
+    // });
+    // $.post(base_url + "vendor/getVendorByTask/" + flag, { service: service, task_type: task_type, source: source, target: target }, function (data) {
+    //     $('#loading').hide();
+    //     // alert(data);
+    //     $("#vendor").html(data);
+    // });
+    // $("#vendorData").html("");
 }
 
 
@@ -1994,7 +2013,7 @@ function getAllVendorData(service, source, target) {
     $("#vendorData").html("");
     var task_type = $("#task_type").val();
     var vendor = $("#vendor").val();
-    // alert(vendor);
+
     if (vendor == "all") {
         $("#sendToAllVendors").show();
         $("#sendToAllVendors input[name='unit']").attr('required', 'required');
@@ -2014,17 +2033,39 @@ function getAllVendorData(service, source, target) {
         $("#sendToAllVendors").hide();
         $("#sendToAllVendors input[name='unit']").removeAttr('required');
         $("#sendToAllVendors input[name='rate']").removeAttr('required');
-
-        $.ajaxSetup({
+        $.ajax({
+            type: 'POST',
+            url: base_url + "vendor/getVendorData",
+            data: { vendor: vendor, task_type: task_type, source: source, target: target },
             beforeSend: function () {
                 $('#loading').show();
             },
+            success: function (data) {
+                $('#loading').hide();
+                $("#vendorData").html(data);
+            },
+            error: function (xhr, textStatus, error) {
+                console.log(xhr.statusText);
+                console.log(textStatus);
+                console.log(error);
+                $('#loading').hide();
+            }
         });
-        $.post(base_url + "vendor/getVendorData", { vendor: vendor, task_type: task_type, source: source, target: target }, function (data) {
-            $('#loading').hide();
-            // alert(data);
-            $("#vendorData").html(data);
-        });
+
+        // $.ajaxSetup({
+        //     beforeSend: function () {
+        //         $('#loading').show();
+        //     },
+        // });
+        // $.post(base_url + "vendor/getVendorData", { vendor: vendor, task_type: task_type, source: source, target: target }, function (data) {
+        //     $('#loading').hide();
+        //     alert(data);
+        //     $("#vendorData").html(data);
+        // },
+        //     fail(function (xhr, textStatus, errorThrown) {
+        //         // alert(xhr.responseText);
+        //     })
+        // )
     }
     $("#count").val("");
     $("#total_cost").val(0);

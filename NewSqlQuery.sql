@@ -26,7 +26,11 @@ CREATE TABLE IF NOT EXISTS `emp_finance` (
   PRIMARY KEY (`id`)
 ) 
 
-ALTER TABLE `customer` ADD `customer_profile` TEXT NULL AFTER `client_type`, ADD `notes` TEXT NULL AFTER `customer_profile`; 
+ALTER TABLE `customer` DROP COLUMN  `customer_profile` , DROP COLUMN  `notes` ; 
+
+ALTER TABLE `customer_portal` ADD `customer_profile` TEXT NULL AFTER `additional_info`, ADD `notes` TEXT NULL AFTER `customer_profile`; 
+ 
+
 
 ALTER TABLE `kpi_incidents_log` ADD `confirmed` TINYINT(1) NOT NULL DEFAULT '0' AFTER `file`; 
 
@@ -86,3 +90,13 @@ ALTER TABLE `commission_setting`
 COMMIT;
 
 ALTER TABLE `kpi_score` ADD `manager_approval` TINYINT(1) NOT NULL DEFAULT '0' AFTER `status`; 
+
+ALTER TABLE `customer_evaluation` ADD `brand` int(11) NOT NULL AFTER `id`; 
+
+ALTER TABLE `cashin` MODIFY `trn_code` varchar(20);
+
+ALTER TABLE `cashout` MODIFY `trn_code` varchar(20);
+
+ALTER TABLE `bankin` MODIFY `trn_code` varchar(20);
+
+ALTER TABLE `bankout` MODIFY `trn_code` varchar(20);

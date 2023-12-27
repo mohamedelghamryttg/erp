@@ -15,18 +15,18 @@
     </div>
 <?php } ?>
 <!--begin::Content-->
-<div class="content d-flex flex-column flex-column-fluid" id="kt_content">
+<div class="content-fluid d-flex flex-column flex-column-fluid" id="kt_content">
 
     <!--begin::Entry-->
     <div class="d-flex flex-column-fluid">
         <!--begin::Container-->
-        <div class="container">
+        <div class="container-fluid">
 
 
             <!-- start search form card -->
             <div class="card card-custom gutter-b example example-compact">
                 <div class="card-header">
-                    <h3 class="card-title">Search Bank Transaction</h3>
+                    <h3 class="card-title">Search Bank Out Transaction</h3>
                 </div>
 
                 <form class="form" id="poList" action="<?php echo base_url() ?>account/bankouttrnlist" method="post" enctype="multipart/form-data">
@@ -36,16 +36,16 @@
                             <label class="col-lg-2 control-label" for="role ser">Bank</label>
                             <div class="col-lg-3">
                                 <select name='bank_id' class='form-control m-b'>
-                                    <option value="" selected=''>-- Select --</option>
-                                    <?= $this->AccountModel->selectcombo('bank', "", $brand_id); ?>
+                                    <option value="" selected=''>-- Select Bank --</option>
+                                    <?= $this->AccountModel->selectcombo('bank', "", $brand); ?>
                                 </select>
                             </div>
 
-                            <label id="acc_type" class="col-lg-2 col-form-label text-right">Revenue</label>
+                            <label id="acc_type" class="col-lg-2 col-form-label text-right">Expenses</label>
                             <div class="col-lg-3">
                                 <select class="form-control" name="trn_id" id="trn_id">
-                                    <option value="" selected=''>-- Select --</option>
-                                    <?= $this->AccountModel->Allrevenue($brand_id, "", $parent_id); ?>
+                                    <option value="" selected=''>-- Select Expenses --</option>
+                                    <?= $this->AccountModel->Allexpenses($brand, "", $parent_id); ?>
                                 </select>
                             </div>
                         </div>
@@ -83,7 +83,7 @@
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-lg-3 col-form-label text-right">Check Number</label>
+                            <label class="col-lg-3 col-form-label text-right">cheque Number</label>
                             <div class="col-lg-3">
                                 <input type="text" class="form-control" name="check_no" id="check_no" required>
                             </div>
@@ -139,9 +139,7 @@
         <div class="card">
             <div class="card-header flex-wrap border-0 pt-6 pb-0">
                 <div class="card-title">
-                    <h3 class="card-label">Bank
-                        List
-                    </h3>
+                    <h3 class="card-label">Bank Out List</h3>
                 </div>
                 <div class="card-toolbar">
 
@@ -174,7 +172,7 @@
                             <th>Bank</th>
                             <th>Revenue</th>
                             <th>Amount</th>
-                            <th>Check Number</th>
+                            <th>Cheque Number</th>
                             <th>Collection date</th>
                             <th>Currency</th>
                             <th>Rate</th>
@@ -186,12 +184,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $i = 0; ?>
                         <?php foreach ($bank_trn->result() as $row) : ?>
-                            <?php $i++; ?>
                             <tr>
                                 <td>
-                                    <?= $i ?>
+                                    <?= $row->id ?>
                                 </td>
                                 <td>
                                     <a href="<?php echo base_url() ?>account/editbankoutTrn?t=<?php echo base64_encode($row->id); ?>" class="">
@@ -216,6 +212,12 @@
                                 </td>
                                 <td>
                                     <?= $row->amount ?>
+                                </td>
+                                <td>
+                                    <?= $row->cheque_no ?>
+                                </td>
+                                <td>
+                                    <?= $row->cheque_date ?>
                                 </td>
                                 <td>
                                     <?= $this->admin_model->getCurrency($row->currency_id) ?>

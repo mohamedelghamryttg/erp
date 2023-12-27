@@ -1,4 +1,3 @@
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <div class="d-flex flex-column-fluid">
     <!--begin::Container-->
     <div class="container">
@@ -12,8 +11,7 @@
 
             <div class="card text-center">
                 <div class="card-header">
-                    <h3>Treasury Receipt</h3>
-                    <h3>Edit Cash In</h3>
+                    <h3>Treasury Receipt Edit Cash In</h3>
                     <input type="hidden" name="serial" id="serial" value="<?= $cashin->ccode ?>">
                     <h3 style="color: darkred;"><u>Serial :<?= $cashin->ccode ?></u></h3>
                 </div>
@@ -22,7 +20,6 @@
             <input type="hidden" name="id" value="<?= base64_encode($cashin->id) ?>">
 
             <div class="card-body py-0 shadow-lg p-3 mb-5 bg-white rounded">
-
                 <input type="hidden" name="brand" id="brand" value="<?= $brand ?>">
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">Cash</label>
@@ -32,11 +29,10 @@
                             <?= $this->AccountModel->selectPaymentCombo('payment_method', $cashin->cash_id, $brand, '1'); ?>
                         </select>
                     </div>
-                    <input type="hidden" name="cash_acc" id="cash_acc" value="<?= $acc_setup->cash_acc_acode ?>">
-                    <input type="hidden" name="cash_acc_id" id="cash_acc_id" value="<?= $acc_setup->cash_acc_id ?>">
-                    <input type="hidden" name="cash_acc_name" id="cash_acc_name" value="<?= $this->db->get_where('account_chart', array('id' => $acc_setup->cash_acc_id))->row()->name ?>">
+                    <input type="hidden" name="cash_acc" id="cash_acc" value="<?= $cash_acc ?>">
+                    <input type="hidden" name="cash_acc_id" id="cash_acc_id" value="<?= $cash_acc_id ?>">
+                    <input type="hidden" name="cash_acc_name" id="cash_acc_name" value="<?= $cash_acc_name ?>">
                 </div>
-
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">Document Date</label>
                     <div class="col-lg-6">
@@ -57,7 +53,7 @@
                     <div class="col-lg-6">
                         <select class="form-control" name="trn_typ" id="trn_typ" required value="<?= $cashin->trn_typ ?>">
                             <option disabled="disabled" value="">-- Select Transaction Type --</option>
-                            <option selected='selected' value="other" selected="selected">Other</option>
+                            <option selected='selected' value="Other" selected="selected">Other</option>
                         </select>
                     </div>
                 </div>
@@ -103,19 +99,18 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">Document Description</label>
                     <div class="col-lg-6">
-                        <textarea name="rem" id="rem" class="form-control" rows="6"><?= $cashin->rem ?></textarea>
-
-
+                        <textarea id="rem" name="rem" rows="4" cols="40"><?= $cashin->rem ?></textarea>
                     </div>
                 </div>
-            </div>
 
-            <div class="card-footer" style="text-align: center;width: 73%;left: 15%;position: relative;">
-                <div class="row">
-                    <div class="col-lg-3"></div>
-                    <div class="col-lg-6">
-                        <button type="button" id="submit" class="btn btn-success mr-2">Submit</button>
-                        <a class="btn btn-secondary" href="<?php echo base_url() ?>account/cashintrnlist" class="btn btn-default" type="button">Cancel</a>
+
+                <div class="card-footer" style="text-align: center;width: 73%;left: 15%;position: relative;">
+                    <div class="row">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-6">
+                            <button type="button" id="submit" class="btn btn-success mr-2">Submit</button>
+                            <a class="btn btn-secondary" href="<?php echo base_url() ?>account/cashintrnlist" class="btn btn-default" type="button">Cancel</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -125,13 +120,13 @@
             <table class="datatable-bordered datatable-head-custom datatable-table" id="kt_datatable" style="display: block;border-top: 1px solid #3F4254;">
                 <thead class="datatable-head">
                     <tr class="datatable-row" style="left: 0px;">
-                        <th data-field="debit" class="datatable-cell datatable-cell-sort"><span style="width: 112px;">Debit</span></th>
-                        <th data-field="credit" class="datatable-cell datatable-cell-sort"><span style="width: 112px;">Credit</span></th>
-                        <th data-field="acount" class="datatable-cell datatable-cell-sort"><span style="width: 164px;">Account</span></th>
-                        <th data-field="revenue" class="datatable-cell datatable-cell-sort"><span style="width: 112px;">Account Type</span></th>
-                        <th data-field="currency" class="datatable-cell datatable-cell-sort"><span style="width: 112px;">Currency</span></th>
-                        <th data-field="rate" class="datatable-cell datatable-cell-sort"><span style="width: 60px;">Rate</span></th>
-                        <th data-field="evamount" data-autohide-disabled="false" class="datatable-cell datatable-cell-sort">
+                        <th data-field="debit" class="datatable-cell px-0"><span style="width: 112px;">Debit</span></th>
+                        <th data-field="credit" class="datatable-cell px-0"><span style="width: 112px;">Credit</span></th>
+                        <th data-field="acount" class="datatable-cell  px-0"><span style="width: 150px;">Account</span></th>
+                        <th data-field="revenue" class="datatable-cell  px-0"><span style="width: 150px;">Transaction</span></th>
+                        <th data-field="currency" class="datatable-cell  px-0"><span style="width: 112px;">Currency</span></th>
+                        <th data-field="rate" class="datatable-cell  px-0"><span style="width: 112px;">Rate</span></th>
+                        <th data-field="evamount" data-autohide-disabled="false" class="datatable-cell  px-0">
                             <span style="width: 112px;">Ev. Amount</span>
                         </th>
                     </tr>
@@ -152,7 +147,6 @@
 <script>
     $(document).ready(function() {
         create_entry();
-
         $("#amount").blur(function() {
             if (this.value === 'NaN') {
                 this.value = 0;
@@ -170,10 +164,7 @@
                 $("#rate").prop("readonly", true);
             }
         });
-        $('#cdate').datepicker({
-            format: 'yyyy-mm-dd',
-            autoClose: true
-        });
+
         $("#submit").click(function(event) {
             $.ajax({
                 url: "<?= base_url() . "account/doEditCashinTrn" ?>",
@@ -193,7 +184,6 @@
                         alert('You must fill out all required fields in order to submit a change');
                         return false;
                     }
-
                     if ($empty.length + $empty1.length + $empty2.length) {
                         alert('You must fill out all required fields to submit a change');
                         return false;
@@ -204,12 +194,11 @@
                 success: function(data) {
                     var data = JSON.parse(data);
                     if (data.records != 0)
-                        alert("Cash In Entry Already Exists!");
+                        alert("Cash In Receipt Already Exists!");
                     else
                         window.location = "<?= base_url("account/cashintrnlist") ?>";
                 }
             });
-
         });
 
         $("#cash_id").on('change', function() {
@@ -246,11 +235,7 @@
                             $("#rate").val('0');
                             $("#rate_h").val('0');
                             $("#currency_hid").val('');
-                            if (data.rate === 0)
-                                $("#rate").prop("readonly", false);
-                            else {
-                                $("#rate").prop("readonly", true);
-                            }
+                            $("#rate").prop("readonly", false);
                             $('#cash_acc').val('')
                             $('#cash_acc_id').val('')
                         }
@@ -264,161 +249,19 @@
                 $("#rate").val('0');
                 $("#rate_h").val('0');
                 $("#currency_hid").val('');
-                if (data.rate === 0)
-                    $("#rate").prop("readonly", false);
-                else {
-                    $("#rate").prop("readonly", true);
-                }
+                $("#rate").prop("readonly", false);
                 $('#cash_acc').val('')
                 $('#cash_acc_id').val('')
             }
         });
 
-        $("#cdate").on('click', function() {
-            var cash_id = $("#cash_id").val();
-            var date = $('#cdate').val();
-            var currency_hid = $("#currency_hid").val();
-            if (cash_id != '' && currency_hid != '') {
-                $.ajax({
-                    url: "<?= base_url() . "account/get_trn_currency_rate" ?>",
-                    type: "POST",
-                    cache: false,
-                    dataType: 'json',
-                    data: {
-                        'currency_hid': currency_hid,
-                        'cash_id': cash_id,
-                        'date': date
-                    },
-                    success: function(data) {
-                        if (data != '') {
-                            $("#rate").val(parseFloat(data.rate).toFixed(5));
-                            $("#rate_h").val(parseFloat(data.rate).toFixed(5));
-                            if (data.rate === 0) {
-                                $("#rate").prop("readonly", false);
-                            } else {
-                                $("#rate").prop("readonly", true);
-                            }
-                            create_entry();
-                        } else {
-                            $("#rate").val(parseFloat(0).toFixed(5));
-                            $("#rate_h").val(parseFloat(0).toFixed(5));
-                            if (data.rate === 0)
-                                $("#rate").prop("readonly", false);
-                            else {
-                                $("#rate").prop("readonly", true);
-                            }
-                        }
-                    },
-                    error: function(jqXHR, exception) {
-                        console.log(jqXHR.responseText);
-                    }
-                });
-            } else {
-                $('select[name="currency_id"]').prop("readonly", false);
-                $("#rate").val(parseFloat(0).toFixed(5));
-                $("#rate_h").val(parseFloat(0).toFixed(5));
-                $("#currency_hid").val('');
-                if (data.rate === 0)
-                    $("#rate").prop("readonly", false);
-                else {
-                    $("#rate").prop("readonly", true);
-                }
-            }
+        $("#cdate").datetimepicker({
+            format: 'YYYY-MM-DD',
+            autoclose: true,
+            defaultDate: new Date()
         });
 
-        $("#trn_id").on('change', function() {
-            create_entry();
-        });
-
-        $("#amount").on('focusout', function() {
-            this.value = parseFloat(this.value).toFixed(2);
-            create_entry();
-        })
-
-        function create_entry() {
-            var cash_id = $("#cash_id").val();
-            var trn_id = $("#trn_id").val();
-            var rate = parseFloat($("#rate").val()).toFixed(5);
-            var amont = parseFloat($("#amount").val()).toFixed(2);
-            var curr_id = $("#currency_hid").val();
-            var html1 = ``;
-            var html2 = ``;
-            if ((cash_id != '' && cash_id != null) && (amont != 0 || amont != '')) {
-                html1 =
-                    `<td data-field="debit" class="datatable-cell">
-                <span style="width: 112px;"> ` + parseFloat($("#amount").val()).toFixed(2) + `</span>
-                </td>
-
-                <td data-field="credit"  class="datatable-cell">
-                    <span style="width: 112px;"> </span>
-                </td>
-
-                <td data-field="trn"  class="datatable-cell"><span
-                    style="width: 164px;">` + $("#cash_id option:selected").text() + `</span>
-                </td>
-
-                <td data-field="account"  class="datatable-cell">
-                    <span style="width: 112px;">` + $("#cash_acc_name").val() + ` </span>
-                </td>`;
-
-                if ((curr_id != '' && curr_id != null)) {
-                    html1 = html1 +
-                        `<td data-field="currency"  class="datatable-cell">
-                        <span style="width: 112px;">` + $("#currency_id option:selected").text() + `</span>
-                    </td>
-                    <td data-field="rate"  class="datatable-cell">
-                        <span style="width: 60px;">` + parseFloat($("#rate").val()).toFixed(5) + `</span>
-                    </td>
-                    <td data-field="evamount" class="datatable-cell">
-                        <span style="width: 112px;">
-                            <span class="label label-success label-dot mr-2"></span>
-                            <span class="font-weight-bold text-success">` + parseFloat($("#amount").val() * $("#rate").val()).toFixed(2) + `</span> 
-                        </span>
-                    </td>`;
-                }
-            }
-            $("#row1").html(html1);
-
-            if ((trn_id != '' && trn_id != null) && (amont != 0 || amont != '')) {
-                html2 =
-                    `<td data-field="debit" class="datatable-cell"><span
-                    style="width: 112px;"></span></td>
-                <td data-field="credit"  class="datatable-cell"><span
-                    style="width: 112px;"> ` + parseFloat($("#amount").val()).toFixed(2) + `</span></td>
-                <td data-field="account" class="datatable-cell"><span
-                    style="width: 164px;">` + $("#trn_id option:selected").text() + ` </span></td>
-                <td data-field="trn"  class="datatable-cell"><span
-                    style="width: 112px;">` + $("#rev_name").val() + `</span></td>
-                    `;
-
-                if ((curr_id != '' && curr_id != null)) {
-                    html2 = html2 +
-                        `<td data-field="currency"  class="datatable-cell"><span 
-                    style="width: 112px;">` + $("#currency_id option:selected").text() + `</span></td>
-                <td data-field="rate"  class="datatable-cell"><span
-                    style="width: 60px;">` + $("#rate").val() + `</span></td>
-                <td data-field="evamount" class="datatable-cell">
-                    <span style="width: 112px;">
-                    <span class="label label-success label-dot mr-2"></span>
-                    <span class="font-weight-bold text-success">` + parseFloat($("#amount").val() * $("#rate").val()).toFixed(2) + `</span> </span>
-               </td>`;
-                }
-
-
-                $("#row2").html(html2);
-
-            }
-        }
-        $(document).keypress(function(e) {
-            if (e.keyCode === 13) {
-                $(document.activeElement).next().focus();
-            }
-        });
-        $("#rate").on('change', function() {
-            $("#rate_h").val($(this).val());
-            create_entry();
-        });
-        $("#currency_id").on('change', function() {
+        $("#cdate").on('change.datetimepicker', function() {
             var cash_id = $("#cash_id").val();
             var date = $('#cdate').val();
             var currency_hid = $("#currency_hid").val();
@@ -446,8 +289,7 @@
                         } else {
                             $("#rate").val(parseFloat(0).toFixed(5));
                             $("#rate_h").val(parseFloat(0).toFixed(5));
-                            if (data.rate === 0)
-                                $("#rate").prop("readonly", false);
+                            $("#rate").prop("readonly", false);
                         }
                     },
                     error: function(jqXHR, exception) {
@@ -459,10 +301,142 @@
                 $("#rate").val(parseFloat(0).toFixed(5));
                 $("#rate_h").val(parseFloat(0).toFixed(5));
                 $("#currency_hid").val('');
-                if (data.rate === 0)
-                    $("#rate").prop("readonly", false);
+                $("#rate").prop("readonly", false);
+            }
+        });
+
+        $("#trn_id").on('change', function() {
+            create_entry();
+        });
+        $("#amount").on('focusout', function() {
+            this.value = parseFloat(this.value).toFixed(2);
+            create_entry();
+        })
+
+        function create_entry() {
+            $entry_text1 = "";
+            var cash_id = $("#cash_id").val();
+            var trn_id = $("#trn_id").val();
+            var amont = $("#amount").val();
+            if ((cash_id != '' && cash_id != null) && (amont != 0 || amont != '')) {
+                $("#row1").html(`
+                "<td data-field="debit" class="datatable-cell px-0"  style="width: 112px;"><span
+                   >` + $("#amount").val() + `</span></td>
+                <td data-field="credit"  class="datatable-cell px-0"  style="width: 112px;"><span
+                    > </span></td>
+                <td data-field="account" " class="datatable-cell px-0"  style="width: 150px;"><span
+                   >` + $("#cash_acc_name").val() + ` </span></td>
+                <td data-field="trn"  class="datatable-cell px-0"  style="width: 150px;"><span
+                    >` + $("#cash_id option:selected").text() + `</span></td>
+                <td data-field="currency"  class="datatable-cell px-0"  style="width: 112px;"><span
+                   >` + $("#currency_id option:selected").text() + `</span></td>
+                <td data-field="rate"  class="datatable-cell px-0"  style="width: 112px;"><span
+                    >` + $("#rate").val() + `</span></td>
+                <td data-field="evamount" class="datatable-cell px-0"  style="width: 112px;">
+                    <span >
+                    <span class="label label-success label-dot mr-2"></span>
+                    <span class="font-weight-bold text-success">` + $("#amount").val() * $("#rate").val() + `</span> </span>
+               </td>`);
             }
 
+            if ((trn_id != '' && trn_id != null) && (amont != 0 && amont != '')) {
+                $("#row2").html(`
+                "<td data-field="debit" class="datatable-cell px-0" style="width: 112px;"><span
+                    ></span></td>
+                <td data-field="credit"  class="datatable-cell px-0"  style="width: 112px;"><span
+                   > ` + $("#amount").val() + `</span></td>
+                <td data-field="account" " class="datatable-cell px-0"  style="width: 150px;"><span
+                    >` + $("#trn_id option:selected").text() + ` </span></td>
+                <td data-field="trn"  class="datatable-cell px-0" style="width: 150px;"><span
+                    ></span></td>
+                <td data-field="currency"  class="datatable-cell px-0" style="width: 112px;"><span
+                    >` + $("#currency_id option:selected").text() + `</span></td>
+                <td data-field="rate"  class="datatable-cell px-0" style="width: 112px;"><span
+                    >` + $("#rate").val() + `</span></td>
+                <td data-field="evamount" class="datatable-cell px-0" style="width: 112px;">
+                    <span >
+                    <span class="label label-success label-dot mr-2"></span>
+                    <span class="font-weight-bold text-success">` + $("#amount").val() * $("#rate").val() + `</span> </span>
+               </td>`);
+            }
+        }
+        $(document).keypress(function(e) {
+            if (e.keyCode === 13) {
+                $(document.activeElement).next().focus();
+            }
         });
+        $("#rate").on('change', function() {
+            $("#rate_h").val($(this).val());
+            create_entry();
+        })
+
+        $("#currency_id").on('change', function() {
+            $("#currency_hid").val($("#currency_id").val());
+            var cash_id = $("#cash_id").val();
+            var date = $('#cdate').val();
+            var currency_hid = $("#currency_hid").val();
+            if (currency_hid != '') {
+                $.ajax({
+                    url: "<?= base_url() . "account/get_trn_currency_rate" ?>",
+                    type: "POST",
+                    cache: false,
+                    dataType: 'json',
+                    data: {
+                        'currency_hid': currency_hid,
+                        'cash_id': cash_id,
+                        'date': date
+                    },
+                    success: function(data) {
+                        if (data != '') {
+                            $("#rate").val(parseFloat(data.rate).toFixed(5));
+                            $("#rate_h").val(parseFloat(data.rate).toFixed(5));
+                            if (data.rate === 0) {
+                                $("#rate").prop("readonly", false);
+                            } else {
+                                $("#rate").prop("readonly", true);
+                            }
+                            create_entry();
+                        } else {
+                            $("#rate").val(parseFloat(0).toFixed(5));
+                            $("#rate_h").val(parseFloat(0).toFixed(5));
+                            $("#rate").prop("readonly", false);
+                        }
+                    },
+                    error: function(jqXHR, exception) {
+                        console.log(jqXHR.responseText);
+                    }
+                });
+            } else {
+                $('select[name="currency_id"]').prop("readonly", false);
+                $("#rate").val(parseFloat(0).toFixed(5));
+                $("#rate_h").val(parseFloat(0).toFixed(5));
+                $("#currency_hid").val('');
+                $("#rate").prop("readonly", false);
+            }
+        });
+    })
+    $('#auto_num').click(function() {
+        var date_trns = $('#cdate').val();
+        var dt = new Date(date_trns);
+        var dtm = dt.getMonth() + 1;
+        if (dtm == 0) {
+            dtm = 12
+        }
+        var ntm = parseInt(document.getElementById("doc_no").value.substr(0, 2));
+        if (dtm != ntm) {
+            $.ajax({
+                url: "<?= base_url("account/auto_num_Transaction") ?>",
+                type: "POST",
+                data: {
+                    'cdate': date_trns,
+                    'transaction': 'Cash In'
+                },
+                success: function(data) {
+                    //var data = JSON.parse(data);
+                    // console.log(data);
+                    document.getElementById("doc_no").value = data;
+                }
+            });
+        }
     })
 </script>

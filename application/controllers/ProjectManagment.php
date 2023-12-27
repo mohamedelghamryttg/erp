@@ -139,6 +139,14 @@ class ProjectManagment extends CI_Controller
                 $date_to = "";
                 $date_from = "";
             }
+            if (isset($params['pono'])) {
+                $pono = $params['pono'];
+                if (!empty($pono)) {
+                    array_push($arr2, 7);
+                }
+            } else {
+                $pono = "";
+            }
         } else {
             $date_from = "";
             $date_to = "";
@@ -148,6 +156,7 @@ class ProjectManagment extends CI_Controller
             $customer = "";
             $product_line = "";
             $created_by = "";
+            $pono = "";
         }
 
         if ($status == 2) {
@@ -162,16 +171,17 @@ class ProjectManagment extends CI_Controller
         $cond3 = "customer = '$customer'";
         $cond4 = "product_line = '$product_line'";
         $cond6 = "created_by = '$created_by'";
+        $cond7 = "po = '$pono'";
 
 
         $cond5 = $having;
 
-        $cond7 = "( created_at BETWEEN '$date_from' AND '$date_to') ";
+        $cond8 = "( created_at BETWEEN '$date_from' AND '$date_to') ";
         if ($data['permission']->view == 1) {
-            $arr1 = array($cond0, $cond1, $cond2, $cond3, $cond4, $cond5, $cond6, $cond7);
-        } elseif ($data['permission']->view == 2) {
-            $cond8 = " created_by = '$this->user'";
             $arr1 = array($cond0, $cond1, $cond2, $cond3, $cond4, $cond5, $cond6, $cond7, $cond8);
+        } elseif ($data['permission']->view == 2) {
+            $cond9 = " created_by = '$this->user'";
+            $arr1 = array($cond0, $cond1, $cond2, $cond3, $cond4, $cond5, $cond6, $cond7, $cond8, $cond9);
         }
         $arr_1_cnt = count($arr2);
 
@@ -183,7 +193,8 @@ class ProjectManagment extends CI_Controller
         // var_dump($arr1[5]);
         $data['projects'] = $this->projects_model->findall($arr4, $screen_type)->result();
 
-        echo json_encode($data);
+        echo base64_encode(json_encode($data));
+        // echo json_encode($data);
     }
 
     public function checkCloseProject()

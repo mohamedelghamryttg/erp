@@ -453,24 +453,11 @@ class Customer extends CI_Controller
             $data['alias'] = $_POST['alias'];
             $data['payment'] = $_POST['payment'];
             $data['client_type'] = $_POST['client_type'] ?? Null;
-            $data['notes'] = $_POST['notes'] ?? Null;
+
             $referer = $_POST['referer'];
             if ($oldWebsite == $data['website']) {
                 $this->admin_model->addToLoggerUpdate('customer', 12, 'id', $id, 0, 0, $this->user);
-                if ($_FILES['customer_profile']['size'] != 0) {
-                    $config['file']['upload_path'] = './assets/uploads/customer_profiles/';
-                    $config['file']['encrypt_name'] = TRUE;
-                    $config['file']['allowed_types'] = 'zip|rar';
-                    $config['file']['max_size'] = 5000000;
-                    $this->load->library('upload', $config['file'], 'file_upload');
-                    if (!$this->file_upload->do_upload('customer_profile')) {
-                        $error = $this->file_upload->display_errors();
-                        $this->session->set_flashdata('error', $error);
-                    } else {
-                        $data_file = $this->file_upload->data();
-                        $data['customer_profile'] = $data_file['file_name'];
-                    }
-                }
+
                 if ($this->db->update('customer', $data, array('id' => $id))) {
                     $this->customer_model->addLastUpdated('customer', $id);
                     $true = "Customer Edited Successfully ...";
@@ -2904,10 +2891,13 @@ background-color: #FFFFCC;
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 156);
             //body ..
+            $data['role'] = $this->role;
             $data['id'] = base64_decode($_GET['t']);
             $data['user'] = $this->user;
             $data['customer'] = $this->db->get_where('customer', array('id' => $data['id']))->row();
             $data['contacts'] = $this->customer_model->customerPortal($data['permission'], $this->user, $data['id']);
+
+            // var_dump($data['contacts']->result());
             //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('customer_new/customerPortal.php');
@@ -2927,6 +2917,7 @@ background-color: #FFFFCC;
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 156);
             //body ..
             $data['id'] = base64_decode($_GET['t']);
+            $data['role'] = $this->role;
             //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('customer_new/addCustomerPortal.php');
@@ -2943,21 +2934,41 @@ background-color: #FFFFCC;
         if ($check) {
             $data['customer'] = base64_decode($_GET['t']);
             $data['link'] = $_POST['link'];
+
             $data['username'] = $_POST['username'];
             $data['password'] = $_POST['password'];
             $data['portal'] = $_POST['portal'];
             $data['additional_info'] = $_POST['additional_info'];
             $data['created_by'] = $this->user;
             $data['created_at'] = date("Y-m-d H:i:s");
-
+            $data['notes'] = $_POST['notes'] ?? Null;
+            if ($_FILES['customer_profile']['size'] != 0) {
+                if (!is_dir('./assets/uploads/customer_profiles/')) {
+                    mkdir('./assets/uploads/customer_profiles/', 0777, TRUE);
+                }
+                $config['file']['upload_path'] = './assets/uploads/customer_profiles/';
+                $config['file']['encrypt_name'] = TRUE;
+                $config['file']['allowed_types'] = 'zip|rar';
+                $config['file']['max_size'] = 5000000;
+                $this->load->library('upload', $config['file'], 'file_upload');
+                if (!$this->file_upload->do_upload('customer_profile')) {
+                    $error = $this->file_upload->display_errors();
+                    $this->session->set_flashdata('error', $error);
+                    echo "error";
+                    return;
+                } else {
+                    $data_file = $this->file_upload->data();
+                    $data['customer_profile'] = $data_file['file_name'];
+                }
+            }
             if ($this->db->insert('customer_portal', $data)) {
                 $true = "Customer Portal Added Successfully ...";
                 $this->session->set_flashdata('true', $true);
-                redirect(base_url() . "customer/customerPortal?t=" . $_GET['t']);
+                echo "success";
             } else {
                 $error = "Failed To Add Customer Portal ...";
                 $this->session->set_flashdata('error', $error);
-                redirect(base_url() . "customer/customerPortal?t=" . $_GET['t']);
+                echo "error";
             }
         } else {
             echo "You have no permission to access this page";
@@ -2975,6 +2986,7 @@ background-color: #FFFFCC;
             //body ..
             $data['id'] = base64_decode($_GET['t']);
             $data['contact'] = $this->db->get_where('customer_portal', array('id' => $data['id']))->row();
+            $data['role'] = $this->role;
             //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('customer_new/editCustomerPortal.php');
@@ -2989,23 +3001,55 @@ background-color: #FFFFCC;
         // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 156);
         if ($check) {
-            $id = base64_decode($_GET['t']);
+            $id = base64_decode($_POST['id']);
+
             $data['link'] = $_POST['link'];
             $data['username'] = $_POST['username'];
             $data['password'] = $_POST['password'];
             $data['portal'] = $_POST['portal'];
             $data['additional_info'] = $_POST['additional_info'];
-            $customer = $_POST['customer'];
+            $data['notes'] = $_POST['notes'] ?? Null;
+            // $customer = $_POST['customer'];
+            $fileToatt = $_POST['fileToDelete'];
+
             $this->admin_model->addToLoggerUpdate('customer_portal', 156, 'id', $id, 0, 0, $this->user);
+            if ($_FILES['customer_profile']['size'] != 0) {
+                if ($_FILES['customer_profile']['name'] != $fileToatt) {
+
+                    if (!is_dir('./assets/uploads/customer_profiles/')) {
+                        mkdir('./assets/uploads/customer_profiles/', 0777, TRUE);
+                    }
+                    $config['file']['upload_path'] = './assets/uploads/customer_profiles/';
+                    $config['file']['encrypt_name'] = TRUE;
+                    $config['file']['allowed_types'] = 'zip|rar';
+                    $config['file']['max_size'] = 5000000;
+                    $this->load->library('upload', $config['file'], 'file_upload');
+                    if (!$this->file_upload->do_upload('customer_profile')) {
+                        $error = $this->file_upload->display_errors();
+                        $this->session->set_flashdata('error', $error);
+                        echo "error";
+                        return;
+                    } else {
+                        $data_file = $this->file_upload->data();
+                        $data['customer_profile'] = $data_file['file_name'];
+                    }
+                }
+            }
             if ($this->db->update('customer_portal', $data, array('id' => $id))) {
-                $this->customer_model->addLastUpdated('customer_portal', $id);
-                $true = "Customer Portal Edited Successfully ...";
-                $this->session->set_flashdata('true', $true);
-                redirect(base_url() . "customer/customerPortal?t=" . base64_encode($customer));
+                if ($this->db->affected_rows() >= 0) {
+                    $this->customer_model->addLastUpdated('customer_portal', $id);
+                    $true = "Customer Portal Added Successfully ...";
+                    $this->session->set_flashdata('true', $true);
+                    echo "success";
+                } else {
+                    $error = "Failed To Add Customer Portal ...";
+                    $this->session->set_flashdata('error', $error);
+                    echo "error";
+                }
             } else {
-                $error = "Failed To Edit Customer Portal ...";
+                $error = "Failed To Add Customer Portal ...";
                 $this->session->set_flashdata('error', $error);
-                redirect(base_url() . "customer/customerPortal?t=" . base64_encode($customer));
+                echo "error";
             }
         } else {
             echo "You have no permission to access this page";
@@ -3037,8 +3081,6 @@ background-color: #FFFFCC;
     {
         $file_type = "vnd.ms-excel";
         $file_ending = "xls";
-        // $file_type = "msword";
-        // $file_ending = "doc";
         header("Content-Type: application/$file_type");
         header("Content-Disposition: attachment; filename=CustomerEmail.$file_ending");
         header("Pragma: no-cache");
@@ -3191,7 +3233,7 @@ background-color: #FFFFCC;
             $data['name'] = $_POST['name'];
             $data['website'] = $_POST['website'];
             $data['client_type'] = $_POST['client_type'];
-            $data['notes'] = $_POST['notes'];
+
             $data['status'] = '1';
             $data['brand'] = $this->brand;
             $data['created_by'] = $this->user;
@@ -3203,20 +3245,7 @@ background-color: #FFFFCC;
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "customer");
             } else {
-                if ($_FILES['customer_profile']['size'] != 0) {
-                    $config['file']['upload_path'] = './assets/uploads/customer_profiles/';
-                    $config['file']['encrypt_name'] = TRUE;
-                    $config['file']['allowed_types'] = 'zip|rar';
-                    $config['file']['max_size'] = 5000000;
-                    $this->load->library('upload', $config['file'], 'file_upload');
-                    if (!$this->file_upload->do_upload('customer_profile')) {
-                        $error = $this->file_upload->display_errors();
-                        $this->session->set_flashdata('error', $error);
-                    } else {
-                        $data_file = $this->file_upload->data();
-                        $data['customer_profile'] = $data_file['file_name'];
-                    }
-                }
+
 
                 if ($this->db->insert('customer', $data)) {
                     // after add customer add lead 
@@ -3529,6 +3558,25 @@ background-color: #FFFFCC;
             }
         } else {
             echo "You have no permission to access this page";
+        }
+    }
+    function fileToDelete()
+    {
+        $id = base64_decode($_POST['id']);
+        $file_name = './assets/uploads/customer_profiles/' . $_POST['file_toDelete'];
+        $data['customer_profile'] = "";
+        if ($this->db->update('customer_portal', $data, array('id' => $id))) {
+            if (unlink($file_name)) {
+                $this->customer_model->addLastUpdated('customer_portal', $id);
+                echo "success";
+                return;
+            } else {
+                echo "error";
+                return;
+            }
+        } else {
+            echo "error";
+            return;
         }
     }
 }
