@@ -3012,7 +3012,7 @@ background-color: #FFFFCC;
             $data['password'] = $_POST['password'];
             $data['portal'] = $_POST['portal'];
             $data['additional_info'] = $_POST['additional_info'];
-            $data['notes'] = $_POST['notes'] ?? Null;
+            $data['notes'] = $_POST['notes'] ?? '';
             // $customer = $_POST['customer'];
             $fileToatt = $_POST['fileToDelete'];
             if (!($data['link'] == '' && $data['username'] == '' && $data['password'] == '' && $data['portal'] == '' && $data['additional_info'] == '' && $data['notes'] == '' && $_FILES['customer_profile']['size'] == 0)) {
