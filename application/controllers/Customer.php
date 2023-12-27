@@ -2941,7 +2941,6 @@ background-color: #FFFFCC;
             $data['additional_info'] = $_POST['additional_info'];
             $data['created_by'] = $this->user;
             $data['created_at'] = date("Y-m-d H:i:s");
-                $this->load->library('upload', $config['file'], 'file_upload');
             $data['notes'] = $_POST['notes'] ?? '';
             if (!($data['link'] == '' && $data['username'] == '' && $data['password'] == '' && $data['portal'] == '' && $data['additional_info'] == '' && $data['notes'] == '' && $_FILES['customer_profile']['size'] == 0)) {
                 if ($_FILES['customer_profile']['size'] != 0) {
