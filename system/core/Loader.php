@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CodeIgniter
  *
@@ -48,6 +49,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
  * @author		EllisLab Dev Team
  * @link		https://codeigniter.com/user_guide/libraries/loader.html
  */
+#[\AllowDynamicProperties]
 class CI_Loader extends \stdClass
 {
 
@@ -137,7 +139,7 @@ class CI_Loader extends \stdClass
 	public function __construct()
 	{
 		$this->_ci_ob_level = ob_get_level();
-		$this->_ci_classes =& is_loaded();
+		$this->_ci_classes = &is_loaded();
 
 		log_message('info', 'Loader Class Initialized');
 	}
@@ -255,7 +257,7 @@ class CI_Loader extends \stdClass
 			return $this;
 		}
 
-		$CI =& get_instance();
+		$CI = &get_instance();
 		if (isset($CI->$name)) {
 			throw new RuntimeException('The model name you are loading is the name of a resource that is already being used: ' . $name);
 		}
@@ -339,7 +341,7 @@ class CI_Loader extends \stdClass
 	public function database($params = '', $return = FALSE, $query_builder = NULL)
 	{
 		// Grab the super object
-		$CI =& get_instance();
+		$CI = &get_instance();
 
 		// Do we even need to load the database class?
 		if ($return === FALSE && $query_builder === NULL && isset($CI->db) && is_object($CI->db) && !empty($CI->db->conn_id)) {
@@ -357,7 +359,7 @@ class CI_Loader extends \stdClass
 		$CI->db = '';
 
 		// Load the DB class
-		$CI->db =& DB($params, $query_builder);
+		$CI->db = &DB($params, $query_builder);
 		return $this;
 	}
 
@@ -372,11 +374,11 @@ class CI_Loader extends \stdClass
 	 */
 	public function dbutil($db = NULL, $return = FALSE)
 	{
-		$CI =& get_instance();
+		$CI = &get_instance();
 
 		if (!is_object($db) or !($db instanceof CI_DB)) {
 			class_exists('CI_DB', FALSE) or $this->database();
-			$db =& $CI->db;
+			$db = &$CI->db;
 		}
 
 		require_once(BASEPATH . 'database/DB_utility.php');
@@ -402,10 +404,10 @@ class CI_Loader extends \stdClass
 	 */
 	public function dbforge($db = NULL, $return = FALSE)
 	{
-		$CI =& get_instance();
+		$CI = &get_instance();
 		if (!is_object($db) or !($db instanceof CI_DB)) {
 			class_exists('CI_DB', FALSE) or $this->database();
-			$db =& $CI->db;
+			$db = &$CI->db;
 		}
 
 		require_once(BASEPATH . 'database/DB_forge.php');
@@ -719,7 +721,7 @@ class CI_Loader extends \stdClass
 		$this->_ci_view_paths = array($path . 'views/' => $view_cascade) + $this->_ci_view_paths;
 
 		// Add config file path
-		$config =& $this->_ci_get_component('config');
+		$config = &$this->_ci_get_component('config');
 		$config->_config_paths[] = $path;
 
 		return $this;
@@ -754,7 +756,7 @@ class CI_Loader extends \stdClass
 	 */
 	public function remove_package_path($path = '')
 	{
-		$config =& $this->_ci_get_component('config');
+		$config = &$this->_ci_get_component('config');
 
 		if ($path === '') {
 			array_shift($this->_ci_library_paths);
@@ -840,10 +842,10 @@ class CI_Loader extends \stdClass
 
 		// This allows anything loaded using $this->load (views, files, etc.)
 		// to become accessible from within the Controller and Model functions.
-		$_ci_CI =& get_instance();
+		$_ci_CI = &get_instance();
 		foreach (get_object_vars($_ci_CI) as $_ci_key => $_ci_var) {
 			if (!isset($this->$_ci_key)) {
-				$this->$_ci_key =& $_ci_CI->$_ci_key;
+				$this->$_ci_key = &$_ci_CI->$_ci_key;
 			}
 		}
 
@@ -970,7 +972,7 @@ class CI_Loader extends \stdClass
 				// if a custom object name is being supplied. If so, we'll
 				// return a new instance of the object
 				if ($object_name !== NULL) {
-					$CI =& get_instance();
+					$CI = &get_instance();
 					if (!isset($CI->$object_name)) {
 						return $this->_ci_init_library($class, '', $params, $object_name);
 					}
@@ -1025,7 +1027,7 @@ class CI_Loader extends \stdClass
 			// if a custom object name is being supplied. If so, we'll
 			// return a new instance of the object
 			if ($object_name !== NULL) {
-				$CI =& get_instance();
+				$CI = &get_instance();
 				if (!isset($CI->$object_name)) {
 					return $this->_ci_init_library($library_name, $prefix, $params, $object_name);
 				}
@@ -1144,7 +1146,7 @@ class CI_Loader extends \stdClass
 		}
 
 		// Don't overwrite existing properties
-		$CI =& get_instance();
+		$CI = &get_instance();
 		if (isset($CI->$object_name)) {
 			if ($CI->$object_name instanceof $class_name) {
 				log_message('debug', $class_name . " has already been instantiated as '" . $object_name . "'. Second attempt aborted.");
@@ -1259,7 +1261,7 @@ class CI_Loader extends \stdClass
 	 */
 	protected function &_ci_get_component($component)
 	{
-		$CI =& get_instance();
+		$CI = &get_instance();
 		return $CI->$component;
 	}
 
@@ -1287,5 +1289,4 @@ class CI_Loader extends \stdClass
 			return $filename;
 		}
 	}
-
 }
