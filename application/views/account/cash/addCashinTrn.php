@@ -33,14 +33,14 @@
 
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">Document Date</label>
-                    <div class="col-lg-6">
+                    <div class="col-lg-2">
                         <div id="target" style="position:relative" data-target-input="nearest">
-                            <input type="text" class="form-control datetimepicker-input" id="cdate" name="cdate" data-toggle="datetimepicker" data-target="#Datetimepicker" autocomplete="off" style="width: 200px;" />
+                            <input type="text" class="form-control datetimepicker-input" id="cdate" name="cdate" data-toggle="datetimepicker" data-target="#Datetimepicker" autocomplete="off" />
                         </div>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-lg-3 col-form-label text-right">Document Internal Number</label>
+                    <!-- </div>
+                <div class="form-group row"> -->
+                    <label class="col-lg-2 col-form-label text-right">Document Number</label>
                     <div class="col-lg-2">
                         <input type="text" class="form-control" name="doc_no" id="doc_no">
                     </div>
@@ -94,7 +94,18 @@
                         <input type="number" class="form-control" name="rate" id="rate" required step="any" placeholder="0.00000" pattern="^\d*(\.\d{0,5})?$" onkeypress='return (event.charCode == 46 || event.charCode >= 48 && event.charCode <= 57)'>
                     </div>
                 </div>
-
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label text-right">File Attach</label>
+                    <div class="col-lg-3">
+                        <input type="number" class="form-control" name="rate" id="rate">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label text-right">File Description</label>
+                    <div class="col-lg-3">
+                        <textarea class="form-control" name="desc_file" id="desc_file" rows="1" cols="40"></textarea>
+                    </div>
+                </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">Document Description</label>
                     <div class="col-lg-6">

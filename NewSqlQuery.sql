@@ -105,18 +105,24 @@ ALTER TABLE `bankin` MODIFY `trn_code` varchar(20);
 ALTER TABLE `bankout` MODIFY `trn_code` varchar(20);
 
 
-ALTER TABLE `cashin` ADD `doc_file` text  TEXT NULL AFTER `rem`;
-ALTER TABLE `cashin` ADD `desc_file` text  TEXT NULL AFTER `doc_file`;
+ALTER TABLE `cashin` ADD `doc_file`   TEXT NULL AFTER `rem`;
+ALTER TABLE `cashin` ADD `desc_file`   TEXT NULL AFTER `doc_file`;
 
-ALTER TABLE `cashout` ADD `doc_file` text  TEXT NULL AFTER `rem`;
-ALTER TABLE `cashout` ADD `desc_file` text  TEXT NULL AFTER `doc_file`;
+ALTER TABLE `cashout` ADD `doc_file`   TEXT NULL AFTER `rem`;
+ALTER TABLE `cashout` ADD `desc_file`   TEXT NULL AFTER `doc_file`;
 
-ALTER TABLE `bankin` ADD `doc_file` text  TEXT NULL AFTER `rem`;
-ALTER TABLE `bankin` ADD `desc_file` text  TEXT NULL AFTER `doc_file`;
+ALTER TABLE `bankin` ADD `doc_file`   TEXT NULL AFTER `rem`;
+ALTER TABLE `bankin` ADD `desc_file`   TEXT NULL AFTER `doc_file`;
 
-ALTER TABLE `bankout` ADD `doc_file` text  TEXT NULL AFTER `rem`;
-ALTER TABLE `bankout` ADD `desc_file` text  TEXT NULL AFTER `doc_file`;
+ALTER TABLE `bankout` ADD `doc_file`   TEXT NULL AFTER `rem`;
+ALTER TABLE `bankout` ADD `desc_file`   TEXT NULL AFTER `doc_file`;
 
-ALTER TABLE `manual_master` ADD `doc_file` text  TEXT NULL AFTER `rem`;
-ALTER TABLE `manual_master` ADD `desc_file` text  TEXT NULL AFTER `doc_file`;
+ALTER TABLE `manual_master` ADD `doc_file`   TEXT NULL AFTER `rem`;
+ALTER TABLE `manual_master` ADD `desc_file`   TEXT NULL AFTER `doc_file`;
 
+
+ALTER TABLE `customer_portal` MODIFY COLUMN `portal` varchar(300) NULL;
+ALTER TABLE `customer_portal` MODIFY COLUMN `link` varchar(300)  NULL;
+ALTER TABLE `customer_portal` MODIFY COLUMN `username` varchar(300) NULL;
+ALTER TABLE `customer_portal` MODIFY COLUMN `password` varchar(300) NULL;
+ALTER TABLE `customer_portal` MODIFY COLUMN `additional_info` longtext  NULL;

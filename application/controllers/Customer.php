@@ -2941,34 +2941,39 @@ background-color: #FFFFCC;
             $data['additional_info'] = $_POST['additional_info'];
             $data['created_by'] = $this->user;
             $data['created_at'] = date("Y-m-d H:i:s");
-            $data['notes'] = $_POST['notes'] ?? Null;
-            if ($_FILES['customer_profile']['size'] != 0) {
-                if (!is_dir('./assets/uploads/customer_profiles/')) {
-                    mkdir('./assets/uploads/customer_profiles/', 0777, TRUE);
-                }
-                $config['file']['upload_path'] = './assets/uploads/customer_profiles/';
-                $config['file']['encrypt_name'] = TRUE;
-                $config['file']['allowed_types'] = 'zip|rar';
-                $config['file']['max_size'] = 5000000;
                 $this->load->library('upload', $config['file'], 'file_upload');
-                if (!$this->file_upload->do_upload('customer_profile')) {
-                    $error = $this->file_upload->display_errors();
+            $data['notes'] = $_POST['notes'] ?? '';
+            if (!($data['link'] == '' && $data['username'] == '' && $data['password'] == '' && $data['portal'] == '' && $data['additional_info'] == '' && $data['notes'] == '' && $_FILES['customer_profile']['size'] == 0)) {
+                if ($_FILES['customer_profile']['size'] != 0) {
+                    if (!is_dir('./assets/uploads/customer_profiles/')) {
+                        mkdir('./assets/uploads/customer_profiles/', 0777, TRUE);
+                    }
+                    $config['file']['upload_path'] = './assets/uploads/customer_profiles/';
+                    $config['file']['encrypt_name'] = TRUE;
+                    $config['file']['allowed_types'] = 'zip|rar';
+                    $config['file']['max_size'] = 5000000;
+                    $this->load->library('upload', $config['file'], 'file_upload');
+                    if (!$this->file_upload->do_upload('customer_profile')) {
+                        $error = $this->file_upload->display_errors();
+                        $this->session->set_flashdata('error', $error);
+                        echo "error";
+                        return;
+                    } else {
+                        $data_file = $this->file_upload->data();
+                        $data['customer_profile'] = $data_file['file_name'];
+                    }
+                }
+                if ($this->db->insert('customer_portal', $data)) {
+                    $true = "Customer Portal Added Successfully ...";
+                    $this->session->set_flashdata('true', $true);
+                    echo "success";
+                } else {
+                    $error = "Failed To Add Customer Portal ...";
                     $this->session->set_flashdata('error', $error);
                     echo "error";
-                    return;
-                } else {
-                    $data_file = $this->file_upload->data();
-                    $data['customer_profile'] = $data_file['file_name'];
                 }
-            }
-            if ($this->db->insert('customer_portal', $data)) {
-                $true = "Customer Portal Added Successfully ...";
-                $this->session->set_flashdata('true', $true);
-                echo "success";
             } else {
-                $error = "Failed To Add Customer Portal ...";
-                $this->session->set_flashdata('error', $error);
-                echo "error";
+                echo "success";
             }
         } else {
             echo "You have no permission to access this page";
@@ -3011,45 +3016,51 @@ background-color: #FFFFCC;
             $data['notes'] = $_POST['notes'] ?? Null;
             // $customer = $_POST['customer'];
             $fileToatt = $_POST['fileToDelete'];
+            if (!($data['link'] == '' && $data['username'] == '' && $data['password'] == '' && $data['portal'] == '' && $data['additional_info'] == '' && $data['notes'] == '' && $_FILES['customer_profile']['size'] == 0)) {
 
-            $this->admin_model->addToLoggerUpdate('customer_portal', 156, 'id', $id, 0, 0, $this->user);
-            if ($_FILES['customer_profile']['size'] != 0) {
-                if ($_FILES['customer_profile']['name'] != $fileToatt) {
+                $this->admin_model->addToLoggerUpdate('customer_portal', 156, 'id', $id, 0, 0, $this->user);
+                if ($_FILES['customer_profile']['size'] != 0) {
+                    if ($_FILES['customer_profile']['name'] != $fileToatt) {
 
-                    if (!is_dir('./assets/uploads/customer_profiles/')) {
-                        mkdir('./assets/uploads/customer_profiles/', 0777, TRUE);
-                    }
-                    $config['file']['upload_path'] = './assets/uploads/customer_profiles/';
-                    $config['file']['encrypt_name'] = TRUE;
-                    $config['file']['allowed_types'] = 'zip|rar';
-                    $config['file']['max_size'] = 5000000;
-                    $this->load->library('upload', $config['file'], 'file_upload');
-                    if (!$this->file_upload->do_upload('customer_profile')) {
-                        $error = $this->file_upload->display_errors();
-                        $this->session->set_flashdata('error', $error);
-                        echo "error";
-                        return;
-                    } else {
-                        $data_file = $this->file_upload->data();
-                        $data['customer_profile'] = $data_file['file_name'];
+                        if (!is_dir('./assets/uploads/customer_profiles/')) {
+                            mkdir('./assets/uploads/customer_profiles/', 0777, TRUE);
+                        }
+                        $config['file']['upload_path'] = './assets/uploads/customer_profiles/';
+                        $config['file']['encrypt_name'] = TRUE;
+                        $config['file']['allowed_types'] = 'zip|rar';
+                        $config['file']['max_size'] = 5000000;
+                        $this->load->library('upload', $config['file'], 'file_upload');
+                        if (!$this->file_upload->do_upload('customer_profile')) {
+                            $error = $this->file_upload->display_errors();
+                            $this->session->set_flashdata('error', $error);
+                            echo "error";
+                            return;
+                        } else {
+                            $data_file = $this->file_upload->data();
+                            $data['customer_profile'] = $data_file['file_name'];
+                        }
                     }
                 }
-            }
-            if ($this->db->update('customer_portal', $data, array('id' => $id))) {
-                if ($this->db->affected_rows() >= 0) {
-                    $this->customer_model->addLastUpdated('customer_portal', $id);
-                    $true = "Customer Portal Added Successfully ...";
-                    $this->session->set_flashdata('true', $true);
-                    echo "success";
+                if ($this->db->update('customer_portal', $data, array('id' => $id))) {
+                    if ($this->db->affected_rows() >= 0) {
+                        $this->customer_model->addLastUpdated('customer_portal', $id);
+                        $true = "Customer Portal Added Successfully ...";
+                        $this->session->set_flashdata('true', $true);
+                        echo "success";
+                    } else {
+                        $error = "Failed To Add Customer Portal ...";
+                        $this->session->set_flashdata('error', $error);
+                        echo "error";
+                    }
                 } else {
                     $error = "Failed To Add Customer Portal ...";
                     $this->session->set_flashdata('error', $error);
                     echo "error";
                 }
             } else {
-                $error = "Failed To Add Customer Portal ...";
-                $this->session->set_flashdata('error', $error);
-                echo "error";
+                $this->admin_model->addToLoggerDelete('customer_portal', 156, 'id', $id, 0, $id, $this->user);
+                $this->db->delete('customer_portal', array('id' => $id));
+                echo "success";
             }
         } else {
             echo "You have no permission to access this page";

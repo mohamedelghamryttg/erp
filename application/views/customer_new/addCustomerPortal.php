@@ -20,7 +20,7 @@
 					<div class="form-group row">
 						<label class="col-lg-3 col-form-label text-right">Link</label>
 						<div class="col-lg-6">
-							<input type="text" class=" form-control" name="link" data-maxlength="300" id="link" required>
+							<input type="text" class=" form-control" name="link" data-maxlength="300" id="link">
 
 						</div>
 					</div>
@@ -34,14 +34,14 @@
 					<div class="form-group row">
 						<label class="col-lg-3 col-form-label text-right">User Name</label>
 						<div class="col-lg-6">
-							<input type="text" class=" form-control" name="username" data-maxlength="300" id="username" required>
+							<input type="text" class=" form-control" name="username" data-maxlength="300" id="username">
 
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-lg-3 col-form-label text-right">Password</label>
 						<div class="col-lg-6">
-							<input type="text" class=" form-control" name="password" data-maxlength="300" id="password" required>
+							<input type="text" class=" form-control" name="password" data-maxlength="300" id="password">
 
 						</div>
 					</div>
