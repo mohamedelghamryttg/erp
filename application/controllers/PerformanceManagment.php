@@ -557,7 +557,17 @@ class PerformanceManagment extends CI_Controller
             $score['year'] = $_POST['year'];
             $score['month'] = $_POST['month'];
             $score['created_at'] = date("Y-m-d H:i:s");
-            $score['created_by'] = $this->user;
+            $score['created_by'] = $this->user;            
+            // check if has Teamleader 
+            $manager_id = $this->hr_model->getManagerId($this->emp_id);
+                if($manager_id == 13 || $manager_id == 14){
+                    $approval = $score['manager_approval'] = 1;
+                    $score['approved_by'] =  $this->user;                   
+                    $score['approved_at'] = date("Y-m-d H:i:s");  
+                }else{
+                    $approval = $score['manager_approval'] = 0;
+                    $score['status'] = 4;
+                }
             $this->db->insert('kpi_score', $score);
             $kpi_score_id = $this->db->insert_id();
             foreach ($core_headers as $key => $value) {
@@ -576,7 +586,10 @@ class PerformanceManagment extends CI_Controller
                 }
             }
             if ($this->db->insert_batch('kpi_score_data', $sqlArray)) {
-                $this->hr_model->sendKpiEmail($this->user, $_POST['employee_name'], $_POST['month'], "new");
+                if($approval == 1)
+                    $this->hr_model->sendKpiApproveEmail($kpi_score_id);
+                else
+                    $this->hr_model->sendKpiEmail($kpi_score_id, "new");
                 $true = "Records Added Successfully ...";
                 $this->session->set_flashdata('true', $true);
                 redirect(base_url() . "performanceManagment/kpiScore");
@@ -894,9 +907,9 @@ class PerformanceManagment extends CI_Controller
 
                     $this->db->update('kpi_score_data', $data_score, array('kpi_score_id' => $score_id, 'kpi_sub_id' => $val->id));
                 }
-            }
-
-            $this->hr_model->sendKpiEmail($this->user, $score->emp_id, $score->month, "update");
+            }         
+                
+          //  $this->hr_model->sendKpiEmail($score_id, "update");
             $true = "Records Updated Successfully ...";
             $this->session->set_flashdata('true', $true);
             redirect(base_url() . "performanceManagment/kpiScore");
@@ -914,20 +927,45 @@ class PerformanceManagment extends CI_Controller
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             //body ..
             $data['emp_id'] = $this->emp_id;
-
-            if (isset($_GET['accept'])) {
-                $data_action['status'] = 3;
-            } elseif (isset($_GET['reject'])) {
-                $data_action['status'] = 2;
-            } else {
-                $data_action['status'] = 1;
+            $approval = 0;
+            $score = $this->db->get_where('kpi_score', array('id' => $_POST['score']))->row();
+            if (isset($_POST['accept'])) {
+                if(($score->status == 1 || $score->status == 5 ) && $score->emp_id == $this->emp_id){
+                    $data_action['status'] = 3;
+                }else{
+                    echo "You have no permission to access this page";
+                }
+            } elseif (isset($_POST['reject'])) {
+                if(($score->status == 1 || $score->status == 5 )&& $score->emp_id == $this->emp_id){
+                    $data_action['status'] = 2;      
+                }else{
+                    echo "You have no permission to access this page";
+                }           
+            } elseif (isset($_POST['meeting'])) {
+                if($score->status == 1 && $score->emp_id == $this->emp_id){
+                    $data_action['status'] = 5;      
+                }else{
+                    echo "You have no permission to access this page";
+                }
+            } elseif (isset($_POST['approve'])) {
+                if($score->status == 4 && $score->manager_approval == 0 && $this->hr_model->getManagerId($this->hr_model->getUserEmp($score->created_by)) == $this->emp_id){
+                    $data_action['status'] = 1;
+                    $approval = $data_action['manager_approval'] = 1;   
+                    $data_action['approved_by'] =  $this->user;                   
+                    $data_action['approved_at'] = date("Y-m-d H:i:s");   
+                }else {
+                    echo "You have no permission to access this page";
+                }
             }
-
-            $this->db->update('kpi_score', $data_action, array('id' => $_GET['score']));
-
-            $score = $this->db->get_where('kpi_score', array('id' => $_GET['score']))->row();
-            $this->hr_model->sendKpiEmail($score->created_by, $score->emp_id, $score->month, $this->hr_model->getScoreStatus($_GET['score']));
-
+            $this->admin_model->addToLoggerUpdate('kpi_score', 193, 'id', $_POST['score'], 0, 0, $this->user);
+            $this->db->update('kpi_score', $data_action, array('id' => $_POST['score']));
+            if($approval == 0){
+                $this->hr_model->sendKpiEmail($score->id, $this->hr_model->getScoreStatus($_GET['score']));
+            }else{
+                $this->hr_model->sendKpiEmail($score->id, "new");
+            }
+            $true = "Records Updated Successfully ...";
+            $this->session->set_flashdata('true', $true);
             redirect(base_url() . "performanceManagment/kpiScore");
         } else {
             echo "You have no permission to access this page";
@@ -955,8 +993,7 @@ class PerformanceManagment extends CI_Controller
             }
             if ($this->db->insert_batch('kpi_actions', $sqlArray)) {
                 $data['status'] = 1;
-                $this->db->update('kpi_score', $data, array('id' => $kpi_score_id));
-                //    $this->hr_model->sendKpiEmail($_POST['employee_name'], $_POST['month'], "new");
+                $this->db->update('kpi_score', $data, array('id' => $kpi_score_id));               
                 $true = "Records Added Successfully ...";
                 $this->session->set_flashdata('true', $true);
                 redirect(base_url() . "performanceManagment/kpiScore");

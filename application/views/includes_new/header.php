@@ -182,7 +182,16 @@ License: You must have a valid license purchased only from themeforest(the above
 													</span>
 										<?php }
 											}
-										} ?>
+										} 
+										if ($this->admin_model->checkIfUserIsManager($this->user) && $group1->groups == 15) {
+												if ($this->hr_model->numOfVacationToManager() > 0 || $this->hr_model->numOfmissingToManager() > 0) {?>
+													<span class="menu-label">
+														<span class="label pulse pulse-danger bg-transparent">
+															<span class="position-relative"><i class="flaticon2-information text-danger"></i></span>
+															<span class="pulse-ring"></span>
+														</span>
+													</span>
+										<?php }} ?>
 										<i class="menu-arrow"></i>
 									</a>
 									<div class="menu-submenu">
@@ -215,6 +224,22 @@ License: You must have a valid license purchased only from themeforest(the above
 																	</span>
 														<?php }
 															}
+														} ?>
+														<?php if ($this->admin_model->checkIfUserIsManager($this->user) && $screen->id == 143) {
+																$numVac = $this->hr_model->numOfVacationToManager();
+																if ($numVac > 0) {   ?>
+																	<span class="menu-label">
+																		<span class="label label-rounded label-danger"><?= $numVac ?></span>
+																	</span>
+														<?php }															
+														} ?>
+														<?php if ($this->admin_model->checkIfUserIsManager($this->user) && $screen->id == 145) {
+																$numMiss = $this->hr_model->numOfmissingToManager();
+																if ($numMiss > 0) {   ?>
+																	<span class="menu-label">
+																		<span class="label label-rounded label-danger"><?= $numMiss ?></span>
+																	</span>
+														<?php }															
 														} ?>
 													</a>
 												</li>
