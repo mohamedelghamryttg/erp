@@ -1512,6 +1512,7 @@ class Account extends CI_Controller
         if ($check) {
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 221);
+            $data['audit_permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 239);
 
             $data['user'] = $this->user;
             $data['brand'] = $this->brand;
@@ -1663,12 +1664,14 @@ class Account extends CI_Controller
     {
         // Check Permission ..
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 221);
-        if ($data['permission']->edit == 1) {
+        $data['audit_permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 239);
+        if ($data['permission']->edit == 1 || $data['audit_permission']->edit == 1) {
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $setup = $this->AccountModel->getsetup();
 
             $id = base64_decode($_GET['t']);
             $data['cashin'] = $this->db->get_where('cashin', array('id' => $id, 'brand' => $this->brand))->row();
+
             $data['acc_setup'] = $setup;
             if ($setup->rev_acc_id != 0) {
                 $data['rev_id'] = $setup->rev_acc_id;
@@ -1682,8 +1685,9 @@ class Account extends CI_Controller
             $data['cash_acc_id'] = $account_select->id;
             $data['cash_acc'] = $account_select->acode;
             $data['cash_acc_name'] = $account_select->name;
-
             $data['brand'] = $this->brand;
+
+            // $file = $data['cashin']->doc_file;
 
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('account/cash/editCashinTrn');
@@ -1692,7 +1696,31 @@ class Account extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
+    public function doEditCashinTrn_audit()
+    {
+        $id = base64_decode($_POST['aud_id']);
+        $data['audit_chk'] = $this->input->post('audit_chk');
+        if ($data['audit_chk']) {
+            $data['audit_comment'] = $_POST['audit_comment'];
+            $data['audit_date'] =  date('Y-m-d H:i:s');
+            $data['audit_by'] = $this->user;
+        } else {
+            $data['audit_comment'] = '';
+            $data['audit_date']  = null;
+            $data['audit_by'] = '';
+        }
+        if ($this->db->update('cashin', $data, array('id' => $id))) {
+            $this->admin_model->addToLoggerUpdate('cashin', 239, 'id', $id, 0, 0, $this->user);
+            $true = "Audit Successfully ...";
+            $this->session->set_flashdata('true', $true);
 
+            echo json_encode(['records' => 0]);
+        } else {
+            $error = "Failed To Audit Cash In Entry ...";
+            $this->session->set_flashdata('error', $error);
+            echo json_encode(['records' => 1]);
+        }
+    }
     public function doEditCashinTrn()
     {
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 221);
@@ -1719,9 +1747,43 @@ class Account extends CI_Controller
             $data['currency_id'] = $_POST['currency_hid'];
             $data['rate'] = $_POST['rate_h'];
             $data['rem'] = $_POST['rem'];
+
+            $fileToatt = $_POST['fileToDelete'];
+            $data['desc_file'] = $_POST['desc_file'];
+
+            $data['name_file'] = $_POST['fileuploadspan'];
+            if ($data['name_file'] == '') {
+                if ($fileToatt != '') {
+                    unlink('./assets/uploads/account/cashin/' . $fileToatt);
+                }
+            }
+            if ($_FILES['doc_file']['size'] != 0) {
+                if ($fileToatt != '') {
+                    unlink('./assets/uploads/account/cashin/' . $fileToatt);
+                }
+                if (!is_dir('./assets/uploads/account/cashin/')) {
+                    mkdir('./assets/uploads/account/cashin/', 0777, TRUE);
+                }
+                $config['file']['upload_path'] = './assets/uploads/account/cashin/';
+                $config['file']['encrypt_name'] = TRUE;
+                $config['file']['allowed_types'] = 'zip|rar';
+                $config['file']['max_size'] = 5000000;
+                $this->load->library('upload', $config['file'], 'file_upload');
+                if (!$this->file_upload->do_upload('doc_file')) {
+                    $error = $this->file_upload->display_errors();
+                    $this->session->set_flashdata('error', $error);
+                } else {
+                    $data_file = $this->file_upload->data();
+                    $data['doc_file'] = $data_file['file_name'];
+                }
+            } else {
+                $data['doc_file'] = "";
+                $data['name_file'] = "";
+            }
+
+
             $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['cash_id']);
             $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
-
 
             $this->admin_model->addToLoggerUpdate('cashin', 221, 'id', $id, 0, 0, $this->user);
             if ($this->db->update('cashin', $data, array('id' => $id))) {
@@ -1793,6 +1855,7 @@ class Account extends CI_Controller
                         if ($this->db->insert('entry_data', $entry_data)) {
                             $true = "Cash In Edited Successfully ...";
                             $this->session->set_flashdata('true', $true);
+
                             echo json_encode(['records' => 0]);
                         }
                     } else {
@@ -1813,6 +1876,7 @@ class Account extends CI_Controller
     public function addCashinTrn()
     {
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 221);
+        $data['audit_permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 239);
         if ($data['permission']->add == 1) {
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $setup = $this->AccountModel->getsetup();
@@ -1879,7 +1943,33 @@ class Account extends CI_Controller
 
             $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['cash_id']);
             $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
+            if ($_FILES['doc_file']['size'] != 0) {
+                if (!is_dir('./assets/uploads/account/cashin/')) {
+                    mkdir('./assets/uploads/account/cashin/', 0777, TRUE);
+                }
+                $config['file']['upload_path'] = './assets/uploads/account/cashin/';
+                $config['file']['encrypt_name'] = TRUE;
+                $config['file']['allowed_types'] = 'zip|rar';
+                $config['file']['max_size'] = 5000000;
+                $this->load->library('upload', $config['file'], 'file_upload');
+                if (!$this->file_upload->do_upload('doc_file')) {
+                    $error = $this->file_upload->display_errors();
+                    $this->session->set_flashdata('error', $error);
+                    echo "error";
+                    return;
+                } else {
+                    $data_file = $this->file_upload->data();
+                    $data['doc_file'] = $data_file['file_name'];
+                    $data['name_file'] = $data_file['orig_name'];
+                }
+            } else {
+                $data['doc_file'] = "";
+                $data['name_file'] = "";
+            }
 
+
+            // var_dump($data_file['orig_name']);
+            // die;
             if ($this->db->insert('cashin', $data)) {
                 $cashin_id = $this->db->insert_id();
                 // $this->admin_model->addToLoggerUpdate('cashin', 221, 'id', $cashin_id, 0, 0, $this->user);
@@ -2049,6 +2139,10 @@ class Account extends CI_Controller
         $check = $this->admin_model->checkPermission($this->role, 221);
         if ($check) {
             $this->admin_model->addToLoggerDelete('cashin', 221, 'id', $id, 0, 0, $this->user);
+            $fileToatt = $this->db->get_where('cashin', array('id' => $id))->row()->doc_file;
+            if ($fileToatt && $fileToatt != '') {
+                unlink('./assets/uploads/account/cashin/' . $fileToatt);
+            }
             if ($this->db->delete('cashin', array('id' => $id))) {
                 if ($this->db->delete('entry_data_total', array('trns_id' => $id, 'trns_type' => 'Cash In'))) {
                     if ($this->db->delete('entry_data', array('trns_id' => $id, 'trns_type' => 'Cash In'))) {
@@ -2522,6 +2616,10 @@ class Account extends CI_Controller
         if ($check) {
             $id =  base64_decode($id);
             $this->admin_model->addToLoggerDelete('cashout', 222, 'id', $id, 0, 0, $this->user);
+            $fileToatt = $this->db->get_where('cashout', array('id' => $id))->row()->doc_file;
+            if ($fileToatt && $fileToatt != '') {
+                unlink('./assets/uploads/account/cashin/' . $fileToatt);
+            }
             if ($this->db->delete('cashout', array('id' => $id))) {
                 if ($this->db->delete('entry_data_total', array('trns_id' => $id, 'trns_type' => 'Cash out'))) {
                     if ($this->db->delete('entry_data', array('trns_id' => $id, 'trns_type' => 'Cash out'))) {
@@ -4624,8 +4722,8 @@ class Account extends CI_Controller
 
 
         $rev_code = $setup->rev_num;
-        $newrev = doubleval($rev_code);
-        $newrev++;
+        $newrec = doubleval($rev_code);
+        $newrec++;
 
         $vs_date1 = date('Y-m-d', strtotime($setup->sdate1));
         $vs_date2 = date('Y-m-d', strtotime($setup->sdate2));
@@ -5103,39 +5201,56 @@ class Account extends CI_Controller
 
         echo $new_auto_num;
     }
-    function importhr()
-    {
-        if (isset($_FILES["file"]["name"])) {
-            $path = $_FILES["file"]["tmp_name"];
-            $object = PHPExcel_IOFactory::load($path);
-            $inputFileType = PHPExcel_IOFactory::identify($path);
-            $objReader = PHPExcel_IOFactory::createReader($inputFileType);
-            $objPHPExcel = $objReader->load($path);
-            $allDataInSheet = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
-            $flag = true;
-            $i = 0;
-            $setup = $this->AccountModel->getSetup();
-            $data['setup'] = $setup;
-            $succ = 0;
+    // function importhr()
+    // {
+    //     if (isset($_FILES["file"]["name"])) {
+    //         $path = $_FILES["file"]["tmp_name"];
+    //         $object = PHPExcel_IOFactory::load($path);
+    //         $inputFileType = PHPExcel_IOFactory::identify($path);
+    //         $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+    //         $objPHPExcel = $objReader->load($path);
+    //         $allDataInSheet = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+    //         $flag = true;
+    //         $i = 0;
+    //         $setup = $this->AccountModel->getSetup();
+    //         $data['setup'] = $setup;
+    //         $succ = 0;
 
-            foreach ($allDataInSheet as $value) {
-                if ($flag) {
-                    $flag = false;
-                    continue;
-                }
-                $id = $value['A'] . trim();
-                $inserdata['time_zone'] = $value['K'] . trim();
-                if ($id <> '') {
-                    if ($this->db->update('employees', $inserdata, array('id' => $id))) {
-                        $succ++;
-                    }
-                }
-            }
-            if ($succ > 0) {
-                echo "Payment Method Imported successfully";
+    //         foreach ($allDataInSheet as $value) {
+    //             if ($flag) {
+    //                 $flag = false;
+    //                 continue;
+    //             }
+    //             $id = $value['A'] . trim();
+    //             $inserdata['time_zone'] = $value['K'] . trim();
+    //             if ($id <> '') {
+    //                 if ($this->db->update('employees', $inserdata, array('id' => $id))) {
+    //                     $succ++;
+    //                 }
+    //             }
+    //         }
+    //         if ($succ > 0) {
+    //             echo "Payment Method Imported successfully";
+    //         } else {
+    //             echo "ERROR !";
+    //         }
+    //     }
+    // }
+    function fileToDelete($id, $file_toDelete)
+    {
+        // $id = base64_decode($_POST['id']);
+        $file_name = './assets/uploads/account/cashin/' . $file_toDelete;
+        $data['doc_file'] = "";
+        $data['name_file'] = "";
+        $data['desc_file'] = "";
+        if ($this->db->update('cashin', $data, array('id' => $id))) {
+            if (unlink($file_name)) {
+                return true;
             } else {
-                echo "ERROR !";
+                return false;
             }
+        } else {
+            return false;
         }
     }
 }

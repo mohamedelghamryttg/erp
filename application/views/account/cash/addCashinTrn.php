@@ -96,28 +96,51 @@
                 </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">File Attach</label>
-                    <div class="col-lg-3">
-                        <input type="number" class="form-control" name="rate" id="rate">
+                    <div class="col-lg-6">
+                        <input type="file" class="form-control" name="doc_file" id="doc_file" accept=".zip,.rar,.7zip">
                     </div>
                 </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">File Description</label>
-                    <div class="col-lg-3">
+                    <div class="col-lg-6">
                         <textarea class="form-control" name="desc_file" id="desc_file" rows="1" cols="40"></textarea>
                     </div>
                 </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">Document Description</label>
                     <div class="col-lg-6">
-                        <textarea id="rem" name="rem" rows="4" cols="40"></textarea>
+                        <textarea class="form-control" id="rem" name="rem" rows="4" cols="40"></textarea>
                     </div>
                 </div>
+                <?php if ($audit_permission->add ?? '' == 1) : ?>
+                    <div style="width: 100%; height: 20px; border-bottom: 1px solid black; text-align: center">
+                        <span style="font-size: 15px; padding: 0 10px;">
+                            Audit Section
+                        </span>
+                    </div>
+                    <br>
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label text-right">Audited </label>
+                        <div class="col-lg-2">
+                            <select class="form-control" name="audit_chk" id="audit_chk">
+                                <option value="0" selected='selected'>-- No --</option>
+                                <option value="1">-- Yes --</option>
+                            </select>
+                        </div>
 
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label text-right">Audit Comments</label>
+                        <div class="col-lg-6">
+                            <textarea class="form-control" id="audit_comment" name="audit_comment" rows="4" cols="40"></textarea>
+                        </div>
+                    </div>
+                <?php endif; ?>
                 <div class="card-footer" style="text-align: center;width: 73%;left: 15%;position: relative;">
                     <div class="row">
                         <div class="col-lg-3"></div>
                         <div class="col-lg-6">
-                            <button type="button" id="submit" class="btn btn-success mr-2">Submit</button>
+                            <button id="submit" class="btn btn-success mr-2">Submit</button>
                             <a class="btn btn-secondary" href="<?php echo base_url() ?>account/cashintrnlist" class="btn btn-default" type="button">Cancel</a>
                         </div>
                     </div>
@@ -168,35 +191,41 @@
             this.value = parseFloat(this.value).toFixed(5);
         });
 
-        $("#submit").click(function(event) {
+        $("#form").submit(function(e) {
+            // .click(function(event) {
+            e.preventDefault();
             $.ajax({
                 url: "<?= base_url() . "account/doAddCashinTrn" ?>",
                 type: "POST",
-                dataType: "json",
-                data: $("#form").serialize(),
+                // dataType: "json",
+                // data: $("#form").serialize(),
+                data: new FormData(this),
+                contentType: false,
+                cache: false,
+                processData: false,
                 beforeSend: function() {
-                    $empty = $('#form').find("input").filter(function() {
-                        return this.value === "";
-                    });
-                    $empty1 = $('#form').find("select").filter(function() {
-                        return this.value === "";
-                    });
-                    $empty2 = $('#form').find("textarea").filter(function() {
-                        return this.value === "";
-                    });
+                    // $empty = $('#form').find("input").filter(function() {
+                    //     return this.value === "";
+                    // });
+                    // $empty1 = $('#form').find("select").filter(function() {
+                    //     return this.value === "";
+                    // });
+                    // $empty2 = $('#form').find("textarea").filter(function() {
+                    //     return this.value === "";
+                    // });
                     if ($('#amount').val() === 0 || $('#rate_h').val() === 0) {
-                        alert('You must fill out all required fields in order to submit a change');
+                        alert('You must fill Amount fields in order to submit a change');
                         return false;
                     }
-                    if ($empty.length + $empty1.length + $empty2.length) {
-                        alert('You must fill out all required fields in order to submit a change');
-                        return false;
-                    } else {
-                        return true;
-                    }
+                    // if ($empty.length + $empty1.length + $empty2.length) {
+                    //     alert('You must fill out all required fields in order to submit a change');
+                    //     return false;
+                    // } else {
+                    //     return true;
+                    // }
                 },
                 success: function(data) {
-                    var data = data;
+                    var data = JSON.parse(data);
                     if (data.records != 0)
                         alert("Cash In Receipt Already Exists!");
                     else
@@ -372,7 +401,7 @@
         $("#rate").on('change', function() {
             $("#rate_h").val($(this).val());
             create_entry();
-        })
+        });
         $("#currency_id").on('change', function() {
             $("#currency_hid").val($("#currency_id").val());
             var cash_id = $("#cash_id").val();

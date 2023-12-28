@@ -106,19 +106,29 @@ ALTER TABLE `bankout` MODIFY `trn_code` varchar(20);
 
 
 ALTER TABLE `cashin` ADD `doc_file`   TEXT NULL AFTER `rem`;
-ALTER TABLE `cashin` ADD `desc_file`   TEXT NULL AFTER `doc_file`;
+ALTER TABLE `cashin` ADD `name_file`   TEXT NULL AFTER `doc_file`;
+ALTER TABLE `cashin` ADD `desc_file`   TEXT NULL AFTER `name_file`;
+
 
 ALTER TABLE `cashout` ADD `doc_file`   TEXT NULL AFTER `rem`;
-ALTER TABLE `cashout` ADD `desc_file`   TEXT NULL AFTER `doc_file`;
+ALTER TABLE `cashout` ADD `name_file`   TEXT NULL AFTER `doc_file`;
+ALTER TABLE `cashout` ADD `desc_file`   TEXT NULL AFTER `name_file`;
+
 
 ALTER TABLE `bankin` ADD `doc_file`   TEXT NULL AFTER `rem`;
-ALTER TABLE `bankin` ADD `desc_file`   TEXT NULL AFTER `doc_file`;
+ALTER TABLE `bankin` ADD `name_file`   TEXT NULL AFTER `doc_file`;
+ALTER TABLE `bankin` ADD `desc_file`   TEXT NULL AFTER `name_file`;
+
 
 ALTER TABLE `bankout` ADD `doc_file`   TEXT NULL AFTER `rem`;
-ALTER TABLE `bankout` ADD `desc_file`   TEXT NULL AFTER `doc_file`;
+ALTER TABLE `bankout` ADD `name_file`   TEXT NULL AFTER `doc_file`;
+ALTER TABLE `bankout` ADD `desc_file`   TEXT NULL AFTER `name_file`;
+
 
 ALTER TABLE `manual_master` ADD `doc_file`   TEXT NULL AFTER `rem`;
-ALTER TABLE `manual_master` ADD `desc_file`   TEXT NULL AFTER `doc_file`;
+ALTER TABLE `manual_master` ADD `name_file`   TEXT NULL AFTER `doc_file`;
+ALTER TABLE `manual_master` ADD `desc_file`   TEXT NULL AFTER `name_file`;
+
 
 
 ALTER TABLE `customer_portal` MODIFY COLUMN `portal` varchar(300) NULL;
@@ -126,3 +136,11 @@ ALTER TABLE `customer_portal` MODIFY COLUMN `link` varchar(300)  NULL;
 ALTER TABLE `customer_portal` MODIFY COLUMN `username` varchar(300) NULL;
 ALTER TABLE `customer_portal` MODIFY COLUMN `password` varchar(300) NULL;
 ALTER TABLE `customer_portal` MODIFY COLUMN `additional_info` longtext  NULL;
+
+ALTER TABLE `cashin` ADD `audit_chk`   tinyint(1)  NULL AFTER `desc_file`;
+ALTER TABLE `cashin` ADD `audit_by`   int(11) NULL AFTER `audit_chk`;
+ALTER TABLE `cashin` ADD `audit_date`   datetime NULL AFTER `audit_by`;
+ALTER TABLE `cashin` ADD `audit_comment`   TEXT NULL AFTER `audit_date`;
+
+
+INSERT INTO `screen` (`id`, `groups`, `name`, `url`, `menu`) VALUES (NULL, '1', 'Cash In Audit', 'admin/audit', '0'); 

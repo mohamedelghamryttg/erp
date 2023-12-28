@@ -144,16 +144,30 @@
                             <tr>
                                 <td>
                                     <?= $i ?>
+                                    <?php if ($row->doc_file && $row->doc_file != '') : ?>
+                                        <i class="fa fa-paperclip" aria-hidden="true" style="color: cadetblue;"> </i>
+                                    <?php endif; ?>
+                                    <?php if ($row->audit_chk && $row->audit_chk == 1) : ?>
+                                        <i class=" fas fa-stamp" aria-hidden="true" style="color: cadetblue;"> </i>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
-                                    <a href="<?php echo base_url() ?>account/editCashinTrn?t=<?php echo base64_encode($row->id); ?>" class="">
+                                    <?php if ($permission->view == 1 || $permission->edit == 1 || $audit_permission->edit ?? '' == 1) : ?>
+                                        <a href="<?php echo base_url() ?>account/editCashinTrn?t=<?php echo base64_encode($row->id); ?>" class="">
+                                            <?= $row->ccode ?>
+                                        </a>
+                                    <?php else : ?>
                                         <?= $row->ccode ?>
-                                    </a>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
-                                    <a href="#">
-                                        <a href="<?php echo base_url() ?>account/editCashinTrn?t=<?php echo base64_encode($row->id); ?>" class=""><?= $row->doc_no; ?> </a>
-                                    </a>
+                                    <?php if ($permission->view == 1 || $permission->edit == 1 || $audit_permission->edit ?? '' == 1) : ?>
+                                        <a href="#">
+                                            <a href="<?php echo base_url() ?>account/editCashinTrn?t=<?php echo base64_encode($row->id); ?>" class=""><?= $row->doc_no; ?> </a>
+                                        </a>
+                                    <?php else : ?>
+                                        <?= $row->doc_no ?>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <span id="cdate">
@@ -186,16 +200,27 @@
                                 </td>
 
                                 <td>
-                                    <?php if ($permission->edit == 1) : ?>
-                                        <a href="<?php echo base_url() ?>account/editCashinTrn?t=<?php echo base64_encode($row->id); ?>" class="">
-                                            <i class="fa fa-pencil"></i> Edit
-                                        </a>
+                                    <?php if ($row->audit_chk == 1) : ?>
+                                        <?php if ($audit_permission->edit ?? '' == 1) : ?>
+                                            <a href="<?php echo base_url() ?>account/editCashinTrn?t=<?php echo base64_encode($row->id); ?>" class="">
+                                                <i class="fa fa-pencil"></i> Edit
+                                            </a>
+                                        <?php endif; ?>
+                                    <?php else : ?>
+                                        <?php if ($audit_permission->edit ?? '' == 1 || $permission->edit == 1) : ?>
+                                            <a href="<?php echo base_url() ?>account/editCashinTrn?t=<?php echo base64_encode($row->id); ?>" class="">
+                                                <i class="fa fa-pencil"></i> Edit
+                                            </a>
+                                        <?php endif; ?>
                                     <?php endif; ?>
+                                </td>
                                 <td>
-                                    <?php if ($permission->delete == 1) : ?>
-                                        <a href="<?php echo base_url() ?>account/deleteCashinTrn/<?php echo $row->id; ?>" title="delete" class="" onclick="return confirm('Are you sure you want to delete this Cash In Transaction ?');">
-                                            <i class="fa fa-times text-danger text"></i> Delete
-                                        </a>
+                                    <?php if ($row->audit_chk != 1) : ?>
+                                        <?php if ($permission->delete == 1) : ?>
+                                            <a href="<?php echo base_url() ?>account/deleteCashinTrn/<?php echo $row->id; ?>" title="delete" class="" onclick="return confirm('Are you sure you want to delete this Cash In Transaction ?');">
+                                                <i class="fa fa-times text-danger text"></i> Delete
+                                            </a>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </td>
                             </tr>
