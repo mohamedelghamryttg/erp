@@ -492,11 +492,74 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
             $data['permissions'] = $this->admin_model->allPermissions();
             //Pages ..
             $this->load->view('includes_new/header.php', $data);
-            $this->load->view('admin_new/permission.php');
+            $this->load->view('admin_new/permissionNew.php');
             $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";
         }
+    }
+    public function get_permission()
+    {
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 3);
+        $filter_data = $this->input->post('filter_data');
+        parse_str($filter_data, $params);
+        $arr2 = array();
+        if ($filter_data) {
+            if (isset($params['searchId'])) {
+                $searchId = $params['searchId'];
+                if (!empty($searchId)) {
+                    array_push($arr2, 0);
+                }
+            } else {
+                $searchId = "";
+            }
+            if (isset($params['searchScreen'])) {
+                $searchScreen = $params['searchScreen'];
+                if (!empty($searchScreen)) {
+                    array_push($arr2, 1);
+                }
+            } else {
+                $searchScreen = "";
+            }
+            if (isset($params['searchRole'])) {
+                $searchRole = $params['searchRole'];
+                if (!empty($searchRole)) {
+                    array_push($arr2, 2);
+                }
+            } else {
+                $searchRole = "";
+            }
+        } else {
+            $searchId = "";
+            $searchScreen = "";
+            $searchRole = "";
+        }
+        $cond1 = "id = '$searchId '";
+        $cond2 = "screen = '$searchScreen'";
+        $cond3 = "role = '$searchRole'";
+
+        $arr1 = array($cond1, $cond2, $cond3);
+        $arr_1_cnt = count($arr2);
+
+        $arr3 = array();
+        for ($i = 0; $i < $arr_1_cnt; $i++) {
+            array_push($arr3, $arr1[$arr2[$i]]);
+        }
+        $arr4 = implode(" and ", $arr3);
+
+
+        $sql = "SELECT p.id,p.follow,p.add,p.edit,p.delete,p.view,(select name from `group` where id = p.groups) as ngroups 
+        ,(select name from `screen` where id = p.screen) as screen 
+        ,(select name from `role` where id = p.role) as `role` 
+        from permission p";
+        if ($arr_1_cnt > 0) {
+            $sql .= ' WHERE ' .  $arr4;
+        }
+
+        $data['permissions'] = $this->db->query($sql)->result_array();
+
+        echo base64_encode(json_encode($data));
     }
     public function addPermission()
     {
@@ -557,6 +620,7 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
         if ($permission->edit == 1) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            $id = base64_decode($id);
             //body ..
             $data['permission'] = $this->db->get_where('permission', array('id' => $id))->row();
             //Pages ..
@@ -619,6 +683,7 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
         // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 9);
         if ($check) {
+            $id = base64_decode($id);
             if ($this->db->delete('permission', array('id' => $id))) {
                 $true = "permission Deleted Successfully ...";
                 $this->session->set_flashdata('true', $true);

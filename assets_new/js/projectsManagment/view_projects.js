@@ -357,8 +357,7 @@ $(document).ready(function (e) {
                         var action_btn = '<div>';
                         if (permissions && permissions.edit == '1') {
                             if (row.allclosed == row.closedstat && row.closedstat != 0) {
-                                // action_btn += '<a class="btn btn-dark font-weight-bold mr-2 disabled" href="' + base_url + 'projectManagment/editProject?t=' + btoa(row.id) + '"><i class="fa fa-pen "></i> Edit</a>';
-                            } else {
+
                                 action_btn += '<a class="btn btn-dark font-weight-bold mr-2" href="' + base_url + 'projectManagment/editProject?t=' + btoa(row.id) + '"><i class="fa fa-pen "></i> Edit</a>';
                             }
                         }
