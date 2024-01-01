@@ -561,9 +561,7 @@ class PerformanceManagment extends CI_Controller
             // check if has Teamleader 
             $manager_id = $this->hr_model->getManagerId($this->emp_id);
                 if($manager_id == 13 || $manager_id == 14){
-                    $approval = $score['manager_approval'] = 1;
-                    $score['approved_by'] =  $this->user;                   
-                    $score['approved_at'] = date("Y-m-d H:i:s");  
+                    $approval = $score['manager_approval'] = 1;                   
                 }else{
                     $approval = $score['manager_approval'] = 0;
                     $score['status'] = 4;
@@ -586,7 +584,7 @@ class PerformanceManagment extends CI_Controller
                 }
             }
             if ($this->db->insert_batch('kpi_score_data', $sqlArray)) {
-                if($approval == 1)
+                if($approval == 0)
                     $this->hr_model->sendKpiApproveEmail($kpi_score_id);
                 else
                     $this->hr_model->sendKpiEmail($kpi_score_id, "new");
@@ -953,6 +951,12 @@ class PerformanceManagment extends CI_Controller
                     $approval = $data_action['manager_approval'] = 1;   
                     $data_action['approved_by'] =  $this->user;                   
                     $data_action['approved_at'] = date("Y-m-d H:i:s");   
+                }else {
+                    echo "You have no permission to access this page";
+                }
+            }else {
+                if($score->status == 0 && $score->manager_approval == 1 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id){
+                $data_action['status'] = 1;
                 }else {
                     echo "You have no permission to access this page";
                 }

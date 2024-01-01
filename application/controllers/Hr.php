@@ -2243,27 +2243,34 @@ class Hr extends CI_Controller
     //employee script 
     public function allEmployeesForVacatoinTable_new()
     {
-        //SELECT * FROM `vacation_balance` where year = 2023 and emp_id In ( select emp_id from vacation_balance WHERE `current_year` >= 6 AND `year` = 2022 )
-        $current_year = 2023;
-        $brand = $this->brand;
-        $employees = $this->db->query(" SELECT * FROM `employees` WHERE status != 1 AND (brand = 1 OR brand = 2) ")->result();
+        //SELECT * FROM vacation_balance where year = 2023 and emp_id In ( select emp_id from vacation_balance WHERE current_year >= 6 AND year = 2023 )
+        $already_exists = 0;
+        $new = 0;
+        $current_year = 2024;
+        $employees = $this->db->query(" SELECT * FROM employees WHERE status != 1")->result();
         foreach ($employees as $employee) {
-            $balanceData = $this->db->query(" SELECT * FROM `vacation_balance` WHERE year = 2022 and emp_id = $employee->id ");
-            if ($balanceData->num_rows() > 0) {
-                $previous_year_data = $balanceData->row();
-                $previous = $previous_year_data->current_year;
-                if ($previous <= 5) {
-                    $previous_year = $previous;
+            $balanceData = $this->db->query(" SELECT * FROM vacation_balance WHERE year = 2023 and emp_id = $employee->id ");
+            $newBalanceData = $this->db->query(" SELECT * FROM vacation_balance WHERE year = 2024 and emp_id = $employee->id ");
+            if ($newBalanceData->num_rows() == 0) {  
+                $new++;
+                if ($balanceData->num_rows() > 0) {
+                    $previous_year_data = $balanceData->row();
+                    $previous = $previous_year_data->current_year;
+                    if ($previous <= 5) {
+                        $previous_year = $previous;
+                    } else {
+                        $previous_year = 5;
+                    }                    
+                    $this->db->query("INSERT INTO vacation_balance (emp_id,current_year,previous_year,sick_leave,maternity_leave,marriage,hajj,year,brand) VALUES ($employee->id,21,$previous_year,10,90,5,30,$current_year,$employee->brand)");
                 } else {
-                    $previous_year = 5;
+                    $this->db->query("INSERT INTO vacation_balance (emp_id,current_year,previous_year,sick_leave,maternity_leave,marriage,hajj,year,brand) VALUES ($employee->id,21,0,10,90,5,30,$current_year,$employee->brand)");
                 }
-                //print_r($employees);
-                $this->db->query("INSERT INTO vacation_balance (emp_id,current_year,previous_year,sick_leave,maternity_leave,marriage,hajj,year,brand) VALUES ($employee->id,21,$previous_year,15,90,5,30,$current_year,$employee->brand)");
-            } else {
-                $this->db->query("INSERT INTO vacation_balance (emp_id,current_year,previous_year,sick_leave,maternity_leave,marriage,hajj,year,brand) VALUES ($employee->id,21,0,15,90,5,30,$current_year,$employee->brand)");
+            }else{
+                $already_exists ++;
             }
-
         }
+        echo 'Exists:'.$already_exists;
+        echo 'New:'.$new;
     }
     ////////// 
     //missing attendance  
@@ -2404,7 +2411,7 @@ class Hr extends CI_Controller
 
             // check max number of missing attendance // after 21-4-2023          
             $missing_num = $this->hr_model->getNumOfMissingAttendance($userData, $date);
-            if ($missing_num >= 20) {
+            if ($missing_num >= 60) {
                 $error = "Failed ! You reach Maximum records of missing access ...";
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "hr/missingAttendance");
@@ -5479,7 +5486,7 @@ class Hr extends CI_Controller
                 $where .= '';
             }
             if ($permission->view == 1 && (isset($_REQUEST['search']) || isset($_REQUEST['export']))) {
-                $data['employees'] = $this->db->query("SELECT id,name FROM employees WHERE status = 0 $where")->result();
+                $data['employees'] = $this->db->query("SELECT id,name FROM employees WHERE (status = 0 || (status = 1 AND resignation_date >= '".$date_from."')) $where")->result();
             } elseif ($permission->view == 2) {
                 $subordinates = $this->hr_model->getEmpIdsByManagerIDMultiLevels($this->emp_id);
                 $data['employees'] = $this->db->query("SELECT id,name FROM employees WHERE status = 0 AND( id IN($subordinates)|| id = $this->emp_id) $where")->result();

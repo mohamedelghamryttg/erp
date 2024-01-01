@@ -13,8 +13,7 @@ class Hr_model extends CI_Model
     public function __construct()
     {
         parent::__construct();
-        $this->load->database();
-        $this->emp_id = $this->session->userdata('emp_id');
+        $this->load->database();        
     }
 
     public function meetingMail($data)
@@ -802,18 +801,18 @@ class Hr_model extends CI_Model
     public function AllVacationBalance($permission, $user, $brand, $filter)
     {
         if ($permission->view == 1) {
-            $data = $this->db->query("SELECT * FROM `vacation_balance` WHERE brand = '$brand' AND " . $filter . " ORDER BY id DESC ");
+            $data = $this->db->query("SELECT * FROM `vacation_balance` WHERE " . $filter . " ORDER BY id DESC ");
         } elseif ($permission->view == 2) {
-            $data = $this->db->query(" SELECT * FROM `vacation_balance` WHERE brand = '$brand' AND created_by ='$user' AND " . $filter . " ORDER BY id DESC ");
+            $data = $this->db->query(" SELECT * FROM `vacation_balance` WHERE  created_by ='$user' AND " . $filter . " ORDER BY id DESC ");
         }
         return $data;
     }
     public function AllVacationBalancePages($permission, $user, $brand, $limit, $offset)
     {
         if ($permission->view == 1) {
-            $data = $this->db->query(" SELECT * FROM `vacation_balance` WHERE brand = '$brand' ORDER BY id DESC LIMIT $limit OFFSET $offset ");
+            $data = $this->db->query(" SELECT * FROM `vacation_balance` ORDER BY id DESC LIMIT $limit OFFSET $offset ");
         } elseif ($permission->view == 2) {
-            $data = $this->db->query(" SELECT * FROM `vacation_balance` WHERE brand = '$brand' AND created_by ='$user' ORDER BY id DESC LIMIT $limit OFFSET $offset");
+            $data = $this->db->query(" SELECT * FROM `vacation_balance` WHERE created_by ='$user' ORDER BY id DESC LIMIT $limit OFFSET $offset");
         }
         return $data;
     }
@@ -1886,9 +1885,9 @@ class Hr_model extends CI_Model
         } elseif ($select == 4) {
             $selected4 = 'selected';        
         } elseif ($select == 5) {
-            $selected4 = 'selected';        
+            $selected5 = 'selected';        
         } elseif ($select == 6) {
-            $selected4 = 'selected';
+            $selected6 = 'selected';
         }
 
         $outpt = '<option value="5" ' . $selected5 . '>Pending(Waiting Manager Approval)</option>
@@ -2714,10 +2713,11 @@ class Hr_model extends CI_Model
     // check missing kpi
     public function numOfMissingKpiToManager(){
         $num = 0;
+        $this_emp_id = $this->session->userdata('emp_id');
         $date = date("Y-m-d", strtotime("-1 month"));  
         $month =   date("m",strtotime($date));
         $year = $this->db->get_where('years',array('name'=> date('Y',strtotime($date))))->row()->id;
-        $employees = $this->db->query("SELECT id FROM employees WHERE manager = '$this->emp_id'AND status = '0'")->result();
+        $employees = $this->db->query("SELECT id FROM employees WHERE manager = '$this_emp_id'AND status = '0'")->result();
         foreach ($employees as $row){
             $kpiRecord = $this->db->query("SELECT id FROM kpi_score WHERE emp_id = '$row->id'AND month = $month AND year = $year")->num_rows();
             if($kpiRecord < 1){
@@ -2812,8 +2812,9 @@ class Hr_model extends CI_Model
     // check vacation approval num
     public function numOfVacationToManager(){
         $num = 0;
+        $this_emp_id = $this->session->userdata('emp_id');
         if($this->admin_model->checkIfUserIsManager($this->user)){
-            $requests = self::getRequestsForDirectManager($this->emp_id);
+            $requests = self::getRequestsForDirectManager($this_emp_id);
             $num = $requests->num_rows();
         }
         return $num ;
@@ -2821,11 +2822,12 @@ class Hr_model extends CI_Model
     
     public function numOfmissingToManager(){
         $num = 0;
+        $this_emp_id = $this->session->userdata('emp_id');
         if($this->admin_model->checkIfUserIsManager($this->user)){
-            $title = $this->db->query(" SELECT title FROM employees WHERE id = '$this->emp_id' ")->row()->title;
+            $title = $this->db->query(" SELECT title FROM employees WHERE id = '$this_emp_id' ")->row()->title;
             $start_date = date("Y-m-d", strtotime("-45 days"));
             $end_date = date("Y-m-d", strtotime("+1 day"));
-            $num = self::getMissingAttendanceRequests($this->emp_id, $title, $start_date, $end_date)->num_rows();
+            $num = self::getMissingAttendanceRequests($this_emp_id, $title, $start_date, $end_date)->num_rows();
            
         }
         return $num ;
