@@ -232,9 +232,9 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
         $data['employee'] = $this->db->get_where('employees', array('id' => $this->emp_id))->row();
         $data['vacationBalance'] = $this->db->get_where('vacation_balance', array('emp_id' => $this->emp_id, 'year' => $year))->row();
         //Pages ..
-        $this->load->view('includes/header.php', $data);
-        $this->load->view('admin/profile.php');
-        $this->load->view('includes/footer.php');
+        $this->load->view('includes_new/header.php', $data);
+        $this->load->view('hr_new/profile/profile.php');
+        $this->load->view('includes_new/footer.php');
     }
 
     public function doEditProfile()

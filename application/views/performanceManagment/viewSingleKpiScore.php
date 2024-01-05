@@ -180,7 +180,7 @@
                      </tbody>
                     </table>
                    <?php } else{ if($score->status == 0 && $score->manager_approval == 1 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id){?>                     
-                        <form class="form mb-10" id="action" action="<?php echo base_url() ?>performanceManagment/changeScoreStatus" method="get" enctype="multipart/form-data">
+                        <form class="form mb-10" id="action" action="<?php echo base_url() ?>performanceManagment/changeScoreStatus" method="post" enctype="multipart/form-data">
                         <input type="text" name="score" hidden="" value="<?= $score->id ?>">
                         <button class="btn btn-success mr-2"  type="submit"><i class="fa fa-save" aria-hidden="true"></i> Finish & Send To Employee</button>
                     </form> 
