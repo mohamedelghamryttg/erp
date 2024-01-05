@@ -2,7 +2,7 @@
     <!--begin::Container-->
     <div class="container">
         <!--begin::Card-->
-        <form class="cmxform form-horizontal " id="form" method="post" enctype="multipart/form-data">
+        <form class="form" id="form" enctype="multipart/form-data">
             <?php if (isset($_SERVER['HTTP_REFERER'])) : ?>
                 <input type="text" name="referer" value="<?= $_SERVER['HTTP_REFERER'] ?>" hidden>
             <?php else : ?>
@@ -23,7 +23,7 @@
                     <div class="col-lg-6">
                         <select name='cash_id' class='form-control m-b' id="cash_id" required>
                             <option value="" selected='' disabled>-- Select Cash --</option>
-                            <?= $this->AccountModel->selectPaymentCombo('payment_method', '', $brand, '1'); ?>
+                            <?= $this->AccountModel->selectPaymentCombo('payment_method', '', $brand, '2'); ?>
                         </select>
                     </div>
                     <input type="hidden" name="cash_acc" id="cash_acc">
@@ -33,16 +33,16 @@
 
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">Document Date</label>
-                    <div class="col-lg-6">
+                    <div class="col-lg-2">
                         <div id="target" style="position:relative" data-target-input="nearest">
-                            <input type="text" class="form-control datetimepicker-input" id="cdate" name="cdate" data-toggle="datetimepicker" data-target="#Datetimepicker" autocomplete="off" style="width: 200px;" />
+                            <input type="text" class="form-control datetimepicker-input" id="cdate" name="cdate" data-toggle="datetimepicker" data-target="#Datetimepicker" autocomplete="off" required>
                         </div>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-lg-3 col-form-label text-right">Document Internal Number</label>
+                    <!-- </div>
+                <div class="form-group row"> -->
+                    <label class="col-lg-2 col-form-label text-right">Document Number</label>
                     <div class="col-lg-2">
-                        <input type="text" class="form-control" name="doc_no" id="doc_no">
+                        <input type="text" class="form-control" name="doc_no" id="doc_no" required>
                     </div>
                     <div class="col-lg-2">
                         <button type="button" id="auto_num" class="btn btn-success mr-2"> Auto Number</button>
@@ -51,7 +51,7 @@
                 <div class="form-group row" hidden>
                     <label class="col-lg-3 col-form-label text-right">Transaction Type </label>
                     <div class="col-lg-6">
-                        <select class="form-control" name="trn_typ" id="trn_typ" required value="<?= $cashout->trn_typ ?>">
+                        <select class="form-control" name="trn_typ" id="trn_typ" required>
                             <option disabled="disabled" value="">-- Select Transaction Type --</option>
                             <option selected='selected' value="Other" selected="selected">Other</option>
                         </select>
@@ -91,57 +91,68 @@
                     <label class="col-lg-3 col-form-label text-right">Rate</label>
                     <input type="hidden" id="rate_h" name="rate_h">
                     <div class="col-lg-3">
-                        <input type="number" class="form-control" name="rate" id="rate" required step="any" placeholder="0.00000" pattern="^\d*(\.\d{0,5})?$" onkeypress='return (event.charCode == 46 || event.charCode >= 48 && event.charCode <= 57)' disabled>
+                        <input type="number" class="form-control" name="rate" id="rate" required step="any" placeholder="0.00000" pattern="^\d*(\.\d{0,5})?$" onkeypress='return (event.charCode == 46 || event.charCode >= 48 && event.charCode <= 57)'>
                     </div>
                 </div>
-
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label text-right">File Attach</label>
+                    <div class="col-lg-6">
+                        <input type="file" class="form-control" name="doc_file" id="doc_file" accept=".zip,.rar,.7zip">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label text-right">File Description</label>
+                    <div class="col-lg-6">
+                        <textarea class="form-control" name="desc_file" id="desc_file" rows="1" cols="40"></textarea>
+                    </div>
+                </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">Document Description</label>
                     <div class="col-lg-6">
-                        <textarea id="rem" name="rem" rows="4" cols="40"></textarea>
-                    </div>
-                </div>
-
-                <div class="card-footer" style="text-align: center;width: 73%;left: 15%;position: relative;">
-                    <div class="row">
-                        <div class="col-lg-3"></div>
-                        <div class="col-lg-6">
-                            <button type="button" id="submit" class="btn btn-success mr-2">Submit</button>
-                            <a class="btn btn-secondary" href="<?php echo base_url() ?>account/cashouttrnlist" class="btn btn-default" type="button">Cancel</a>
-                        </div>
+                        <textarea class="form-control" id="rem" name="rem" rows="4" cols="40" required></textarea>
                     </div>
                 </div>
             </div>
-        </form>
-        <br />
-    </div>
-</div>
-<div class="container-fluid">
-    <div class="datatable datatable-default datatable-bordered datatable-loaded">
-        <table class="datatable-bordered datatable-head-custom datatable-table" id="kt_datatable" style="display: block;border-top: 1px solid #3F4254; border-button: 1px solid #3F4254;">
-            <thead class="datatable-head">
-                <tr class="datatable-row" style="left: 0px;">
-                    <th data-field="debit" class="datatable-cell px-0"><span style="width: 112px;">Debit</span></th>
-                    <th data-field="credit" class="datatable-cell px-0"><span style="width: 112px;">Credit</span></th>
-                    <th data-field="acount" class="datatable-cell  px-0"><span style="width: 150px;">Account</span></th>
-                    <th data-field="revenue" class="datatable-cell  px-0"><span style="width: 150px;">Transaction</span></th>
-                    <th data-field="currency" class="datatable-cell  px-0"><span style="width: 112px;">Currency</span></th>
-                    <th data-field="rate" class="datatable-cell  px-0"><span style="width: 112px;">Rate</span></th>
-                    <th data-field="evamount" data-autohide-disabled="false" class="datatable-cell  px-0">
-                        <span style="width: 112px;">Ev. Amount</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="datatable-body entry_table">
-                <tr data-row="0" class="datatable-row" id="row1" style="left: 0px;">
-                </tr>
-                <tr data-row="0" class="datatable-row" id="row2" style="left: 0px;">
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+            <div class="card-footer" style="text-align: center;width: 73%;left: 15%;position: relative;">
+                <div class="row">
+                    <div class="col-lg-3"></div>
+                    <div class="col-lg-6">
+                        <button id="submit" class="btn btn-success mr-2">Submit</button>
+                        <a class="btn btn-secondary" href="<?php echo base_url() ?>account/cashouttrnlist" class="btn btn-default" type="button">Cancel</a>
 
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
+        <div class="container-fluid">
+            <div class="datatable datatable-default datatable-bordered datatable-loaded">
+                <table class="datatable-bordered datatable-head-custom datatable-table" id="kt_datatable" style="display: block;border-top: 1px solid #3F4254; border-bottom: 1px solid #3F4254;">
+                    <thead class="datatable-head">
+                        <tr class="datatable-row" style="left: 0px;">
+                            <th data-field="debit" class="datatable-cell px-0"><span style="width: 112px;">Debit</span></th>
+                            <th data-field="credit" class="datatable-cell px-0"><span style="width: 112px;">Credit</span></th>
+                            <th data-field="acount" class="datatable-cell  px-0"><span style="width: 150px;">Account</span></th>
+                            <th data-field="revenue" class="datatable-cell  px-0"><span style="width: 150px;">Transaction</span></th>
+                            <th data-field="currency" class="datatable-cell  px-0"><span style="width: 112px;">Currency</span></th>
+                            <th data-field="rate" class="datatable-cell  px-0"><span style="width: 112px;">Rate</span></th>
+                            <th data-field="evamount" data-autohide-disabled="false" class="datatable-cell  px-0">
+                                <span style="width: 112px;">Ev. Amount</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="datatable-body entry_table">
+                        <tr data-row="0" class="datatable-row" id="row1" style="left: 0px;">
+                        </tr>
+                        <tr data-row="0" class="datatable-row" id="row2" style="left: 0px;">
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     $(document).ready(function() {
         $("#amount").blur(function() {
@@ -157,39 +168,35 @@
             this.value = parseFloat(this.value).toFixed(5);
         });
 
-        $("#submit").click(function(event) {
+        $("#form").submit(function(e) {
+            // .click(function(event) {
+            e.preventDefault();
             $.ajax({
                 url: "<?= base_url() . "account/doAddCashoutTrn" ?>",
                 type: "POST",
-                dataType: "json",
-                data: $("#form").serialize(),
+                // dataType: "json",
+                // data: $("#form").serialize(),
+                data: new FormData(this),
+                contentType: false,
+                cache: false,
+                processData: false,
                 beforeSend: function() {
-                    $empty = $('#form').find("input").filter(function() {
-                        return this.value === "";
-                    });
-                    $empty1 = $('#form').find("select").filter(function() {
-                        return this.value === "";
-                    });
-                    $empty2 = $('#form').find("textarea").filter(function() {
-                        return this.value === "";
-                    });
+
                     if ($('#amount').val() === 0 || $('#rate_h').val() === 0) {
-                        alert('You must fill out all required fields in order to submit a change');
+                        alert('You must fill Amount fields in order to submit a change');
                         return false;
                     }
-                    if ($empty.length + $empty1.length + $empty2.length) {
-                        alert('You must fill out all required fields in order to submit a change');
-                        return false;
-                    } else {
-                        return true;
-                    }
+
                 },
                 success: function(data) {
-                    var data = data;
-                    if (data.records != 0)
+                    var data = JSON.parse(data);
+                    if (data.records == 1)
                         alert("Cash Out Receipt Already Exists!");
-                    else
+                    else if (data.records == 2) {
+                        alert("Can Not Upload File !");
+                    } else {
                         window.location = "<?= base_url("account/cashouttrnlist") ?>";
+                    }
                 }
             });
         });
@@ -211,7 +218,7 @@
                         if (data != '') {
                             $('select[name="currency_id"]').html(data.options);
                             $("#currency_hid").val(data.currency_id);
-                            $('select[name="currency_id"]').prop("disabled", true);
+                            $('select[name="currency_id"]').prop("readonly", true);
                             $("#rate").val(parseFloat(data.rate).toFixed(5));
                             $("#rate_h").val(parseFloat(data.rate).toFixed(5));
                             $('#cash_acc').val(data.cash_acc_acode)
@@ -300,7 +307,7 @@
 
         $("#trn_id").on('change', function() {
             create_entry();
-        })
+        });
         $("#amount").on('focusout', function() {
             this.value = parseFloat(this.value).toFixed(2);
             create_entry();
@@ -316,7 +323,7 @@
                 "<td data-field="debit" class="datatable-cell px-0"  style="width: 112px;"><span
                    ></span></td>
                 <td data-field="credit"  class="datatable-cell px-0"  style="width: 112px;"><span
-                    > ` + $("#amount").val() + `</span></td>
+                    >` + $("#amount").val() + ` </span></td>
                 <td data-field="account" " class="datatable-cell px-0"  style="width: 150px;"><span
                    >` + $("#cash_acc_name").val() + ` </span></td>
                 <td data-field="trn"  class="datatable-cell px-0"  style="width: 150px;"><span
@@ -335,9 +342,9 @@
             if ((trn_id != '' && trn_id != null) && (amont != 0 && amont != '')) {
                 $("#row2").html(`
                 "<td data-field="debit" class="datatable-cell px-0" style="width: 112px;"><span
-                    > ` + $("#amount").val() + `</span></td>
+                    ></span>` + $("#amount").val() + `</td>
                 <td data-field="credit"  class="datatable-cell px-0"  style="width: 112px;"><span
-                   ></span></td>
+                   > </span></td>
                 <td data-field="account" " class="datatable-cell px-0"  style="width: 150px;"><span
                     >` + $("#trn_id option:selected").text() + ` </span></td>
                 <td data-field="trn"  class="datatable-cell px-0" style="width: 150px;"><span
@@ -361,7 +368,7 @@
         $("#rate").on('change', function() {
             $("#rate_h").val($(this).val());
             create_entry();
-        })
+        });
         $("#currency_id").on('change', function() {
             $("#currency_hid").val($("#currency_id").val());
             var cash_id = $("#cash_id").val();
@@ -405,7 +412,7 @@
                 $("#currency_hid").val('');
                 $("#rate").prop("readonly", false);
             }
-        });
+        })
     });
     $('#auto_num').click(function() {
         var date_trns = $('#cdate').val();
@@ -424,8 +431,6 @@
                     'transaction': 'Cash Out'
                 },
                 success: function(data) {
-                    //var data = JSON.parse(data);
-                    // console.log(data);
                     document.getElementById("doc_no").value = data;
                 }
             });

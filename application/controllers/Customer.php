@@ -3014,12 +3014,16 @@ background-color: #FFFFCC;
             $data['additional_info'] = $_POST['additional_info'];
             $data['notes'] = $_POST['notes'] ?? '';
             // $customer = $_POST['customer'];
+
             $fileToatt = $_POST['fileToDelete'];
+            $new_file = $_FILES['customer_profile']['name'];
+
             if (!($data['link'] == '' && $data['username'] == '' && $data['password'] == '' && $data['portal'] == '' && $data['additional_info'] == '' && $data['notes'] == '' && $_FILES['customer_profile']['size'] == 0)) {
 
                 $this->admin_model->addToLoggerUpdate('customer_portal', 156, 'id', $id, 0, 0, $this->user);
-                if ($_FILES['customer_profile']['size'] != 0) {
-                    if ($_FILES['customer_profile']['name'] != $fileToatt) {
+                if ($new_file == true) {
+                    if ($_FILES['customer_profile']['size'] != 0) {
+                        // if ($_FILES['customer_profile']['name'] != $fileToatt) {
 
                         if (!is_dir('./assets/uploads/customer_profiles/')) {
                             mkdir('./assets/uploads/customer_profiles/', 0777, TRUE);
@@ -3035,9 +3039,13 @@ background-color: #FFFFCC;
                             echo "error";
                             return;
                         } else {
+                            if (file_exists('./assets/uploads/customer_profiles/' . $fileToatt)) {
+                                unlink('./assets/uploads/customer_profiles/' . $fileToatt);
+                            }
                             $data_file = $this->file_upload->data();
                             $data['customer_profile'] = $data_file['file_name'];
                         }
+                        // }
                     }
                 }
                 if ($this->db->update('customer_portal', $data, array('id' => $id))) {

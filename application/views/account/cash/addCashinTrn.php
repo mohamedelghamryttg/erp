@@ -2,7 +2,7 @@
     <!--begin::Container-->
     <div class="container">
         <!--begin::Card-->
-        <form class="cmxform form-horizontal " id="form" method="post" enctype="multipart/form-data">
+        <form class="form" id="form" enctype="multipart/form-data">
             <?php if (isset($_SERVER['HTTP_REFERER'])) : ?>
                 <input type="text" name="referer" value="<?= $_SERVER['HTTP_REFERER'] ?>" hidden>
             <?php else : ?>
@@ -35,14 +35,14 @@
                     <label class="col-lg-3 col-form-label text-right">Document Date</label>
                     <div class="col-lg-2">
                         <div id="target" style="position:relative" data-target-input="nearest">
-                            <input type="text" class="form-control datetimepicker-input" id="cdate" name="cdate" data-toggle="datetimepicker" data-target="#Datetimepicker" autocomplete="off" />
+                            <input type="text" class="form-control datetimepicker-input" id="cdate" name="cdate" data-toggle="datetimepicker" data-target="#Datetimepicker" autocomplete="off" required>
                         </div>
                     </div>
                     <!-- </div>
                 <div class="form-group row"> -->
                     <label class="col-lg-2 col-form-label text-right">Document Number</label>
                     <div class="col-lg-2">
-                        <input type="text" class="form-control" name="doc_no" id="doc_no">
+                        <input type="text" class="form-control" name="doc_no" id="doc_no" required>
                     </div>
                     <div class="col-lg-2">
                         <button type="button" id="auto_num" class="btn btn-success mr-2"> Auto Number</button>
@@ -51,7 +51,7 @@
                 <div class="form-group row" hidden>
                     <label class="col-lg-3 col-form-label text-right">Transaction Type </label>
                     <div class="col-lg-6">
-                        <select class="form-control" name="trn_typ" id="trn_typ" required value="<?= $cashin->trn_typ ?>">
+                        <select class="form-control" name="trn_typ" id="trn_typ" required>
                             <option disabled="disabled" value="">-- Select Transaction Type --</option>
                             <option selected='selected' value="Other" selected="selected">Other</option>
                         </select>
@@ -109,73 +109,50 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">Document Description</label>
                     <div class="col-lg-6">
-                        <textarea class="form-control" id="rem" name="rem" rows="4" cols="40"></textarea>
-                    </div>
-                </div>
-                <?php if ($audit_permission->add ?? '' == 1) : ?>
-                    <div style="width: 100%; height: 20px; border-bottom: 1px solid black; text-align: center">
-                        <span style="font-size: 15px; padding: 0 10px;">
-                            Audit Section
-                        </span>
-                    </div>
-                    <br>
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-form-label text-right">Audited </label>
-                        <div class="col-lg-2">
-                            <select class="form-control" name="audit_chk" id="audit_chk">
-                                <option value="0" selected='selected'>-- No --</option>
-                                <option value="1">-- Yes --</option>
-                            </select>
-                        </div>
-
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-form-label text-right">Audit Comments</label>
-                        <div class="col-lg-6">
-                            <textarea class="form-control" id="audit_comment" name="audit_comment" rows="4" cols="40"></textarea>
-                        </div>
-                    </div>
-                <?php endif; ?>
-                <div class="card-footer" style="text-align: center;width: 73%;left: 15%;position: relative;">
-                    <div class="row">
-                        <div class="col-lg-3"></div>
-                        <div class="col-lg-6">
-                            <button id="submit" class="btn btn-success mr-2">Submit</button>
-                            <a class="btn btn-secondary" href="<?php echo base_url() ?>account/cashintrnlist" class="btn btn-default" type="button">Cancel</a>
-                        </div>
+                        <textarea class="form-control" id="rem" name="rem" rows="4" cols="40" required></textarea>
                     </div>
                 </div>
             </div>
-        </form>
-        <br />
-    </div>
-</div>
-<div class="container-fluid">
-    <div class="datatable datatable-default datatable-bordered datatable-loaded">
-        <table class="datatable-bordered datatable-head-custom datatable-table" id="kt_datatable" style="display: block;border-top: 1px solid #3F4254; border-button: 1px solid #3F4254;">
-            <thead class="datatable-head">
-                <tr class="datatable-row" style="left: 0px;">
-                    <th data-field="debit" class="datatable-cell px-0"><span style="width: 112px;">Debit</span></th>
-                    <th data-field="credit" class="datatable-cell px-0"><span style="width: 112px;">Credit</span></th>
-                    <th data-field="acount" class="datatable-cell  px-0"><span style="width: 150px;">Account</span></th>
-                    <th data-field="revenue" class="datatable-cell  px-0"><span style="width: 150px;">Transaction</span></th>
-                    <th data-field="currency" class="datatable-cell  px-0"><span style="width: 112px;">Currency</span></th>
-                    <th data-field="rate" class="datatable-cell  px-0"><span style="width: 112px;">Rate</span></th>
-                    <th data-field="evamount" data-autohide-disabled="false" class="datatable-cell  px-0">
-                        <span style="width: 112px;">Ev. Amount</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="datatable-body entry_table">
-                <tr data-row="0" class="datatable-row" id="row1" style="left: 0px;">
-                </tr>
-                <tr data-row="0" class="datatable-row" id="row2" style="left: 0px;">
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+            <div class="card-footer" style="text-align: center;width: 73%;left: 15%;position: relative;">
+                <div class="row">
+                    <div class="col-lg-3"></div>
+                    <div class="col-lg-6">
+                        <button id="submit" class="btn btn-success mr-2">Submit</button>
+                        <a class="btn btn-secondary" href="<?php echo base_url() ?>account/cashintrnlist" class="btn btn-default" type="button">Cancel</a>
 
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
+        <div class="container-fluid">
+            <div class="datatable datatable-default datatable-bordered datatable-loaded">
+                <table class="datatable-bordered datatable-head-custom datatable-table" id="kt_datatable" style="display: block;border-top: 1px solid #3F4254; border-bottom: 1px solid #3F4254;">
+                    <thead class="datatable-head">
+                        <tr class="datatable-row" style="left: 0px;">
+                            <th data-field="debit" class="datatable-cell px-0"><span style="width: 112px;">Debit</span></th>
+                            <th data-field="credit" class="datatable-cell px-0"><span style="width: 112px;">Credit</span></th>
+                            <th data-field="acount" class="datatable-cell  px-0"><span style="width: 150px;">Account</span></th>
+                            <th data-field="revenue" class="datatable-cell  px-0"><span style="width: 150px;">Transaction</span></th>
+                            <th data-field="currency" class="datatable-cell  px-0"><span style="width: 112px;">Currency</span></th>
+                            <th data-field="rate" class="datatable-cell  px-0"><span style="width: 112px;">Rate</span></th>
+                            <th data-field="evamount" data-autohide-disabled="false" class="datatable-cell  px-0">
+                                <span style="width: 112px;">Ev. Amount</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="datatable-body entry_table">
+                        <tr data-row="0" class="datatable-row" id="row1" style="left: 0px;">
+                        </tr>
+                        <tr data-row="0" class="datatable-row" id="row2" style="left: 0px;">
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     $(document).ready(function() {
         $("#amount").blur(function() {
@@ -192,44 +169,29 @@
         });
 
         $("#form").submit(function(e) {
-            // .click(function(event) {
             e.preventDefault();
             $.ajax({
                 url: "<?= base_url() . "account/doAddCashinTrn" ?>",
                 type: "POST",
-                // dataType: "json",
-                // data: $("#form").serialize(),
                 data: new FormData(this),
                 contentType: false,
                 cache: false,
                 processData: false,
                 beforeSend: function() {
-                    // $empty = $('#form').find("input").filter(function() {
-                    //     return this.value === "";
-                    // });
-                    // $empty1 = $('#form').find("select").filter(function() {
-                    //     return this.value === "";
-                    // });
-                    // $empty2 = $('#form').find("textarea").filter(function() {
-                    //     return this.value === "";
-                    // });
                     if ($('#amount').val() === 0 || $('#rate_h').val() === 0) {
                         alert('You must fill Amount fields in order to submit a change');
                         return false;
                     }
-                    // if ($empty.length + $empty1.length + $empty2.length) {
-                    //     alert('You must fill out all required fields in order to submit a change');
-                    //     return false;
-                    // } else {
-                    //     return true;
-                    // }
                 },
                 success: function(data) {
                     var data = JSON.parse(data);
-                    if (data.records != 0)
+                    if (data.records == 1)
                         alert("Cash In Receipt Already Exists!");
-                    else
+                    else if (data.records == 2) {
+                        alert("Can Not Upload File !");
+                    } else {
                         window.location = "<?= base_url("account/cashintrnlist") ?>";
+                    }
                 }
             });
         });

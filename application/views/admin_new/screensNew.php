@@ -21,20 +21,25 @@
       </div>
       <div>
         <?php
-        if (!empty($_REQUEST['searchId'])) {
-          $searchId = $_REQUEST['searchId'];
+        if (!empty($_REQUEST['searchGroup'])) {
+          $searchGroup = $_REQUEST['searchGroup'];
         } else {
-          $searchId = "";
+          $searchGroup = "";
         }
-        if (!empty($_REQUEST['searchScreen'])) {
-          $searchScreen = $_REQUEST['searchScreen'];
+        if (!empty($_REQUEST['searchName'])) {
+          $searchName = $_REQUEST['searchName'];
         } else {
-          $searchScreen = "";
+          $searchName = "";
         }
-        if (!empty($_REQUEST['searchRole'])) {
-          $searchRole = $_REQUEST['searchRole'];
+        if (!empty($_REQUEST['searchUrl'])) {
+          $searchUrl = $_REQUEST['searchUrl'];
         } else {
-          $searchRole = "";
+          $searchUrl = "";
+        }
+        if (!empty($_REQUEST['searchMenu'])) {
+          $searchMenu = $_REQUEST['searchMenu'];
+        } else {
+          $searchMenu = "";
         }
         ?>
       </div>
@@ -42,29 +47,46 @@
       <div class="modal-body  px-0">
         <div class="col-12">
 
-          <form class="cmxform form-horizontal" id="searchform" method="post" enctype="multipart/form-data">
+          <form class="cmxform form-horizontal" id="searchform" enctype="multipart/form-data">
             <div class="card-body  py-3 my-0">
               <div class="form-group row">
-                <label class="col-lg-2 control-label text-lg-right" for="role searchId" style="margin-top: auto;margin-bottom: auto;">id</label>
+                <label class="col-lg-2 col-form-label text-right">Name</label>
                 <div class="col-lg-4">
-                  <input type="text" class="form-control" name="searchId" value="<?= $searchId ?>">
+                  <input type="text" name="searchName" id="searchName" class="form-control" value="<?= $searchName ?>" />
+                </div>
+
+                <label class="col-lg-2 col-form-label text-right">Group</label>
+                <div class="col-lg-4">
+                  <select class="form-control" name="searchGroup" id="searchGroup" style="width:100%;">
+                    <option selected="selected" value="" disabled="disabled">-- Select Group --</option>
+                    <?= $this->admin_model->selectGroup($searchGroup) ?>
+                  </select>
                 </div>
               </div>
 
               <div class="form-group row">
-                <label class="col-lg-2 control-label text-lg-right" for="role searchScreen" style="margin-top: auto;margin-bottom: auto;">Screen</label>
+                <label class="col-lg-2 col-form-label text-right">URL</label>
                 <div class="col-lg-4">
-                  <select name="searchScreen" class="form-control m-b" id="searchScreen" style="width: 100% Iimportant;">
-                    <option value="" selected="selected">-- Select Screen --</option>
-                    <?= $this->admin_model->selectScreen($searchScreen) ?>
-                  </select>
+                  <input name="searchUrl" id="searchUrl" class="form-control" value="<?= $searchUrl ?>" />
+
                 </div>
-                <label class="col-lg-2 control-label text-lg-right" for="role searchRole" style="margin-top: auto;margin-bottom: auto;">Role</label>
+
+                <label class="col-lg-2 col-form-label text-right">Menu</label>
                 <div class="col-lg-4">
-                  <select name="searchRole" class="form-control m-b" id="searchRole" style="width: 100% Iimportant;">
-                    <option value="" selected="">-- Select Role --</option>
-                    <?= $this->admin_model->selectRole($searchRole) ?>
+                  <select name="searchMenu" class="form-control" id="searchMenu" style="width:100%;">
+                    <option selected="selected" value="" disabled="disabled" <?php if ($searchMenu != 1 && $searchMenu != 0) {
+                                                                                echo 'selected';
+                                                                              } ?>>--Select Menu--</option>
+
+                    <option value="1" <?php if ($searchMenu == 1) {
+                                        echo 'selected';
+                                      } ?>>1</option>
+
+                    <option value="0" <?php if ($searchMenu == 0) {
+                                        echo 'selected';
+                                      } ?>>0</option>
                   </select>
+
                 </div>
               </div>
 
@@ -75,7 +97,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         <button class="btn btn-primary" name="search" data-toggle="filter11Modal" id="search" type="button" value="search">Search</button>
-        <a href="<?= base_url() ?>admin/permission" class="btn btn-warning">(x) Clear Filter</a>
+        <a href="<?= base_url() ?>admin/screens" class="btn btn-warning">(x) Clear Filter</a>
       </div>
     </div>
   </div>
@@ -87,37 +109,34 @@
     <div class="card">
       <div class="card-header flex-wrap border-0 pt-6 pb-0">
         <div class="card-title">
-          <h3 class="card-label">Permission</h3>
+          <h3 class="card-label">Screens</h3>
         </div>
       </div>
-      <div class="card-body">
-        <!--begin: Datatable-->
-        <table class="table table-striped table-separate table-head-custom table-hover" id="kt_datatable2">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Screen</th>
-              <th>Role</th>
-              <th>Follow-Up</th>
-              <th>Can View</th>
-              <th>Can Add</th>
-              <th>Can Edit</th>
-              <th>Can Delete</th>
-              <th>Edit</th>
-              <th>Delete</th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-      </div>
+    </div>
+    <div class="card-body">
+      <!--begin: Datatable-->
+      <table class="table table-striped table-separate table-head-custom table-hover" id="kt_datatable2">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Groups</th>
+            <th>Name</th>
+            <th>URL</th>
+            <th>Menue</th>
+            <th>Edit</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
 
 <script>
   var bTable;
-  let permissionsData;
+  let screensData;
   let permissions;
   $(document).ready(function() {
     $.fn.dataTableExt.sErrMode = "console";
@@ -127,7 +146,7 @@
 
     function loadAjaxData() {
       $.ajax({
-        url: base_url + 'admin/get_permission',
+        url: base_url + 'admin/get_screens',
         type: "POST",
         async: true,
         // dataType: 'json',
@@ -152,10 +171,10 @@
 
         success: function(data) {
           var data = JSON.parse(atob(data));
-          permissionsData = data['permissions'];
+          screensData = data['screens'];
           permissions = data['permission'];
           swal.close();
-          createTables(permissionsData, permissions);
+          createTables(screensData, permissions);
           return
         },
         error: function(jqXHR, exception) {
@@ -164,10 +183,10 @@
       });
     }
 
-    function createTables(permissionsData, permissions) {
+    function createTables(screensData, permissions) {
 
       bTable = $("#kt_datatable2").DataTable({
-        data: permissionsData,
+        data: screensData,
 
         processing: true,
         serverSide: false,
@@ -220,67 +239,18 @@
             data: 'id'
           },
           {
-            data: 'screen'
+            data: 'group'
           },
           {
-            data: 'role',
+            data: 'name'
           },
           {
-            data: null,
-            render: function(row) {
-              if (row.follow == 1) {
-                return 'Team';
-              } else if (row.follow == 2) {
-                return 'Team Leader';
-              } else {
-                return "";
-              }
+            data: 'url'
+          },
+          {
+            data: 'menu'
+          },
 
-            }
-
-          },
-          {
-            data: null,
-            render: function(row) {
-              if (row.view == 2) {
-                return "View Only Assigned";
-              } else if (row.view == 1) {
-                return "View ALL";
-              } else {
-                return "No";
-              }
-            }
-          },
-          {
-            data: null,
-            render: function(row) {
-              if (row.add == 1) {
-                return "Yes";
-              } else {
-                return "No";
-              }
-            }
-          },
-          {
-            data: null,
-            render: function(row) {
-              if (row.edit == 1) {
-                return "Yes";
-              } else {
-                return "No";
-              }
-            }
-          },
-          {
-            data: null,
-            render: function(row) {
-              if (row.delete == 1) {
-                return "Yes";
-              } else {
-                return "No";
-              }
-            }
-          },
           {
             data: 'null',
             className: 'noExport noVis',
@@ -289,7 +259,7 @@
               var action_btn = '<div>';
               if (permissions && permissions.edit == '1') {
                 // action_btn += '<a class="btn btn-dark mr-2" href="<?php echo base_url() ?>admin/editPermission?t=' + btoa(row.id) + '"><i class="fa fa-pen "></i> Edit</a>';
-                action_btn += '<a href="<?php echo base_url() ?>admin/editPermission/' + btoa(row.id) + '" class=""><i class="fa fa-pencil"></i> Edit</a>'
+                action_btn += '<a href="<?php echo base_url() ?>admin/editScreen/' + btoa(row.id) + '" class=""><i class="fa fa-pencil"></i> Edit</a>'
               }
               action_btn += '</div>';
               return action_btn
@@ -302,8 +272,8 @@
             render: function(data, type, row) {
               var action_btn = '<div>';
               if (permissions && permissions.delete == '1') {
-                var conf_text = 'Are you sure you want to delete this Permission ? ';
-                action_btn += '<a href="<?php echo base_url() ?>admin/deletePermission/' + btoa(row.id) + ' title="delete" class="" onclick="return confirm("' + conf_text + '");"> <i class = "fa fa-times text-danger text"> </i> Delete </a>';
+                var conf_text = 'Are you sure you want to delete this Screen ? ';
+                action_btn += '<a href="<?php echo base_url() ?>admin/deleteScreen/' + btoa(row.id) + ' title="delete" class="" onclick="return confirm("' + conf_text + '");"> <i class = "fa fa-times text-danger text"> </i> Delete </a>';
               }
 
               action_btn += '</div>';
@@ -315,11 +285,11 @@
         buttons: [
 
           {
-            text: 'Add New Permission',
+            text: 'Add New Screen',
             className: 'btn btn-danger btn-sm text-center font-monospace  fw-bold text-uppercase',
             action: function(e, dt, node, config) {
               if (permissions && permissions.add == '1') {
-                window.location.href = "<?= base_url() ?>admin/addPermission";
+                window.location.href = "<?= base_url() ?>admin/addScreen";
               }
             }
           },

@@ -76,10 +76,6 @@
           .pt-1 {
             padding-top: 0.25rem !important;
           }
-
-          .mb-xl-8 {
-            /* margin-right: 1rem; */
-          }
         </style>
 
         <div class="container content-row">
@@ -389,9 +385,7 @@
     background: transparent !important;
   }
 
-  .dataTables_wrapper .dataTables_paginate .paginate_button:active {
-    /* box-shadow: unset; */
-  }
+
 
   .demo .select2 {
     width: auto !important;

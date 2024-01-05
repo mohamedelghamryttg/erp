@@ -423,7 +423,7 @@ class Accounting extends CI_Controller
 
             // //Pages ..
             $this->load->view('includes/header.php', $data);
-            $this->load->view('accounting/invoices.php');
+            $this->load->view('accounting/invoicesNew.php');
             $this->load->view('includes/footer.php');
         } else {
             echo "You have no permission to access this page";
@@ -2077,7 +2077,7 @@ class Accounting extends CI_Controller
     }
 
 
-    public function cpoStatus()
+    public function cpoStatus_old()
     {
         // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 107);
@@ -2187,13 +2187,139 @@ class Accounting extends CI_Controller
 
             // //Pages ..
             $this->load->view('includes/header.php', $data);
-            $this->load->view('accounting/cpoStatus.php');
+            $this->load->view('accounting/cpoStatusNew.php');
             $this->load->view('includes/footer.php');
         } else {
             echo "You have no permission to access this page";
         }
     }
+    public function cpoStatus()
+    {
+        // Check Permission ..
+        $check = $this->admin_model->checkPermission($this->role, 107);
+        if ($check) {
+            // header ..
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 107);
+            //body ..
+            $data['user'] = $this->user;
+            $data['brand'] = $this->brand;
+            // //Pages ..
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('accounting/cpoStatusNnew.php');
+            $this->load->view('includes_new/footer.php');
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
 
+    public function cpoStatus_data()
+    {
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 3);
+        $filter_data = $this->input->post('filter_data');
+        parse_str($filter_data, $params);
+        $arr2 = array();
+        array_push($arr2, 0);
+        if ($filter_data) {
+            if (isset($params['searchName'])) {
+                $searchName = $params['searchName'];
+                if (!empty($searchName)) {
+                    array_push($arr2, 1);
+                }
+            } else {
+                $searchName = "";
+            }
+            if (isset($params['searchGroup'])) {
+                $searchGroup = $params['searchGroup'];
+                if (!empty($searchGroup)) {
+                    array_push($arr2, 2);
+                }
+            } else {
+                $searchGroup = "";
+            }
+            if (isset($params['searchUrl'])) {
+                $searchUrl = $params['searchUrl'];
+                if (!empty($searchUrl)) {
+                    array_push($arr2, 3);
+                }
+            } else {
+                $searchUrl = "";
+            }
+            if (isset($params['searchMenu'])) {
+                $searchMenu = $params['searchMenu'];
+                if (!empty($searchMenu)) {
+                    array_push($arr2, 4);
+                }
+            } else {
+                $searchMenu = "";
+            }
+        } else {
+            $searchName = "";
+            $searchGroup = "";
+            $searchUrl = "";
+            $searchMenu = "";
+        }
+        $cond0 = "c.brand = '$this->brand'";
+        $cond1 = "name like '%$searchName%'";
+        $cond2 = "groups = '$searchGroup'";
+        $cond3 = "url like '%$searchUrl%'";
+        $cond4 = "menu = '$searchMenu'";
+
+        $arr1 = array($cond0, $cond1, $cond2, $cond3, $cond4);
+        $arr_1_cnt = count($arr2);
+
+        $arr3 = array();
+        for ($i = 0; $i < $arr_1_cnt; $i++) {
+            array_push($arr3, $arr1[$arr2[$i]]);
+        }
+        $arr4 = implode(" and ", $arr3);
+
+
+        // $sql = "select s.*
+        // ,(select name from `group` where id = s.groups) as `group` 
+        //  from screen as s";
+        if ($arr_1_cnt <= 0) {
+            $$arr4 = '1';
+        }
+
+        // $data['screens'] = $this->db->query($sql)->result_array();
+        $data['cpo']  = $this->accounting_model->cpoStatus($this->brand, $arr4)->result_array();
+
+        echo base64_encode(json_encode($data));
+    }
+    public function get_data_cpo_job()
+    {
+        if (isset($_POST['id'])) {
+            $job_po = $_POST['id'];
+        } else {
+            $job_po = "";
+            $data['jobs']   = array();
+            echo json_encode($data);
+            return;
+        }
+
+        $sql = "select j.*,p.id as pricelist,p.rate as rate
+        ,(case 
+        when j.type = 1 then (p.rate * j.volume)
+        when j.type = 2 then (
+        (select sum(ifnull(unit_number,0)*ifnull(`value`,0)* p.rate) from project_fuzzy where job = j.id))
+        else 0
+        end ) as jobTotal
+        ,(select name from services where id = p.service) as service
+        ,(select name from languages where id = p.source) as `source`
+        ,(select name from languages where id = p.target) as target
+        ,(select name from currency where id = p.currency) as currency
+        ,(select user_name from `users` where id = j.created_by) as user_name
+        
+        from job as j
+        left join job_price_list as p on j.price_list = p.id
+        where j.po = '$job_po'";
+        // var_dump($sql);
+        $data['jobs']  = $this->db->query($sql)->result_array();
+
+        echo json_encode($data);
+    }
     public function costOfSales()
     {
         // Check Permission ..

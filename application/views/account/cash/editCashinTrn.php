@@ -22,15 +22,14 @@
             }
         </style>
 
-
-        <form class="form" id="form" method="post" enctype="multipart/form-data">
-            <input type='hidden' id="chk_audit" value="<?= ($cashin->audit_chk ?? '0') . ($audit_permission->edit ?? '0')  ?>">
-
+        <form class="form" id="form" enctype="multipart/form-data">
             <?php if (isset($_SERVER['HTTP_REFERER'])) : ?>
                 <input type="text" name="referer" value="<?= $_SERVER['HTTP_REFERER'] ?>" hidden>
             <?php else : ?>
                 <input type="text" name="referer" value="<?= base_url() ?>account" hidden>
             <?php endif; ?>
+
+            <input type='hidden' id="chk_audit" value="<?= ($cashin->audit_chk ?? '0') . ($audit_permission->edit ?? '0')  ?>">
 
             <div class="card text-center">
                 <div class="row">
@@ -52,7 +51,7 @@
                 </div>
             </div>
             <!--begin::Form-->
-            <input type="hidden" name="id" value="<?= base64_encode($cashin->id) ?>">
+            <input type="hidden" name="id" id="id" value="<?= base64_encode($cashin->id) ?>">
 
             <div class="card-body py-0 shadow-lg p-3 mb-5 bg-white rounded">
                 <input type="hidden" name="brand" id="brand" value="<?= $brand ?>">
@@ -82,10 +81,11 @@
                         <button type="button" id="auto_num" class="btn btn-success mr-2"> Auto Number</button>
                     </div>
                 </div>
+
                 <div class="form-group row" hidden>
                     <label class="col-lg-3 col-form-label text-right">Transaction Type </label>
                     <div class="col-lg-6">
-                        <select class="form-control" name="trn_typ" id="trn_typ" required value="<?= $cashin->trn_typ ?>">
+                        <select class="form-control" name="trn_typ" id="trn_typ" required value="<?= $cashin->trn_type ?>">
                             <option disabled="disabled" value="">-- Select Transaction Type --</option>
                             <option selected='selected' value="Other" selected="selected">Other</option>
                         </select>
@@ -129,19 +129,14 @@
                         <input type="number" class="form-control" name="rate" id="rate" value="<?= $cashin->rate ?>" required step="any" placeholder="0.00000" pattern="^\d*(\.\d{0,5})?$" onkeypress='return (event.charCode == 46 || event.charCode >= 48 && event.charCode <= 57)'>
                     </div>
                 </div>
-                <style>
-                    input[type=file] {
-                        display: none
-                    }
-                </style>
+
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">File Attach</label>
-                    <div class="col-lg-6" style="display: flex;">
-                        <button type="button" class="choosefile btn btn-secondary mr-2">Browse...</button>
+                    <div class="col-lg-6">
                         <input type="text" id="fileToDelete" name="fileToDelete" value="<?= $cashin->doc_file ?>" hidden>
 
                         <input type="file" class="form-control" name="doc_file" id="doc_file" accept=".zip,.rar,.7zip">
-                        <input readonly class="fileuploadspan form-control" id="fileuploadspan" name="fileuploadspan" value="<?= ($cashin->name_file && $cashin->name_file != '') ?  $cashin->name_file : 'No file selected' ?>">
+                        <input readonly class="fileuploadspan form-control" id="fileuploadspan" name="fileuploadspan" value="<?= $cashin->name_file ?? '' ?>">
                     </div>
                 </div>
                 <div class="form-group row my-0" id="file_sel">
@@ -156,7 +151,7 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">File Description</label>
                     <div class="col-lg-6">
-                        <textarea class="form-control" name="desc_file" id="desc_file" rows="1" cols="40"></textarea>
+                        <textarea class="form-control" name="desc_file" id="desc_file" rows="1" cols="40"><?= $cashin->desc_file ?></textarea>
                     </div>
                 </div>
 
@@ -176,8 +171,9 @@
                         <?php endif; ?>
                         <a type="button" class="btn btn-secondary" id="close" href="<?php echo base_url() ?>account/cashintrnlist" class="btn btn-default">Cancel</a>
                         <?php if ($audit_permission->edit ?? '' == 1) : ?>
-                            <a href="#myModal" data-toggle="modal" class="btn btn-success">Audit Document</a>
+                            <a href="#myModal" data-toggle="modal" class="btn btn-primary">Audit Document</a>
                         <?php endif; ?>
+                        <button id="print" class="btn btn-success mr-2">Print</button>
                     </div>
                 </div>
             </div>
@@ -194,14 +190,6 @@
 
                         <form class="form1" id="form" method="post" enctype="multipart/form-data">
                             <input type="text" name="aud_id" id="aud_id" value="<?= base64_encode($cashin->id) ?>" hidden>
-
-                            <!-- <div class="card text-center">
-                                    <div class="card-header">
-                                        <h3>Audit Section</h3>
-                                          </div>
-                                </div> -->
-
-                            <!-- <div class="card-body py-0 shadow-lg p-3 mb-5 bg-white rounded"> -->
                             <div class="form-group row">
                                 <label class="col-lg-3 col-form-label text-right">Audited </label>
                                 <div class="col-lg-2">
@@ -218,26 +206,20 @@
                                     <textarea class="form-control" id="audit_comment" name="audit_comment" rows="4" cols="40"><?= $cashin->audit_comment ?></textarea>
                                 </div>
                             </div>
-                            <!-- </div> -->
-                            <!-- <div class="card-footer" style="text-align: center;width: 73%;left: 15%;position: relative;"> -->
                             <div class="row">
-
                                 <div class="col-lg-12 text-center">
                                     <?php if (($audit_permission->edit ?? '' == 1)) : ?>
                                         <button id="submit1" class="btn btn-success mr-2">Submit</button>
                                     <?php endif; ?>
-                                    <a type="button" class="btn btn-secondary" id="close1" href="#myModal" data-toggle="modal" class="btn btn-default">Cancel</a>
+                                    <a type="button" class="btn btn-secondary" id="close1" href="#myModal" data-toggle="modal">Cancel</a>
                                 </div>
                             </div>
-                            <!-- </div> -->
-
                         </form>
                     </div>
                 </div>
             </div>
-        </div>';
+        </div>
 
-        <br />
         <div class="datatable datatable-default datatable-bordered datatable-loaded">
             <table class="datatable-bordered datatable-head-custom datatable-table" id="kt_datatable" style="display: block;border-top: 1px solid #3F4254;">
                 <thead class="datatable-head">
@@ -265,22 +247,58 @@
     </div>
     <!--end::Card-->
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<style type="text/css">
+    .printMe {
+        display: none;
+    }
+
+    @media print {
+        div {
+            display: none;
+        }
+
+        .printMe {
+            display: block;
+        }
+    }
+</style>
+<div id="printdiv" style="display: none;">
+    <h1> documents </h1>
+</div>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
 <script>
     $(document).ready(function() {
         create_entry();
         check_audit_form();
+        $('#print').on('click', function(e) {
+            windowUrl = window.location.href;
+
+            var myPrintContent = document.getElementById('printdiv');
+            var myPrintWindow = window.open(windowUrl, "windowName", 'left=300,top=100,width=400,height=400');
+            myPrintWindow.document.write(myPrintContent.innerHTML);
+            // myPrintWindow.document.getElementById('printdiv').style.display = 'block'
+            myPrintWindow.document.close();
+            myPrintWindow.focus();
+            myPrintWindow.print();
+            myPrintWindow.close();
+            return false;
+        });
 
         function check_audit_form() {
             let chk_audit = $('#chk_audit').val();
-            if (chk_audit[0] = '1') {
+
+            if (chk_audit[0] == '1') {
+
                 $("#form").find('input').prop('readonly', true)
                 $("#form").find('textarea').prop('readonly', true)
                 $("#form").find('select').prop('disabled', true)
                 $("#cdate").prop("disabled", true);
-                $(".choosefile").prop("disabled", true);
-                $("#auto_num").prop("disabled", true);
-                if (chk_audit[1] = '0') {
+                $("#doc_file").prop('disabled', true)
+                document.getElementById("auto_num").style.visibility = 'hidden';
+
+                document.getElementById("linkToView").style.visibility = 'hidden';
+                document.getElementById("linkToDelete").style.visibility = 'hidden'
+                if (chk_audit[1] == '0') {
                     $("#form1").find('textarea').prop('readonly', true)
                     $("#form1").find('select').prop('disabled', true)
                 } else {
@@ -291,7 +309,6 @@
             }
         }
         $("#submit1").on('click', function(e) {
-            // $("input:file[id*=doc_file]").attr("value", "abc.jpg");
             e.preventDefault();
             var audit_chk = $('#audit_chk').val()
             var aud_id = $('#aud_id').val()
@@ -318,14 +335,12 @@
                 }
             });
         });
-        $('.choosefile').click(function() {
-            $('#doc_file').click();
-        });
+
         $('#doc_file').change(function(e) {
             var fileName = e.target.files[0].name;
             if (fileName != '') {
                 $('#fileuploadspan').val(fileName);
-                document.getElementById('file_sel').style.display = 'none';
+                // document.getElementById('file_sel').style.display = 'none';
             }
         });
 
@@ -347,11 +362,50 @@
             }
         });
         $('#linkToDelete').on('click', function() {
-            if (confirm('Are you sure you want to delete Profile File Uploaded ?')) {
-                $('#fileuploadspan').val('');
-                document.getElementById('file_sel').style.display = "none";
+            // if (confirm('Are you sure you want to delete Profile File Uploaded ?')) {
+
+            var file_toDelete = $('#fileToDelete').val()
+            var id = $('#id').val()
+
+            if (file_toDelete && file_toDelete != '') {
+                swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Are you sure you want to delete Attached File ?',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes'
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            method: 'POST',
+                            url: "<?= base_url() . "account/fileToDelete" ?>",
+                            data: {
+                                'id': id,
+                                'file_toDelete': file_toDelete,
+                                'type': 'cashin'
+                            },
+                            success: function(result) {
+                                if (result == 'success') {
+                                    alert("Success Deleted File ");
+                                    $('#fileuploadspan').val('');
+                                    document.getElementById('file_sel').style.display = "none";
+                                    location.href = "<?= base_url() . "account/editCashinTrn/" ?>" + id;
+                                } else {
+                                    alert("File Failed to Deleted ");
+                                }
+                            },
+                            error: function() {
+                                alert("File Failed to Deleted ");
+                            }
+                        });
+
+
+                    }
+                })
             }
+
         });
+
         $("#form").submit(function(e) {
             // $("input:file[id*=doc_file]").attr("value", "abc.jpg");
             e.preventDefault();
@@ -365,33 +419,23 @@
                 cache: false,
                 processData: false,
                 beforeSend: function() {
-                    // $empty = $('#form').find("input").filter(function() {
-                    //     return this.value === "";
-                    // });
-                    // $empty1 = $('#form').find("select").filter(function() {
-                    //     return this.value === "";
-                    // });
-                    // $empty2 = $('#form').find("textarea").filter(function() {
-                    //     return this.value === "";
-                    // });
+
                     if ($('#amount').val() === 0 || $('#rate_h').val() === 0) {
                         alert('You must fill out all required fields in order to submit a change');
                         return false;
                     }
-                    // if ($empty.length + $empty1.length + $empty2.length) {
-                    //     alert('You must fill out all required fields to submit a change');
-                    //     return false;
-                    // } else {
-                    //     return true;
-                    // }
+
                 },
                 success: function(data) {
                     data = (data);
 
-                    if (data.records != 0)
+                    if (data.records == 1)
                         alert("Failed To Edit Cash In Entry ...");
-                    else
+                    else if (data.records == 2) {
+                        alert("Can Not Upload File !");
+                    } else {
                         window.location = "<?= base_url("account/cashintrnlist") ?>";
+                    }
                 }
             });
         });
@@ -609,33 +653,8 @@
                 $("#rate").prop("readonly", false);
             }
         });
-        //     $("#linkToDelete").on('click', function() {
-        //         var file_toDelete = $('#fileToDelete').val()
-        //         if (file_toDelete && file_toDelete != '') {
-        //             if (confirm('Are you sure you want to delete Profile File Uploaded ?')) {
-        //                 $.ajax({
-        //                     method: 'POST',
-        //                     url: "<?= base_url() . "customer/fileToDelete" ?>",
-        //                     data: {
-        //                         'id': id,
-        //                         'file_toDelete': file_toDelete
-        //                     },
-        //                     success: function(result) {
-        //                         if (result === "success") {
-        //                             alert("Success Deleted File ");
-        //                             location.href = "<?php echo base_url() ?>customer/editCustomerPortal?t=" + id;
-        //                         } else {
-        //                             alert("File Failed to Deleted ");
-        //                         }
-        //                     },
-        //                     error: function() {
-        //                         alert("File Failed to Deleted ");
-        //                     }
-        //                 });
-        //             }
-        //         }
-        //     });
-    })
+
+    });
     $('#auto_num').click(function() {
         var date_trns = $('#cdate').val();
         var dt = new Date(date_trns);
@@ -659,7 +678,5 @@
                 }
             });
         }
-
-
     });
 </script>

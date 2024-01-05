@@ -52,12 +52,12 @@
 						<label class="col-lg-2 control-label" for="role date">Po Status</label>
 
 						<div class="col-lg-3">
-							<select name="verified" class="form-control m-b" id="verified" />
-							<option disabled="disabled" selected="selected">-- Select Status --</option>
+							<select name="verified" class="form-control m-b" id="verified">
+								<option value="" disabled="disabled" selected="selected">-- Select Status --</option>
 
-							<option value="1" <?= $_REQUEST['verified'] == 1 ? " selected" : "" ?>>Verified</option>
-							<option value="3" <?= $_REQUEST['verified'] == 3 ? " selected" : "" ?>>Not Verified</option>
-							<option value="2" <?= $_REQUEST['verified'] == 2 ? " selected" : "" ?>>Has Error</option>
+								<option value="1" <?= $verified == 1 ? " selected" : "" ?>>Verified</option>
+								<option value="3" <?= $verified == 3 ? " selected" : "" ?>>Not Verified</option>
+								<option value="2" <?= $verified == 2 ? " selected" : "" ?>>Has Error</option>
 
 							</select>
 						</div>
@@ -136,6 +136,7 @@
 									<th>Verified At</th>
 									<th>Has Error</th>
 									<th>Invoiced</th>
+									<th>Paid</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -177,6 +178,11 @@
 												echo "Invoiced";
 											} else {
 												echo "Not Invoiced";
+											} ?></td>
+										<td><?php if ($row->paid == 1) {
+												echo "paid";
+											} else {
+												echo "Not paid";
 											} ?></td>
 									</tr>
 									<tr>

@@ -2,22 +2,57 @@
     <!--begin::Container-->
     <div class="container">
         <!--begin::Card-->
-        <form class="cmxform form-horizontal " id="form" method="post" enctype="multipart/form-data">
+        <style>
+            .devrotate {
+                position: absolute;
+                /* left: 50px; */
+                right: 0;
+                top: 25px;
+                width: 100px;
+                height: 100px;
+                background-color: transparent;
+            }
+
+            .rotate {
+                background-color: transparent;
+                outline: 2px dashed;
+                transform: rotate(45deg);
+                color: darkblue;
+                /* width: 40%; */
+            }
+        </style>
+
+
+        <form class="form" id="form" enctype="multipart/form-data">
             <?php if (isset($_SERVER['HTTP_REFERER'])) : ?>
                 <input type="text" name="referer" value="<?= $_SERVER['HTTP_REFERER'] ?>" hidden>
             <?php else : ?>
                 <input type="text" name="referer" value="<?= base_url() ?>account" hidden>
             <?php endif; ?>
 
+            <input type='hidden' id="chk_audit" value="<?= ($cashout->audit_chk ?? '0') . ($audit_permission->edit ?? '0')  ?>">
+
             <div class="card text-center">
-                <div class="card-header">
-                    <h3>Treasury Receipt Edit Cash Out</h3>
-                    <input type="hidden" name="serial" id="serial" value="<?= $cashin->ccode ?>">
-                    <h3 style="color: darkred;"><u>Serial :<?= $cashin->ccode ?></u></h3>
+                <div class="row">
+                    <div class="col-lg-3 text-right">
+                        <?php if ($cashout->audit_chk == '1') : ?>
+                            <div class="devrotate">
+                                <i class="fas fa-stamp fa-5x rotate"></i>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card-header">
+                            <h3>Treasury Receipt Edit Cash Out</h3>
+                            <input type="hidden" name="serial" id="serial" value="<?= $cashout->ccode ?>">
+                            <h3 style="color: darkred;"><u>Serial :<?= $cashout->ccode ?></u></h3>
+                        </div>
+                    </div>
+                    <div class="col-lg-3"></div>
                 </div>
             </div>
             <!--begin::Form-->
-            <input type="hidden" name="id" value="<?= base64_encode($cashout->id) ?>">
+            <input type="hidden" name="id" id="id" value="<?= base64_encode($cashout->id) ?>">
 
             <div class="card-body py-0 shadow-lg p-3 mb-5 bg-white rounded">
                 <input type="hidden" name="brand" id="brand" value="<?= $brand ?>">
@@ -26,7 +61,7 @@
                     <div class="col-lg-6">
                         <select name='cash_id' class='form-control m-b' id="cash_id" required value="<?= $cashout->cash_id ?>">
                             <option value="" selected='' disabled>-- Select Cash --</option>
-                            <?= $this->AccountModel->selectPaymentCombo('payment_method', $cashout->cash_id, $brand, '1'); ?>
+                            <?= $this->AccountModel->selectPaymentCombo('payment_method', $cashout->cash_id, $brand, '2'); ?>
                         </select>
                     </div>
                     <input type="hidden" name="cash_acc" id="cash_acc" value="<?= $cash_acc ?>">
@@ -35,23 +70,23 @@
                 </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label text-right">Document Date</label>
-                    <div class="col-lg-6">
-                        <input type="text" class="date_sheet form-control" name="cdate" id="cdate" value="<?= date("Y-m-d", strtotime($cashout->date)) ?>" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}" required>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-lg-3 col-form-label text-right">Document Internal Number</label>
                     <div class="col-lg-2">
-                        <input type="text" class="form-control" name="doc_no" id="doc_no" value="<?= $cashout->doc_no ?>">
+                        <input type="text" class="form-control datetimepicker-input" id="cdate" name="cdate" data-toggle="datetimepicker" data-target="#Datetimepicker" autocomplete="off" value="<?= date("Y-m-d", strtotime($cashout->date)) ?>">
+                    </div>
+
+                    <label class="col-lg-2 col-form-label text-right">Document Number</label>
+                    <div class="col-lg-2">
+                        <input type="text" class="form-control" name="doc_no" id="doc_no" value="<?= $cashout->doc_no ?>" required>
                     </div>
                     <div class="col-lg-2">
                         <button type="button" id="auto_num" class="btn btn-success mr-2"> Auto Number</button>
                     </div>
                 </div>
+
                 <div class="form-group row" hidden>
                     <label class="col-lg-3 col-form-label text-right">Transaction Type </label>
                     <div class="col-lg-6">
-                        <select class="form-control" name="trn_typ" id="trn_typ" required value="<?= $cashout->trn_typ ?>">
+                        <select class="form-control" name="trn_typ" id="trn_typ" required value="<?= $cashout->trn_type ?>">
                             <option disabled="disabled" value="">-- Select Transaction Type --</option>
                             <option selected='selected' value="Other" selected="selected">Other</option>
                         </select>
@@ -97,24 +132,94 @@
                 </div>
 
                 <div class="form-group row">
-                    <label class="col-lg-3 col-form-label text-right">Document Description</label>
+                    <label class="col-lg-3 col-form-label text-right">File Attach</label>
                     <div class="col-lg-6">
-                        <textarea id="rem" name="rem" rows="4" cols="40"><?= $cashout->rem ?></textarea>
+                        <input type="text" id="fileToDelete" name="fileToDelete" value="<?= $cashout->doc_file ?>" hidden>
+
+                        <input type="file" class="form-control" name="doc_file" id="doc_file" accept=".zip,.rar,.7zip">
+                        <input readonly class="fileuploadspan form-control" id="fileuploadspan" name="fileuploadspan" value="<?= $cashout->name_file ?? '' ?>">
+                    </div>
+                </div>
+                <div class="form-group row my-0" id="file_sel">
+                    <?php if ($cashout->doc_file && $cashout->doc_file != '') { ?>
+                        <div class="col-lg-6 text-right">
+                            <a class="btn btn-sm btn-success my-3" id="linkToView" href="<?= base_url() . './assets/uploads/account/cashout/' . $cashout->doc_file ?>">View Attach</a>
+                            <button type="button" id="linkToDelete" class="btn btn-sm btn-primary">Delete Attach</button>
+                        </div>
+                    <?php } ?>
+
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label text-right">File Description</label>
+                    <div class="col-lg-6">
+                        <textarea class="form-control" name="desc_file" id="desc_file" rows="1" cols="40"><?= $cashout->desc_file ?></textarea>
                     </div>
                 </div>
 
-
-                <div class="card-footer" style="text-align: center;width: 73%;left: 15%;position: relative;">
-                    <div class="row">
-                        <div class="col-lg-3"></div>
-                        <div class="col-lg-6">
-                            <button type="button" id="submit" class="btn btn-success mr-2">Submit</button>
-                            <a class="btn btn-secondary" href="<?php echo base_url() ?>account/cashouttrnlist" class="btn btn-default" type="button">Cancel</a>
-                        </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label text-right">Document Description</label>
+                    <div class="col-lg-6">
+                        <textarea class="form-control" id="rem" name="rem" rows="4" cols="40" required><?= $cashout->rem ?></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer" style="text-align: center;width: 73%;left: 15%;position: relative;">
+                <div class="row">
+                    <div class="col-lg-3"></div>
+                    <div class="col-lg-6">
+                        <?php if (($cashout->audit_chk != '1')) : ?>
+                            <button id="submit" class="btn btn-success mr-2">Submit</button>
+                        <?php endif; ?>
+                        <a type="button" class="btn btn-secondary" id="close" href="<?php echo base_url() ?>account/cashouttrnlist" class="btn btn-default">Cancel</a>
+                        <?php if ($audit_permission->edit ?? '' == 1) : ?>
+                            <a href="#myModal" data-toggle="modal" class="btn btn-primary">Audit Document</a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </form>
+
+        <div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="myModal" class="modal fade ">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                        <h4 class="modal-title">Audit Section</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <form class="form1" id="form" method="post" enctype="multipart/form-data">
+                            <input type="text" name="aud_id" id="aud_id" value="<?= base64_encode($cashout->id) ?>" hidden>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label text-right">Audited </label>
+                                <div class="col-lg-2">
+                                    <select class="form-control" name="audit_chk" id="audit_chk" value="<?= $cashout->audit_chk ?>">
+                                        <option value="0" <?= ($cashout->audit_chk == '0') ? "selected" : '' ?>>-- No --</option>
+                                        <option value="1" <?= ($cashout->audit_chk == '1') ? "selected" : '' ?>>-- Yes --</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label text-right">Audit Comments</label>
+                                <div class="col-lg-9">
+                                    <textarea class="form-control" id="audit_comment" name="audit_comment" rows="4" cols="40"><?= $cashout->audit_comment ?></textarea>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 text-center">
+                                    <?php if (($audit_permission->edit ?? '' == 1)) : ?>
+                                        <button id="submit1" class="btn btn-success mr-2">Submit</button>
+                                    <?php endif; ?>
+                                    <a type="button" class="btn btn-secondary" id="close1" href="#myModal" data-toggle="modal">Cancel</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <br />
         <div class="datatable datatable-default datatable-bordered datatable-loaded">
             <table class="datatable-bordered datatable-head-custom datatable-table" id="kt_datatable" style="display: block;border-top: 1px solid #3F4254;">
@@ -143,10 +248,73 @@
     </div>
     <!--end::Card-->
 </div>
-
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
 <script>
     $(document).ready(function() {
         create_entry();
+        check_audit_form();
+
+        function check_audit_form() {
+            let chk_audit = $('#chk_audit').val();
+
+            if (chk_audit[0] == '1') {
+
+                $("#form").find('input').prop('readonly', true)
+                $("#form").find('textarea').prop('readonly', true)
+                $("#form").find('select').prop('disabled', true)
+                $("#cdate").prop("disabled", true);
+                $("#doc_file").prop('disabled', true)
+                document.getElementById("auto_num").style.visibility = 'hidden';
+
+                document.getElementById("linkToView").style.visibility = 'hidden';
+                document.getElementById("linkToDelete").style.visibility = 'hidden'
+                if (chk_audit[1] == '0') {
+                    $("#form1").find('textarea').prop('readonly', true)
+                    $("#form1").find('select').prop('disabled', true)
+                } else {
+                    $("#form1").find('textarea').prop('readonly', false)
+                    $("#form1").find('select').prop('disabled', false)
+
+                }
+            }
+        }
+        $("#submit1").on('click', function(e) {
+            // $("input:file[id*=doc_file]").attr("value", "abc.jpg");
+            e.preventDefault();
+            var audit_chk = $('#audit_chk').val()
+            var aud_id = $('#aud_id').val()
+            var audit_comment = $('#audit_comment').val()
+
+            $.ajax({
+                url: "<?= base_url() . "account/doEditCashoutTrn_audit" ?>",
+                type: "POST",
+                data: {
+                    'audit_chk': audit_chk,
+                    'aud_id': aud_id,
+                    'audit_comment': audit_comment
+                },
+                // data: new FormData(this),
+                dataType: "json",
+
+                success: function(data) {
+                    data = (data);
+                    if (data.records != 0)
+                        alert("Failed To Adit Cash Out Entry ...");
+                    else
+                        $('#myModal').modal('hide');
+
+                }
+            });
+        });
+
+        $('#doc_file').change(function(e) {
+            var fileName = e.target.files[0].name;
+            if (fileName != '') {
+                $('#fileuploadspan').val(fileName);
+                // document.getElementById('file_sel').style.display = 'none';
+            }
+        });
+
         $("#amount").blur(function() {
             if (this.value === 'NaN') {
                 this.value = 0;
@@ -164,39 +332,81 @@
                 $("#rate").prop("readonly", true);
             }
         });
+        $('#linkToDelete').on('click', function() {
+            // if (confirm('Are you sure you want to delete Profile File Uploaded ?')) {
 
-        $("#submit").click(function(event) {
+            var file_toDelete = $('#fileToDelete').val()
+            var id = $('#id').val()
+
+            if (file_toDelete && file_toDelete != '') {
+                swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Are you sure you want to delete Attached File ?',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes'
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            method: 'POST',
+                            url: "<?= base_url() . "account/fileToDelete" ?>",
+                            data: {
+                                'id': id,
+                                'file_toDelete': file_toDelete,
+                                'type': 'cashout'
+                            },
+                            success: function(result) {
+                                if (result == 'success') {
+                                    alert("Success Deleted File ");
+                                    $('#fileuploadspan').val('');
+                                    document.getElementById('file_sel').style.display = "none";
+                                    location.href = "<?= base_url() . "account/editCashoutTrn/" ?>" + id;
+                                } else {
+                                    alert("File Failed to Deleted ");
+                                }
+                            },
+                            error: function() {
+                                alert("File Failed to Deleted ");
+                            }
+                        });
+
+
+                    }
+                })
+            }
+
+        });
+
+        $("#form").submit(function(e) {
+            // $("input:file[id*=doc_file]").attr("value", "abc.jpg");
+            e.preventDefault();
             $.ajax({
                 url: "<?= base_url() . "account/doEditCashoutTrn" ?>",
                 type: "POST",
-                data: $("#form").serialize(),
+                // data: $("#form").serialize(),
+                data: new FormData(this),
+                dataType: "json",
+                contentType: false,
+                cache: false,
+                processData: false,
                 beforeSend: function() {
-                    $empty = $('#form').find("input").filter(function() {
-                        return this.value === "";
-                    });
-                    $empty1 = $('#form').find("select").filter(function() {
-                        return this.value === "";
-                    });
-                    $empty2 = $('#form').find("textarea").filter(function() {
-                        return this.value === "";
-                    });
+
                     if ($('#amount').val() === 0 || $('#rate_h').val() === 0) {
                         alert('You must fill out all required fields in order to submit a change');
                         return false;
                     }
-                    if ($empty.length + $empty1.length + $empty2.length) {
-                        alert('You must fill out all required fields to submit a change');
-                        return false;
-                    } else {
-                        return true;
-                    }
+
                 },
                 success: function(data) {
-                    var data = JSON.parse(data);
-                    if (data.records != 0)
-                        alert("Cash Out Receipt Already Exists!");
-                    else
+                    data = (data);
+
+                    if (data.records == 1)
+                        alert("Failed To Edit Cash Out Entry ...");
+                    else if (data.records == 2) {
+                        alert("Can Not Upload File !");
+                    } else {
                         window.location = "<?= base_url("account/cashouttrnlist") ?>";
+                    }
                 }
             });
         });
@@ -307,7 +517,7 @@
 
         $("#trn_id").on('change', function() {
             create_entry();
-        })
+        });
         $("#amount").on('focusout', function() {
             this.value = parseFloat(this.value).toFixed(2);
             create_entry();
@@ -321,9 +531,9 @@
             if ((cash_id != '' && cash_id != null) && (amont != 0 || amont != '')) {
                 $("#row1").html(`
                 "<td data-field="debit" class="datatable-cell px-0"  style="width: 112px;"><span
-                   ></span></td>
+                   >` + $("#amount").val() + `</span></td>
                 <td data-field="credit"  class="datatable-cell px-0"  style="width: 112px;"><span
-                    >` + $("#amount").val() + ` </span></td>
+                    > </span></td>
                 <td data-field="account" " class="datatable-cell px-0"  style="width: 150px;"><span
                    >` + $("#cash_acc_name").val() + ` </span></td>
                 <td data-field="trn"  class="datatable-cell px-0"  style="width: 150px;"><span
@@ -342,9 +552,9 @@
             if ((trn_id != '' && trn_id != null) && (amont != 0 && amont != '')) {
                 $("#row2").html(`
                 "<td data-field="debit" class="datatable-cell px-0" style="width: 112px;"><span
-                    ></span>` + $("#amount").val() + `</td>
+                    ></span></td>
                 <td data-field="credit"  class="datatable-cell px-0"  style="width: 112px;"><span
-                   > </span></td>
+                   > ` + $("#amount").val() + `</span></td>
                 <td data-field="account" " class="datatable-cell px-0"  style="width: 150px;"><span
                     >` + $("#trn_id option:selected").text() + ` </span></td>
                 <td data-field="trn"  class="datatable-cell px-0" style="width: 150px;"><span
@@ -414,7 +624,8 @@
                 $("#rate").prop("readonly", false);
             }
         });
-    })
+
+    });
     $('#auto_num').click(function() {
         var date_trns = $('#cdate').val();
         var dt = new Date(date_trns);
@@ -430,6 +641,7 @@
                 data: {
                     'cdate': date_trns,
                     'transaction': 'Cash Out'
+
                 },
                 success: function(data) {
                     //var data = JSON.parse(data);
@@ -438,5 +650,7 @@
                 }
             });
         }
-    })
+
+
+    });
 </script>
