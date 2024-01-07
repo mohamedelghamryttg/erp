@@ -1657,6 +1657,7 @@ class Account extends CI_Controller
             }
             $cash_select = $this->db->get_where('payment_method', array('id' => $data['cashin']->cash_id))->row()->account_id;
             $account_select = $this->db->get_where('account_chart', array('id' => $cash_select))->row();
+            // var_dump($cash_select);
             $data['cash_acc_id'] = $account_select->id;
             $data['cash_acc'] = $account_select->acode;
             $data['cash_acc_name'] = $account_select->name;
@@ -1665,6 +1666,19 @@ class Account extends CI_Controller
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('account/cash/editCashinTrn');
             $this->load->view('includes_new/footer.php');
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
+    public function print_cashin()
+    {
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 221);
+        if ($data['permission']->edit == 1) {
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            $id = base64_decode($this->input->post('id'));
+            $data['cashin'] = $this->db->get_where('cashin', array('id' => $id, 'brand' => $this->brand))->row();
+            $data['brand'] = $this->brand;
+            echo  $this->load->view('account/cash/receipt_print', $data, true);
         } else {
             echo "You have no permission to access this page";
         }
@@ -1848,6 +1862,7 @@ class Account extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
+
     public function addCashinTrn()
     {
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 221);
@@ -1883,10 +1898,11 @@ class Account extends CI_Controller
         // Check Permission ..
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 221);
         if ($permission->add == 1) {
+            $year_data = date("Y", strtotime($_POST['cdate']));
             if (isset($_POST['doc_no'])) {
-                $records = $this->db->select('*')->from('cashin')->where('doc_no=', $_POST['doc_no'])->where('brand=', $this->brand)->order_by('id')->get()->num_rows();
+                $records = $this->db->select('*')->from('cashin')->where('doc_no=', $_POST['doc_no'])->where('year(date)=', $year_data)->where('brand=', $this->brand)->order_by('id')->get()->num_rows();
                 if ($records != 0) {
-                    echo json_encode(['records' => 1]);
+                    echo json_encode(['records' => 1, 'id' => '']);
                     return;
                 }
             }
@@ -1932,7 +1948,7 @@ class Account extends CI_Controller
                 if (!$this->file_upload->do_upload('doc_file')) {
                     $error = $this->file_upload->display_errors();
                     $this->session->set_flashdata('error', $error);
-                    echo json_encode(['records' => 2]);
+                    echo json_encode(['records' => 2, 'id' => '']);
                     return;
                 } else {
                     $data_file = $this->file_upload->data();
@@ -2012,18 +2028,18 @@ class Account extends CI_Controller
                         if ($this->db->insert('entry_data', $entry_data)) {
                             $true = "Cash In Add Successfully ...";
                             $this->session->set_flashdata('true', $true);
-                            echo json_encode(['records' => 0]);
+                            echo json_encode(['records' => 0, 'id' => base64_encode($cashin_id)]);
                         }
                     } else {
                         $error = "Failed To Add Cash In Entry ...";
                         $this->session->set_flashdata('error', $error);
-                        echo json_encode(['records' => 1]);
+                        echo json_encode(['records' => 1, 'id' => '']);
                     }
                 }
             } else {
                 $error = "Failed To Add Cash In Entry ...";
                 $this->session->set_flashdata('error', $error);
-                echo json_encode(['records' => 1]);
+                echo json_encode(['records' => 1, 'id' => '']);
             }
         } else {
             echo "You have no permission to access this page";

@@ -1,3 +1,85 @@
+<style>
+	.datepicker {
+		z-index: 10000;
+	}
+
+	.row.display-flex {
+		display: flex;
+		flex-wrap: wrap;
+	}
+
+	.row.display-flex>[class*='col-'] {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.text-white {
+		color: var(--bs-text-white) !important;
+	}
+
+	/* .fs-2hx {
+            font-size: 2.5rem !important;
+          } */
+
+	.ls-n2 {
+		letter-spacing: -.115rem !important;
+	}
+
+	.text-white {
+		--bs-text-opacity: 1;
+		color: rgba(var(--bs-white-rgb), var(--bs-text-opacity)) !important;
+	}
+
+	.lh-1 {
+		line-height: 1 !important;
+	}
+
+	.fw-bold {
+		font-weight: 600 !important;
+	}
+
+	.fs-0hx {
+		font-size: calc(0.2rem + 1.0vw) !important;
+	}
+
+	.fs-1hx {
+		font-size: calc(0.375rem + 1.0vw) !important;
+	}
+
+	.fs-2hx {
+		font-size: calc(1.375rem + 1.5vw) !important;
+	}
+
+	.fs-3hx {
+		font-size: calc(1rem + 1.5vw) !important;
+	}
+
+	.fs-4hx {
+		font-size: calc(.4rem + 1.5vw) !important;
+	}
+
+	.me-2 {
+		margin-right: 1.5rem !important;
+	}
+
+	.fs-6 {
+		font-size: 1.075rem !important;
+	}
+
+	.fw-semibold {
+		font-weight: 500 !important;
+	}
+
+	.pt-1 {
+		padding-top: 0.25rem !important;
+	}
+
+	.mb-xl-8 {
+		/* margin-right: 1rem; */
+	}
+</style>
+
+</style>
 <?php if ($this->session->flashdata('true')) { ?>
 	<div class="alert alert-success" role="alert">
 		<span class="fa fa-check-circle"></span>
@@ -10,6 +92,58 @@
 		<span><strong><?= $this->session->flashdata('error') ?></strong></span>
 	</div>
 <?php  } ?>
+<div class="container content-row">
+	<div class="row">
+		<!--begin::Col-->
+		<div class="col-12" style="display: flex;">
+			<div class="col-sm-6 col-lg-3 d-flex align-items-stretch">
+				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: linear-gradient(180deg, rgb(71, 71, 204) 90%, rgb(0, 212, 255) 100%);">
+					<div class="card-body  p-0" style="float:left;">
+						<span class="fs-3hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="AllCount">...</span>
+						<span class="card-text fs-0hx text-right">All Client PO </span>
+
+					</div>
+				</div>
+			</div>
+
+			<div class="col-sm-6 col-lg-2 d-flex align-items-stretch">
+				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: linear-gradient(180deg,  rgba(28,173,17,.8) 90%, rgba(0,212,255,.5) 100%);">
+					<div class="card-body p-0" style="float:left;">
+
+						<span class="fs-4hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="VerifiedCount">...</span>
+						<span class="card-text fs-0hx text-right"><br>Verified </span>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-sm-6 col-lg-2 d-flex align-items-stretch">
+				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background:linear-gradient(180deg,  rgba(248,40,90,.8) 90%, rgba(0,212,255,.5) 100%); ">
+					<div class="card-body p-0" style="float:left;">
+						<span class="fs-4hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="ErrorCount">...</span>
+						<span class="card-text fs-0hx text-right"><br>Has Error </span>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-sm-6 col-lg-2 d-flex align-items-stretch">
+				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: linear-gradient(180deg,  rgba(63,66,84,.8) 90%, rgba(0,212,255,.5) 100%);">
+					<div class="card-body p-0" style="float:left;">
+						<span class="fs-4hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="InvoicedCount">...</span>
+						<span class="card-text fs-0hx text-right"><br>Invoiced </span>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6 col-lg-2 d-flex align-items-stretch">
+				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: linear-gradient(180deg,  rgba(63,66,84,.8) 90%, rgba(0,212,255,.5) 100%);">
+					<div class="card-body p-0" style="float:left;">
+						<span class="fs-4hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="PaidCount">...</span>
+						<span class="card-text fs-0hx text-right"><br>Paid </span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 <div class="modal fade" id="filter11Modal" tabindex="-1" role="dialog" aria-labelledby="filter11ModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
@@ -46,6 +180,22 @@
 				} else {
 					$paid = "";
 				}
+
+				if (!empty($_REQUEST['created_by'])) {
+					$created_by = $_REQUEST['created_by'];
+				} else {
+					$created_by = "";
+				}
+				if (!empty($_REQUEST['from_date'])) {
+					$from_date = $_REQUEST['from_date'];
+				} else {
+					$from_date = "";
+				}
+				if (!empty($_REQUEST['to_date'])) {
+					$to_date = $_REQUEST['to_date'];
+				} else {
+					$to_date = "";
+				}
 				?>
 			</div>
 
@@ -57,15 +207,15 @@
 
 
 							<div class="form-group row">
-								<label class="col-lg-2 col-form-label text-right">Client</label>
+								<label class="col-lg-2  control-label text-right" style="margin: auto;">Client</label>
 								<div class="col-lg-4">
-									<select name="customer" class="form-control m-b" id="customer">
+									<select name="customer" class="form-control m-b" id="customer" style="width: 100%;">
 										<option disabled="disabled" selected="selected">-- Select Client --</option>
 										<?= $this->customer_model->selectCustomerBranches($customer, $brand) ?>
 									</select>
 								</div>
 
-								<label class="col-lg-2 control-label" for="role name">PO Number</label>
+								<label class="col-lg-2  control-label text-right" style="margin: auto;">PO Number</label>
 
 								<div class="col-lg-4">
 									<input type="text" class="form-control" value="<?= $po ?>" name="po">
@@ -73,10 +223,10 @@
 							</div>
 
 							<div class="form-group row">
-								<label class="col-lg-2 control-label" for="role date">Po Status</label>
+								<label class="col-lg-2  control-label text-right" style="margin: auto;">Po Status</label>
 
 								<div class="col-lg-4">
-									<select name="verified" class="form-control m-b" id="verified">
+									<select name="verified" class="form-control m-b" id="verified" style="width: 100%;">
 										<option value="" disabled="disabled" selected="selected">-- Select Status --</option>
 
 										<option value="1" <?= $verified == 1 ? " selected" : "" ?>>Verified</option>
@@ -85,10 +235,10 @@
 
 									</select>
 								</div>
-								<label class="col-lg-2 control-label" for="role date">Invoice Status</label>
+								<label class="col-lg-2  control-label text-right" style="margin: auto;">Invoice Status</label>
 
 								<div class="col-lg-4">
-									<select name="invoiced" class="form-control m-b" id="invoiced">
+									<select name="invoiced" class="form-control m-b" id="invoiced" style="width: 100%;">
 										<option disabled="disabled" selected="selected">-- Select --</option>
 										<?php
 										if ($_REQUEST['invoiced'] == 1) { ?>
@@ -104,32 +254,69 @@
 										<?php } ?>
 									</select>
 								</div>
+							</div>
+							<div class="form-group row">
 
-								<div class="form-group row">
-									<label class="col-lg-2 col-form-label col-sm-12" for="role cdate">Date
-										Ranges</label>
-									<div class="col-lg-4">
-										<div class='input-group' id='kt_daterangepicker_6'>
-											<input type='text' class="form-control" readonly placeholder="Select date range" id="cdate" />
+								<label class="col-lg-2  control-label text-right" style="margin: auto;">Created by</label>
+								<div class="col-lg-4">
+									<select name="created_by" class="form-control m-b" id="created_by" style="width: 100% Iimportant;">
+										<option value="">-- Select PM --</option>
+										<?= $this->admin_model->selectAllPm($created_by, $this->brand) ?>
+									</select>
+								</div>
 
-										</div>
-									</div>
-
-
-									<label class="col-lg-2 col-form-label text-right">Payment Status</label>
-									<div class="col-lg-4">
-										<select name="paid" class="form-control m-b" id="paid">
-											<option value="" disabled="disabled" selected="selected">-- Select Status --</option>
-
-											<option value="1" <?= $verified == 1 ? " selected" : "" ?>>Paid</option>
-											<option value="0" <?= $verified == 0 ? " selected" : "" ?>>Not Paid</option>
-
-										</select>
-
-									</div>
+								<label class="col-lg-2  control-label text-right" style="margin: auto;">Payment Status</label>
+								<div class="col-lg-4">
+									<select name="paid" class="form-control m-b" id="paid" style="width: 100%;">
+										<option value="" disabled="disabled" selected="selected">-- Select Status --</option>
+										<option value="1" <?= $verified == 1 ? " selected" : "" ?>>Paid</option>
+										<option value="0" <?= $verified == 0 ? " selected" : "" ?>>Not Paid</option>
+									</select>
 								</div>
 							</div>
 
+							<div class="form-group row">
+
+								<label class="col-lg-2  control-label text-right" style="margin: auto;">
+									<!-- <div class="col-lg1 col-md-1 col-sm-1 mx-0" style="margin: auto;"> -->
+									<div class="dropdown dropdown-inline" data-bs-theme="light">
+										<!-- <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonLight" data-bs-toggle="dropdown" aria-expanded="false"> -->
+										<button class="btn btn-secondary  btn-icon btn-sm " type="button" id="dropdownMenuButtonLight" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											<i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+										</button>
+										<ul class="dropdown-menu" aria-labelledby="dropdownMenuButtonLight">
+											<li><a class="dropdown-item " onclick="changeValue('today')" href="javascript:void(0);">Today</a></li>
+											<li><a class="dropdown-item " onclick="changeValue('7today')" href="javascript:void(0);">Last 7 Days</a></li>
+											<li><a class="dropdown-item " onclick="changeValue('30today')" href="javascript:void(0);">Last 30 Days</a></li>
+
+											<li>
+												<hr class="dropdown-divider">
+											</li>
+											<li><a class="dropdown-item" onclick="changeValue('month')" href="javascript:void(0);">This Month</a></li>
+											<li><a class="dropdown-item" onclick="changeValue('lmonth')" href="javascript:void(0);">Last Month</a></li>
+											<li><a class="dropdown-item" onclick="changeValue('year')" href="javascript:void(0);">This Year</a></li>
+											<li>
+												<hr class="dropdown-divider">
+											</li>
+											<li><a class="dropdown-item" onclick="changeValue('fyear1')" href="javascript:void(0);">First Quarter</a></li>
+											<li><a class="dropdown-item" onclick="changeValue('fyear2')" href="javascript:void(0);">Secand Quarter</a></li>
+											<li><a class="dropdown-item" onclick="changeValue('fyear3')" href="javascript:void(0);">Theard Quarter</a></li>
+											<li><a class="dropdown-item" onclick="changeValue('fyear4')" href="javascript:void(0);">Forth Quarter</a></li>
+										</ul>
+										<!-- </div> -->
+
+									</div> From Date
+								</label>
+								<div class="col-lg-4" style="width: 100%;">
+									<input type="text" class="input-group date_sheet form-control" name="from_date" id="from_date" required value="<?= $from_date ?>">
+								</div>
+
+								<label class="col-lg-2  control-label text-right" style="margin: auto;">To Date</label>
+								<div class="col-lg-4" style="width: 100%;">
+									<input type="text" class="date_sheet form-control" name="to_date" id="to_date" required value="<?= $to_date ?>">
+								</div>
+
+							</div>
 						</div>
 					</form>
 				</div>
@@ -137,7 +324,7 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 				<button class="btn btn-primary" name="search" data-toggle="filter11Modal" id="search" type="button" value="search">Search</button>
-				<a href="<?= base_url() ?>admin/screens" class="btn btn-warning">(x) Clear Filter</a>
+				<a href="<?= base_url() ?>accounting/cpoStatus" class="btn btn-warning">(x) Clear Filter</a>
 			</div>
 		</div>
 	</div>
@@ -149,16 +336,16 @@
 		<div class="card">
 			<div class="card-header flex-wrap border-0 pt-6 pb-0">
 				<div class="card-title">
-					<h3 class="card-label">Screens</h3>
+					<h3 class="card-label">POs List</h3>
 				</div>
 			</div>
 		</div>
-		<div class="card-body">
+		<div class="card-body-fluid">
 			<!--begin: Datatable-->
 
 			<!-- <table class="table table-striped table-separate table-head-custom row-bordered " id="examp" cellspacing="0" width="100%"> -->
 
-			<table class="table table-striped table-separate table-head-custom row-bordered " id="kt_datatable2" cellspacing="0" width="100%">
+			<table class="table table-striped table-separate table-head-custom table-bordered  " id="kt_datatable2" cellspacing="0" width="100%">
 
 				<thead>
 					<tr>
@@ -194,30 +381,42 @@
 	}
 
 	#detalis_div {
-		padding-left: 10px;
+		padding-left: 20px;
 		padding-right: 10px;
+		border-bottom: 1px solid #3d3d3d !important;
+		border-style: double solid !important;
+		border-color: #e5e5e5;
 	}
 
 	#detalis_dev .dataTables_scroll {
 		border: 1px solid #a19d9d;
 	}
 
-	.even td {
-		border-bottom: 1px solid red;
+	table {
+		border-collapse: collapse;
 	}
 
-	.eael-data-table thead tr th {
-		border: 1px solid #a19d9d !important;
+	#detalis_dev tr {
+		border-bottom: 1pt solid black;
 	}
 
-	.eael-data-table tbody tr td {
-		border: 1px solid #a19d9d !important;
+	#detalis_dev table thead th {
+		background-color: #fff;
+	}
+
+	.dataTables_wrapper th,
+	td {
+		white-space: normal;
+
 	}
 </style>
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script> -->
+
 
 <script>
 	var table
-	let screensData;
+	let cpoData;
 	let permissions;
 
 	var childEditors = {};
@@ -252,10 +451,10 @@
 
 				success: function(data) {
 					var data = JSON.parse(atob(data));
-					screensData = data['cpo'];
+					cpoData = data['cpo'];
 					permissions = data['permission'];
 					swal.close();
-					createTables(screensData, permissions);
+					createTables(cpoData, permissions);
 					return
 				},
 				error: function(jqXHR, exception) {
@@ -264,32 +463,10 @@
 			});
 		}
 
-
-		// function format(rowData, tableId) {
-		// 	var div = $('<div/>')
-		// 		.addClass('loading')
-		// 		.text('Loading...');
-
-		// 	$.ajax({
-		// 		url: '/api/staff/details',
-		// 		data: {
-		// 			id: rowData.id
-		// 		},
-		// 		dataType: 'json',
-		// 		success: function(json) {
-		// 			div
-		// 				.html(json.html)
-		// 				.removeClass('loading');
-		// 		}
-		// 	});
-
-		// 	return div;
-		// }
-
-		function createTables(screensData, permissions) {
+		function createTables(cpoData, permissions) {
 			// Main table
 			table = $('#kt_datatable2').DataTable({
-				data: screensData,
+				data: cpoData,
 
 				processing: true,
 				serverSide: false,
@@ -304,7 +481,7 @@
 				pageLength: 10,
 				pagingType: "full_numbers",
 				scrollX: true,
-				scrollY: "50vh",
+				// scrollY: "50vh",
 				scrollCollapse: true,
 
 				responsive: false,
@@ -338,9 +515,11 @@
 				pageResize: true,
 				autoWidth: true,
 				orderCellsTop: true,
-				deferRender: false,
+				deferRender: true,
 				columns: [{
 						data: null,
+						orderable: false,
+						className: 'noExport noVis',
 					},
 					{
 						data: "id"
@@ -349,8 +528,11 @@
 						data: "customer_name"
 					},
 					{
-						data: "number",
-						className: 'text-wrap'
+						data: null,
+						className: 'text-wrap',
+						render: function(row) {
+							return '\u200C' + row.number
+						}
 					},
 					{
 						data: null,
@@ -408,12 +590,9 @@
 								return "Not Paid";
 							}
 						}
-					},
+					}
 				],
-				buttons: [
-
-
-					{
+				buttons: [{
 						text: 'Search Conditions',
 						className: 'btn btn-success btn-sm text-center font-monospace fw-bold text-uppercase',
 						action: function(e, dt, node, config) {
@@ -446,131 +625,132 @@
 								excelStyles: {
 									template: "blue_medium"
 								},
-								customize: function(xlsx) {
-									var table = $('#kt_datatable2').DataTable();
+								init: function(api, node, config) {
+									$(node).removeClass('btn-secondary')
+								},
+								// customize: function(xlsx) {
+								// 	var table = $('#kt_datatable2').DataTable();
+								// 	// Get number of columns to remove last hidden index column.
+								// 	var numColumns = table.columns().header().count();
 
+								// 	// Get sheet.
+								// 	var sheet = xlsx.xl.worksheets['sheet1.xml'];
 
-									// Get number of columns to remove last hidden index column.
-									var numColumns = table.columns().header().count();
+								// 	var col = $('col', sheet);
+								// 	// Set the column width.
+								// 	$(col[1]).attr('width', 20);
 
-									// Get sheet.
-									var sheet = xlsx.xl.worksheets['sheet1.xml'];
+								// 	// Get a clone of the sheet data.        
+								// 	var sheetData = $('sheetData', sheet).clone();
 
-									var col = $('col', sheet);
-									// Set the column width.
-									$(col[1]).attr('width', 20);
+								// 	// Clear the current sheet data for appending rows.
+								// 	$('sheetData', sheet).empty();
 
-									// Get a clone of the sheet data.        
-									var sheetData = $('sheetData', sheet).clone();
+								// 	// Row count in Excel sheet.
+								// 	var rowCount = 1;
 
-									// Clear the current sheet data for appending rows.
-									$('sheetData', sheet).empty();
+								// 	// Itereate each row in the sheet data.
+								// 	$(sheetData).children().each(function(index) {
 
-									// Row count in Excel sheet.
-									var rowCount = 1;
+								// 		// Used for DT row() API to get child data.
+								// 		var rowIndex = index - 1;
 
-									// Itereate each row in the sheet data.
-									$(sheetData).children().each(function(index) {
+								// 		// Don't process row if its the header row.
+								// 		if (index > 0) {
 
-										// Used for DT row() API to get child data.
-										var rowIndex = index - 1;
+								// 			// Get row
+								// 			var row = $(this.outerHTML);
 
-										// Don't process row if its the header row.
-										if (index > 0) {
+								// 			// Set the Excel row attr to the current Excel row count.
+								// 			row.attr('r', rowCount);
 
-											// Get row
-											var row = $(this.outerHTML);
+								// 			var colCount = 1;
 
-											// Set the Excel row attr to the current Excel row count.
-											row.attr('r', rowCount);
+								// 			// Iterate each cell in the row to change the rwo number.
+								// 			row.children().each(function(index) {
+								// 				var cell = $(this);
 
-											var colCount = 1;
+								// 				// Set each cell's row value.
+								// 				var rc = cell.attr('r');
+								// 				rc = rc.replace(/\d+$/, "") + rowCount;
+								// 				cell.attr('r', rc);
 
-											// Iterate each cell in the row to change the rwo number.
-											row.children().each(function(index) {
-												var cell = $(this);
+								// 				if (colCount === numColumns) {
+								// 					cell.html('');
+								// 				}
 
-												// Set each cell's row value.
-												var rc = cell.attr('r');
-												rc = rc.replace(/\d+$/, "") + rowCount;
-												cell.attr('r', rc);
+								// 				colCount++;
+								// 			});
 
-												if (colCount === numColumns) {
-													cell.html('');
-												}
+								// 			// Get the row HTML and append to sheetData.
+								// 			row = row[0].outerHTML;
+								// 			$('sheetData', sheet).append(row);
+								// 			rowCount++;
 
-												colCount++;
-											});
+								// 			// Get the child data - could be any data attached to the row.
+								// 			var table1 = table.row(':eq(' + rowIndex + ')').data()).DataTable();
+								// 			var childData = table1.row(':eq(' + rowIndex + ')').data().job_count;
 
-											// Get the row HTML and append to sheetData.
-											row = row[0].outerHTML;
-											$('sheetData', sheet).append(row);
-											rowCount++;
+								// 			if (childData.length > 0) {
+								// 				// Prepare Excel formated row
+								// 				headerRow = '<row r="' + rowCount +
+								// 					'" s="2"><c t="inlineStr" r="A' + rowCount +
+								// 					'"><is><t>' +
+								// 					'</t></is></c><c t="inlineStr" r="B' + rowCount +
+								// 					'" s="2"><is><t>Result' +
+								// 					'</t></is></c><c t="inlineStr" r="C' + rowCount +
+								// 					'" s="2"><is><t>Notes' +
+								// 					'</t></is></c></row>';
 
-											// Get the child data - could be any data attached to the row.
-											var table1 = document.getElementById(table.row(':eq(' + rowIndex + ')').data().id).DataTable();
-											var childData = table1.row(':eq(' + rowIndex + ')').data().job_count;
+								// 				// Append header row to sheetData.
+								// 				$('sheetData', sheet).append(headerRow);
+								// 				rowCount++; // Inc excelt row counter.
 
-											if (childData.length > 0) {
-												// Prepare Excel formated row
-												headerRow = '<row r="' + rowCount +
-													'" s="2"><c t="inlineStr" r="A' + rowCount +
-													'"><is><t>' +
-													'</t></is></c><c t="inlineStr" r="B' + rowCount +
-													'" s="2"><is><t>Result' +
-													'</t></is></c><c t="inlineStr" r="C' + rowCount +
-													'" s="2"><is><t>Notes' +
-													'</t></is></c></row>';
+								// 			}
 
-												// Append header row to sheetData.
-												$('sheetData', sheet).append(headerRow);
-												rowCount++; // Inc excelt row counter.
+								// 			// The child data is an array of rows
+								// 			for (c = 0; c < childData.length; c++) {
 
-											}
+								// 				// Get row data.
+								// 				child = childData[c];
 
-											// The child data is an array of rows
-											for (c = 0; c < childData.length; c++) {
+								// 				// Prepare Excel formated row
+								// 				childRow = '<row r="' + rowCount +
+								// 					'"><c t="inlineStr" r="A' + rowCount +
+								// 					'"><is><t>' +
+								// 					'</t></is></c><c t="inlineStr" r="B' + rowCount +
+								// 					'"><is><t>' + child.code +
+								// 					'</t></is></c><c t="inlineStr" r="C' + rowCount +
+								// 					'"><is><t>' + child.note +
+								// 					'</t></is></c></row>';
 
-												// Get row data.
-												child = childData[c];
+								// 				// Append row to sheetData.
+								// 				$('sheetData', sheet).append(childRow);
+								// 				rowCount++; // Inc excelt row counter.
 
-												// Prepare Excel formated row
-												childRow = '<row r="' + rowCount +
-													'"><c t="inlineStr" r="A' + rowCount +
-													'"><is><t>' +
-													'</t></is></c><c t="inlineStr" r="B' + rowCount +
-													'"><is><t>' + child.code +
-													'</t></is></c><c t="inlineStr" r="C' + rowCount +
-													'"><is><t>' + child.note +
-													'</t></is></c></row>';
+								// 			}
+								// 			// Just append the header row and increment the excel row counter.
+								// 		} else {
+								// 			var row = $(this.outerHTML);
 
-												// Append row to sheetData.
-												$('sheetData', sheet).append(childRow);
-												rowCount++; // Inc excelt row counter.
+								// 			var colCount = 1;
 
-											}
-											// Just append the header row and increment the excel row counter.
-										} else {
-											var row = $(this.outerHTML);
+								// 			// Remove the last header cell.
+								// 			row.children().each(function(index) {
+								// 				var cell = $(this);
 
-											var colCount = 1;
+								// 				if (colCount === numColumns) {
+								// 					cell.html('');
+								// 				}
 
-											// Remove the last header cell.
-											row.children().each(function(index) {
-												var cell = $(this);
-
-												if (colCount === numColumns) {
-													cell.html('');
-												}
-
-												colCount++;
-											});
-											row = row[0].outerHTML;
-											$('sheetData', sheet).append(row);
-											rowCount++;
-										}
-									});
-								}
+								// 				colCount++;
+								// 			});
+								// 			row = row[0].outerHTML;
+								// 			$('sheetData', sheet).append(row);
+								// 			rowCount++;
+								// 		}
+								// 	});
+								// }
 							},
 							{
 								extend: 'pdfHtml5',
@@ -582,8 +762,97 @@
 									columns: ':visible',
 									orientation: 'landscape',
 									columns: "thead th:not(.noExport)",
+									modifier: {
+										page: 'current'
+									}
 								},
+								// customize: function(doc) {
 
+								// 	// Get the row data in in table order and search applied
+								// 	var table = $('#kt_datatable2').DataTable();
+								// 	var rowData = table.rows({
+								// 		order: 'applied',
+								// 		search: 'applied'
+								// 	}).data();
+								// 	var headerLines = 0; // Offset for accessing rowData array
+
+								// 	var newBody = []; // this will become our new body (an array of arrays(lines))
+								// 	//Loop over all lines in the table
+								// 	doc.content[1].table.body.forEach(function(line, i) {
+
+								// 		// Remove detail-control column
+								// 		newBody.push(
+								// 			[line[1], line[2], line[3], line[4]]
+								// 		);
+
+
+								// 		if (line[0].style !== 'tableHeader' && line[0].style !== 'tableFooter') {
+								// 			var table1 = document.getElementById(table.row(':eq(' + rowIndex + ')').data().id).DataTable();
+								// 			var childData = table1.row(':eq(' + rowIndex + ')').data().job_count;
+
+								// 			// var childTable = $('#' + line[0].text).DataTable();
+								// 			// var childdata = childTable.rows({
+								// 			// 	order: 'applied',
+								// 			// 	search: 'applied'
+								// 			// }).data();
+								// 			console.log(childdata)
+								// 			//rowData[i - headerLines];
+
+								// 			// Append child data, matching number of columns in table
+								// 			newBody.push(
+								// 				[{
+								// 						text: '** Child data:',
+								// 						style: 'defaultStyle'
+								// 					},
+								// 					{
+								// 						text: childdata.code,
+								// 						style: 'defaultStyle'
+								// 					},
+								// 					{
+								// 						text: childdata.id,
+								// 						style: 'defaultStyle'
+								// 					},
+								// 					{
+								// 						text: '',
+								// 						style: 'defaultStyle'
+								// 					},
+								// 				]
+								// 			);
+
+								// 		} else {
+								// 			headerLines++;
+								// 		}
+								// 	});
+
+								// 	//Overwrite the old table body with the new one.
+								// 	doc.content[1].table.headerRows = 1;
+								// 	//doc.content[1].table.widths = [50, 50, 50, 50, 50, 50];
+								// 	doc.content[1].table.body = newBody;
+								// 	doc.content[1].layout = 'lightHorizontalLines';
+
+								// 	doc.styles = {
+								// 		subheader: {
+								// 			fontSize: 10,
+								// 			bold: true,
+								// 			color: 'black'
+								// 		},
+								// 		tableHeader: {
+								// 			bold: true,
+								// 			fontSize: 10.5,
+								// 			color: 'black'
+								// 		},
+								// 		lastLine: {
+								// 			bold: true,
+								// 			fontSize: 11,
+								// 			color: 'blue'
+								// 		},
+								// 		defaultStyle: {
+								// 			fontSize: 10,
+								// 			color: 'black',
+								// 			text: 'center'
+								// 		}
+								// 	};
+								// }
 							},
 							{
 								extend: 'print',
@@ -621,6 +890,27 @@
 						},
 					}
 				],
+				initComplete: function() {
+
+					// projectData, samData, permissions
+					var allCount = (cpoData) ? cpoData.length : 0;
+					var rowToCount = cpoData;
+
+					// console.log(json.projects)
+					document.getElementById("AllCount").innerHTML = allCount;
+					document.getElementById("VerifiedCount").innerHTML = Array.isArray(rowToCount) ? rowToCount.reduce(function(a, b) {
+						return ((b.verified == 1) ? a + 1 : a);
+					}, 0) : 0;
+					document.getElementById("ErrorCount").innerHTML = Array.isArray(rowToCount) ? rowToCount.reduce(function(a, b) {
+						return (b.error_name && b.error_name != '') ? a + 1 : a;
+					}, 0) : 0;
+					document.getElementById("InvoicedCount").innerHTML = Array.isArray(rowToCount) ? rowToCount.reduce(function(a, b) {
+						return (b.invoiced == 1) ? a + 1 : a;
+					}, 0) : 0;
+					document.getElementById("PaidCount").innerHTML = Array.isArray(rowToCount) ? rowToCount.reduce(function(a, b) {
+						return (b.paid == 1) ? a + 1 : a;
+					}, 0) : 0;
+				},
 			}).on('buttons-processing', function(e, indicator) {
 				if (indicator) {
 					Swal.fire({
@@ -642,55 +932,35 @@
 			return level + '-' + uniqueData.replace(' ', '-');
 		}
 
+		// function format(rowData, tableId) {
+
 		function format(rowData, tableId) {
-
-			// function format(rowData) {
-			// 	var div = $('<div/>')
-			// 		.addClass('loading')
-			// 		.text('Loading...');
-
-			// 	$.ajax({
-			// 		url: '/api/staff/details',
-			// 		data: {
-			// 			name: rowData.name
-			// 		},
-			// 		dataType: 'json',
-			// 		success: function(json) {
-			// 			div
-			// 				.html(json.html)
-			// 				.removeClass('loading');
-			// 		}
-			// 	});
-
-			// 	return div;
-			// }
-			// return '<table id="' + tableId + '" cellpadding="5" cellspacing="0" border="0"  style="width:100%">' +
-
-			// 	'</table>';
-
-			// return '<div id="detalis_div"><table  id="' + tableId + '" class="cell-border compact" width="100%">' +
-			// '</table></div>';
-			return '<table id="' + tableId + '" class="table table-striped table-bordered"s tyle="padding-left:50px;">' +
-				'<thead>' +
-				'<th>Job Code</th>' +
-				'<th>Service</th>' +
-				'<th>Source</th>' +
-				'<th>Target</th>' +
-				'<th>Volume</th>' +
-				'<th>Rate</th>' +
-				'<th>Currency</th>' +
-				'<th>Total Revenue</th>' +
-				'<th>Status</th>' +
-				'<th>Closed Date</th>' +
-				'<th>Created By</th>' +
+			return '<div id="detalis_div"><table id="' + tableId + '" class="table table-striped table-bordered" style="border: 1px solid #bdbdbd;border-radius: 0;background-color: #fff;" cellpadding="5" cellspacing="0">' +
+				'<thead style="white-space: normal;">' +
+				'<th style="color: #787676 ;">#</th>' +
+				'<th style="color: #787676 ;">Job Code</th>' +
+				'<th style="color: #787676 ;">Service</th>' +
+				'<th style="color: #787676 ;">Source</th>' +
+				'<th style="color: #787676 ;">Target</th>' +
+				'<th style="color: #787676 ;">Volume</th>' +
+				'<th style="color: #787676 ;">Rate</th>' +
+				'<th style="color: #787676 ;">Currency</th>' +
+				'<th style="color: #787676 ;">Total Revenue</th>' +
+				'<th style="color: #787676 ;">Status</th>' +
+				'<th style="color: #787676 ;">Closed Date</th>' +
+				'<th style="color: #787676 ;">Created By</th>' +
 				'</thead>' +
-				'</table>';
+
+				'</table>' +
+				'<div><span id="jobTotal"></span></div>' +
+				'</div>';
 		}
 
 
 		// Add event listener for for main talbe to open and close first level child details
 		$('#kt_datatable2 tbody').on('click', 'td.details-control', function() {
 			var tr = $(this).closest('tr');
+
 			var row = table.row(tr);
 			var rowData = row.data();
 			// if (row.child.isShown()) {
@@ -714,10 +984,14 @@
 				// Open this row
 				row.child(format(rowData, id)).show();
 
-				$('#' + id).DataTable({
+				table1 = $('#' + id).DataTable({
 					dom: "t",
 					pageResize: true,
 					autoWidth: true,
+					scrollY: '50vh',
+					scrollX: true,
+					scroller: true,
+					scrollCollapse: true,
 					ajax: {
 						url: base_url + 'Accounting/get_data_cpo_job',
 						type: "POST",
@@ -729,6 +1003,13 @@
 					},
 					// data: data,
 					columns: [{
+							data: null,
+							render: function(data, type, row, meta) {
+								return meta.row + meta.settings._iDisplayStart + 1;
+							},
+							className: "text-right"
+						},
+						{
 							// title: "Job Code",
 							data: 'code'
 						},
@@ -803,23 +1084,148 @@
 							data: 'user_name'
 						},
 					],
-					scrollY: '100px',
-					scrollX: true,
-					select: true,
+					// scrollX: true,
+					// scrollY: "10vh",
+					// select: true,
+					footerCallback: function(row, data, start, end, display) {
+						let api = this.api();
 
+						// Remove the formatting to get integer data for summation
+						let intVal = function(i) {
+							return typeof i === 'string' ?
+								i.replace(/[\$,]/g, '') * 1 :
+								typeof i === 'number' ?
+								i :
+								0;
+						};
+						// Total over all pages
+						total = api
+							.column(8)
+							.data()
+							.reduce((a, b) => intVal(a) + intVal(b), 0);
+						$('#jobTotal').html('<b>Project Total Revenue:   </b><u>' + total + '</u>');
+					}
 				});
 
+
+
+
+				var iFrameID = document.getElementById(id);
+				$('#' + id).on("load", function() {
+					if (iFrameID) {
+						iFrameID.height = "";
+						iFrameID.height = iFrameID.contentWindow.document.body.scrollHeight + "px";
+					}
+				});
 				tr.addClass('shown');
 			}
 		});
-
+		//////////////////////////////
+		$('#search').on('click', function(e) {
+			e.preventDefault();
+			table.destroy();
+			loadAjaxData();
+			$('#filter11Modal').modal('toggle');
+		});
+		////
 
 	});
+
+	function changeValue(o) {
+
+		switch (o) {
+			case 'today':
+				var starDay = moment().format('YYYY-MM-DD');
+				$('#from_date').val(starDay);
+				$('#to_date').val(starDay);
+
+				break;
+			case '7today':
+
+				var startOfMonth = moment().subtract(6, 'days').format('YYYY-MM-DD');
+				var endOfMonth = moment().format('YYYY-MM-DD');
+
+				$('#from_date').val(startOfMonth);
+				$('#to_date').val(endOfMonth);
+				break;
+			case '30today':
+				var startOfMonth = moment().subtract(1, 'months').subtract(-1, 'days').format('YYYY-MM-DD');
+				var endOfMonth = moment().format('YYYY-MM-DD');
+
+				$('#from_date').val(startOfMonth);
+				$('#to_date').val(endOfMonth);
+				break;
+			case 'month':
+				var startOfMonth = moment().startOf('month').format('YYYY-MM-DD');
+				var endOfMonth = moment().endOf('month').format('YYYY-MM-DD');
+
+				$('#from_date').val(startOfMonth);
+				$('#to_date').val(endOfMonth);
+				break;
+			case 'lmonth':
+
+				var startOfMonth = moment().subtract(1, 'months').startOf('month').format('YYYY-MM-DD');
+				var endOfMonth = moment().subtract(1, 'months').endOf('month').format('YYYY-MM-DD');
+
+				$('#from_date').val(startOfMonth);
+				$('#to_date').val(endOfMonth);
+				break;
+
+			case 'year':
+				var startOfMonth = moment().startOf('year').format('YYYY-MM-DD');
+				var endOfMonth = moment().endOf('year').format('YYYY-MM-DD');
+
+				$('#from_date').val(startOfMonth);
+				$('#to_date').val(endOfMonth);
+				break;
+			case 'fyear':
+				var startOfMonth = $('#vs_date1').val();
+				var endOfMonth = $('#vs_date2').val();
+
+				$('#from_date').val(startOfMonth);
+				$('#to_date').val(endOfMonth);
+				break;
+			case 'fyear1':
+				var startOfMonth = moment().quarter(1).startOf('quarter').format('YYYY-MM-DD');
+				var endOfMonth = moment().quarter(1).endOf('quarter').format('YYYY-MM-DD');
+
+				$('#from_date').val(startOfMonth);
+				$('#to_date').val(endOfMonth);
+				break;
+				break;
+			case 'fyear2':
+				var startOfMonth = moment().quarter(2).startOf('quarter').format('YYYY-MM-DD');
+				var endOfMonth = moment().quarter(2).endOf('quarter').format('YYYY-MM-DD');
+
+				$('#from_date').val(startOfMonth);
+				$('#to_date').val(endOfMonth);
+				break;
+			case 'fyear3':
+				var startOfMonth = moment().quarter(3).startOf('quarter').format('YYYY-MM-DD');
+				var endOfMonth = moment().quarter(3).endOf('quarter').format('YYYY-MM-DD');
+
+				$('#from_date').val(startOfMonth);
+				$('#to_date').val(endOfMonth);
+				break;
+			case 'fyear4':
+				var startOfMonth = moment().quarter(4).startOf('quarter').format('YYYY-MM-DD');
+				var endOfMonth = moment().quarter(4).endOf('quarter').format('YYYY-MM-DD');
+
+				$('#from_date').val(startOfMonth);
+				$('#to_date').val(endOfMonth);
+				break;
+			default:
+				$('#from_date').val('');
+				$('#to_date').val('');
+				break;
+		}
+		return
+	}
 </script>
 <!-- 
 <script>
 	var bTable;
-	let screensData;
+	let cpoData;
 	let permissions;
 	$(document).ready(function() {
 		$.fn.dataTableExt.sErrMode = "console";
@@ -854,10 +1260,10 @@
 
 				success: function(data) {
 					var data = JSON.parse(atob(data));
-					screensData = data['cpo'];
+					cpoData = data['cpo'];
 					permissions = data['permission'];
 					swal.close();
-					createTables(screensData, permissions);
+					createTables(cpoData, permissions);
 					return
 				},
 				error: function(jqXHR, exception) {
@@ -866,10 +1272,10 @@
 			});
 		}
 
-		function createTables(screensData, permissions) {
+		function createTables(cpoData, permissions) {
 
 			bTable = $("#kt_datatable2").DataTable({
-				data: screensData,
+				data: cpoData,
 
 				processing: true,
 				serverSide: false,

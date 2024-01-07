@@ -113,13 +113,13 @@
                     </div>
                 </div>
             </div>
-            <div class="card-footer" style="text-align: center;width: 73%;left: 15%;position: relative;">
+            <div class="card-footer" style="text-align: center">
                 <div class="row">
-                    <div class="col-lg-3"></div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-8">
                         <button id="submit" class="btn btn-success mr-2">Submit</button>
                         <a class="btn btn-secondary" href="<?php echo base_url() ?>account/cashintrnlist" class="btn btn-default" type="button">Cancel</a>
-
+                        <button id="PrnButton" class="btn btn-success mr-2">Print</button>
                     </div>
                 </div>
             </div>
@@ -154,7 +154,15 @@
     </div>
 </div>
 <script>
+    var check_prn = 0;
     $(document).ready(function() {
+        $('#doc_file').change(function(e) {
+            var fileName = e.target.files[0].name;
+            if (fileName != '') {
+                $('#fileuploadspan').val(fileName);
+            }
+        });
+
         $("#amount").blur(function() {
             if (this.value === 'NaN') {
                 this.value = 0;
@@ -166,6 +174,11 @@
                 $('#rate_h').val() = this.value;
             }
             this.value = parseFloat(this.value).toFixed(5);
+            if ($(this).val() == 0) {
+                $("#rate").prop("readonly", false);
+            } else {
+                $("#rate").prop("readonly", true);
+            }
         });
 
         $("#form").submit(function(e) {
@@ -174,26 +187,58 @@
                 url: "<?= base_url() . "account/doAddCashinTrn" ?>",
                 type: "POST",
                 data: new FormData(this),
+                dataType: "json",
+                async: false,
                 contentType: false,
                 cache: false,
                 processData: false,
                 beforeSend: function() {
+
                     if ($('#amount').val() === 0 || $('#rate_h').val() === 0) {
-                        alert('You must fill Amount fields in order to submit a change');
+                        alert('You must fill out all required fields in order to submit a change');
                         return false;
                     }
+
                 },
                 success: function(data) {
-                    var data = JSON.parse(data);
+                    data = (data);
                     if (data.records == 1)
-                        alert("Cash In Receipt Already Exists!");
+                        alert("Failed To Edit Cash In Entry ...");
                     else if (data.records == 2) {
                         alert("Can Not Upload File !");
                     } else {
-                        window.location = "<?= base_url("account/cashintrnlist") ?>";
+
+                        if (check_prn == 0) {
+                            window.location = "<?= base_url("account/cashintrnlist") ?>";
+                        } else {
+                            var id = data.id;
+                            $.ajax({
+                                url: "<?= base_url() . "account/print_cashin" ?>",
+                                type: "POST",
+                                async: false,
+                                data: {
+                                    id: id
+                                },
+                                success: function(data) {
+                                    printContent = data
+                                    var originalContent = document.body.innerHTML;
+                                    console.log(originalContent)
+                                    document.body.innerHTML = printContent;
+                                    window.print();
+                                    document.body.innerHTML = originalContent;
+                                }
+
+                            });
+                            window.location = "<?= base_url("account/cashintrnlist") ?>";
+                        }
                     }
                 }
             });
+        });
+        $('#PrnButton').on('click', function(e) {
+            var id = $('#id').val();
+            check_prn = 1;
+            $('#form').submit();
         });
 
         $("#cash_id").on('change', function() {
@@ -203,6 +248,7 @@
                 $.ajax({
                     url: "<?= base_url() . "account/get_trn_currency" ?>",
                     type: "POST",
+                    async: false,
                     cache: false,
                     dataType: 'json',
                     data: {
@@ -264,7 +310,7 @@
                 $.ajax({
                     url: "<?= base_url() . "account/get_trn_currency_rate" ?>",
                     type: "POST",
-                    async: true,
+                    async: false,
                     dataType: 'json',
                     data: {
                         'currency_hid': currency_hid,
@@ -374,6 +420,7 @@
                     url: "<?= base_url() . "account/get_trn_currency_rate" ?>",
                     type: "POST",
                     cache: false,
+                    async: false,
                     dataType: 'json',
                     data: {
                         'currency_hid': currency_hid,
@@ -421,6 +468,7 @@
             $.ajax({
                 url: "<?= base_url("account/auto_num_Transaction") ?>",
                 type: "POST",
+                async: false,
                 data: {
                     'cdate': date_trns,
                     'transaction': 'Cash In'

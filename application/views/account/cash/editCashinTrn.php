@@ -5,7 +5,6 @@
         <style>
             .devrotate {
                 position: absolute;
-                /* left: 50px; */
                 right: 0;
                 top: 25px;
                 width: 100px;
@@ -15,10 +14,8 @@
 
             .rotate {
                 background-color: transparent;
-                outline: 2px dashed;
                 transform: rotate(45deg);
                 color: darkblue;
-                /* width: 40%; */
             }
         </style>
 
@@ -35,8 +32,9 @@
                 <div class="row">
                     <div class="col-lg-3 text-right">
                         <?php if ($cashin->audit_chk == '1') : ?>
-                            <div class="devrotate">
+                            <div class="devrotate ">
                                 <i class="fas fa-stamp fa-5x rotate"></i>
+                                <hr style=" border-top: 1px solid darkblue;">
                             </div>
                         <?php endif; ?>
                     </div>
@@ -135,7 +133,7 @@
                     <div class="col-lg-6">
                         <input type="text" id="fileToDelete" name="fileToDelete" value="<?= $cashin->doc_file ?>" hidden>
 
-                        <input type="file" class="form-control" name="doc_file" id="doc_file" accept=".zip,.rar,.7zip">
+                        <input type="file" class="form-control" name="doc_file" id="doc_file" accept=".zip,.rar,.7zip" value="<?= $cashin->doc_file ?>">
                         <input readonly class="fileuploadspan form-control" id="fileuploadspan" name="fileuploadspan" value="<?= $cashin->name_file ?? '' ?>">
                     </div>
                 </div>
@@ -162,10 +160,10 @@
                     </div>
                 </div>
             </div>
-            <div class="card-footer" style="text-align: center;width: 73%;left: 15%;position: relative;">
+            <div class="card-footer" style="text-align: center;">
                 <div class="row">
-                    <div class="col-lg-3"></div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-8">
                         <?php if (($cashin->audit_chk != '1')) : ?>
                             <button id="submit" class="btn btn-success mr-2">Submit</button>
                         <?php endif; ?>
@@ -173,7 +171,7 @@
                         <?php if ($audit_permission->edit ?? '' == 1) : ?>
                             <a href="#myModal" data-toggle="modal" class="btn btn-primary">Audit Document</a>
                         <?php endif; ?>
-                        <button id="print" class="btn btn-success mr-2">Print</button>
+                        <button id="PrnButton" class="btn btn-success mr-2">Print</button>
                     </div>
                 </div>
             </div>
@@ -247,42 +245,11 @@
     </div>
     <!--end::Card-->
 </div>
-<style type="text/css">
-    .printMe {
-        display: none;
-    }
-
-    @media print {
-        div {
-            display: none;
-        }
-
-        .printMe {
-            display: block;
-        }
-    }
-</style>
-<div id="printdiv" style="display: none;">
-    <h1> documents </h1>
-</div>
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
 <script>
+    var check_prn = 0;
     $(document).ready(function() {
         create_entry();
         check_audit_form();
-        $('#print').on('click', function(e) {
-            windowUrl = window.location.href;
-
-            var myPrintContent = document.getElementById('printdiv');
-            var myPrintWindow = window.open(windowUrl, "windowName", 'left=300,top=100,width=400,height=400');
-            myPrintWindow.document.write(myPrintContent.innerHTML);
-            // myPrintWindow.document.getElementById('printdiv').style.display = 'block'
-            myPrintWindow.document.close();
-            myPrintWindow.focus();
-            myPrintWindow.print();
-            myPrintWindow.close();
-            return false;
-        });
 
         function check_audit_form() {
             let chk_audit = $('#chk_audit').val();
@@ -295,9 +262,10 @@
                 $("#cdate").prop("disabled", true);
                 $("#doc_file").prop('disabled', true)
                 document.getElementById("auto_num").style.visibility = 'hidden';
-
-                document.getElementById("linkToView").style.visibility = 'hidden';
-                document.getElementById("linkToDelete").style.visibility = 'hidden'
+                if (document.getElementById("linkToView")) {
+                    document.getElementById("linkToView").style.visibility = "hidden";
+                    document.getElementById("linkToDelete").style.display = "none";
+                }
                 if (chk_audit[1] == '0') {
                     $("#form1").find('textarea').prop('readonly', true)
                     $("#form1").find('select').prop('disabled', true)
@@ -340,7 +308,6 @@
             var fileName = e.target.files[0].name;
             if (fileName != '') {
                 $('#fileuploadspan').val(fileName);
-                // document.getElementById('file_sel').style.display = 'none';
             }
         });
 
@@ -407,14 +374,13 @@
         });
 
         $("#form").submit(function(e) {
-            // $("input:file[id*=doc_file]").attr("value", "abc.jpg");
             e.preventDefault();
             $.ajax({
                 url: "<?= base_url() . "account/doEditCashinTrn" ?>",
                 type: "POST",
-                // data: $("#form").serialize(),
                 data: new FormData(this),
                 dataType: "json",
+                async: false,
                 contentType: false,
                 cache: false,
                 processData: false,
@@ -428,16 +394,68 @@
                 },
                 success: function(data) {
                     data = (data);
-
                     if (data.records == 1)
                         alert("Failed To Edit Cash In Entry ...");
                     else if (data.records == 2) {
                         alert("Can Not Upload File !");
                     } else {
-                        window.location = "<?= base_url("account/cashintrnlist") ?>";
+
+                        if (check_prn == 0) {
+                            window.location = "<?= base_url("account/cashintrnlist") ?>";
+                        } else {
+                            var id = $('#id').val();
+                            $.ajax({
+                                url: "<?= base_url() . "account/print_cashin" ?>",
+                                type: "POST",
+                                async: false,
+                                data: {
+                                    id: id
+                                },
+                                success: function(data) {
+                                    printContent = data
+                                    var originalContent = document.body.innerHTML;
+                                    console.log(originalContent)
+                                    document.body.innerHTML = printContent;
+                                    window.print();
+                                    document.body.innerHTML = originalContent;
+                                }
+
+                            });
+                            window.location = "<?= base_url("account/cashintrnlist") ?>";
+                        }
                     }
                 }
             });
+        });
+
+        $('#PrnButton').on('click', function(e) {
+            var chk_audit = $('#chk_audit').val();
+            if (chk_audit[0] != '1') {
+                var id = $('#id').val();
+                check_prn = 1;
+                $('#form').submit();
+
+            } else {
+                var id = $('#id').val();
+                $.ajax({
+                    url: "<?= base_url() . "account/print_cashin" ?>",
+                    type: "POST",
+                    async: false,
+                    data: {
+                        id: id
+                    },
+                    success: function(data) {
+                        printContent = data
+                        var originalContent = document.body.innerHTML;
+                        console.log(originalContent)
+                        document.body.innerHTML = printContent;
+                        window.print();
+                        document.body.innerHTML = originalContent;
+                    }
+
+                });
+                window.location = "<?= base_url("account/cashintrnlist") ?>";
+            }
         });
 
         $("#cash_id").on('change', function() {
@@ -672,8 +690,6 @@
                     'transaction': 'Cash In'
                 },
                 success: function(data) {
-                    //var data = JSON.parse(data);
-                    // console.log(data);
                     document.getElementById("doc_no").value = data;
                 }
             });

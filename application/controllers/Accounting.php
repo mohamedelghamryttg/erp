@@ -2206,7 +2206,7 @@ class Accounting extends CI_Controller
             $data['brand'] = $this->brand;
             // //Pages ..
             $this->load->view('includes_new/header.php', $data);
-            $this->load->view('accounting/cpoStatusNnew.php');
+            $this->load->view('accounting/cpoStatusNew.php');
             $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";
@@ -2221,72 +2221,106 @@ class Accounting extends CI_Controller
         parse_str($filter_data, $params);
         $arr2 = array();
         array_push($arr2, 0);
+
         if ($filter_data) {
-            if (isset($params['searchName'])) {
-                $searchName = $params['searchName'];
-                if (!empty($searchName)) {
+
+            if (isset($params['customer'])) {
+                $customer = $params['customer'];
+                if (!empty($customer)) {
                     array_push($arr2, 1);
                 }
             } else {
-                $searchName = "";
+                $customer = "";
             }
-            if (isset($params['searchGroup'])) {
-                $searchGroup = $params['searchGroup'];
-                if (!empty($searchGroup)) {
+            if (isset($params['po'])) {
+                $po = $params['po'];
+                if (!empty($po)) {
                     array_push($arr2, 2);
                 }
             } else {
-                $searchGroup = "";
+                $po = "";
             }
-            if (isset($params['searchUrl'])) {
-                $searchUrl = $params['searchUrl'];
-                if (!empty($searchUrl)) {
+            if (isset($params['verified'])) {
+                $verified = $params['verified'];
+                if (!empty($verified)) {
                     array_push($arr2, 3);
                 }
             } else {
-                $searchUrl = "";
+                $verified = "";
             }
-            if (isset($params['searchMenu'])) {
-                $searchMenu = $params['searchMenu'];
-                if (!empty($searchMenu)) {
+            if (isset($params['invoiced'])) {
+                $invoiced = $params['invoiced'];
+                if (!empty($invoiced)) {
                     array_push($arr2, 4);
                 }
             } else {
-                $searchMenu = "";
+                $invoiced = "";
+            }
+            if (isset($params['paid'])) {
+                $paid = $params['paid'];
+                if (!empty($paid)) {
+                    array_push($arr2, 5);
+                }
+            } else {
+                $paid = "";
+            }
+            if (isset($params['created_by'])) {
+                $created_by = $params['created_by'];
+                if (!empty($created_by)) {
+                    array_push($arr2, 6);
+                }
+            } else {
+                $created_by = "";
+            }
+
+            if (isset($params['from_date']) && isset($params['to_date'])) {
+                $from_date = $params['from_date'];
+                $to_date = $params['to_date'];
+                if (!empty($to_date) && !empty($from_date)) {
+                    $from_date = date("Y-m-d", strtotime($params['from_date']));
+                    $to_date = date("Y-m-d", strtotime($params['to_date']));
+                    array_push($arr2, 7);
+                }
+            } else {
+                $from_date = "";
+                $to_date = "";
             }
         } else {
-            $searchName = "";
-            $searchGroup = "";
-            $searchUrl = "";
-            $searchMenu = "";
+            $customer = "";
+            $po = "";
+            $verified = "";
+            $invoiced = "";
+            $paid = "";
+            $created_by = "";
+            $from_date = "";
+            $to_date = "";
         }
         $cond0 = "c.brand = '$this->brand'";
-        $cond1 = "name like '%$searchName%'";
-        $cond2 = "groups = '$searchGroup'";
-        $cond3 = "url like '%$searchUrl%'";
-        $cond4 = "menu = '$searchMenu'";
+        $cond1 = "p.customer ='$customer'";
+        $cond2 = "p.number like '%$po%'";
+        $cond3 = "p.verified ='$verified'";
+        $cond4 = "p.invoiced = '$invoiced'";
+        $cond5 = "p.paid= '$paid'";
+        $cond6 = "p.created_by = '$created_by'";
+        $cond7 = "p.created_at >= '$from_date' and p.created_at <= '$to_date'";
 
-        $arr1 = array($cond0, $cond1, $cond2, $cond3, $cond4);
+
+        $arr1 = array($cond0, $cond1, $cond2, $cond3, $cond4, $cond5, $cond6, $cond7);
         $arr_1_cnt = count($arr2);
 
         $arr3 = array();
         for ($i = 0; $i < $arr_1_cnt; $i++) {
             array_push($arr3, $arr1[$arr2[$i]]);
         }
+
         $arr4 = implode(" and ", $arr3);
-
-
-        // $sql = "select s.*
-        // ,(select name from `group` where id = s.groups) as `group` 
-        //  from screen as s";
         if ($arr_1_cnt <= 0) {
-            $$arr4 = '1';
+            $arr4 = '1';
         }
 
-        // $data['screens'] = $this->db->query($sql)->result_array();
-        $data['cpo']  = $this->accounting_model->cpoStatus($this->brand, $arr4)->result_array();
-
-        echo base64_encode(json_encode($data));
+        $data['cpo']  = $this->accounting_model->cpoStatus($this->brand, $arr4);
+        $dd = json_encode($data);
+        echo base64_encode($dd);
     }
     public function get_data_cpo_job()
     {
