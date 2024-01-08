@@ -144,3 +144,5 @@ ALTER TABLE `cashin` ADD `audit_comment`   TEXT NULL AFTER `audit_date`;
 
 
 INSERT INTO `screen` (`id`, `groups`, `name`, `url`, `menu`) VALUES (NULL, '1', 'Cash In Audit', 'admin/audit', '0'); 
+
+ALTER TABLE `employees` ADD `emp_brands` varchar(50)  NULL DEFAULT Null AFTER `workplace_model`; 

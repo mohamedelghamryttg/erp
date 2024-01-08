@@ -19,6 +19,13 @@
 							</div>
 						</div>
 						
+						<div class="form-group row mt-5">
+                                                    <label class="col-lg-3 col-form-label text-dark-50">File Simple</label>
+                                                   <div class="col-lg-12">
+                                                   <img alt="Logo" src="<?php echo base_url(); ?>assets/images/pricelistbulk.png" class="logo-default max-w-100" />
+						</div>
+						</div>
+						
 					</div>
 					
 				<div class="card-footer">

@@ -41,7 +41,7 @@
                     <div class="card-title">
                         <h3 class="card-label">ScoreCard <i class="fa fa-arrow-alt-circle-right"></i> <?= $this->hr_model->getEmployee($employee_id).'<span class="font-size-h5" style="color:#B5B5C3">('. $this->accounting_model->getMonth($score->month).','. $this->hr_model->getYear($score->year).')</span>' ?></h3>
                     </div>
-                    <?php if($score->status < 1 && $score->manager_approval == 0 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id){?>
+                    <?php if($score->status == 4 && $score->manager_approval == 0 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id){?>
                     <a href="<?php echo base_url() ?>performanceManagment/editEmployeeKpiScore/<?=$score->id?>" class="btn btn-sm btn-outline-dark mb-5"><i class="fas fa-pencil-alt"></i>Edit</a>
                     <?php }elseif ($score->status == 3) {?>
                     <button class="btn btn-success mr-2" disabled=""><?= $this->hr_model->getScoreStatus($score->id); ?></button>
@@ -154,7 +154,7 @@
                                 <td width='10%'><?=$action->comment?></td>
                             </tr>
                     <?php  }}else{
-                        if($permission->edit == 1 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id && $score->manager_approval == 1 && $score->status < 1){      ?>   
+                        if($permission->edit == 1 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id && $score->status < 1 && ($score->manager_approval == 1 || $score->created_at <= '2023-12-17') ){      ?>   
                             <form class="form" action="<?php echo base_url() ?>performanceManagment/saveKpiAction" method="post" enctype="multipart/form-data">
                            <input type="hidden" name="kpi_score_id"value="<?=$score->id?>">
                       <?php     $score_data = $this->db->query("SELECT * From kpi_score_data WHERE kpi_score_id = '$score->id'")->result();
@@ -179,7 +179,7 @@
                     <?php } }?>
                      </tbody>
                     </table>
-                   <?php } else{ if($score->status == 0 && $score->manager_approval == 1 && $this->hr_model->getEmpId($score->created_by) == $this->emp_id){?>                     
+                   <?php } else{ if($score->status == 0  && $this->hr_model->getEmpId($score->created_by) == $this->emp_id && ($score->manager_approval == 1 || $score->created_at <= '2023-12-17')){?>                     
                         <form class="form mb-10" id="action" action="<?php echo base_url() ?>performanceManagment/changeScoreStatus" method="post" enctype="multipart/form-data">
                         <input type="text" name="score" hidden="" value="<?= $score->id ?>">
                         <button class="btn btn-success mr-2"  type="submit"><i class="fa fa-save" aria-hidden="true"></i> Finish & Send To Employee</button>

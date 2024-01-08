@@ -871,15 +871,15 @@ class Hr extends CI_Controller
                 } else {
                     $status = "";
                 }
-                if (isset($_REQUEST['resigned_from']) && isset($_REQUEST['resigned_to'])) {
-                    $resigned_from = date("Y-m-d", strtotime($_REQUEST['resigned_from']));
-                    $resigned_to = date("Y-m-d", strtotime($_REQUEST['resigned_to']));
-                    if (!empty($_REQUEST['resigned_from']) && !empty($_REQUEST['resigned_to'])) {
+                if (isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])) {
+                    $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
+                    $date_to = date("Y-m-d", strtotime($_REQUEST['date_to']));
+                    if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
                         array_push($arr2, 5);
                     }
                 } else {
-                    $resigned_from = "";
-                    $resigned_to = "";
+                    $date_from = "";
+                    $date_to = "";
                 }
                 $idsArray = array();
                 if (isset($_REQUEST['social_ins']) && $_REQUEST['social_ins'] != NULL) {
@@ -902,9 +902,14 @@ class Hr extends CI_Controller
                 $cond1 = "name LIKE '%$name%'";
                 $cond2 = "title = '$title'";
                 $cond3 = "division = '$division'";
-                $cond4 = "department = '$department'";
-                $cond5 = "status = '$status'";
-                $cond6 = "resignation_date BETWEEN '$resigned_from' AND '$resigned_to'";
+                $cond4 = "department = '$department'";                
+                if(!empty($date_to) && $status == 0){ 
+                    $cond5 = "1";
+                    $cond6 = "status = 0 OR (status = 1 and resignation_date > '$date_to')";
+                }else{
+                    $cond5 = "status = '$status'";
+                    $cond6 = "resignation_date BETWEEN '$date_from' AND '$date_to'";
+                }
                 if (count($idsArray) != 0) {
                     if ($social_ins == 1) {
                         $cond7 = "id IN ($idsArray)";
@@ -942,22 +947,24 @@ class Hr extends CI_Controller
                 $config['display_pages'] = TRUE;
                 $config['per_page'] = $limit;
                 $config['total_rows'] = $count;
-                $config['full_tag_open'] = "<ul class='pagination'>";
+               $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
                 $config['full_tag_close'] = "</ul>";
-                $config['num_tag_open'] = '<li>';
+                $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
                 $config['num_tag_close'] = '</li>';
-                $config['cur_tag_open'] = "<li class='active'><a href='#'>";
-                $config['cur_tag_close'] = "<span class='sr-only'(current)></span></a></li>";
-                $config['next_tag_open'] = "<li><span aria-hidden='true'>";
+                $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
+                $config['cur_tag_close'] = "</li>";
+                $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
                 $config['next_tagl_close'] = "</span></li>";
-                $config['prev_tag_open'] = "<li><span aria-hidden='true'>";
+                $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
                 $config['prev_tagl_close'] = "</span></li>";
-                $config['first_tag_open'] = "<li>";
+                $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
                 $config['first_tagl_close'] = "</li>";
-                $config['last_tag_open'] = "<li>";
+                $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
                 $config['last_tagl_close'] = "</li>";
-                $config['next_link'] = '»';
-                $config['prev_link'] = '«';
+                $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
+                $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
+                $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
+                $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
                 $config['num_links'] = 5;
                 $config['show_count'] = TRUE;
                 $this->pagination->initialize($config);
@@ -970,9 +977,9 @@ class Hr extends CI_Controller
             //contract notifaction 10 days
             $data['contractData'] = $this->db->query("SELECT *,DATEDIFF(contract_date,CURRENT_TIMESTAMP)AS days FROM `employees` where DATEDIFF(contract_date,CURRENT_TIMESTAMP)>=0 AND DATEDIFF(contract_date,CURRENT_TIMESTAMP) <=10 AND status = 0");
 
-            $this->load->view('includes/header.php', $data);
-            $this->load->view('hr/employees.php');
-            $this->load->view('includes/footer.php');
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('hr_new/employees/employees.php');
+            $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";
         }
@@ -1043,16 +1050,16 @@ class Hr extends CI_Controller
             } else {
                 $status = "";
             }
-            if (isset($_REQUEST['resigned_from']) && isset($_REQUEST['resigned_to'])) {
-                $resigned_from = date("Y-m-d", strtotime($_REQUEST['resigned_from']));
-                $resigned_to = date("Y-m-d", strtotime($_REQUEST['resigned_to']));
-                if (!empty($_REQUEST['resigned_from']) && !empty($_REQUEST['resigned_to'])) {
-                    array_push($arr2, 5);
+             if (isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])) {
+                    $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
+                    $date_to = date("Y-m-d", strtotime($_REQUEST['date_to']));
+                    if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
+                        array_push($arr2, 5);
+                    }
+                } else {
+                    $date_from = "";
+                    $date_to = "";
                 }
-            } else {
-                $resigned_from = "";
-                $resigned_to = "";
-            }
             // social Ins.
             $idsArray = array();
             if (isset($_REQUEST['social_ins']) && $_REQUEST['social_ins'] != NULL) {
@@ -1075,8 +1082,13 @@ class Hr extends CI_Controller
             $cond2 = "title = '$title'";
             $cond3 = "division = '$division'";
             $cond4 = "department = '$department'";
-            $cond5 = "status = '$status'";
-            $cond6 = "resignation_date BETWEEN '$resigned_from' AND '$resigned_to'";
+            if(!empty($date_to) && $status == 0){ 
+                    $cond5 = "1";
+                    $cond6 = "status = 0 OR (status = 1 and resignation_date > '$date_to')";
+                }else{
+                    $cond5 = "status = '$status'";
+                    $cond6 = "resignation_date BETWEEN '$date_from' AND '$date_to'";
+                }
             if (count($idsArray) != 0) {
                 if ($social_ins == 1) {
                     $cond7 = "id IN ($idsArray)";
@@ -1119,9 +1131,9 @@ class Hr extends CI_Controller
             //body ..
 
             //Pages ..
-            $this->load->view('includes/header.php', $data);
-            $this->load->view('hr/addEmployees.php');
-            $this->load->view('includes/footer.php');
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('hr_new/employees/addEmployees.php');
+            $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";
         }
@@ -1131,6 +1143,8 @@ class Hr extends CI_Controller
     {
         // Check Permission ..
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 140);
+         print_r($_POST['brand']);exit();
+
         if ($permission->add == 1) {
             $data['name'] = $_POST['name'];
             $data['gender'] = $_POST['gender'];
@@ -1148,10 +1162,16 @@ class Hr extends CI_Controller
             $data['contract_type'] = $_POST['contract_type'];
             $data['status'] = $_POST['status'];
             $data['resignation_date'] = $_POST['resignation_date'];
-            $data['email'] = $_POST['email'];
+           // $data['email'] = $_POST['email'];
+            $data['email'] = $_POST['email2'];
             $data['emergency'] = $_POST['emergency'];
-            $data['brand'] = $_POST['brand'];
-            $data['phone'] = $_POST['phone'];
+           // $data['brand'] = $_POST['brand'];
+          //  $data['phone'] = $_POST['phone'];
+            $data['phone'] = $_POST['phone2'];
+            foreach ($_POST['brand'] as $brand){
+                    $emp_brands .= $brand .', ';
+                }
+            $data['emp_brands'] = $emp_brands;
             $data['position_comment'] = $_POST['position_comment'];
             $data['workplace_model'] = $_POST['workplace_model'] ?? '';
             $data['created_by'] = $this->user;
@@ -1197,9 +1217,9 @@ class Hr extends CI_Controller
             $data['employees'] = $this->db->get_where('employees', array('id' => $data['id']))->row();
 
             //Pages ..
-            $this->load->view('includes/header.php', $data);
-            $this->load->view('hr/editEmployees.php');
-            $this->load->view('includes/footer.php');
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('hr_new/employees/editEmployees.php');
+            $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";
         }

@@ -2833,5 +2833,44 @@ class Hr_model extends CI_Model
         return $num ;
     }
     
+    // emp data 
+    public function selectBrand($id = "")
+	{
+		$brand = $this->db->get('brand')->result();
+		$data = "";
+		foreach ($brand as $brand) {
+			if ($brand->id == $id) {
+				$data .= "<option value='" . $brand->id . "' selected='selected'>" . $brand->name . "</option>";
+			} else {
+				$data .= "<option value='" . $brand->id . "'>" . $brand->name . "</option>";
+			}
+		}
+		return $data;
+	}
+
+	public function getBrand($brands)
+	{
+            $data = '';
+            if(!empty($brands)){
+                if(str_contains($brands, ',')){
+                    $brand = explode(',', $brands);            
+                    foreach($brand as $val){
+                        $result = $this->db->get_where('brand', array('id' => $val))->row();
+                        if (isset($result->name)) {
+                            $data .=  $result->name .', ';
+                        }
+                    }
+                    $data = rtrim($data,', ');
+                }
+                else{
+                    $result = $this->db->get_where('brand', array('id' => $brands))->row();
+                    if (isset($result->name)) {
+                        $data =  $result->name;
+                    }
+                }
+            }
+            
+		return $data;
+	}
        
 }
