@@ -489,7 +489,7 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 3);
             //body ..
-            $data['permissions'] = $this->admin_model->allPermissions();
+            // $data['permissions'] = $this->admin_model->allPermissions();
             //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('admin_new/permissionNew.php');
@@ -684,6 +684,8 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
         $check = $this->admin_model->checkPermission($this->role, 9);
         if ($check) {
             $id = base64_decode($id);
+            $this->admin_model->addToLoggerDelete('permission', 122, 'id', $id, 0, 0, $this->user);
+
             if ($this->db->delete('permission', array('id' => $id))) {
                 $true = "permission Deleted Successfully ...";
                 $this->session->set_flashdata('true', $true);
@@ -1168,8 +1170,94 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
             echo "You have no permission to access this page";
         }
     }
-
     public function screens()
+    {
+        $check = $this->admin_model->checkPermission($this->role, 122);
+        if ($check) {
+            //header ..
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 122);
+
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('admin_new/screensNew.php');
+            $this->load->view('includes_new/footer.php');
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
+    public function get_screens()
+    {
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 3);
+        $filter_data = $this->input->post('filter_data');
+        parse_str($filter_data, $params);
+        $arr2 = array();
+        if ($filter_data) {
+            if (isset($params['searchName'])) {
+                $searchName = $params['searchName'];
+                if (!empty($searchName)) {
+                    array_push($arr2, 0);
+                }
+            } else {
+                $searchName = "";
+            }
+            if (isset($params['searchGroup'])) {
+                $searchGroup = $params['searchGroup'];
+                if (!empty($searchGroup)) {
+                    array_push($arr2, 1);
+                }
+            } else {
+                $searchGroup = "";
+            }
+            if (isset($params['searchUrl'])) {
+                $searchUrl = $params['searchUrl'];
+                if (!empty($searchUrl)) {
+                    array_push($arr2, 2);
+                }
+            } else {
+                $searchUrl = "";
+            }
+            if (isset($params['searchMenu'])) {
+                $searchMenu = $params['searchMenu'];
+                if (!empty($searchMenu)) {
+                    array_push($arr2, 3);
+                }
+            } else {
+                $searchMenu = "";
+            }
+        } else {
+            $searchName = "";
+            $searchGroup = "";
+            $searchUrl = "";
+            $searchMenu = "";
+        }
+        $cond1 = "name like '%$searchName%'";
+        $cond2 = "groups = '$searchGroup'";
+        $cond3 = "url like '%$searchUrl%'";
+        $cond4 = "menu = '$searchMenu'";
+
+        $arr1 = array($cond1, $cond2, $cond3, $cond4);
+        $arr_1_cnt = count($arr2);
+
+        $arr3 = array();
+        for ($i = 0; $i < $arr_1_cnt; $i++) {
+            array_push($arr3, $arr1[$arr2[$i]]);
+        }
+        $arr4 = implode(" and ", $arr3);
+
+
+        $sql = "select s.*
+        ,(select name from `group` where id = s.groups) as `group` 
+         from screen as s";
+        if ($arr_1_cnt > 0) {
+            $sql .= ' WHERE ' .  $arr4;
+        }
+
+        $data['screens'] = $this->db->query($sql)->result_array();
+
+        echo base64_encode(json_encode($data));
+    }
+    public function screens_old()
     {
         // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 122);
@@ -1271,29 +1359,10 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
                 $this->pagination->initialize($config);
             }
             $data['total_rows'] = $count;
-            // $data['total_rows'] = $count;
-            // //Pages ..
+
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('admin_new/screens.php');
             $this->load->view('includes_new/footer.php');
-
-
-
-
-
-
-
-
-
-
-
-
-            // //body ..
-            // $data['screen'] = $this->db->get('screen');
-            // // //Pages ..
-            // $this->load->view('includes_new/header.php', $data);
-            // $this->load->view('admin_new/screens.php');
-            // $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";
         }
@@ -1318,7 +1387,6 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
 
     public function doAddScreen()
     {
-
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 1);
         if ($permission->add == 1) {
             $data['groups'] = $_POST['groups'];
@@ -1339,16 +1407,15 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
             echo "You have no permission to access this page";
         }
     }
-    public function editScreen()
+    public function editScreen($id)
     {
-
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 122);
         if ($data['permission']->edit == 1) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 122);
             //body ..
-            $id = base64_decode($_GET['t']);
+            $id = base64_decode($id);
             $data['screens'] = $this->db->get_where('screen', array('id' => $id))->row();
             //Pages ..
             $this->load->view('includes_new/header.php', $data);
@@ -1379,6 +1446,27 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
                 $error = "Failed To Edit Screen ...";
                 $this->session->set_flashdata('error', $error);
                 redirect(base_url() . "admin/screens");
+            }
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
+    public function deleteScreen($id)
+    {
+        // Check Permission ..
+        $check = $this->admin_model->checkPermission($this->role, 122);
+        if ($check) {
+            $id = base64_decode($id);
+            $this->admin_model->addToLoggerDelete('screen', 122, 'id', $id, 0, 0, $this->user);
+
+            if ($this->db->delete('screen', array('id' => $id))) {
+                $true = "screen Deleted Successfully ...";
+                $this->session->set_flashdata('true', $true);
+                redirect(base_url() . "admin/screenNew");
+            } else {
+                $error = "Failed To Delete screen ...";
+                $this->session->set_flashdata('error', $error);
+                redirect(base_url() . "admin/screenNew");
             }
         } else {
             echo "You have no permission to access this page";

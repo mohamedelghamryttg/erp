@@ -1520,138 +1520,6 @@ class Account extends CI_Controller
             $data['setup'] = $setup;
 
             $type = "1";
-            $limit = 9;
-            $offset = $this->uri->segment(3);
-            if ($this->uri->segment(3) != NULL) {
-                $offset = $this->uri->segment(3);
-            } else {
-                $offset = 0;
-            }
-
-            if (isset($_POST['search'])) {
-                $arr2 = array();
-                if ($this->input->post('cash_id')) {
-                    $cash_id = $this->input->post('cash_id');
-                    if (!empty($cash_id)) {
-                        array_push($arr2, 0);
-                    }
-                } else {
-                    $cash_id = "";
-                }
-                if (isset($_POST['cdaterange']) && $_POST['cdaterange'] != '') {
-                    $cdaterange1 = explode(' - ', $_POST['cdaterange']);
-
-                    $date1 = explode('/', $cdaterange1[0]);
-                    $date2 = explode('/', $cdaterange1[1]);
-
-                    $finalDate1 = $date1[2] . '-' . $date1[1] . '-' . $date1[0];
-                    $finalDate2 = $date2[2] . '-' . $date2[1] . '-' . $date2[0];
-                    $date_from = date("Y-m-d", strtotime($finalDate1));
-                    $date_to = date("Y-m-d", strtotime("+1 day", strtotime($finalDate2)));
-                    if (!empty($finalDate1) && !empty($finalDate2)) {
-                        array_push($arr2, 1);
-                    }
-                } else {
-                    $date_from = "";
-                    $date_to = "";
-                }
-
-                if (isset($_REQUEST['ser'])) {
-                    $ser = $_REQUEST['ser'];
-                    if (!empty($ser)) {
-                        array_push($arr2, 2);
-                    }
-                } else {
-                    $ser = "";
-                }
-                if (isset($_REQUEST['trn_id'])) {
-                    $trn_id = $_REQUEST['trn_id'];
-                    if (!empty($trn_id)) {
-                        array_push($arr2, 3);
-                    }
-                } else {
-                    $trn_id = "";
-                }
-
-                if (isset($_REQUEST['ccode'])) {
-                    $ccode = $_REQUEST['ccode'];
-                    if (!empty($ccode)) {
-                        array_push($arr2, 4);
-                    }
-                } else {
-                    $ccode = "";
-                }
-
-                $cond1 = "cash_id = '$cash_id'";
-                $cond2 = "date BETWEEN '$date_from' AND '$date_to' ";
-                $cond3 = "ccode like '%$ser%'";
-                $cond4 = "trn_id = '$trn_id'";
-                $cond5 = "doc_no like '%$ccode%'";
-
-                $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5);
-                $arr_1_cnt = count($arr2);
-                $arr3 = array();
-
-                for ($i = 0; $i < $arr_1_cnt; $i++) {
-                    array_push($arr3, $arr1[$arr2[$i]]);
-                }
-                $arr4 = implode(" and ", $arr3);
-                // print_r($arr4);
-                // die;
-                //************//
-                $data['cash_id'] = $cash_id;
-                $data['ser'] = $ser;
-                $data['ccode'] = $ccode;
-                $data['trn_id'] = $trn_id;
-                // print_r('<pre>');
-
-                if ($arr_1_cnt > 0) {
-                    $data['cash_trn'] = $this->AccountModel->AllCashPagesFilter($this->brand, $type, $arr4, $limit, $offset);
-                } else {
-                    $data['cash_trn'] = $this->AccountModel->AllCashPages($this->brand, $type, $limit, $offset);
-                }
-            } else {
-                $data['cash_id'] = '';
-                $data['ser'] = '';
-                $data['ccode'] = '';
-                $data['trn_id'] = '';
-
-                $data['cash_trn'] = $this->AccountModel->AllCashPages($this->brand, $type, $limit, $offset);
-            }
-
-            $count = $data['cash_trn']->num_rows();
-            $config['base_url'] = base_url('account/cashintrnlist');
-            $config['uri_segment'] = 3;
-            $config['display_pages'] = TRUE;
-            $config['per_page'] = $limit;
-            $config['total_rows'] = $count;
-            $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
-            $config['full_tag_close'] = "</ul>";
-            $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
-            $config['num_tag_close'] = '</li>';
-            $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
-            $config['cur_tag_close'] = "</li>";
-            $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-            $config['next_tagl_close'] = "</span></li>";
-            $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-            $config['prev_tagl_close'] = "</span></li>";
-            $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-            $config['first_tagl_close'] = "</li>";
-            $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-            $config['last_tagl_close'] = "</li>";
-            $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
-            $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
-            $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
-            $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
-            $config['num_links'] = 5;
-            $config['show_count'] = TRUE;
-            $this->pagination->initialize($config);
-
-            $data['brand'] = $this->brand;
-            $data['parent_id'] = $setup->cash_acc_id;
-            $data['vs_date1'] = date("Y-m-d", strtotime($setup->sdate1));
-            $data['vs_date2'] = date("Y-m-d", strtotime($setup->sdate2));
-
             // //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('account/cash/cashintrnlist');
@@ -1660,7 +1528,115 @@ class Account extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
-    public function editCashinTrn()
+    public function receipt_print($id)
+    {
+        $this->load->view('account/cash/receipt_print');
+    }
+    public function get_cashInList()
+    {
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 221);
+        $data['audit_permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 239);
+
+        $data['user'] = $this->user;
+        $data['brand'] = $this->brand;
+        $setup = $this->AccountModel->getSetup();
+        $data['setup'] = $setup;
+
+        $type = "1";
+        $filter_data = $this->input->post('filter_data');
+        parse_str($filter_data, $params);
+        $arr2 = array();
+        // var_dump($this->input->post('searchCash'));
+        if ($filter_data) {
+
+            if (isset($params['searchCash'])) {
+                $searchCash = $params['searchCash'];
+                if (!empty($searchCash)) {
+                    array_push($arr2, 0);
+                }
+            } else {
+                $searchCash = "";
+            }
+
+            if (isset($params['searchCdate']) && $params['searchCdate'] != '') {
+                $searchCdate = explode(' - ', $params['searchCdate']);
+
+                $date1 = explode('/', $searchCdate[0]);
+                $date2 = explode('/', $searchCdate[1]);
+
+                $finalDate1 = $date1[2] . '-' . $date1[1] . '-' . $date1[0];
+                $finalDate2 = $date2[2] . '-' . $date2[1] . '-' . $date2[0];
+                $date_from = date("Y-m-d", strtotime($finalDate1));
+                $date_to = date("Y-m-d", strtotime("+1 day", strtotime($finalDate2)));
+                if (!empty($finalDate1) && !empty($finalDate2)) {
+                    array_push($arr2, 1);
+                }
+            } else {
+                $searchCdate = "";
+                $date_from = "";
+                $date_to = "";
+            }
+
+            if (isset($params['searchSer'])) {
+                $searchSer = $params['searchSer'];
+                if (!empty($searchSer)) {
+                    array_push($arr2, 2);
+                }
+            } else {
+                $searchSer = "";
+            }
+            if (isset($params['searchRevenue'])) {
+                $searchRevenue = $params['searchRevenue'];
+                if (!empty($searchRevenue)) {
+                    array_push($arr2, 3);
+                }
+            } else {
+                $searchRevenue = "";
+            }
+
+            if (isset($params['searchCcode'])) {
+                $searchCcode = $params['searchCcode'];
+                if (!empty($searchCcode)) {
+                    array_push($arr2, 4);
+                }
+            } else {
+                $searchCcode = "";
+            }
+        } else {
+            $searchCash = "";
+            $searchSer = "";
+            $searchRevenue = "";
+            $searchCcode = "";
+            $date_from = "";
+            $date_to = "";
+        }
+
+        $cond1 = "bank_id = '$searchCash'";
+        $cond2 = "date BETWEEN '$date_from' AND '$date_to' ";
+        $cond3 = "ccode like '%$searchSer%'";
+        $cond4 = "trn_id = '$searchRevenue'";
+        $cond5 = "doc_no like '%$searchCcode%'";
+
+        $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5);
+        $arr_1_cnt = count($arr2);
+        $arr3 = array();
+
+        for ($i = 0; $i < $arr_1_cnt; $i++) {
+            array_push($arr3, $arr1[$arr2[$i]]);
+        }
+        $arr4 = implode(" and ", $arr3);
+        // ************//
+        // var_dump($arr2);
+        if ($arr_1_cnt > 0) {
+            $data['cash_trn'] = $this->AccountModel->AllCashPages($this->brand, $type, $arr4)->result_array();;
+        } else {
+            $data['cash_trn'] = $this->AccountModel->AllCashPages($this->brand, $type, '1')->result_array();;
+        }
+        echo base64_encode(json_encode($data));
+    }
+
+    public function editCashinTrn($id)
     {
         // Check Permission ..
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 221);
@@ -1669,9 +1645,8 @@ class Account extends CI_Controller
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $setup = $this->AccountModel->getsetup();
 
-            $id = base64_decode($_GET['t']);
+            $id = base64_decode($id);
             $data['cashin'] = $this->db->get_where('cashin', array('id' => $id, 'brand' => $this->brand))->row();
-
             $data['acc_setup'] = $setup;
             if ($setup->rev_acc_id != 0) {
                 $data['rev_id'] = $setup->rev_acc_id;
@@ -1682,16 +1657,28 @@ class Account extends CI_Controller
             }
             $cash_select = $this->db->get_where('payment_method', array('id' => $data['cashin']->cash_id))->row()->account_id;
             $account_select = $this->db->get_where('account_chart', array('id' => $cash_select))->row();
+            // var_dump($cash_select);
             $data['cash_acc_id'] = $account_select->id;
             $data['cash_acc'] = $account_select->acode;
             $data['cash_acc_name'] = $account_select->name;
             $data['brand'] = $this->brand;
 
-            // $file = $data['cashin']->doc_file;
-
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('account/cash/editCashinTrn');
             $this->load->view('includes_new/footer.php');
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
+    public function print_cashin()
+    {
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 221);
+        if ($data['permission']->edit == 1) {
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            $id = base64_decode($this->input->post('id'));
+            $data['cashin'] = $this->db->get_where('cashin', array('id' => $id, 'brand' => $this->brand))->row();
+            $data['brand'] = $this->brand;
+            echo  $this->load->view('account/cash/receipt_print', $data, true);
         } else {
             echo "You have no permission to access this page";
         }
@@ -1748,39 +1735,42 @@ class Account extends CI_Controller
             $data['rate'] = $_POST['rate_h'];
             $data['rem'] = $_POST['rem'];
 
-            $fileToatt = $_POST['fileToDelete'];
             $data['desc_file'] = $_POST['desc_file'];
-
             $data['name_file'] = $_POST['fileuploadspan'];
-            if ($data['name_file'] == '') {
-                if ($fileToatt != '') {
-                    unlink('./assets/uploads/account/cashin/' . $fileToatt);
-                }
-            }
-            if ($_FILES['doc_file']['size'] != 0) {
-                if ($fileToatt != '') {
-                    unlink('./assets/uploads/account/cashin/' . $fileToatt);
-                }
-                if (!is_dir('./assets/uploads/account/cashin/')) {
-                    mkdir('./assets/uploads/account/cashin/', 0777, TRUE);
-                }
-                $config['file']['upload_path'] = './assets/uploads/account/cashin/';
-                $config['file']['encrypt_name'] = TRUE;
-                $config['file']['allowed_types'] = 'zip|rar';
-                $config['file']['max_size'] = 5000000;
-                $this->load->library('upload', $config['file'], 'file_upload');
-                if (!$this->file_upload->do_upload('doc_file')) {
-                    $error = $this->file_upload->display_errors();
-                    $this->session->set_flashdata('error', $error);
-                } else {
-                    $data_file = $this->file_upload->data();
-                    $data['doc_file'] = $data_file['file_name'];
-                }
-            } else {
-                $data['doc_file'] = "";
-                $data['name_file'] = "";
-            }
 
+            $fileToatt = $_POST['fileToDelete'];
+            $new_file = $_FILES['doc_file']['name'];
+
+            if ($new_file == true) {
+                $new_file = str_replace(' ', "-", $_FILES['doc_file']['name']);
+                if ($_FILES['doc_file']['size'] != 0) {
+                    if (!is_dir('./assets/uploads/account/cashin/')) {
+                        mkdir('./assets/uploads/account/cashin/', 0777, TRUE);
+                    }
+                    $config['file']['upload_path'] = './assets/uploads/account/cashin/';
+                    $config['file']['encrypt_name'] = TRUE;
+                    $config['file']['allowed_types'] = 'zip|rar';
+                    $config['file']['max_size'] = 5000000;
+                    $this->load->library('upload', $config['file'], 'file_upload');
+                    if (!$this->file_upload->do_upload('doc_file')) {
+                        $error = $this->file_upload->display_errors();
+                        $this->session->set_flashdata('error', $error);
+                        echo json_encode(['records' => 2]);
+                        return;
+                    } else {
+                        if ($fileToatt && $fileToatt != '') {
+                            if (file_exists('./assets/uploads/account/cashin/' . $fileToatt)) {
+                                unlink('./assets/uploads/account/cashin/' . $fileToatt);
+                            }
+                        }
+                        $data_file = $this->file_upload->data();
+                        $data['doc_file'] = $data_file['file_name'];
+                    }
+                } else {
+                    $data['doc_file'] = "";
+                    $data['name_file'] = "";
+                }
+            }
 
             $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['cash_id']);
             $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
@@ -1855,7 +1845,6 @@ class Account extends CI_Controller
                         if ($this->db->insert('entry_data', $entry_data)) {
                             $true = "Cash In Edited Successfully ...";
                             $this->session->set_flashdata('true', $true);
-
                             echo json_encode(['records' => 0]);
                         }
                     } else {
@@ -1873,6 +1862,7 @@ class Account extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
+
     public function addCashinTrn()
     {
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 221);
@@ -1908,10 +1898,11 @@ class Account extends CI_Controller
         // Check Permission ..
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 221);
         if ($permission->add == 1) {
+            $year_data = date("Y", strtotime($_POST['cdate']));
             if (isset($_POST['doc_no'])) {
-                $records = $this->db->select('*')->from('cashin')->where('doc_no=', $_POST['doc_no'])->where('brand=', $this->brand)->order_by('id')->get()->num_rows();
+                $records = $this->db->select('*')->from('cashin')->where('doc_no=', $_POST['doc_no'])->where('year(date)=', $year_data)->where('brand=', $this->brand)->order_by('id')->get()->num_rows();
                 if ($records != 0) {
-                    echo json_encode(['records' => 1]);
+                    echo json_encode(['records' => 1, 'id' => '']);
                     return;
                 }
             }
@@ -1941,6 +1932,8 @@ class Account extends CI_Controller
             $data['created_at'] = date('Y-m-d H:i:s');
             $data['created_by'] = $this->user;
 
+            $data['desc_file'] = $_POST['desc_file'];
+
             $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['cash_id']);
             $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
             if ($_FILES['doc_file']['size'] != 0) {
@@ -1955,7 +1948,7 @@ class Account extends CI_Controller
                 if (!$this->file_upload->do_upload('doc_file')) {
                     $error = $this->file_upload->display_errors();
                     $this->session->set_flashdata('error', $error);
-                    echo "error";
+                    echo json_encode(['records' => 2, 'id' => '']);
                     return;
                 } else {
                     $data_file = $this->file_upload->data();
@@ -1967,12 +1960,8 @@ class Account extends CI_Controller
                 $data['name_file'] = "";
             }
 
-
-            // var_dump($data_file['orig_name']);
-            // die;
             if ($this->db->insert('cashin', $data)) {
                 $cashin_id = $this->db->insert_id();
-                // $this->admin_model->addToLoggerUpdate('cashin', 221, 'id', $cashin_id, 0, 0, $this->user);
 
                 $entry_data['brand'] = $this->brand;
                 $entry_data['trns_type'] = "Cash In";
@@ -2035,31 +2024,27 @@ class Account extends CI_Controller
                         $entry_data['ev_crd'] = $entry_data['crd_amount'] * $_POST['rate_h'];
                         $entry_data['main_acc_id'] = $this->AccountModel->getSetup()->rev_acc_id;
                         $entry_data['main_acc_acode'] = $this->AccountModel->getSetup()->rev_acc_acode;
-                        // $entry_data['data2'] = $_POST['rem'];
 
                         if ($this->db->insert('entry_data', $entry_data)) {
                             $true = "Cash In Add Successfully ...";
                             $this->session->set_flashdata('true', $true);
-                            echo json_encode(['records' => 0]);
+                            echo json_encode(['records' => 0, 'id' => base64_encode($cashin_id)]);
                         }
                     } else {
                         $error = "Failed To Add Cash In Entry ...";
                         $this->session->set_flashdata('error', $error);
-                        echo json_encode(['records' => 1]);
+                        echo json_encode(['records' => 1, 'id' => '']);
                     }
                 }
             } else {
                 $error = "Failed To Add Cash In Entry ...";
                 $this->session->set_flashdata('error', $error);
-                echo json_encode(['records' => 1]);
+                echo json_encode(['records' => 1, 'id' => '']);
             }
         } else {
             echo "You have no permission to access this page";
         }
     }
-
-
-
 
     public function get_trn_currency()
     {
@@ -2131,19 +2116,17 @@ class Account extends CI_Controller
             }
         }
     }
-
-
     public function deleteCashinTrn($id)
     {
         // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 221);
         if ($check) {
             $this->admin_model->addToLoggerDelete('cashin', 221, 'id', $id, 0, 0, $this->user);
-            $fileToatt = $this->db->get_where('cashin', array('id' => $id))->row()->doc_file;
-            if ($fileToatt && $fileToatt != '') {
-                unlink('./assets/uploads/account/cashin/' . $fileToatt);
-            }
             if ($this->db->delete('cashin', array('id' => $id))) {
+                $fileToatt = $this->db->get_where('cashin', array('id' => $id))->row()->doc_file;
+                if ($fileToatt && $fileToatt != '') {
+                    unlink('./assets/uploads/account/cashin/' . $fileToatt);
+                }
                 if ($this->db->delete('entry_data_total', array('trns_id' => $id, 'trns_type' => 'Cash In'))) {
                     if ($this->db->delete('entry_data', array('trns_id' => $id, 'trns_type' => 'Cash In'))) {
                         $true = "Cash In Deleted Successfully ...";
@@ -2163,11 +2146,11 @@ class Account extends CI_Controller
     //************ cash out */
     public function cashouttrnlist()
     {
-        $check = $this->admin_model->checkPermission($this->role, 222);
+        $check = $this->admin_model->checkPermission($this->role, 221);
         if ($check) {
-
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 222);
+            $data['audit_permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 240);
 
             $data['user'] = $this->user;
             $data['brand'] = $this->brand;
@@ -2175,136 +2158,6 @@ class Account extends CI_Controller
             $data['setup'] = $setup;
 
             $type = "2";
-            $limit = 9;
-            $offset = $this->uri->segment(3);
-            if ($this->uri->segment(3) != NULL) {
-                $offset = $this->uri->segment(3);
-            } else {
-                $offset = 0;
-            }
-
-            if (isset($_POST['search'])) {
-                $arr2 = array();
-                if ($this->input->post('cash_id')) {
-                    $cash_id = $this->input->post('cash_id');
-                    if (!empty($cash_id)) {
-                        array_push($arr2, 0);
-                    }
-                } else {
-                    $cash_id = "";
-                }
-                if (isset($_POST['cdaterange']) && $_POST['cdaterange'] != '') {
-                    $cdaterange1 = explode(' - ', $_POST['cdaterange']);
-
-                    $date1 = explode('/', $cdaterange1[0]);
-                    $date2 = explode('/', $cdaterange1[1]);
-
-                    $finalDate1 = $date1[2] . '-' . $date1[1] . '-' . $date1[0];
-                    $finalDate2 = $date2[2] . '-' . $date2[1] . '-' . $date2[0];
-                    $date_from = date("Y-m-d", strtotime($finalDate1));
-                    $date_to = date("Y-m-d", strtotime("+1 day", strtotime($finalDate2)));
-                    if (!empty($finalDate1) && !empty($finalDate2)) {
-                        array_push($arr2, 1);
-                    }
-                } else {
-                    $date_from = "";
-                    $date_to = "";
-                }
-
-                if (isset($_REQUEST['ser'])) {
-                    $ser = $_REQUEST['ser'];
-                    if (!empty($ser)) {
-                        array_push($arr2, 2);
-                    }
-                } else {
-                    $ser = "";
-                }
-                if (isset($_REQUEST['trn_id'])) {
-                    $trn_id = $_REQUEST['trn_id'];
-                    if (!empty($trn_id)) {
-                        array_push($arr2, 3);
-                    }
-                } else {
-                    $trn_id = "";
-                }
-
-                if (isset($_REQUEST['ccode'])) {
-                    $ccode = $_REQUEST['ccode'];
-                    if (!empty($ccode)) {
-                        array_push($arr2, 4);
-                    }
-                } else {
-                    $ccode = "";
-                }
-
-                $cond1 = "cash_id = '$cash_id'";
-                $cond2 = "date BETWEEN '$date_from' AND '$date_to' ";
-                $cond3 = "ccode like '%$ser%'";
-                $cond4 = "trn_id = '$trn_id'";
-                $cond5 = "doc_no like '%$ccode%'";
-
-                $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5);
-                $arr_1_cnt = count($arr2);
-                $arr3 = array();
-
-                for ($i = 0; $i < $arr_1_cnt; $i++) {
-                    array_push($arr3, $arr1[$arr2[$i]]);
-                }
-                $arr4 = implode(" and ", $arr3);
-                //************//
-                $data['cash_id'] = $cash_id;
-                $data['ser'] = $ser;
-                $data['ccode'] = $ccode;
-                $data['trn_id'] = $trn_id;
-
-                if ($arr_1_cnt > 0) {
-                    $data['cash_trn'] = $this->AccountModel->AllCashPagesFilter($this->brand, $type, $arr4, $limit, $offset);
-                } else {
-                    $data['cash_trn'] = $this->AccountModel->AllCashPages($this->brand, $type, $limit, $offset);
-                    //$data['cash_trn'] = $this->AccountModel->AllCashPagesFilter($this->brand, $type, $arr4, 9, 0);
-                }
-            } else {
-                $data['cash_id'] = '';
-                $data['ser'] = '';
-                $data['ccode'] = '';
-                $data['trn_id'] = '';
-
-                $data['cash_trn'] = $this->AccountModel->AllCashPages($this->brand, $type, $limit, $offset);
-            }
-
-            $count = $data['cash_trn']->num_rows();
-            $config['base_url'] = base_url('account/cashouttrnlist');
-            $config['uri_segment'] = 3;
-            $config['display_pages'] = TRUE;
-            $config['per_page'] = $limit;
-            $config['total_rows'] = $count;
-            $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
-            $config['full_tag_close'] = "</ul>";
-            $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
-            $config['num_tag_close'] = '</li>';
-            $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
-            $config['cur_tag_close'] = "</li>";
-            $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-            $config['next_tagl_close'] = "</span></li>";
-            $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-            $config['prev_tagl_close'] = "</span></li>";
-            $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-            $config['first_tagl_close'] = "</li>";
-            $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-            $config['last_tagl_close'] = "</li>";
-            $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
-            $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
-            $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
-            $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
-            $config['num_links'] = 5;
-            $config['show_count'] = TRUE;
-            $this->pagination->initialize($config);
-
-            $data['brand'] = $this->brand;
-            $data['parent_id'] = $setup->cash_acc_id;
-            $data['vs_date1'] = date("Y-m-d", strtotime($setup->sdate1));
-            $data['vs_date2'] = date("Y-m-d", strtotime($setup->sdate2));
-
             // //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('account/cash/cashouttrnlist');
@@ -2313,20 +2166,120 @@ class Account extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
-    public function editCashoutTrn()
+    public function get_cashOutList()
+    {
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 221);
+        $data['audit_permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 239);
+
+        $data['user'] = $this->user;
+        $data['brand'] = $this->brand;
+        $setup = $this->AccountModel->getSetup();
+        $data['setup'] = $setup;
+
+        $type = "2";
+        $filter_data = $this->input->post('filter_data');
+        parse_str($filter_data, $params);
+        $arr2 = array();
+        if ($filter_data) {
+
+            if (isset($params['searchCash'])) {
+                $searchCash = $params['searchCash'];
+                if (!empty($searchCash)) {
+                    array_push($arr2, 0);
+                }
+            } else {
+                $searchCash = "";
+            }
+
+            if (isset($params['searchCdate']) && $params['searchCdate'] != '') {
+                $searchCdate = explode(' - ', $params['searchCdate']);
+
+                $date1 = explode('/', $searchCdate[0]);
+                $date2 = explode('/', $searchCdate[1]);
+
+                $finalDate1 = $date1[2] . '-' . $date1[1] . '-' . $date1[0];
+                $finalDate2 = $date2[2] . '-' . $date2[1] . '-' . $date2[0];
+                $date_from = date("Y-m-d", strtotime($finalDate1));
+                $date_to = date("Y-m-d", strtotime("+1 day", strtotime($finalDate2)));
+                if (!empty($finalDate1) && !empty($finalDate2)) {
+                    array_push($arr2, 1);
+                }
+            } else {
+                $searchCdate = "";
+                $date_from = "";
+                $date_to = "";
+            }
+
+            if (isset($params['searchSer'])) {
+                $searchSer = $params['searchSer'];
+                if (!empty($searchSer)) {
+                    array_push($arr2, 2);
+                }
+            } else {
+                $searchSer = "";
+            }
+            if (isset($params['searchRevenue'])) {
+                $searchRevenue = $params['searchRevenue'];
+                if (!empty($searchRevenue)) {
+                    array_push($arr2, 3);
+                }
+            } else {
+                $searchRevenue = "";
+            }
+
+            if (isset($params['searchCcode'])) {
+                $searchCcode = $params['searchCcode'];
+                if (!empty($searchCcode)) {
+                    array_push($arr2, 4);
+                }
+            } else {
+                $searchCcode = "";
+            }
+        } else {
+            $searchCash = "";
+            $searchSer = "";
+            $searchRevenue = "";
+            $searchCcode = "";
+            $date_from = "";
+            $date_to = "";
+        }
+
+        $cond1 = "bank_id = '$searchCash'";
+        $cond2 = "date BETWEEN '$date_from' AND '$date_to' ";
+        $cond3 = "ccode like '%$searchSer%'";
+        $cond4 = "trn_id = '$searchRevenue'";
+        $cond5 = "doc_no like '%$searchCcode%'";
+
+        $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5);
+        $arr_1_cnt = count($arr2);
+        $arr3 = array();
+
+        for ($i = 0; $i < $arr_1_cnt; $i++) {
+            array_push($arr3, $arr1[$arr2[$i]]);
+        }
+        $arr4 = implode(" and ", $arr3);
+        // ************//
+        if ($arr_1_cnt > 0) {
+            $data['cash_trn'] = $this->AccountModel->AllCashPages($this->brand, $type, $arr4)->result_array();;
+        } else {
+            $data['cash_trn'] = $this->AccountModel->AllCashPages($this->brand, $type, '1')->result_array();;
+        }
+        echo base64_encode(json_encode($data));
+    }
+
+    public function editCashoutTrn($id)
     {
         // Check Permission ..
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 222);
+        $data['audit_permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 240);
         if ($data['permission']->edit == 1) {
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $setup = $this->AccountModel->getsetup();
 
-            $id = base64_decode($_GET['t']);
+            $id = base64_decode($id);
             $data['cashout'] = $this->db->get_where('cashout', array('id' => $id, 'brand' => $this->brand))->row();
             $data['acc_setup'] = $setup;
-            // $data['parent_id'] = $setup->cash_acc_id;
-            // $data['parent_acode'] = $setup->cash_acc_acode;
-            // $data['parent_name'] = $this->AccountModel->getByID('account_chart', $data['parent_id']);
             if ($setup->rev_acc_id != 0) {
                 $data['exp_id'] = $setup->exp_acc_id;
                 $data['exp_acode'] = $setup->exp_acc_acode;
@@ -2339,7 +2292,6 @@ class Account extends CI_Controller
             $data['cash_acc_id'] = $account_select->id;
             $data['cash_acc'] = $account_select->acode;
             $data['cash_acc_name'] = $account_select->name;
-
             $data['brand'] = $this->brand;
 
             $this->load->view('includes_new/header.php', $data);
@@ -2349,13 +2301,38 @@ class Account extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
+    public function doEditCashoutTrn_audit()
+    {
+        $id = base64_decode($_POST['aud_id']);
+        $data['audit_chk'] = $this->input->post('audit_chk');
+        if ($data['audit_chk']) {
+            $data['audit_comment'] = $_POST['audit_comment'];
+            $data['audit_date'] =  date('Y-m-d H:i:s');
+            $data['audit_by'] = $this->user;
+        } else {
+            $data['audit_comment'] = '';
+            $data['audit_date']  = null;
+            $data['audit_by'] = '';
+        }
+        if ($this->db->update('cashout', $data, array('id' => $id))) {
+            $this->admin_model->addToLoggerUpdate('cashout', 240, 'id', $id, 0, 0, $this->user);
+            $true = "Audit Successfully ...";
+            $this->session->set_flashdata('true', $true);
 
+            echo json_encode(['records' => 0]);
+        } else {
+            $error = "Failed To Audit Cash Out Entry ...";
+            $this->session->set_flashdata('error', $error);
+            echo json_encode(['records' => 1]);
+        }
+    }
     public function doEditCashoutTrn()
     {
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 222);
         if ($permission->edit == 1) {
             if (isset($_POST['doc_no'])) {
                 $records = $this->db->select('*')->from('cashout')->where('doc_no=', $_POST['doc_no'])->where('brand=', $this->brand)->order_by('id')->get();
+
                 if ($records->num_rows() != 0 && $records->row()->id != base64_decode($_POST['id'])) {
                     echo json_encode(['records' => 1]);
                     return;
@@ -2374,11 +2351,49 @@ class Account extends CI_Controller
             $data['currency_id'] = $_POST['currency_hid'];
             $data['rate'] = $_POST['rate_h'];
             $data['rem'] = $_POST['rem'];
+
+            $data['desc_file'] = $_POST['desc_file'];
+            $data['name_file'] = $_POST['fileuploadspan'];
+
+            $fileToatt = $_POST['fileToDelete'];
+            $new_file = $_FILES['doc_file']['name'];
+            if ($new_file == true) {
+                $new_file = str_replace(' ', "-", $_FILES['doc_file']['name']);
+                if ($_FILES['doc_file']['size'] != 0) {
+                    if (!is_dir('./assets/uploads/account/cashout/')) {
+                        mkdir('./assets/uploads/account/cashout/', 0777, TRUE);
+                    }
+                    $config['file']['upload_path'] = './assets/uploads/account/cashout/';
+                    $config['file']['encrypt_name'] = TRUE;
+                    $config['file']['allowed_types'] = 'zip|rar';
+                    $config['file']['max_size'] = 5000000;
+                    $this->load->library('upload', $config['file'], 'file_upload');
+                    if (!$this->file_upload->do_upload('doc_file')) {
+                        $error = $this->file_upload->display_errors();
+                        $this->session->set_flashdata('error', $error);
+                        echo json_encode(['records' => 2]);
+                        return;
+                    } else {
+                        if ($fileToatt && $fileToatt != '') {
+                            if (file_exists('./assets/uploads/account/cashout/' . $fileToatt)) {
+                                unlink('./assets/uploads/account/cashout/' . $fileToatt);
+                            }
+                        }
+                        $data_file = $this->file_upload->data();
+                        $data['doc_file'] = $data_file['file_name'];
+                    }
+                } else {
+                    $data['doc_file'] = "";
+                    $data['name_file'] = "";
+                }
+            }
+
             $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['cash_id']);
             $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
 
             $data['brand'] = $this->brand;
             $this->admin_model->addToLoggerUpdate('cashout', 222, 'id', $id, 0, 0, $this->user);
+
             if ($this->db->update('cashout', $data, array('id' => $id))) {
 
                 $this->db->delete('entry_data_total', array('trns_type' => "Cash Out", 'trns_id' => $id));
@@ -2428,6 +2443,7 @@ class Account extends CI_Controller
                     'created_at' => date('Y-m-d H:i:s'),
                     'created_by' => $this->user
                 );
+
                 if ($this->db->insert('entry_data_total', $data_t)) {
                     $entry_data['tot_id'] = $this->db->get('entry_data_total', array('trns_type' => "Cash Out", 'trns_id' => $id))->row()->id;
                     if ($this->db->insert('entry_data', $entry_data)) {
@@ -2447,7 +2463,12 @@ class Account extends CI_Controller
                         if ($this->db->insert('entry_data', $entry_data)) {
                             $true = "Cash Out Edited Successfully ...";
                             $this->session->set_flashdata('true', $true);
+                            echo json_encode(['records' => 0]);
                         }
+                    } else {
+                        $error = "Failed To Edit Cash Out ...";
+                        $this->session->set_flashdata('error', $error);
+                        echo json_encode(['records' => 1]);
                     }
                 }
             } else {
@@ -2455,7 +2476,6 @@ class Account extends CI_Controller
                 $this->session->set_flashdata('error', $error);
                 echo json_encode(['records' => 1]);
             }
-            echo "account/cashouttrnlist";
         } else {
             echo "You have no permission to access this page";
         }
@@ -2463,6 +2483,7 @@ class Account extends CI_Controller
     public function addCashoutTrn()
     {
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 222);
+        $data['audit_permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 240);
         if ($data['permission']->add == 1) {
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $setup = $this->AccountModel->getsetup();
@@ -2519,8 +2540,34 @@ class Account extends CI_Controller
             $data['created_at'] = date('Y-m-d H:i:s');
             $data['created_by'] = $this->user;
 
+            $data['desc_file'] = $_POST['desc_file'];
+            // $data['name_file'] = $_POST['fileuploadspan'];
+
             $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['cash_id']);
             $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
+            if ($_FILES['doc_file']['size'] != 0) {
+                if (!is_dir('./assets/uploads/account/cashout/')) {
+                    mkdir('./assets/uploads/account/cashout/', 0777, TRUE);
+                }
+                $config['file']['upload_path'] = './assets/uploads/account/cashout/';
+                $config['file']['encrypt_name'] = TRUE;
+                $config['file']['allowed_types'] = 'zip|rar';
+                $config['file']['max_size'] = 5000000;
+                $this->load->library('upload', $config['file'], 'file_upload');
+                if (!$this->file_upload->do_upload('doc_file')) {
+                    $error = $this->file_upload->display_errors();
+                    $this->session->set_flashdata('error', $error);
+                    echo "error";
+                    return;
+                } else {
+                    $data_file = $this->file_upload->data();
+                    $data['doc_file'] = $data_file['file_name'];
+                    $data['name_file'] = $data_file['orig_name'];
+                }
+            } else {
+                $data['doc_file'] = "";
+                $data['name_file'] = "";
+            }
 
             if ($this->db->insert('cashout', $data)) {
                 $cashout_id = $this->db->insert_id();
@@ -2643,131 +2690,20 @@ class Account extends CI_Controller
     }
 
     //************ Bank in */
-
     public function bankintrnlist()
     {
-
-        // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 224);
         if ($check) {
             // header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 224);
-            //body ..
+
             $data['user'] = $this->user;
             $data['brand'] = $this->brand;
+            $setup = $this->AccountModel->getSetup();
+            $data['setup'] = $setup;
+
             $type = "1";
-
-            if (isset($_POST['search'])) {
-                $arr2 = array();
-                if ($this->input->post('bank_id')) {
-                    $bank_id = $this->input->post('bank_id');
-                    if (!empty($bank_id)) {
-                        array_push($arr2, 0);
-                    }
-                } else {
-                    $bank_id = "";
-                }
-
-                if (isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])) {
-                    $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
-                    $date_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
-                    if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
-                        array_push($arr2, 1);
-                    }
-                } else {
-                    $date_to = "";
-                    $date_from = "";
-                }
-
-                if (isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])) {
-                    $date1_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
-                    $date1_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
-                    if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
-                        array_push($arr2, 1);
-                    }
-                } else {
-                    $date1_to = "";
-                    $date1_from = "";
-                }
-
-                if (isset($_REQUEST['ser'])) {
-                    $ser = $_REQUEST['ser'];
-                    if (!empty($ser)) {
-                        array_push($arr2, 2);
-                    }
-                } else {
-                    $ser = "";
-                }
-                if (isset($_REQUEST['trn_id'])) {
-                    $trn_id = $_REQUEST['trn_id'];
-                    if (!empty($trn_id)) {
-                        array_push($arr2, 3);
-                    }
-                } else {
-                    $trn_id = "";
-                }
-
-                $cond1 = "bank_id = '$bank_id'";
-                $cond2 = "date BETWEEN '$date_from' AND '$date_to' ";
-                $cond3 = "date1 BETWEEN '$date_from' AND '$date_to' ";
-                $cond4 = "ser = '$ser'";
-                $cond5 = "trn_id = '$trn_id'";
-
-                $arr1 = array($cond1, $cond2, $cond3, $cond4);
-                $arr_1_cnt = count($arr2);
-                $arr3 = array();
-                for ($i = 0; $i < $arr_1_cnt; $i++) {
-                    array_push($arr3, $arr1[$arr2[$i]]);
-                }
-                $arr4 = implode(" and ", $arr3);
-                //************//
-                if ($arr_1_cnt > 0) {
-                    $data['bank_trn'] = $this->AccountModel->Allbanktrn($this->brand, $type, $arr4);
-                } else {
-                    $data['bank_trn'] = $this->AccountModel->AllbanktrnPages($this->brand, $type, 9, 0);
-                }
-            } else {
-                $limit = 9;
-                $offset = $this->uri->segment(3);
-                if ($this->uri->segment(3) != NULL) {
-                    $offset = $this->uri->segment(3);
-                } else {
-                    $offset = 0;
-                }
-                $count = $this->AccountModel->Allbankin($this->brand, $type, 1)->num_rows();
-                $config['base_url'] = base_url('account/bankintrnlist');
-                $config['uri_segment'] = 3;
-                $config['display_pages'] = TRUE;
-                $config['per_page'] = $limit;
-                $config['total_rows'] = $count;
-                $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
-                $config['full_tag_close'] = "</ul>";
-                $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
-                $config['num_tag_close'] = '</li>';
-                $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
-                $config['cur_tag_close'] = "</li>";
-                $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-                $config['next_tagl_close'] = "</span></li>";
-                $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-                $config['prev_tagl_close'] = "</span></li>";
-                $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-                $config['first_tagl_close'] = "</li>";
-                $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-                $config['last_tagl_close'] = "</li>";
-                $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
-                $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
-                $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
-                $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
-                $config['num_links'] = 5;
-                $config['show_count'] = TRUE;
-                $this->pagination->initialize($config);
-
-                $data['bank_trn'] = $this->AccountModel->AllbanktrnPages($this->brand, $type, $limit, $offset);
-            }
-            $data['brand'] = $this->brand;
-            $data['parent_id'] = $this->db->get_where('acc_setup', array('brand' => $this->brand))->row()->bank_acc_id;
-
             // //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('account/bank/bankintrnlist');
@@ -2776,18 +2712,139 @@ class Account extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
-    public function editbankinTrn()
+    public function get_bankInList()
+    {
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 224);
+        $data['audit_permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 241);
+
+        $data['user'] = $this->user;
+        $data['brand'] = $this->brand;
+        $setup = $this->AccountModel->getSetup();
+        $data['setup'] = $setup;
+
+        $type = "1";
+        $filter_data = $this->input->post('filter_data');
+        parse_str($filter_data, $params);
+        $arr2 = array();
+        if ($filter_data) {
+
+            if (isset($params['searchBank'])) {
+                $searchBank = $params['searchBank'];
+                if (!empty($searchBank)) {
+                    array_push($arr2, 0);
+                }
+            } else {
+                $searchBank = "";
+            }
+
+            if (isset($params['searchCdate']) && $params['searchCdate'] != '') {
+                $searchCdate = explode(' - ', $params['searchCdate']);
+
+                $date1 = explode('/', $searchCdate[0]);
+                $date2 = explode('/', $searchCdate[1]);
+
+                $finalDate1 = $date1[2] . '-' . $date1[1] . '-' . $date1[0];
+                $finalDate2 = $date2[2] . '-' . $date2[1] . '-' . $date2[0];
+                $date_from = date("Y-m-d", strtotime($finalDate1));
+                $date_to = date("Y-m-d", strtotime("+1 day", strtotime($finalDate2)));
+                if (!empty($finalDate1) && !empty($finalDate2)) {
+                    array_push($arr2, 1);
+                }
+            } else {
+                $searchCdate = "";
+                $date_from = "";
+                $date_to = "";
+            }
+
+            if (isset($params['searchSer'])) {
+                $searchSer = $params['searchSer'];
+                if (!empty($searchSer)) {
+                    array_push($arr2, 2);
+                }
+            } else {
+                $searchSer = "";
+            }
+            if (isset($params['searchRevenue'])) {
+                $searchRevenue = $params['searchRevenue'];
+                if (!empty($searchRevenue)) {
+                    array_push($arr2, 3);
+                }
+            } else {
+                $searchRevenue = "";
+            }
+
+            if (isset($params['searchCcode'])) {
+                $searchCcode = $params['searchCcode'];
+                if (!empty($searchCcode)) {
+                    array_push($arr2, 4);
+                }
+            } else {
+                $searchCcode = "";
+            }
+            if (isset($params['searchChequeNo'])) {
+                $searchChequeNo = $params['searchChequeNo'];
+                if (!empty($searchChequeNo)) {
+                    array_push($arr2, 4);
+                }
+            } else {
+                $searchChequeNo = "";
+            }
+            if (isset($params['searchChequeDate'])) {
+                $searchChequeDate = $params['searchChequeDate'];
+                if (!empty($searchChequeDate)) {
+                    array_push($arr2, 4);
+                }
+            } else {
+                $searchChequeDate = "";
+            }
+        } else {
+            $searchBank = "";
+            $searchSer = "";
+            $searchRevenue = "";
+            $searchCcode = "";
+            $date_from = "";
+            $date_to = "";
+            $searchChequeNo = "";
+            $searchChequeDate = "";
+        }
+
+        $cond1 = "bank_id = '$searchBank'";
+        $cond2 = "date BETWEEN '$date_from' AND '$date_to' ";
+        $cond3 = "ccode like '%$searchSer%'";
+        $cond4 = "trn_id = '$searchRevenue'";
+        $cond5 = "doc_no like '%$searchCcode%'";
+
+        $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5);
+        $arr_1_cnt = count($arr2);
+        $arr3 = array();
+
+        for ($i = 0; $i < $arr_1_cnt; $i++) {
+            array_push($arr3, $arr1[$arr2[$i]]);
+        }
+        $arr4 = implode(" and ", $arr3);
+        // ************//
+        // var_dump($arr2);
+        if ($arr_1_cnt > 0) {
+            $data['bank_trn'] = $this->AccountModel->Allbanktrn($this->brand, $type, $arr4)->result_array();;
+        } else {
+            $data['bank_trn'] = $this->AccountModel->Allbanktrn($this->brand, $type, '1')->result_array();;
+        }
+        echo base64_encode(json_encode($data));
+    }
+
+    public function editbankinTrn($id)
     {
         // Check Permission ..
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 224);
+        $data['audit_permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 241);
         if ($data['permission']->edit == 1) {
-            //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
-            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 224);
-            //body ..
-            $id = base64_decode($_GET['t']);
+            $setup = $this->AccountModel->getsetup();
+
+            $id = base64_decode($id);
             $data['bankin'] = $this->db->get_where('bankin', array('id' => $id, 'brand' => $this->brand))->row();
-            $data['acc_setup'] = $setup = $this->AccountModel->getsetup();
+            $data['acc_setup'] = $setup;
 
             if ($setup->rev_acc_id != 0) {
                 $data['rev_id'] = $setup->rev_acc_id;
@@ -2796,8 +2853,8 @@ class Account extends CI_Controller
             } else {
                 $data['rev_name'] = "-";
             }
-            $cash_select = $this->db->get_where('payment_method', array('id' => $data['bankin']->bank_id))->row()->account_id;
-            $account_select = $this->db->get_where('account_chart', array('id' => $cash_select))->row();
+            $bank_select = $this->db->get_where('payment_method', array('id' => $data['bankin']->bank_id))->row()->account_id;
+            $account_select = $this->db->get_where('account_chart', array('id' => $bank_select))->row();
             $data['cash_acc_id'] = $account_select->id;
             $data['cash_acc'] = $account_select->acode;
             $data['cash_acc_name'] = $account_select->name;
@@ -2811,7 +2868,31 @@ class Account extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
+    public function doEditBankinTrn_audit()
+    {
+        $id = base64_decode($_POST['aud_id']);
+        $data['audit_chk'] = $this->input->post('audit_chk');
+        if ($data['audit_chk']) {
+            $data['audit_comment'] = $_POST['audit_comment'];
+            $data['audit_date'] =  date('Y-m-d H:i:s');
+            $data['audit_by'] = $this->user;
+        } else {
+            $data['audit_comment'] = '';
+            $data['audit_date']  = null;
+            $data['audit_by'] = '';
+        }
+        if ($this->db->update('bankin', $data, array('id' => $id))) {
+            $this->admin_model->addToLoggerUpdate('bankin', 241, 'id', $id, 0, 0, $this->user);
+            $true = "Audit Successfully ...";
+            $this->session->set_flashdata('true', $true);
 
+            echo json_encode(['records' => 0]);
+        } else {
+            $error = "Failed To Audit Bank In Entry ...";
+            $this->session->set_flashdata('error', $error);
+            echo json_encode(['records' => 1]);
+        }
+    }
     public function doEditbankinTrn()
     {
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 224);
@@ -2840,7 +2921,43 @@ class Account extends CI_Controller
             $data['cheque_date'] = date("Y-m-d", strtotime($_POST['cdate1']));
             $data['cheque_no'] = $_POST['check_no'];
             $data['rem'] = $_POST['rem'];
-            $data['brand'] = $this->brand;
+
+            $data['desc_file'] = $_POST['desc_file'];
+            $data['name_file'] = $_POST['fileuploadspan'];
+
+            $fileToatt = $_POST['fileToDelete'];
+            $new_file = $_FILES['doc_file']['name'];
+
+            if ($new_file == true) {
+                $new_file = str_replace(' ', "-", $_FILES['doc_file']['name']);
+                if ($_FILES['doc_file']['size'] != 0) {
+                    if (!is_dir('./assets/uploads/account/bankin/')) {
+                        mkdir('./assets/uploads/account/bankin/', 0777, TRUE);
+                    }
+                    $config['file']['upload_path'] = './assets/uploads/account/bankin/';
+                    $config['file']['encrypt_name'] = TRUE;
+                    $config['file']['allowed_types'] = 'zip|rar';
+                    $config['file']['max_size'] = 5000000;
+                    $this->load->library('upload', $config['file'], 'file_upload');
+                    if (!$this->file_upload->do_upload('doc_file')) {
+                        $error = $this->file_upload->display_errors();
+                        $this->session->set_flashdata('error', $error);
+                        echo json_encode(['records' => 2]);
+                        return;
+                    } else {
+                        if ($fileToatt && $fileToatt != '') {
+                            if (file_exists('./assets/uploads/account/bankin/' . $fileToatt)) {
+                                unlink('./assets/uploads/account/bankin/' . $fileToatt);
+                            }
+                        }
+                        $data_file = $this->file_upload->data();
+                        $data['doc_file'] = $data_file['file_name'];
+                    }
+                } else {
+                    $data['doc_file'] = "";
+                    $data['name_file'] = "";
+                }
+            }
 
             $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['bank_id']);
             $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
@@ -2850,10 +2967,6 @@ class Account extends CI_Controller
 
                 $this->db->delete('entry_data_total', array('trns_type' => "Bank In", 'trns_id' => $id));
                 $this->db->delete('entry_data', array('trns_type' => "Bank In", 'trns_id' => $id));
-
-                // $trn_id = $this->db->query("SELECT id FROM bankin WHERE ccode='" . $_POST['serial'] . "'")->row()->id;
-                // $crd_acc_acode = $this->db->query("SELECT acode FROM account_chart WHERE id='" . $_POST['trn_id'] . "'")->row();
-                // $deb_acc_acode = $this->db->query("SELECT acode FROM account_chart WHERE id='" . $_POST['trn_id'] . "'")->row();
                 $entry_data['brand'] = $this->brand;
                 $entry_data['trns_type'] = "Bank In";
                 $entry_data['trns_id'] = $id;
@@ -2871,7 +2984,6 @@ class Account extends CI_Controller
                 $entry_data['created_by'] = $this->user;
 
                 $entry_data['deb_amount'] = $_POST['amount'];
-                $entry_data['deb_acc_id'] = $_POST['bank_id'];
                 $entry_data['deb_acc_id'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['bank_acc_id']);
                 $entry_data['deb_acc_acode'] = $dep_acc_row->acode;
                 $entry_data['ev_deb'] = $entry_data['deb_amount'] * $_POST['rate_h'];
@@ -2937,7 +3049,6 @@ class Account extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
-
     public function addbankinTrn()
     {
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 224);
@@ -2991,7 +3102,7 @@ class Account extends CI_Controller
             $data['bank_type'] = 1; //1 for bank in - 2 for bank out
             $data['ccode'] = $serial;
             $data['doc_no'] = $_POST['doc_no'];
-            $data['bank_id'] = $_POST['cash_id'];
+            $data['bank_id'] = $_POST['bank_id'];
 
             $data['date'] = date("Y-m-d", strtotime($_POST['cdate']));
             $data['trn_type'] = $_POST['trn_typ'];
@@ -3008,8 +3119,33 @@ class Account extends CI_Controller
             $data['created_at'] = date('Y-m-d H:i:s');
             $data['created_by'] = $this->user;
 
-            $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['cash_id']);
+            $data['desc_file'] = $_POST['desc_file'];
+
+            $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['bank_id']);
             $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
+            if ($_FILES['doc_file']['size'] != 0) {
+                if (!is_dir('./assets/uploads/account/bankin/')) {
+                    mkdir('./assets/uploads/account/bankin/', 0777, TRUE);
+                }
+                $config['file']['upload_path'] = './assets/uploads/account/bankin/';
+                $config['file']['encrypt_name'] = TRUE;
+                $config['file']['allowed_types'] = 'zip|rar';
+                $config['file']['max_size'] = 5000000;
+                $this->load->library('upload', $config['file'], 'file_upload');
+                if (!$this->file_upload->do_upload('doc_file')) {
+                    $error = $this->file_upload->display_errors();
+                    $this->session->set_flashdata('error', $error);
+                    echo json_encode(['records' => 2]);
+                    return;
+                } else {
+                    $data_file = $this->file_upload->data();
+                    $data['doc_file'] = $data_file['file_name'];
+                    $data['name_file'] = $data_file['orig_name'];
+                }
+            } else {
+                $data['doc_file'] = "";
+                $data['name_file'] = "";
+            }
 
             if ($this->db->insert('bankin', $data)) {
                 $bankin_id =  $this->db->insert_id();
@@ -3097,32 +3233,31 @@ class Account extends CI_Controller
         }
     }
 
-    public function bank_trn_cuttrncy()
-    { {
-            $bank_id = $this->input->post('bank_id', TRUE);
-            $date = $this->input->post('date', TRUE);
-
-            if ($bank_id != '') {
-                $bank_pay = $this->db->get_where('payment_method', array('id' => $bank_id))->row();
-                $data['currency_id'] = $bank_pay->currency_id;
-                $data['options'] = $this->admin_model->selectCurrency($data['currency_id']);
-                $data['rate'] = $this->AccountModel->getrate($data['currency_id'], $date);
-                $account = $this->db->query("SELECT * FROM account_chart where id = '" . $bank_pay->account_id . "'")->row();
-
-                $data['bank_acc_acode'] = $account->acode;
-                $data['bank_acc_id'] = $account->id;
-
-                $data['bank_acc_ccode'] = $account->ccode;
-                $data['bank_acc_name'] = $account->name;
-                echo json_encode($data);
-            }
-        }
-    }
-    public function bank_trn_cuttrncy_rate()
+    public function bank_trn_currency()
     {
         $bank_id = $this->input->post('bank_id', TRUE);
-        $currency_hid = $this->input->post('currency_hid', TRUE);
         $date = $this->input->post('date', TRUE);
+
+        if ($bank_id != '') {
+            $bank_pay = $this->db->get_where('payment_method', array('id' => $bank_id))->row();
+            $data['currency_id'] = $bank_pay->currency_id;
+            $data['options'] = $this->admin_model->selectCurrency($data['currency_id']);
+            $data['rate'] = $this->AccountModel->getrate($data['currency_id'], $date);
+            $account = $this->db->query("SELECT * FROM account_chart where id = '" . $bank_pay->account_id . "'")->row();
+
+            $data['bank_acc_acode'] = $account->acode;
+            $data['bank_acc_id'] = $account->id;
+
+            $data['bank_acc_ccode'] = $account->ccode;
+            $data['bank_acc_name'] = $account->name;
+            echo json_encode($data);
+        }
+    }
+
+    public function bank_trn_currency_rate()
+    {
+        $currency_hid = $this->input->post('currency_hid');
+        $date = $this->input->post('date');
         $setup = $this->AccountModel->getsetup();
 
         if (isset($setup->local_currency_id)) {
@@ -3135,7 +3270,7 @@ class Account extends CI_Controller
             $data['rate'] = 1;
             echo json_encode($data);
         } else {
-            if ($bank_id != '' && $currency_hid != '') {
+            if ($currency_hid != '' && $date) {
                 if ($this->AccountModel->getrate($currency_hid, $date)) {
                     $data['rate'] = $this->AccountModel->getrate($currency_hid, $date);
                     echo json_encode($data);
@@ -3154,12 +3289,18 @@ class Account extends CI_Controller
         if ($check) {
             $this->admin_model->addToLoggerDelete('bankin', 224, 'id', $id, 0, 0, $this->user);
             if ($this->db->delete('bankin', array('id' => $id))) {
-                if ($this->db->delete('entry_data', array('trns_id' => $id, 'trns_type' => 'bank IN'))) {
-                    $true = "bank IN Deleted Successfully ...";
-                    $this->session->set_flashdata('true', $true);
+                $fileToatt = $this->db->get_where('bankin', array('id' => $id))->row()->doc_file;
+                if ($fileToatt && $fileToatt != '') {
+                    unlink('./assets/uploads/account/bankin/' . $fileToatt);
+                }
+                if ($this->db->delete('entry_data_total', array('trns_id' => $id, 'trns_type' => 'Bank In'))) {
+                    if ($this->db->delete('entry_data', array('trns_id' => $id, 'trns_type' => 'Bank In'))) {
+                        $true = "Bank In Deleted Successfully ...";
+                        $this->session->set_flashdata('true', $true);
+                    }
                 }
             } else {
-                $error = "Failed To Delete bank IN...";
+                $error = "Failed To Delete Bank In...";
                 $this->session->set_flashdata('error', $error);
             }
             redirect(base_url() . "account/bankintrnlist");
@@ -3167,131 +3308,22 @@ class Account extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
-    //************ Bank out */
 
+    //************ Bank out */
     public function bankouttrnlist()
     {
-
-        // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 225);
         if ($check) {
             // header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 225);
-            //body ..
+
             $data['user'] = $this->user;
             $data['brand'] = $this->brand;
+            $setup = $this->AccountModel->getSetup();
+            $data['setup'] = $setup;
+
             $type = "2";
-
-            if (isset($_POST['search'])) {
-                $arr2 = array();
-                if ($this->input->post('bank_id')) {
-                    $bank_id = $this->input->post('bank_id');
-                    if (!empty($bank_id)) {
-                        array_push($arr2, 0);
-                    }
-                } else {
-                    $bank_id = "";
-                }
-
-                if (isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])) {
-                    $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
-                    $date_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
-                    if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
-                        array_push($arr2, 1);
-                    }
-                } else {
-                    $date_to = "";
-                    $date_from = "";
-                }
-
-                if (isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])) {
-                    $date1_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
-                    $date1_to = date("Y-m-d", strtotime("+1 day", strtotime($_REQUEST['date_to'])));
-                    if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
-                        array_push($arr2, 1);
-                    }
-                } else {
-                    $date1_to = "";
-                    $date1_from = "";
-                }
-
-                if (isset($_REQUEST['ser'])) {
-                    $ser = $_REQUEST['ser'];
-                    if (!empty($ser)) {
-                        array_push($arr2, 2);
-                    }
-                } else {
-                    $ser = "";
-                }
-                if (isset($_REQUEST['trn_id'])) {
-                    $trn_id = $_REQUEST['trn_id'];
-                    if (!empty($trn_id)) {
-                        array_push($arr2, 3);
-                    }
-                } else {
-                    $trn_id = "";
-                }
-
-                $cond1 = "bank_id = '$bank_id'";
-                $cond2 = "date BETWEEN '$date_from' AND '$date_to' ";
-                $cond3 = "date1 BETWEEN '$date_from' AND '$date_to' ";
-                $cond4 = "ser = '$ser'";
-                $cond5 = "trn_id = '$trn_id'";
-
-                $arr1 = array($cond1, $cond2, $cond3, $cond4);
-                $arr_1_cnt = count($arr2);
-                $arr3 = array();
-                for ($i = 0; $i < $arr_1_cnt; $i++) {
-                    array_push($arr3, $arr1[$arr2[$i]]);
-                }
-                $arr4 = implode(" and ", $arr3);
-                //************//
-                if ($arr_1_cnt > 0) {
-                    $data['bank_trn'] = $this->AccountModel->Allbanktrn($this->brand, $type, $arr4);
-                } else {
-                    $data['bank_trn'] = $this->AccountModel->AllbanktrnPages($this->brand, $type, 9, 0);
-                }
-            } else {
-                $limit = 9;
-                $offset = $this->uri->segment(3);
-                if ($this->uri->segment(3) != NULL) {
-                    $offset = $this->uri->segment(3);
-                } else {
-                    $offset = 0;
-                }
-                $count = $this->AccountModel->Allbanktrn($this->brand, $type, 1)->num_rows();
-                $config['base_url'] = base_url('account/bankouttrnlist');
-                $config['uri_segment'] = 3;
-                $config['display_pages'] = TRUE;
-                $config['per_page'] = $limit;
-                $config['total_rows'] = $count;
-                $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
-                $config['full_tag_close'] = "</ul>";
-                $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
-                $config['num_tag_close'] = '</li>';
-                $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
-                $config['cur_tag_close'] = "</li>";
-                $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-                $config['next_tagl_close'] = "</span></li>";
-                $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
-                $config['prev_tagl_close'] = "</span></li>";
-                $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-                $config['first_tagl_close'] = "</li>";
-                $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
-                $config['last_tagl_close'] = "</li>";
-                $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
-                $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
-                $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
-                $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
-                $config['num_links'] = 5;
-                $config['show_count'] = TRUE;
-                $this->pagination->initialize($config);
-
-                $data['bank_trn'] = $this->AccountModel->AllbanktrnPages($this->brand, $type, $limit, $offset);
-            }
-            $data['brand'] = $this->brand;
-            $data['parent_id'] = $this->db->get_where('acc_setup', array('brand' => $this->brand))->row()->bank_acc_id;
             // //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('account/bank/bankouttrnlist');
@@ -3300,16 +3332,137 @@ class Account extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
+    public function get_bankOutList()
+    {
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 225);
+        $data['audit_permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 242);
 
-    public function editbankoutTrn()
+        $data['user'] = $this->user;
+        $data['brand'] = $this->brand;
+        $setup = $this->AccountModel->getSetup();
+        $data['setup'] = $setup;
+
+        $type = "2";
+        $filter_data = $this->input->post('filter_data');
+        parse_str($filter_data, $params);
+        $arr2 = array();
+        if ($filter_data) {
+
+            if (isset($params['searchBank'])) {
+                $searchBank = $params['searchBank'];
+                if (!empty($searchBank)) {
+                    array_push($arr2, 0);
+                }
+            } else {
+                $searchBank = "";
+            }
+
+            if (isset($params['searchCdate']) && $params['searchCdate'] != '') {
+                $searchCdate = explode(' - ', $params['searchCdate']);
+
+                $date1 = explode('/', $searchCdate[0]);
+                $date2 = explode('/', $searchCdate[1]);
+
+                $finalDate1 = $date1[2] . '-' . $date1[1] . '-' . $date1[0];
+                $finalDate2 = $date2[2] . '-' . $date2[1] . '-' . $date2[0];
+                $date_from = date("Y-m-d", strtotime($finalDate1));
+                $date_to = date("Y-m-d", strtotime("+1 day", strtotime($finalDate2)));
+                if (!empty($finalDate1) && !empty($finalDate2)) {
+                    array_push($arr2, 1);
+                }
+            } else {
+                $searchCdate = "";
+                $date_from = "";
+                $date_to = "";
+            }
+
+            if (isset($params['searchSer'])) {
+                $searchSer = $params['searchSer'];
+                if (!empty($searchSer)) {
+                    array_push($arr2, 2);
+                }
+            } else {
+                $searchSer = "";
+            }
+            if (isset($params['searchRevenue'])) {
+                $searchRevenue = $params['searchRevenue'];
+                if (!empty($searchRevenue)) {
+                    array_push($arr2, 3);
+                }
+            } else {
+                $searchRevenue = "";
+            }
+
+            if (isset($params['searchCcode'])) {
+                $searchCcode = $params['searchCcode'];
+                if (!empty($searchCcode)) {
+                    array_push($arr2, 4);
+                }
+            } else {
+                $searchCcode = "";
+            }
+            if (isset($params['searchChequeNo'])) {
+                $searchChequeNo = $params['searchChequeNo'];
+                if (!empty($searchChequeNo)) {
+                    array_push($arr2, 4);
+                }
+            } else {
+                $searchChequeNo = "";
+            }
+            if (isset($params['searchChequeDate'])) {
+                $searchChequeDate = $params['searchChequeDate'];
+                if (!empty($searchChequeDate)) {
+                    array_push($arr2, 4);
+                }
+            } else {
+                $searchChequeDate = "";
+            }
+        } else {
+            $searchBank = "";
+            $searchSer = "";
+            $searchRevenue = "";
+            $searchCcode = "";
+            $date_from = "";
+            $date_to = "";
+            $searchChequeNo = "";
+            $searchChequeDate = "";
+        }
+
+        $cond1 = "bank_id = '$searchBank'";
+        $cond2 = "date BETWEEN '$date_from' AND '$date_to' ";
+        $cond3 = "ccode like '%$searchSer%'";
+        $cond4 = "trn_id = '$searchRevenue'";
+        $cond5 = "doc_no like '%$searchCcode%'";
+
+        $arr1 = array($cond1, $cond2, $cond3, $cond4, $cond5);
+        $arr_1_cnt = count($arr2);
+        $arr3 = array();
+
+        for ($i = 0; $i < $arr_1_cnt; $i++) {
+            array_push($arr3, $arr1[$arr2[$i]]);
+        }
+        $arr4 = implode(" and ", $arr3);
+        // ************//
+        // var_dump($arr2);
+        if ($arr_1_cnt > 0) {
+            $data['bank_trn'] = $this->AccountModel->Allbanktrn($this->brand, $type, $arr4)->result_array();;
+        } else {
+            $data['bank_trn'] = $this->AccountModel->Allbanktrn($this->brand, $type, '1')->result_array();;
+        }
+        echo base64_encode(json_encode($data));
+    }
+
+    public function editbankoutTrn($id)
     {
         // Check Permission ..
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 225);
+        $data['audit_permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 242);
         if ($data['permission']->edit == 1) {
-            //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 225);
-            $id = base64_decode($_GET['t']);
+
+            $id = base64_decode($id);
             $data['bankout'] = $this->db->get_where('bankout', array('id' => $id, 'brand' => $this->brand))->row();
             $data['acc_setup'] = $setup = $this->AccountModel->getsetup();
 
@@ -3328,7 +3481,6 @@ class Account extends CI_Controller
 
             $data['brand'] = $this->brand;
             //Pages ..
-            //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('account/bank/editbankoutTrn');
             $this->load->view('includes_new/footer.php');
@@ -3336,7 +3488,31 @@ class Account extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
+    public function doEditBankoutTrn_audit()
+    {
+        $id = base64_decode($_POST['aud_id']);
+        $data['audit_chk'] = $this->input->post('audit_chk');
+        if ($data['audit_chk']) {
+            $data['audit_comment'] = $_POST['audit_comment'];
+            $data['audit_date'] =  date('Y-m-d H:i:s');
+            $data['audit_by'] = $this->user;
+        } else {
+            $data['audit_comment'] = '';
+            $data['audit_date']  = null;
+            $data['audit_by'] = '';
+        }
+        if ($this->db->update('bankout', $data, array('id' => $id))) {
+            $this->admin_model->addToLoggerUpdate('bankin', 242, 'id', $id, 0, 0, $this->user);
+            $true = "Audit Successfully ...";
+            $this->session->set_flashdata('true', $true);
 
+            echo json_encode(['records' => 0]);
+        } else {
+            $error = "Failed To Audit Bank Out Entry ...";
+            $this->session->set_flashdata('error', $error);
+            echo json_encode(['records' => 1]);
+        }
+    }
     public function doEditbankoutTrn()
     {
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 225);
@@ -3365,17 +3541,52 @@ class Account extends CI_Controller
             $data['cheque_date'] = date("Y-m-d", strtotime($_POST['cdate1']));
             $data['cheque_no'] = $_POST['check_no'];
             $data['rem'] = $_POST['rem'];
-            $data['brand'] = $this->brand;
+
+            $data['desc_file'] = $_POST['desc_file'];
+            $data['name_file'] = $_POST['fileuploadspan'];
+
+            $fileToatt = $_POST['fileToDelete'];
+            $new_file = $_FILES['doc_file']['name'];
+
+            if ($new_file == true) {
+                $new_file = str_replace(' ', "-", $_FILES['doc_file']['name']);
+                if ($_FILES['doc_file']['size'] != 0) {
+                    if (!is_dir('./assets/uploads/account/bankout/')) {
+                        mkdir('./assets/uploads/account/bankout/', 0777, TRUE);
+                    }
+                    $config['file']['upload_path'] = './assets/uploads/account/bankout/';
+                    $config['file']['encrypt_name'] = TRUE;
+                    $config['file']['allowed_types'] = 'zip|rar';
+                    $config['file']['max_size'] = 5000000;
+                    $this->load->library('upload', $config['file'], 'file_upload');
+                    if (!$this->file_upload->do_upload('doc_file')) {
+                        $error = $this->file_upload->display_errors();
+                        $this->session->set_flashdata('error', $error);
+                        echo json_encode(['records' => 2]);
+                        return;
+                    } else {
+                        if ($fileToatt && $fileToatt != '') {
+                            if (file_exists('./assets/uploads/account/bankout/' . $fileToatt)) {
+                                unlink('./assets/uploads/account/bankout/' . $fileToatt);
+                            }
+                        }
+                        $data_file = $this->file_upload->data();
+                        $data['doc_file'] = $data_file['file_name'];
+                    }
+                } else {
+                    $data['doc_file'] = "";
+                    $data['name_file'] = "";
+                }
+            }
 
             $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['bank_id']);
             $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
 
-            $this->admin_model->addToLoggerUpdate('bankout', 224, 'id', $id, 0, 0, $this->user);
+            $this->admin_model->addToLoggerUpdate('bankout', 225, 'id', $id, 0, 0, $this->user);
             if ($this->db->update('bankout', $data, array('id' => $id))) {
 
                 $this->db->delete('entry_data_total', array('trns_type' => "Bank Out", 'trns_id' => $id));
                 $this->db->delete('entry_data', array('trns_type' => "Bank Out", 'trns_id' => $id));
-
                 $entry_data['brand'] = $this->brand;
                 $entry_data['trns_type'] = "Bank Out";
                 $entry_data['trns_id'] = $id;
@@ -3393,7 +3604,6 @@ class Account extends CI_Controller
                 $entry_data['created_by'] = $this->user;
 
                 $entry_data['crd_amount'] = $_POST['amount'];
-                $entry_data['crd_acc_id'] = $_POST['bank_id'];
                 $entry_data['crd_acc_id'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['bank_acc_id']);
                 $entry_data['crd_acc_acode'] = $dep_acc_row->acode;
                 $entry_data['ev_crd'] = $entry_data['crd_amount'] * $_POST['rate_h'];
@@ -3459,15 +3669,11 @@ class Account extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
-
     public function addbankoutTrn()
     {
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 225);
         if ($data['permission']->add == 1) {
-            //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
-            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 225);
-            //body ..
             $setup = $this->AccountModel->getsetup();
 
             $data['acc_setup'] = $setup;
@@ -3485,7 +3691,6 @@ class Account extends CI_Controller
             $data['brand'] = $this->brand;
 
             $data['date'] = date("Y-m-d");
-
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('account/bank/addbankoutTrn');
             $this->load->view('includes_new/footer.php');
@@ -3498,7 +3703,6 @@ class Account extends CI_Controller
     {
         // Check Permission ..
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 225);
-
         if ($permission->add == 1) {
             if (isset($_POST['doc_no'])) {
                 $records = $this->db->select('*')->from('bankout')->where('doc_no=', $_POST['doc_no'])->where('brand=', $this->brand)->order_by('id')->get()->num_rows();
@@ -3515,10 +3719,10 @@ class Account extends CI_Controller
             $this->db->update('acc_setup', array('bankout_num' => str_pad($newcash, 10, "0", STR_PAD_LEFT)));
 
             $serial = str_pad($newcash, 10, '0', STR_PAD_LEFT);
-            $data['bank_type'] = 1; //1 for bank in - 2 for bank out
+            $data['bank_type'] = 2; //1 for bank in - 2 for bank out
             $data['ccode'] = $serial;
             $data['doc_no'] = $_POST['doc_no'];
-            $data['bank_id'] = $_POST['cash_id'];
+            $data['bank_id'] = $_POST['bank_id'];
 
             $data['date'] = date("Y-m-d", strtotime($_POST['cdate']));
             $data['trn_type'] = $_POST['trn_typ'];
@@ -3535,8 +3739,33 @@ class Account extends CI_Controller
             $data['created_at'] = date('Y-m-d H:i:s');
             $data['created_by'] = $this->user;
 
-            $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['cash_id']);
+            $data['desc_file'] = $_POST['desc_file'];
+
+            $dep_pay_acco = $this->AccountModel->getpayment_method_account_id($_POST['bank_id']);
             $dep_acc_row = $this->AccountModel->get_accountRowID($dep_pay_acco);
+            if ($_FILES['doc_file']['size'] != 0) {
+                if (!is_dir('./assets/uploads/account/bankout/')) {
+                    mkdir('./assets/uploads/account/bankout/', 0777, TRUE);
+                }
+                $config['file']['upload_path'] = './assets/uploads/account/bankout/';
+                $config['file']['encrypt_name'] = TRUE;
+                $config['file']['allowed_types'] = 'zip|rar';
+                $config['file']['max_size'] = 5000000;
+                $this->load->library('upload', $config['file'], 'file_upload');
+                if (!$this->file_upload->do_upload('doc_file')) {
+                    $error = $this->file_upload->display_errors();
+                    $this->session->set_flashdata('error', $error);
+                    echo "error";
+                    return;
+                } else {
+                    $data_file = $this->file_upload->data();
+                    $data['doc_file'] = $data_file['file_name'];
+                    $data['name_file'] = $data_file['orig_name'];
+                }
+            } else {
+                $data['doc_file'] = "";
+                $data['name_file'] = "";
+            }
 
             if ($this->db->insert('bankout', $data)) {
                 $bankin_id =  $this->db->insert_id();
@@ -3550,7 +3779,6 @@ class Account extends CI_Controller
                 $entry_data['currency_id'] = $_POST['currency_hid'];
                 $entry_data['rate'] = $_POST['rate_h'];
                 $entry_data['typ_account'] = $_POST['trn_typ'];
-
                 $entry_data['deb_account'] = '';
                 $entry_data['crd_account'] = (($dep_pay_acco) ? $dep_pay_acco  : $_POST['cash_acc_id']);
                 $entry_data['data1'] = $_POST['rem'];
@@ -3625,7 +3853,6 @@ class Account extends CI_Controller
         }
     }
 
-
     public function deletebankoutTrn($id)
     {
         // Check Permission ..
@@ -3633,9 +3860,15 @@ class Account extends CI_Controller
         if ($check) {
             $this->admin_model->addToLoggerDelete('bankout', 225, 'id', $id, 0, 0, $this->user);
             if ($this->db->delete('bankout', array('id' => $id))) {
-                if ($this->db->delete('entry_data', array('trns_id' => $id, 'trns_type' => 'bank Out'))) {
-                    $true = "bank Out Deleted Successfully ...";
-                    $this->session->set_flashdata('true', $true);
+                $fileToatt = $this->db->get_where('bankout', array('id' => $id))->row()->doc_file;
+                if ($fileToatt && $fileToatt != '') {
+                    unlink('./assets/uploads/account/bankut/' . $fileToatt);
+                }
+                if ($this->db->delete('entry_data_total', array('trns_id' => $id, 'trns_type' => 'Bank Out'))) {
+                    if ($this->db->delete('entry_data', array('trns_id' => $id, 'trns_type' => 'Bank Out'))) {
+                        $true = "Bank In Deleted Successfully ...";
+                        $this->session->set_flashdata('true', $true);
+                    }
                 }
             } else {
                 $error = "Failed To Delete bank Out...";
@@ -5131,7 +5364,6 @@ class Account extends CI_Controller
 
         $qu = $this->db->query($sql);
         $query = $qu->result_array();
-        //var_dump($query[0]['trns_code']);
         if ($qu->num_rows() > 0) {
             $auto_num = intval($query[0]['trns_code']) + 1;
         } else {
@@ -5236,21 +5468,23 @@ class Account extends CI_Controller
     //         }
     //     }
     // }
-    function fileToDelete($id, $file_toDelete)
+    function fileToDelete()
     {
-        // $id = base64_decode($_POST['id']);
-        $file_name = './assets/uploads/account/cashin/' . $file_toDelete;
+        $id = base64_decode($_POST['id']);
+        $file_toDelete = $_POST['file_toDelete'];
+        $type = $_POST['type'];
+        $file_name = './assets/uploads/account/' . $type . '/' . $file_toDelete;
         $data['doc_file'] = "";
         $data['name_file'] = "";
         $data['desc_file'] = "";
-        if ($this->db->update('cashin', $data, array('id' => $id))) {
-            if (unlink($file_name)) {
-                return true;
+        if (unlink($file_name)) {
+            if ($this->db->update($type, $data, array('id' => $id))) {
+                echo 'success';
             } else {
-                return false;
+                echo 'error';
             }
         } else {
-            return false;
+            echo 'error';
         }
     }
 }

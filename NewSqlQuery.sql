@@ -142,7 +142,28 @@ ALTER TABLE `cashin` ADD `audit_by`   int(11) NULL AFTER `audit_chk`;
 ALTER TABLE `cashin` ADD `audit_date`   datetime NULL AFTER `audit_by`;
 ALTER TABLE `cashin` ADD `audit_comment`   TEXT NULL AFTER `audit_date`;
 
+ALTER TABLE `cashout` ADD `audit_chk`   tinyint(1)  NULL AFTER `desc_file`;
+ALTER TABLE `cashout` ADD `audit_by`   int(11) NULL AFTER `audit_chk`;
+ALTER TABLE `cashout` ADD `audit_date`   datetime NULL AFTER `audit_by`;
+ALTER TABLE `cashout` ADD `audit_comment`   TEXT NULL AFTER `audit_date`;
+
 
 INSERT INTO `screen` (`id`, `groups`, `name`, `url`, `menu`) VALUES (NULL, '1', 'Cash In Audit', 'admin/audit', '0'); 
 
 ALTER TABLE `employees` ADD `emp_brands` varchar(50)  NULL DEFAULT Null AFTER `workplace_model`; 
+
+ALTER TABLE `bankin` ADD `audit_chk`   tinyint(1)  NULL AFTER `desc_file`;
+ALTER TABLE `bankin` ADD `audit_by`   int(11) NULL AFTER `audit_chk`;
+ALTER TABLE `bankin` ADD `audit_date`   datetime NULL AFTER `audit_by`;
+ALTER TABLE `bankin` ADD `audit_comment`   TEXT NULL AFTER `audit_date`;
+
+ALTER TABLE `bankout` ADD `audit_chk`   tinyint(1)  NULL AFTER `desc_file`;
+ALTER TABLE `bankout` ADD `audit_by`   int(11) NULL AFTER `audit_chk`;
+ALTER TABLE `bankout` ADD `audit_date`   datetime NULL AFTER `audit_by`;
+ALTER TABLE `bankout` ADD `audit_comment`   TEXT NULL AFTER `audit_date`;
+
+INSERT INTO `screen` (`id`, `groups`, `name`, `url`, `menu`) VALUES (239, '1', 'Cash In Audit', 'admin/audit', '0'); 
+INSERT INTO `screen` (`id`, `groups`, `name`, `url`, `menu`) VALUES (240, '1', 'Cash Out Audit', 'admin/audit', '0'); 
+INSERT INTO `screen` (`id`, `groups`, `name`, `url`, `menu`) VALUES (241, '1', 'Bank In Audit', 'admin/audit', '0'); 
+INSERT INTO `screen` (`id`, `groups`, `name`, `url`, `menu`) VALUES (242, '1', 'Bank Out Audit', 'admin/audit', '0'); 
+

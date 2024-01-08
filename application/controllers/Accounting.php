@@ -423,7 +423,7 @@ class Accounting extends CI_Controller
 
             // //Pages ..
             $this->load->view('includes/header.php', $data);
-            $this->load->view('accounting/invoices.php');
+            $this->load->view('accounting/invoicesNew.php');
             $this->load->view('includes/footer.php');
         } else {
             echo "You have no permission to access this page";
@@ -2077,7 +2077,7 @@ class Accounting extends CI_Controller
     }
 
 
-    public function cpoStatus()
+    public function cpoStatus_old()
     {
         // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 107);
@@ -2187,13 +2187,173 @@ class Accounting extends CI_Controller
 
             // //Pages ..
             $this->load->view('includes/header.php', $data);
-            $this->load->view('accounting/cpoStatus.php');
+            $this->load->view('accounting/cpoStatusNew.php');
             $this->load->view('includes/footer.php');
         } else {
             echo "You have no permission to access this page";
         }
     }
+    public function cpoStatus()
+    {
+        // Check Permission ..
+        $check = $this->admin_model->checkPermission($this->role, 107);
+        if ($check) {
+            // header ..
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 107);
+            //body ..
+            $data['user'] = $this->user;
+            $data['brand'] = $this->brand;
+            // //Pages ..
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('accounting/cpoStatusNew.php');
+            $this->load->view('includes_new/footer.php');
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
 
+    public function cpoStatus_data()
+    {
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 3);
+        $filter_data = $this->input->post('filter_data');
+        parse_str($filter_data, $params);
+        $arr2 = array();
+        array_push($arr2, 0);
+
+        if ($filter_data) {
+
+            if (isset($params['customer'])) {
+                $customer = $params['customer'];
+                if (!empty($customer)) {
+                    array_push($arr2, 1);
+                }
+            } else {
+                $customer = "";
+            }
+            if (isset($params['po'])) {
+                $po = $params['po'];
+                if (!empty($po)) {
+                    array_push($arr2, 2);
+                }
+            } else {
+                $po = "";
+            }
+            if (isset($params['verified'])) {
+                $verified = $params['verified'];
+                if (!empty($verified)) {
+                    array_push($arr2, 3);
+                }
+            } else {
+                $verified = "";
+            }
+            if (isset($params['invoiced'])) {
+                $invoiced = $params['invoiced'];
+                if (!empty($invoiced)) {
+                    array_push($arr2, 4);
+                }
+            } else {
+                $invoiced = "";
+            }
+            if (isset($params['paid'])) {
+                $paid = $params['paid'];
+                if (!empty($paid)) {
+                    array_push($arr2, 5);
+                }
+            } else {
+                $paid = "";
+            }
+            if (isset($params['created_by'])) {
+                $created_by = $params['created_by'];
+                if (!empty($created_by)) {
+                    array_push($arr2, 6);
+                }
+            } else {
+                $created_by = "";
+            }
+
+            if (isset($params['from_date']) && isset($params['to_date'])) {
+                $from_date = $params['from_date'];
+                $to_date = $params['to_date'];
+                if (!empty($to_date) && !empty($from_date)) {
+                    $from_date = date("Y-m-d", strtotime($params['from_date']));
+                    $to_date = date("Y-m-d", strtotime($params['to_date']));
+                    array_push($arr2, 7);
+                }
+            } else {
+                $from_date = "";
+                $to_date = "";
+            }
+        } else {
+            $customer = "";
+            $po = "";
+            $verified = "";
+            $invoiced = "";
+            $paid = "";
+            $created_by = "";
+            $from_date = "";
+            $to_date = "";
+        }
+        $cond0 = "c.brand = '$this->brand'";
+        $cond1 = "p.customer ='$customer'";
+        $cond2 = "p.number like '%$po%'";
+        $cond3 = "p.verified ='$verified'";
+        $cond4 = "p.invoiced = '$invoiced'";
+        $cond5 = "p.paid= '$paid'";
+        $cond6 = "p.created_by = '$created_by'";
+        $cond7 = "p.created_at >= '$from_date' and p.created_at <= '$to_date'";
+
+
+        $arr1 = array($cond0, $cond1, $cond2, $cond3, $cond4, $cond5, $cond6, $cond7);
+        $arr_1_cnt = count($arr2);
+
+        $arr3 = array();
+        for ($i = 0; $i < $arr_1_cnt; $i++) {
+            array_push($arr3, $arr1[$arr2[$i]]);
+        }
+
+        $arr4 = implode(" and ", $arr3);
+        if ($arr_1_cnt <= 0) {
+            $arr4 = '1';
+        }
+
+        $data['cpo']  = $this->accounting_model->cpoStatus($this->brand, $arr4);
+        $dd = json_encode($data);
+        echo base64_encode($dd);
+    }
+    public function get_data_cpo_job()
+    {
+        if (isset($_POST['id'])) {
+            $job_po = $_POST['id'];
+        } else {
+            $job_po = "";
+            $data['jobs']   = array();
+            echo json_encode($data);
+            return;
+        }
+
+        $sql = "select j.*,p.id as pricelist,p.rate as rate
+        ,(case 
+        when j.type = 1 then (p.rate * j.volume)
+        when j.type = 2 then (
+        (select sum(ifnull(unit_number,0)*ifnull(`value`,0)* p.rate) from project_fuzzy where job = j.id))
+        else 0
+        end ) as jobTotal
+        ,(select name from services where id = p.service) as service
+        ,(select name from languages where id = p.source) as `source`
+        ,(select name from languages where id = p.target) as target
+        ,(select name from currency where id = p.currency) as currency
+        ,(select user_name from `users` where id = j.created_by) as user_name
+        
+        from job as j
+        left join job_price_list as p on j.price_list = p.id
+        where j.po = '$job_po'";
+        // var_dump($sql);
+        $data['jobs']  = $this->db->query($sql)->result_array();
+
+        echo json_encode($data);
+    }
     public function costOfSales()
     {
         // Check Permission ..

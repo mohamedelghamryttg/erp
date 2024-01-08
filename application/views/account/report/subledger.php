@@ -22,6 +22,11 @@
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
+                            <style>
+                                .datepicker {
+                                    z-index: 10000;
+                                }
+                            </style>
                             <div class="modal-body  px-0">
                                 <div class="col-12">
                                     <form class="form" id="form" method="post" enctype="multipart/form-data">

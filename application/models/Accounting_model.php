@@ -617,8 +617,22 @@ class Accounting_model extends CI_Model
 
     public function cpoStatus($brand, $filter)
     {
-        $sql = " SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand FROM `po` AS p WHERE " . $filter . " HAVING brand = '$brand' ORDER BY p.created_by DESC ";
-        $data = $this->db->query($sql);
+        // $sql = " SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand FROM `po` AS p WHERE " . $filter . " HAVING brand = '$brand' ORDER BY p.created_by DESC ";
+
+
+        $sql = "SELECT p.*,c.name as customer_name ,u.user_name as pm
+        ,(select GROUP_CONCAT(name)  from has_error as h where FIND_IN_SET( h.id,p.has_error)
+        )
+        as error_name
+        ,j.job_count
+        FROM `po` AS p 
+        left join customer as c on p.customer = c.id
+        left join users as u on p.created_by = u.id
+        left join (select po,count(id) as job_count from job group by po ) as j on p.id = j.po
+         where " . $filter . " ORDER BY p.created_by DESC  ";
+
+        $data = $this->db->query($sql)->result_array();
+
         return $data;
     }
 

@@ -456,14 +456,29 @@ class AccountModel extends CI_Model
             }
         }
     }
-    function AllCashPages($brand, $type, $limit, $offset)
+    function AllCashPages($brand, $type, $filter)
     {
+        $sql = "";
         if ($type == '1') {
-            return $data = $this->db->query(" SELECT * FROM `cashin`  HAVING brand = '$brand' ORDER BY date  LIMIT $limit OFFSET $offset  ");
+            $sql = "SELECT cashin.*
+            ,(select name from payment_method where id = cashin.cash_id) as cash_name
+            ,(select name from account_chart where id = cashin.trn_id) as trn_name
+            ,(select name from currency where id = cashin.currency_id) as currency_name
+            ,(select user_name from users where id = cashin.created_by) as users_name
+             FROM `cashin` where $filter";
+            // return $data = $this->db->query(" SELECT * FROM `cashin`  HAVING brand = '$brand' ORDER BY date  LIMIT $limit OFFSET $offset  ");
         } else {
-
-            return $data = $this->db->query(" SELECT *  FROM `cashout` HAVING brand = '$brand' ORDER BY date  LIMIT $limit OFFSET $offset ");
+            $sql = "SELECT cashout.*
+            ,(select name from payment_method where id = cashout.cash_id) as cash_name
+            ,(select name from account_chart where id = cashout.trn_id) as trn_name
+            ,(select name from currency where id = cashout.currency_id) as currency_name
+            ,(select user_name from users where id = cashout.created_by) as users_name
+             FROM `cashout` where $filter";
+            // return $data = $this->db->query(" SELECT *  FROM `cashout` HAVING brand = '$brand' ORDER BY date  LIMIT $limit OFFSET $offset ");
         }
+        $sql .= " HAVING brand = '$brand'";
+
+        return $this->db->query($sql);
     }
     function Allrevenue($brand, $id, $parent_id)
     {
@@ -608,12 +623,25 @@ class AccountModel extends CI_Model
 
     function Allbanktrn($brand, $type, $filter)
     {
+        $sql = "";
         if ($type == '1') {
-            return $data = $this->db->query(" SELECT * FROM `bankin` where '$filter'  HAVING brand = '$brand' ORDER BY date ");
+            $sql = "SELECT bankin.*
+                ,(select name from payment_method where id = bankin.bank_id) as cash_name
+                ,(select name from account_chart where id = bankin.trn_id) as trn_name
+                ,(select name from currency where id = bankin.currency_id) as currency_name
+                ,(select user_name from users where id = bankin.created_by) as users_name
+                 FROM `bankin` where $filter";
         } else {
-
-            return $data = $this->db->query(" SELECT *  FROM `bankout` where '$filter' HAVING brand = '$brand' ORDER BY date ");
+            $sql = "SELECT bankout.*
+                ,(select name from payment_method where id = bankout.bank_id) as cash_name
+                ,(select name from account_chart where id = bankout.trn_id) as trn_name
+                ,(select name from currency where id = bankout.currency_id) as currency_name
+                ,(select user_name from users where id = bankout.created_by) as users_name
+                 FROM `bankout` where $filter";
         }
+        $sql .= " HAVING brand = '$brand'";
+
+        return $this->db->query($sql);
     }
 
     function AllbanktrnPages($brand, $type, $limit, $offset)
