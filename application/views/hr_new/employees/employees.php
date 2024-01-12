@@ -5,11 +5,30 @@
     <div class="d-flex flex-column-fluid">
         <!--begin::Container-->
         <div class="container-fluid">
+               <?php if ($this->session->flashdata('true')) { ?>
+        <div class="alert alert-success" role="alert">
+          <span class="fa fa-check-circle"></span>
+          <span><strong>
+              <?= $this->session->flashdata('true') ?>
+            </strong>
+          </span>
+        </div>
+      <?php } ?>
+      <?php if ($this->session->flashdata('error')) { ?>
+        <div class="alert alert-danger" role="alert">
+          <span class="fa fa-warning"></span>
+          <span><strong>
+              <?= $this->session->flashdata('error') ?>
+            </strong>
+          </span>
+        </div>
+      <?php } ?>
+            
             <!--begin::Card--> 
             <div class="card card-custom gutter-b example example-compact">
                 <div class="card-header flex-wrap border-0 py-0">
                     <div class="card-title btn_lightgray">                          
-                        <h5 class="card-label">Birthsdays This Month <span class="btn btn-light-danger btn-sm"><span><?= $birthdayData->num_rows() ?></span></span><img src="https://www.animatedimages.org/data/media/296/animated-festivity-and-celebration-image-0166.gif" style="padding:5px;width:60px;height:60px;"></h5>
+                        <h5 class="card-label">BirthDays This Month <span class="btn btn-light-danger btn-sm"><span><?= $birthdayData->num_rows() ?></span></span><img src="https://www.animatedimages.org/data/media/296/animated-festivity-and-celebration-image-0166.gif" style="padding:5px;width:60px;height:60px;"></h5>
                     </div>
                     <div class="card-toolbar">
                         <button id="button_filter" onclick="showAndHide('filter', 'button_filter');" style="padding-top:0pc; float: right;background-color: transparent;font-size: 15px;" class="btn btn-sm btn-light text-dark border-0">
@@ -401,9 +420,9 @@
                       <?php echo $this->hr_model->getResignationReason($row->resignation_reason); ?>
                     </td>
                     <td>   
-                        <?php if($row->resignation_comment != null && str_word_count($row->resignation_comment)>15 )   {?>                 
+                        <?php if($row->resignation_comment != null && str_word_count($row->resignation_comment)>10 )   {?>                 
                         <button type="button" class="btn btn-clean" data-container="body" data-toggle="popover" data-placement="top" data-content=" <?= strip_tags($row->resignation_comment) ?>">
-                             <?= word_limiter($row->resignation_comment,10)?>
+                             <?= word_limiter(strip_tags($row->resignation_comment),10)?>
                         </button>
                         <?php }else{?>
                          <?= $row->resignation_comment?>

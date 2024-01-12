@@ -2835,17 +2835,17 @@ class Hr_model extends CI_Model
     
     // emp data 
     public function selectBrand($id = "")
-	{
-		$brand = $this->db->get('brand')->result();
-		$data = "";
-		foreach ($brand as $brand) {
-			if ($brand->id == $id) {
-				$data .= "<option value='" . $brand->id . "' selected='selected'>" . $brand->name . "</option>";
-			} else {
-				$data .= "<option value='" . $brand->id . "'>" . $brand->name . "</option>";
-			}
-		}
-		return $data;
+	{            
+            $brand = $this->db->get('brand')->result();
+            $data = "";
+            foreach ($brand as $brand) {
+                    if (str_contains($id, "$brand->id,") || (Empty($id) && $brand->id == 1)) {
+                            $data .= "<option value='" . $brand->id . "' selected='selected'>" . $brand->name . "</option>";
+                    } else {
+                            $data .= "<option value='" . $brand->id . "'>" . $brand->name . "</option>";
+                    }
+            }
+            return $data;
 	}
 
 	public function getBrand($brands)

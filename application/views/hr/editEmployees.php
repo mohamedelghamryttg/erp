@@ -260,7 +260,7 @@
                                             name="resignation_date" value="<?= $employees->resignation_date ?>"
                                             id="resignation_date">
 
-                                    </div>s
+                                    </div>
                                 </div>
 
                                 <div class="form-group" id="resignation_reason" style="display:none">

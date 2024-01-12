@@ -47,7 +47,7 @@
             <div class="card card-custom card-transparent">
                 <div class="card-body p-0">
                     <!--begin::Wizard-->
-                    <div class="wizard wizard-4" id="kt_wizard" data-wizard-state="step-first" data-wizard-clickable="true">
+                    <div class="wizard wizard-4" id="kt_wizard" data-wizard-state="step-first" >
                         <!--begin::Wizard Nav-->
                         <div class="wizard-nav">
                             <div class="wizard-steps">
@@ -99,7 +99,7 @@
                                 <div class="row justify-content-center py-8 px-8 py-lg-15 px-lg-10">
                                     <div class="col-xl-12 col-xxl-10">
                                         <!--begin::Wizard Form-->
-                                        <form class="form" id="kt_form" action="<?php echo base_url() ?>hr/doAddEmployees" onsubmit="return disableAddButton();" method="post" enctype="multipart/form-data">
+                                        <form class="form" id="kt_form" action="<?php echo base_url() ?>hr/doAddEmployees" method="post" enctype="multipart/form-data">
                                             <div class="row justify-content-center">
                                                 <div class="col-xl-9">
                                                     <!--begin::Wizard Step 1-->
@@ -127,7 +127,7 @@
                                                             <label class="col-xl-3 col-lg-3 col-form-label">Gender <span class="text-danger">*</span></label>
                                                             <div class="col-lg-9 col-xl-9">
                                                                 <select name="gender" class="form-control form-control-solid " id="gender" required="">
-                                                                    <option disabled="disabled" selected="selected">-- Select Gender --</option>
+                                                                    <option  value="" disabled="disabled" selected="selected">-- Select Gender --</option>
                                                                     <option value="1">Male</option>
                                                                     <option value="2">Female</option>
                                                                 </select>
@@ -210,7 +210,7 @@
                                                             </div>
                                                        
                                                             <div class="col-xl-4">
-                                                                <label class="col-form-label"> Probationay Period</label>
+                                                                <label class="col-form-label"> probationary Period</label>
                                                                 <input type="text" class=" form-control date_sheet form-control-solid" name="prob_period" data-maxlength="300" id="prob_period"  >
                                                             </div>
                                                             <div class="col-xl-4">
@@ -221,14 +221,12 @@
                                                         </div>
                                                     <div class="form-group row">
                                                         <div class="col-xl-6">
-                                                        <label class="col-form-label" for="Contract Type">Contract Type <span class="text-danger">*</span></label> 
-                                                        <div class="col-lg-12">
+                                                        <label class="col-form-label" for="Contract Type">Contract Type <span class="text-danger">*</span></label>
                                                             <select name="contract_type" class="form-control form-control-solid" id="contract_type" required="">
-                                                                <option disabled="disabled" selected="selected">-- Select Contract Type --</option>
+                                                                <option value="" disabled="disabled" selected="selected">-- Select Contract Type --</option>
                                                                 <option value="1">Full Time</option>
                                                                 <option value="2">Part Time</option>
-                                                            </select>
-                                                        </div>
+                                                            </select>                                                        
                                                         </div>
                                                          <div class="col-xl-6">
                                                             <label class="col-form-label">Workplace Model</label>
@@ -241,41 +239,24 @@
                                                             
                                                             </div>
                                                     </div>
-                                                    <div class="form-group">
-                                                        <label class="col-lg-3 control-label">Brand <span class="text-danger">*</span></label>
-                                                        <div class="col-lg-12">
-                                                            <select name="brand[]" class="form-control form-control-solid" id="brand" multiple="" requird>                                           
-                                                                <?= $this->admin_model->selectBrand() ?>
-                                                            </select>
+                                                        <div class="separator separator-dashed my-5"></div> 
+                                                        <div class="form-group row">
+                                                            <label class="col-lg-3 control-label">Brand <span class="text-danger">*</span></label>
+                                                            <div class="col-lg-12">
+                                                                <select name="brand[]" class="form-control form-control-solid" multiple="" required="true">
+                                                                    <option value="" disabled="disabled">-- Select Brand --</option>
+                                                                    <?= $this->hr_model->selectBrand() ?>
+                                                                </select>
+                                                            </div>
+                                                        </div> 
+                                                        <div class="form-group row"id="position_comment">   
+                                                            <label class="col-xl-3 col-lg-3 col-form-label">Comment </label>
+
+                                                            <div class="col-xl-9 col-lg-9">
+                                                                <textarea name="position_comment" class="form-control form-control-solid" rows="6"> </textarea>
+                                                            </div>
                                                         </div>
-                                                    </div>    
-                                                        <div class="separator separator-dashed my-10"></div>
-                                                            <div class="form-group row">
-                                                                <label class="col-xl-3 col-lg-3 col-form-label" for="Employee Status">Employee Status <span class="text-danger">*</span></label>
-                                                                <div class="-col-xl-9 col-lg-9">
-                                                                    <select name="status" class="form-control form-control-solid" onchange="employeeStatus()" id="status" required="">
-                                                                        <option disabled="disabled" selected="selected">-- Select Employee Status --</option>
-                                                                        <option value="0">Working</option>
-                                                                        <option value="1">Resigned</option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group row" id="employeeResignation">
-                                                                <label class="col-xl-3 col-lg-3 col-form-label">Resignation Date</label>
-                                                                <div class="col-xl-9 col-lg-9">
-                                                                    <input size="16" type="text" class="form-control date_sheet form-control-solid"  name="resignation_date" id="resignation_date" required="">
 
-                                                                </div>
-                                                            </div>
-                                                                 <div class="form-group row"id="position_comment">                      
-
-                                                                    <label class="col-xl-3 col-lg-3 col-form-label">Comment </label>
-
-                                                                    <div class="col-xl-9 col-lg-9">
-                                                                        <textarea name="position_comment" class="form-control form-control-solid" rows="6"> </textarea>
-                                                                    </div>
-                                                                </div>
-                               
                                                     </div>
                                                     <!--end::Wizard Step 2-->
                                                     <!--begin::Wizard Step 3-->
@@ -283,19 +264,18 @@
                                                         <h5 class="mb-10 font-weight-bold text-dark">Communication Information</h5>
                                                         <!--begin::Group-->
                                                         <div class="form-group row">
-                                                            <label class="col-xl-3 col-lg-3 col-form-label" for="Email">Email</label>
+                                                            <label class="col-xl-3 col-lg-3 col-form-label" for="Email">Email <span class="text-danger">*</span></label>
                                                             <div class="col-xl-6 col-lg-6">
-                                                                <input type="text" class=" form-control form-control-solid" name="email2" data-maxlength="300"  required="" >
+                                                                <input type="text" class=" form-control form-control-solid" name="email" data-maxlength="300"  required="" >
                                                             </div>
-                                                              <a class="btn bt-sm btn-light-primary" onClick="addEmails();" title="Add Email"><i
-                                            class="fa fa-plus p-0"></i></a>
+                                                              <a class="btn btn-sm btn-dark h-35px" onClick="addEmails();" title="Add Email">Add Email <i class="fa fa-mail-bulk"></i></a>
                                                         </div>
                                                         <div id="other_emails"></div>
                                                         <div class="form-group row">
-                                                            <label class="col-xl-3 col-lg-3 col-form-label" for="Phone Number">Phone Number</label>
+                                                            <label class="col-xl-3 col-lg-3 col-form-label" for="Phone Number">Phone Number <span class="text-danger">*</span></label>
 
                                                             <div class="col-xl-9 col-lg-9">
-                                                                <input type="text" class=" form-control form-control-solid" name="phone2" data-maxlength="300"  required="">
+                                                                <input type="text" class=" form-control form-control-solid" name="phone" data-maxlength="300"  required="">
                                                             </div>
                                                         </div>
 
@@ -330,7 +310,7 @@
                                                         </div>
                                                         <div>
                                                             <button type="button" class="btn btn-success font-weight-bolder px-9 py-4" data-wizard-type="action-submit">Submit</button>
-                                                            <button type="button" id="next-step" class="btn btn-primary font-weight-bolder px-9 py-4" data-wizard-type="action-next" onclick="checkRequired()">Next</button>
+                                                            <button type="button" id="next-step" class="btn btn-primary font-weight-bolder px-9 py-4" data-wizard-type="action-next" >Next</button>
                                                         </div>
                                                     </div>
                                                     <!--end::Wizard Actions-->
@@ -355,26 +335,15 @@
     <!--end::Entry-->
 </div>
 <!--end::Content-->
-
+<script src="<?php echo base_url(); ?>/assets_new/js/pages/custom/wizard/custom_wizard-4.js" ></script>
 <script>
      function addEmails() {
-        var emailDiv = "<div class ='form-group row'><label class='col-lg-3 control-label'></label><div class='col-lg-6'><input type='text' class=' form-control' name='other_emails[]'  data-maxlength='300' required ></div> <a class='btn btn-sm  btn-danger delEmail' ><i class='fa fa-trash p-0'></i></a></div>";
+        var emailDiv = "<div class ='form-group row'><label class='col-lg-3 control-label'></label><div class='col-lg-6'><input type='text' class=' form-control' name='other_emails[]'  data-maxlength='300' required ></div> <a class='btn btn-sm  btn-light-danger delEmail' ><i class='fa fa-trash-alt p-0'></i></a></div>";
         $("#other_emails").append(emailDiv);
     }
     $(document).on("click", ".delEmail", function (event) {
         $(this).parent().remove();
-    });
+    });    
     
-    var $select = $('select').select2();
-    $select.each(function(i,item){  
-      $(item).select2("destroy");
-    });
-    
-    function checkRequired() {
-       var elements = $(".step[data-wizard-state='current'] .required");
-        for (var i=0; i<elements.length; i++) {
-            alert('sdfhsdgfhbs');
-//        alert(elements[i]);
-    }
 }
 </script>

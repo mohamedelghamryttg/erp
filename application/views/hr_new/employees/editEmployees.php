@@ -1,5 +1,6 @@
 <!--begin::Page Custom Styles(used by this page)-->
-<link href="<?php echo base_url(); ?>/assets_new/css/pages/wizard/wizard-4.css" rel="stylesheet" type="text/css" />
+<link href="<?php echo base_url(); ?>/assets_new/css/pages/wizard/wizard-3.css" rel="stylesheet" type="text/css" />
+
 <style>
     .select2{
         width: 100%!important;
@@ -24,7 +25,7 @@
                 <!--end::Separator-->
                 <!--begin::Search Form-->
                 <div class="d-flex align-items-center" id="kt_subheader_search">
-                    <span class="text-dark-50 font-weight-bold" id="kt_subheader_total">Enter user details and submit</span>
+                    <span class="text-dark-50 font-weight-bold" id="kt_subheader_total"><?= $employees->name ?></span>
                 </div>
                 <!--end::Search Form-->
             </div>
@@ -47,46 +48,44 @@
             <div class="card card-custom card-transparent">
                 <div class="card-body p-0">
                     <!--begin::Wizard-->
-                    <div class="wizard wizard-4" id="kt_wizard" data-wizard-state="step-first" data-wizard-clickable="true">
-                        <!--begin::Wizard Nav-->
-                        <div class="wizard-nav">
-                            <div class="wizard-steps">
+                    <div class="wizard wizard-3" id="kt_wizard_v3" data-wizard-state="step-first" data-wizard-clickable="true">
+			<div class="wizard-nav">
+                            <div class="wizard-steps  px-8 py-8 px-lg-15 py-lg-3">
                                 <div class="wizard-step" data-wizard-type="step" data-wizard-state="current">
-                                    <div class="wizard-wrapper">
-                                        <div class="wizard-number">1</div>
-                                        <div class="wizard-label">
-                                            <div class="wizard-title">Profile</div>
-                                            <div class="wizard-desc">User's Personal Information</div>
-                                        </div>
+                                    <div class="wizard-label">
+                                            <h3 class="wizard-title">
+                                            <span>1.</span>Profile</h3>
+                                            <div class="wizard-bar"></div>
+                                    </div>                                   
+                                </div>
+                                <div class="wizard-step" data-wizard-type="step">
+                                    <div class="wizard-label">
+                                            <h3 class="wizard-title">
+                                            <span>2.</span>Account</h3>
+                                            <div class="wizard-bar"></div>
+                                    </div> 
+                                </div>                               
+                                <div class="wizard-step" data-wizard-type="step">
+                                     <div class="wizard-label">
+                                            <h3 class="wizard-title">
+                                            <span>3.</span>Status</h3>
+                                            <div class="wizard-bar"></div>
                                     </div>
                                 </div>
                                 <div class="wizard-step" data-wizard-type="step">
-                                    <div class="wizard-wrapper">
-                                        <div class="wizard-number">2</div>
-                                        <div class="wizard-label">
-                                            <div class="wizard-title">Account</div>
-                                            <div class="wizard-desc">Positioning Data</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="wizard-step" data-wizard-type="step">
-                                    <div class="wizard-wrapper">
-                                        <div class="wizard-number">3</div>
-                                        <div class="wizard-label">
-                                            <div class="wizard-title">Communication</div>
-                                            <div class="wizard-desc">User's Communication Information</div>
-                                        </div>
+                                     <div class="wizard-label">
+                                            <h3 class="wizard-title">
+                                            <span>4.</span>Communication</h3>
+                                            <div class="wizard-bar"></div>
                                     </div>
                                 </div>
                                 <?php if($this->role == 31 || $this->role == 21 || $this->role == 1){?>
                                 <div class="wizard-step" data-wizard-type="step">
-                                    <div class="wizard-wrapper">
-                                        <div class="wizard-number">4</div>
-                                        <div class="wizard-label">
-                                            <div class="wizard-title">Salary</div>
-                                            
-                                        </div>
-                                    </div>
+                                      <div class="wizard-label">
+                                            <h3 class="wizard-title">
+                                            <span>5.</span>Salary</h3>
+                                            <div class="wizard-bar"></div>
+                                    </div>                                  
                                 </div>
                                  <?php }?>
                             </div>
@@ -99,11 +98,11 @@
                                 <div class="row justify-content-center py-8 px-8 py-lg-15 px-lg-10">
                                     <div class="col-xl-12 col-xxl-10">
                                         <!--begin::Wizard Form-->
-                                        <form class="form" id="kt_form" action="<?php echo base_url() ?>hr/doEditEmployees" onsubmit="return disableAddButton();" method="post" enctype="multipart/form-data">
+                                        <form class="form" id="kt_form" action="<?php echo base_url() ?>hr/doEditEmployees" method="post" enctype="multipart/form-data" >
                                             <div class="row justify-content-center">
                                                 <div class="col-xl-9">
                                                     <!--begin::Wizard Step 1-->
-                                                    <div class="my-2 step" data-wizard-type="step-content" data-wizard-state="current">
+                                                    <div class="my-2" data-wizard-type="step-content" data-wizard-state="current">
                                                         <h5 class="text-dark font-weight-bold mb-10">Personal Information:</h5>                                                     
                                                         <!--begin::Group-->
                                                         <input type="text" name="id" value="<?= base64_encode($employees->id) ?>" hidden="">
@@ -145,7 +144,7 @@
                                                     </div>
                                                     <!--end::Wizard Step 1-->
                                                     <!--begin::Wizard Step 2-->
-                                                    <div class="my-5 step" data-wizard-type="step-content">
+                                                    <div class="my-5" data-wizard-type="step-content">
                                                         <h5 class="text-dark font-weight-bold mb-10 mt-5">Positioning Data</h5>
                                                         <!--begin::Group-->
                                                         <div class="form-group row">
@@ -170,8 +169,8 @@
                                                                 <label class="col-xl-3 col-lg-3 col-form-label " for="Position">Position <span class="text-danger">*</span></label>
 
                                                                 <div class="col-xl-9 col-lg-9">
-                                                                    <select name="title" onchange="getTitleData();getDirectManagerByTitle();" class="form-control form-control-solid" id="title" required />
-                                                                    <option></option>
+                                                                    <select name="title" onchange="getTitleData();getDirectManagerByTitle();" class="form-control form-control-solid" id="title" required>
+                                                                    <?= $this->hr_model->selectPosition($employees->title, $employees->department, $employees->division) ?>
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -212,7 +211,7 @@
                                                             </div>
                                                        
                                                             <div class="col-xl-4">
-                                                                <label class="col-form-label"> Probationay Period</label>
+                                                                <label class="col-form-label"> probationary Period</label>
                                                                 <input type="text" class=" form-control date_sheet form-control-solid" name="prob_period" data-maxlength="300" id="prob_period"  value="<?= $employees->prob_period ?>" >
                                                             </div>
                                                             <div class="col-xl-4">
@@ -221,88 +220,124 @@
 
                                                             </div>
                                                         </div>
-                                                    <div class="form-group row">
-                                                        <div class="col-xl-6">
-                                                        <label class="col-form-label" for="Contract Type">Contract Type <span class="text-danger">*</span></label> 
-                                                        <div class="col-lg-12">
-                                                            <select name="contract_type" class="form-control form-control-solid" id="contract_type" required="">
-                                                                <option disabled="disabled" selected="selected">-- Select Contract Type --</option>
-                                                                <option value="1"<?=$employees->contract_type == 1?'selected':''?>>Full Time</option>
-                                                                <option value="2"<?=$employees->contract_type == 2?'selected':''?>>Part Time</option>
-                                                            </select>
-                                                        </div>
-                                                        </div>
-                                                         <div class="col-xl-6">
-                                                            <label class="col-form-label">Workplace Model</label>
-                                                                <select name="workplace_model" class="form-control form-control-solid">
-                                                                    <option disabled="disabled" selected="selected">-- Select Type --</option>
-                                                                    <option value="office" <?= $employees->workplace_model == 'office' ? 'selected' : '' ?>>Office</option>
-                                                                    <option value="hybrid" <?= $employees->workplace_model == 'hybrid' ? 'selected' : '' ?>>Hybrid</option>
-                                                                    <option value="remotely" <?= $employees->workplace_model == 'remotely' ? 'selected' : '' ?>>Remotely</option>
-                                                                </select>
-                                                            
-                                                            </div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label class="col-lg-3 control-label">Brand <span class="text-danger">*</span></label>
-                                                        <div class="col-lg-12">
-                                                            <select name="brand[]" class="form-control form-control-solid" id="brand" multiple="" requird>                                           
-                                                                <?= $this->admin_model->selectBrand() ?>
-                                                            </select>
-                                                        </div>
-                                                    </div>    
-                                                        <div class="separator separator-dashed my-10"></div>
                                                             <div class="form-group row">
-                                                                <label class="col-xl-3 col-lg-3 col-form-label" for="Employee Status">Employee Status <span class="text-danger">*</span></label>
-                                                                <div class="-col-xl-9 col-lg-9">
-                                                                    <select name="status" class="form-control form-control-solid" onchange="employeeStatus()" id="status" required="">
-                                                                        <option disabled="disabled" selected="selected">-- Select Employee Status --</option>
-                                                                        <option value="0"<?=$employees->status == 0?"selected":""?>>Working</option>
-                                                                        <option value="1"<?=$employees->status == 1?"selected":""?>>Resigned</option>
+                                                                <div class="col-xl-6">
+                                                                <label class="col-form-label" for="Contract Type">Contract Type <span class="text-danger">*</span></label> 
+                                                                <select name="contract_type" class="form-control form-control-solid" id="contract_type" required="">
+                                                                        <option disabled="disabled" selected="selected">-- Select Contract Type --</option>
+                                                                        <option value="1"<?=$employees->contract_type == 1?'selected':''?>>Full Time</option>
+                                                                        <option value="2"<?=$employees->contract_type == 2?'selected':''?>>Part Time</option>
+                                                                    </select>                                                               
+                                                                </div>
+                                                                 <div class="col-xl-6">
+                                                                    <label class="col-form-label">Workplace Model</label>
+                                                                        <select name="workplace_model" class="form-control form-control-solid">
+                                                                            <option disabled="disabled" selected="selected">-- Select Type --</option>
+                                                                            <option value="office" <?= $employees->workplace_model == 'office' ? 'selected' : '' ?>>Office</option>
+                                                                            <option value="hybrid" <?= $employees->workplace_model == 'hybrid' ? 'selected' : '' ?>>Hybrid</option>
+                                                                            <option value="remotely" <?= $employees->workplace_model == 'remotely' ? 'selected' : '' ?>>Remotely</option>
+                                                                        </select>
+
+                                                                    </div>
+                                                            </div>
+                                                         <div class="separator separator-dashed my-5"></div>
+                                                            <div class="form-group row">
+                                                                <label class="col-xl-3 col-lg-3 col-form-label">Brand <span class="text-danger">*</span></label>
+                                                                <div class="col-lg-12">
+                                                                    <select name="brand[]" class="form-control form-control-solid" id="brand" multiple="" requird>                                           
+                                                                        <?= $this->hr_model->selectBrand($employees->emp_brands) ?>
                                                                     </select>
                                                                 </div>
-                                                            </div>
-                                                        <?php if ($employees->status == 0) {
-                                    $hide = "style='display:none;'";
-                                } else {
-                                    $hide = "";
-                                } ?>
-                                                            <div class="form-group row" id="employeeResignation" <?= $hide ?>>
-                                                                <label class="col-xl-3 col-lg-3 col-form-label">Resignation Date</label>
-                                                                <div class="col-xl-9 col-lg-9">
-                                                                    <input size="16" type="text" value="<?= $employees->resignation_date ?>" class="form-control date_sheet form-control-solid"  name="resignation_date" id="resignation_date" required="">
-
-                                                                </div>
-                                                            </div>
-                                                                 <div class="form-group row"id="position_comment">                      
-
+                                                            </div>    
+                                                                 <div class="form-group row"id="position_comment">    
                                                                     <label class="col-xl-3 col-lg-3 col-form-label">Comment </label>
 
                                                                     <div class="col-xl-9 col-lg-9">
-                                                                        <textarea name="position_comment" class="form-control form-control-solid" rows="6"> </textarea>
+                                                                        <textarea name="position_comment" class="form-control form-control-solid" rows="6"> <?=$employees->position_comment?></textarea>
                                                                     </div>
                                                                 </div>
                                
                                                     </div>
                                                     <!--end::Wizard Step 2-->
                                                     <!--begin::Wizard Step 3-->
-                                                    <div class="my-5 step" data-wizard-type="step-content">
+                                                    <div class="my-5" data-wizard-type="step-content">
+                                                        <h5 class="text-dark font-weight-bold mb-10 mt-5">User's Account Status</h5> 
+                                                            <div class="form-group row">
+                                                                <label class="col-xl-3 col-lg-3 col-form-label" for="Employee Status">Employee Status <span class="text-danger">*</span></label>
+                                                                <div class="-col-xl-9 col-lg-9">
+                                                                    <select name="status" class="form-control form-control-solid" onchange="employeeStatus()" id="status" required="">
+                                                                        <option disabled="disabled" value="">-- Select Employee Status --</option>
+                                                                        <option value="0"<?=$employees->status == 0?"selected":""?>>Working</option>
+                                                                        <option value="1"<?=$employees->status == 1?"selected":""?>>Resigned</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        <?php if ($employees->status == 0) {
+                                                                    $hide = "style='display:none;'";
+                                                                    $required = '';
+                                                                } else {
+                                                                    $hide = "";
+                                                                     $required = 'required';
+                                                                } ?>
+                                                            <div class="form-group row" id="employeeResignation" <?= $hide ?>>
+                                                                <label class="col-xl-3 col-lg-3 col-form-label">Resignation Date <span class="text-danger">*</span></label>
+                                                                <div class="col-xl-9 col-lg-9">
+                                                                    <input size="16" type="text" value="<?= $employees->resignation_date ?>" class="form-control date_sheet form-control-solid"  name="resignation_date" id="resignation_date" <?=$required?>>
+
+                                                                </div>
+                                                            </div>
+                                                        <div class="form-group row" id="resignation_reason" <?= $hide ?>>
+                                                                <label class="col-xl-3 col-lg-3 col-form-label">Resignation Reason</label>
+
+                                                                <div class="col-xl-9 col-lg-9">
+                                                                    <select name="resignation_reason" class="form-control m-b">
+                                                                        <option disabled="disabled" selected="" value=""> -- Select --</option>
+                                                                        <?= $this->hr_model->selectResignationReason($employees->resignation_reason) ?>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row" id="resignation_comment" <?= $hide ?>>
+                                                                <label class="col-xl-3 col-lg-3 col-form-label">Resignation Reason</label>
+                                                                <div class="col-xl-9 col-lg-9">
+                                                                    <textarea name="resignation_comment"
+                                                                        class="form-control form-control-solid resignation_comment_text" rows="6"><?=strip_tags($employees->resignation_comment)?> </textarea>
+                                                                </div>
+                                                            </div>                                                                                              
+                                                    </div>
+                                                    <!--end::Wizard Step 2-->
+                                                    <!--begin::Wizard Step 4-->
+                                                    <div class="my-5" data-wizard-type="step-content">
                                                         <h5 class="mb-10 font-weight-bold text-dark">Communication Information</h5>
                                                         <!--begin::Group-->
                                                         <div class="form-group row">
-                                                            <label class="col-xl-3 col-lg-3 col-form-label" for="Email">Email</label>
+                                                            <label class="col-xl-3 col-lg-3 col-form-label" for="Email">Email <span class="text-danger">*</span></label>
                                                             <div class="col-xl-6 col-lg-6">
-                                                                <input type="text" class=" form-control form-control-solid" name="email2" data-maxlength="300"  required="" >
+                                                                <input type="text" class=" form-control form-control-solid" name="email" data-maxlength="300"  required="" value="<?= $employees->email ?>" >
                                                             </div>
-                                                              <a class="btn bt-sm btn-light-primary" onClick="addEmails();" title="Add Email"><i
-                                            class="fa fa-plus p-0"></i></a>
+                                                             <a class="btn btn-sm btn-dark h-35px" onClick="addEmails();" title="Add Email">Add Email <i class="fa fa-mail-bulk"></i></a>
                                                         </div>
-                                                        <div id="other_emails"></div>
+                                                        <div id="other_emails">
+                                                             <?php
+                                                    if (!empty($employees->other_emails)) {
+                                                        $other_emails = explode(' ; ', $employees->other_emails);
+                                                        foreach ($other_emails as $email) { ?>
+                                                            <div class="form-group row">
+                                                                <label class="col-lg-3 control-label" for="Email"></label>
+
+                                                                <div class="col-lg-6">
+                                                                    <input type="text" class=" form-control" name="other_emails[]"
+                                                                        value="<?= $email ?>" data-maxlength="300" required>
+                                                                </div>
+                                                                <a class="btn btn-light-danger btn-sm delEmail"><i class="fa fa-trash-alt p-0"></i></a>
+                                                            </div>
+                                                        <?php }
+                                    } ?>
+                                                        </div>
                                                         <div class="form-group row">
-                                                            <label class="col-xl-3 col-lg-3 col-form-label" for="Phone Number">Phone Number</label>
+                                                            <label class="col-xl-3 col-lg-3 col-form-label" for="Phone Number">Phone Number <span class="text-danger">*</span></label>
 
                                                             <div class="col-xl-9 col-lg-9">
-                                                                <input type="text" class=" form-control form-control-solid" name="phone2" data-maxlength="300"  required="">
+                                                                <input type="text" value="<?= $employees->phone ?>" class=" form-control form-control-solid" name="phone" data-maxlength="300"  required="">
                                                             </div>
                                                         </div>
 
@@ -310,34 +345,34 @@
                                                             <label class="col-lg-3 col-form-label" for="Emergency Contact">Emergency Contact</label>
 
                                                             <div class="col-xl-9 col-lg-9">
-                                                                <input type="text" class=" form-control form-control-solid" name="emergency" data-maxlength="300" id="emergency">
+                                                                <input type="text" value="<?= $employees->emergency ?>" class=" form-control form-control-solid" name="emergency" data-maxlength="300" id="emergency">
                                                             </div>
                                                         </div>
                                                             <!--end::Group-->
                                                         
                                                        
                                                     </div>
-                                                    <!--end::Wizard Step 3-->
-                                                      <?php if($this->role == 31 || $this->role == 21 || $this->role == 1){?>
-                                                    <!--begin::Wizard Step 4-->
-                                                    <div class="my-5 step" data-wizard-type="step-content">
+                                                    <!--end::Wizard Step 4-->
+                                                      <?php if($this->role == 31 || $this->role == 21 ||$this->role == 1){?>
+                                                    <!--begin::Wizard Step 5-->
+                                                    <div class="my-5" data-wizard-type="step-content">
                                                     <div class="form-group row">  
                                                         <label class="col-lg-3 col-form-label" for="Salary">Salary</label>
                                                             <div class="col-xl-9 col-lg-9">
-                                                                <input type="number" class=" form-control form-control-solid" name="salary"  />
+                                                                <input type="number" class=" form-control form-control-solid" name="salary" value="<?= $this->hr_model->getEmpSalary($employees->id)?>" />
                                                             </div>
                                                     </div>
                                                     </div>
-                                                    <!--end::Wizard Step 4-->
+                                                    <!--end::Wizard Step 5-->
                                                      <?php }?>
                                                     <!--begin::Wizard Actions-->
                                                     <div class="d-flex justify-content-between border-top pt-10 mt-15">
                                                         <div class="mr-2">
-                                                            <button type="button" id="prev-step" class="btn btn-light-primary font-weight-bolder px-9 py-4" data-wizard-type="action-prev">Previous</button>
+                                                            <button type="button" class="btn btn-light-primary font-weight-bolder text-uppercase px-9 py-4" data-wizard-type="action-prev">Previous</button>
                                                         </div>
                                                         <div>
-                                                            <button type="button" class="btn btn-success font-weight-bolder px-9 py-4" data-wizard-type="action-submit">Submit</button>
-                                                            <button type="button" id="next-step" class="btn btn-primary font-weight-bolder px-9 py-4" data-wizard-type="action-next" onclick="checkRequired()">Next</button>
+                                                            <button type="button" class="btn btn-success font-weight-bolder text-uppercase px-9 py-4" data-wizard-type="action-submit">Submit</button>
+                                                            <button type="button" class="btn btn-primary font-weight-bolder text-uppercase px-9 py-4" data-wizard-type="action-next">Next</button>
                                                         </div>
                                                     </div>
                                                     <!--end::Wizard Actions-->
@@ -362,7 +397,7 @@
     <!--end::Entry-->
 </div>
 <!--end::Content-->
-
+<script src="<?php echo base_url(); ?>/assets_new/js/pages/custom/wizard/custom_wizard-3.js" ></script>
 <script>
      function addEmails() {
         var emailDiv = "<div class ='form-group row'><label class='col-lg-3 control-label'></label><div class='col-lg-6'><input type='text' class=' form-control' name='other_emails[]'  data-maxlength='300' required ></div> <a class='btn btn-sm  btn-danger delEmail' ><i class='fa fa-trash p-0'></i></a></div>";
@@ -371,17 +406,6 @@
     $(document).on("click", ".delEmail", function (event) {
         $(this).parent().remove();
     });
-    
-    var $select = $('select').select2();
-    $select.each(function(i,item){  
-      $(item).select2("destroy");
-    });
-    
-    function checkRequired() {
-       var elements = $(".step[data-wizard-state='current'] .required");
-        for (var i=0; i<elements.length; i++) {
-            alert('sdfhsdgfhbs');
-//        alert(elements[i]);
-    }
-}
+       
+       
 </script>

@@ -4,7 +4,7 @@
 	<div class="container d-flex flex-column flex-md-row align-items-center justify-content-between">
 		<!--begin::Copyright-->
 		<div class="text-dark order-2 order-md-1">
-			<span class="text-muted font-weight-bold mr-2">2023©</span>
+			<span class="text-muted font-weight-bold mr-2">2024©</span>
 			<a href="#" class="text-dark-75 text-hover-primary">Nexus System</a>
 		</div>
 		<!--end::Copyright-->
@@ -1160,7 +1160,7 @@
 	//         isFirstItemUndeletable: true
 	//   });
 </script>
-<script src="<?php echo base_url(); ?>assets_new/js/pages/custom/wizard/wizard-2.js"></script>
+<!--<script src="<?php echo base_url(); ?>assets_new/js/pages/custom/wizard/wizard-2.js"></script>-->
 </body>
 <!--end::Body-->
 

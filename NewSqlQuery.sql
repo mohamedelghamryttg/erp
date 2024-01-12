@@ -151,6 +151,7 @@ ALTER TABLE `cashout` ADD `audit_comment`   TEXT NULL AFTER `audit_date`;
 INSERT INTO `screen` (`id`, `groups`, `name`, `url`, `menu`) VALUES (NULL, '1', 'Cash In Audit', 'admin/audit', '0'); 
 
 ALTER TABLE `employees` ADD `emp_brands` varchar(50)  NULL DEFAULT Null AFTER `workplace_model`; 
+UPDATE `employees` SET `emp_brands`= CONCAT(brand, ', ') ; 
 
 ALTER TABLE `bankin` ADD `audit_chk`   tinyint(1)  NULL AFTER `desc_file`;
 ALTER TABLE `bankin` ADD `audit_by`   int(11) NULL AFTER `audit_chk`;
@@ -167,3 +168,4 @@ INSERT INTO `screen` (`id`, `groups`, `name`, `url`, `menu`) VALUES (240, '1', '
 INSERT INTO `screen` (`id`, `groups`, `name`, `url`, `menu`) VALUES (241, '1', 'Bank In Audit', 'admin/audit', '0'); 
 INSERT INTO `screen` (`id`, `groups`, `name`, `url`, `menu`) VALUES (242, '1', 'Bank Out Audit', 'admin/audit', '0'); 
 
+ALTER TABLE `payroll` ADD `num_month` TINYINT(1) NULL AFTER `comment`, ADD `monthly_installment` DOUBLE NULL AFTER `num_month`; 
