@@ -176,7 +176,7 @@ class Payroll extends CI_Controller
 
         // Check Permission ..
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 212);
-        if ($permission->add == 1) {
+        if ($permission->add == 1) {          
             $start = strtotime("01-" . $_POST['start_month'] . "-" . $_POST['start_year']);
             $start_date = date('Y-m-01', $start);
             if ($_POST['recurrence'] == 1) {
@@ -191,6 +191,10 @@ class Payroll extends CI_Controller
                 $end_date = null;
             }
 
+            if($_POST['action'] == 2){
+                $data['monthly_installment'] = $_POST['monthly_installment'];
+                $data['num_month'] = $_POST['num_month'];
+            }
             $data['emp_id'] = $_POST['emp_id'];
             $data['start_date'] = $start_date;
             $data['end_date'] = $end_date;
@@ -256,7 +260,10 @@ class Payroll extends CI_Controller
             } else {
                 $end_date = null;
             }
-
+            if($_POST['action'] == 2){
+                $data['monthly_installment'] = $_POST['monthly_installment'];
+                $data['num_month'] = $_POST['num_month'];
+            }
             $data['emp_id'] = $_POST['emp_id'];
             $data['start_date'] = $start_date;
             $data['end_date'] = $end_date;

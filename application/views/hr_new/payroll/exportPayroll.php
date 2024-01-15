@@ -38,8 +38,10 @@ table th {
                             <th>Payroll Year</th>                            
                             <th>Till Month</th>                            
                             <th>Till Year</th>                            
-                            <th>action</th>
-                            <th>amount</th>                            
+                            <th>Action</th>
+                            <th>Total Amount</th>                            
+                            <th>Monthly Installment</th>
+                            <th>Number Of Months</th>                            
                            
                         </tr>
                     </thead>
@@ -61,9 +63,15 @@ table th {
                                <?php }?>
                                 <td><?= $this->hr_model->getPayrollActions($row->action); ?></td>
                                 <td><?= $row->amount.' '.$this->hr_model->getPayrollUnits($row->unit) ?></td>
-                              
+                                 <?php if(!empty($row->monthly_installment)){?>
+                                <td><?= $row->monthly_installment.' '.$this->hr_model->getPayrollUnits($row->unit) ?></td>
+                                <td><?= $row->num_month ?></td>
+                                <?php }else{?>
+                                  <td>-</td>
+                                  <td>-</td>
+                                <?php }?>
                             </tr>
-<?php } ?>
+                        <?php } ?>
 
         </tbody>
     </table>

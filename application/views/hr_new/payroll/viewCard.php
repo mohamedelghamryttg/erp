@@ -63,30 +63,38 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Payroll Month :</td>
+                            <th>Payroll Month :</th>
                             <td><?= date_format(date_create($row->start_date), 'F Y'); ?></td>
-                            <td>Till :</td>
+                            <th>Till :</th>
                             <td><?= $row->end_date ? date_format(date_create($row->end_date), 'F Y') : '-'; ?></td>
                         </tr>
                         <tr>
-                            <td>Action :</td>
+                            <th>Action :</th>
                             <td><?= $this->hr_model->getPayrollActions($row->action); ?></td>
-                            <td>Amount :</td>
+                            <th>Total Amount :</th>
                             <td><?= $row->amount . ' ' . $this->hr_model->getPayrollUnits($row->unit) ?></td>
                         </tr>
+                        <?php if(!empty($row->monthly_installment)){?>
                         <tr>
-                            <td >Comment :</td>
+                            <th>Num. Of Months :</th>
+                            <td><?= $row->num_month ?></td>
+                            <th>Monthly Installment :</th>
+                            <td><?= $row->monthly_installment . ' ' . $this->hr_model->getPayrollUnits($row->unit) ?></td>
+                        </tr>
+                        <?php }?>
+                        <tr>
+                            <th >Comment :</th>
                             <td colspan="3"><?= $row->comment ?>
                             </td>
                         </tr>
                         <tr>
-                            <td >Created By :</td>
+                            <th >Created By :</th>
                             <td colspan="3"><?= $this->admin_model->getAdmin($row->created_by) ?>
                                 <br/><span class="label label-square label-light-info  text-dark"><?= $row->created_at ?></span>
                             </td>
                         </tr>
                         <tr>
-                            <td>Last Updated By :</td>
+                            <th>Last Updated By :</th>
                             <td colspan="3"><?= $this->admin_model->getAdmin($row->updated_by) ?>
                                 <br/><span class="label label-square label-light-info  text-dark"><?= $row->updated_at ?></span>
                             </td>

@@ -1,4 +1,13 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<style>
+   .loan_view_select.readonly > .select2-container--default .select2-selection--single{
+        background-color: #F3F6F9!important;
+    }
+    .loan_view_select.readonly > *{
+        pointer-events:none;
+        
+    }
+    </style>
 <div class="d-flex flex-column-fluid">
     <!--begin::Container-->
     <div class="container">
@@ -56,7 +65,7 @@
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label text-right">Action:</label>
                         <div class="col-lg-6">
-                            <select name="action" class="form-control"  required="" >
+                            <select name="action" class="form-control"  required="" id="action" onchange="CheckLoan();">
                                 <option value="" disabled='' selected=''>-- Select --</option>
                                 <?= $this->hr_model->selectPayrollActions(); ?> 
                             </select>
@@ -65,10 +74,10 @@
                    <div class="form-group row">
                         <label class="col-lg-3 col-form-label text-right">Reflect on Payroll :</label>
                         <div class="col-lg-6"> 
-                                <select name="start_month" class="form-control col-lg-6"  required="" >                               
+                                <select name="start_month" id="start_month" class="form-control col-lg-6"  required="" onchange="CalLoan();">                               
                                     <?= $this->accounting_model->selectMonth(date('m')); ?> 
                                 </select>                              
-                                <select name="start_year" class="form-control col-lg-4"  required="" >                               
+                                <select name="start_year" id="start_year" class="form-control col-lg-4"  required="" onchange="CalLoan();">                               
                                     <?= $this->accounting_model->selectYear(date('Y')); ?> 
                                 </select>
                         </div>
@@ -77,22 +86,36 @@
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label text-right">Amount :</label>
                         <div class="col-lg-6">
-                            <input type="number" name="amount" class="form-control" required="" min="0" step="0.1">
+                            <input type="number" name="amount" id="amount" class="form-control" required="" min="0" step="0.1" onchange="CalLoan();">
                         </div>
                     </div> 
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label text-right">Unit :</label>
                         <div class="col-lg-6">
-                            <select name="unit" class="form-control"  required="" >
+                            <select name="unit" class="form-control"  required="" id="unit">
                                 <option value="" disabled='' selected=''>-- Select --</option>
                                 <?= $this->hr_model->selectPayrollUnits(); ?> 
                             </select>
                         </div>
                     </div>    
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-form-label text-right">Recurrence  :</label>
+                    <div class="separator separator-dashed my-10"></div>
+                     <div class="form-group row loan_group" style="display: none">
+                        <label class="col-lg-3 col-form-label text-right">Num. Of Months<span class="text-danger">*</span> :</label>
                         <div class="col-lg-6">
-                            <select name="recurrence" class="form-control"  required="" id='recurrence' onchange="RecurrenceTill();">                                
+                            <input type="number" name="num_month" id="num_month" class="form-control" min="1" step="1" onchange="CalLoan();">
+                        </div>
+                    </div> 
+                     <div class="form-group row loan_group" style="display: none">
+                        <label class="col-lg-3 col-form-label text-right">Monthly Installment :</label>
+                        <div class="col-lg-6">
+                            <input type="number" name="monthly_installment"id="monthly_installment" class="form-control loan_view" min="0" step="0.1" readonly="">
+                        </div>
+                    </div> 
+                    
+                    <div class="form-group row ">
+                        <label class="col-lg-3 col-form-label text-right">Recurrence:</label>
+                        <div class="col-lg-6 loan_view_select">
+                            <select name="recurrence" class="form-control loan_view"  required="" id='recurrence' onchange="RecurrenceTill();">                                
                                <option value="0">NO</option>
                                <option value="1">YES</option>                               
                             </select>
@@ -100,11 +123,11 @@
                     </div>   
                     <div class="form-group row end_date" style="display: none">
                         <label class="col-lg-3 col-form-label text-right">Till :</label>
-                        <div class="col-lg-6"> 
-                                <select name="end_month" class="form-control col-lg-6"   >                               
+                        <div class="col-lg-6 loan_view_select"> 
+                                <select name="end_month" id="end_month"  class="form-control col-lg-6 loan_view"   >                               
                                     <?= $this->accounting_model->selectMonth(date('m')+1); ?> 
                                 </select>                              
-                                <select name="end_year" class="form-control col-lg-4"  >                               
+                                <select name="end_year" id="end_year" class="form-control col-lg-4 loan_view"  >                               
                                     <?= $this->accounting_model->selectYear(date('Y')); ?> 
                                 </select>
                             
@@ -113,7 +136,7 @@
                     <div class="form-group row ">
                         <label class="col-lg-3 col-form-label text-right">Comment :</label>
                         <div class="col-lg-6"> 
-                            <textarea class="form-control" name="comment"></textarea>                            
+                            <textarea class="form-control" name="comment" id="comment"></textarea>                            
                         </div>
                     </div> 
                 </div>  
@@ -144,6 +167,60 @@
             $(".end_date select").prop('required',false); 
         }
     }
+    
+    // loan
+    function CheckLoan() {
+       var loan =  $("#action").find(":selected").val(); 
+        if(loan == 2 ){          
+            $(".loan_group").show(); 
+            $("#num_month").prop('required',true);
+            $(".loan_view_select").addClass("readonly");           
+            $(".loan_view").addClass('form-control-solid'); 
+            $(".loan_view").prop("readonly", true);
+            CalLoan();
+        }else{
+            $(".loan_group").hide(); 
+            $("#num_month").prop('required',false); 
+            $(".loan_view_select").removeClass("readonly");
+            $(".loan_view").removeClass('form-control-solid');
+            $(".loan_view").prop("readonly", false);             
+            $("#comment").text("");
+            $("#recurrence").val(0).trigger('change');
+        }
+    }
+    
+    function CalLoan() {
+        var loan =  $("#action").find(":selected").val();  
+        var num_month =  parseInt($("#num_month").val()); 
+        var amount =  $("#amount").val();        
+        if(loan == 2 && num_month >=1){  
+            var monthly_installment = amount/num_month;
+            $("#monthly_installment").val(monthly_installment);
+            if(num_month > 1){
+                $("#recurrence").val(1).trigger('change');
+                var startMonth =  parseInt($("#start_month").find(":selected").val()); 
+                var startYear =  parseInt($("#start_year").find(":selected").val()); 
+                var sumMonths = startMonth + num_month -1;
+                var result1 = sumMonths%12;
+                var result2 = parseInt(sumMonths/12);
+                var endMonth = (result1 < 9 ? "0" : "") + result1;
+                var endYear = startYear + result2;
+                $("#end_month").val(endMonth).trigger('change');
+                $("#end_year").val(endYear).trigger('change');          
+//                  const startDate = new Date(startYear, startMonth, 1);                
+//                  const result = addMonths(startDate, num_month);                
+              
+            }else{
+                $("#recurrence").val(0).trigger('change');
+            }
+           $("#comment").text("total loan "+amount+" , will deduct on "+ num_month+" months.");  
+        }
+    }
+    
+    function addMonths(date, months) {
+       date.setMonth(date.getMonth() + months);
+        return date;
+      }
     
 </script>
  
