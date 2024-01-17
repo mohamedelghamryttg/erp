@@ -471,31 +471,20 @@
                                         <td>
                                             <!--Task Evaluation -->
                                             <?php if ($task->status == 1 && $task_ev_exists == false && $job_status == 0) { ?>
-                                                <a class="btn btn-dark btn-sm font-weight-bolder text-white" data-toggle="modal" data-target="#evAddModal_<?= $task->id; ?>">
+                                                <a class="btn btn-dark btn-sm font-weight-bolder text-white" data-toggle="modal" data-target="#evAddModal_<?= $task->id; ?>" onclick="orderEva();">
                                                     <i class="fa fa-plus-circle"></i> Add
                                                 </a>
                                             <?php } elseif ($task->status == 1 && $task_ev_exists == true && $job_status == 0) { ?>
-                                                <a class="btn btn-dark btn-sm font-weight-bolder text-white" data-toggle="modal" data-target="#evEditModal_<?= $task->id; ?>">
+                                                <a class="btn btn-dark btn-sm font-weight-bolder text-white" data-toggle="modal" data-target="#evEditModal_<?= $task->id; ?>" onclick="orderEva();">
                                                     <i class="fa fa-pencil"></i> Edit
                                                 </a>
                                             <?php } elseif ($task_ev_exists == true && $job_status == 1) { ?>
-                                                <a class="btn btn-dark btn-sm font-weight-bolder text-white" data-toggle="modal" data-target="#evModal_<?= $task->id; ?>">
+                                                <a class="btn btn-dark btn-sm font-weight-bolder text-white" data-toggle="modal" data-target="#evModal_<?= $task->id; ?>" onclick="orderEva();">
                                                     <i class="fa fa-list"></i> View
                                                 </a>
                                             <?php }
                                             $this->view('projectManagment/projectJobs_includes2'); ?>
                                         </td>
-                                        <!--                                        <td>
-                                                                                                                                                                                               <?php
-                                                                                                                                                                                                $feedback = $this->db->get_where('task_feedback', array('task_id' => $task->id))->num_rows();
-                                                                                                                                                                                                if ($permission->edit == 1 && ($task->status == 1 && $feedback == 0)) { ?>
-                                                                                                                                                                                                                                                                                                                                <a href="<?php echo base_url(); ?>projectManagment/addTaskFeedback?t=<?php echo
-                                                                                                                                                                                                                                                                                                                                                                                                        base64_encode($task->id); ?>" class="">
-                                                                                                                                                                                                                                                                                                                                        <i class="fa fa-star"></i> Add Feedback
-                                                                                                                                                                                                                                                                                                                                </a>
-                                                                                                                                                                                                <?php } ?>
-                                                                                                                                                             </td>-->
-
                                         <td>
                                             <?php if ($permission->delete == 1 && $task->status != 1) { ?>
                                                 <a href="<?php echo base_url(); ?>ProjectManagment/deleteTask?t=<?php
@@ -1038,6 +1027,19 @@
     </div>
 </div>
 <script>
+    var emojis = [{
+            emoji: "&#x1F621",
+            text: "Hate it"
+        },
+        {
+            emoji: "&#x1F621",
+            text: "Hate it"
+        },
+        {
+            emoji: "&#x1F600",
+            text: "Satisfied"
+        }
+    ];
     $(document).on("click", ".qc_default", function() {
         var id = $(this).attr('id').replace('btn_', '');
         var model_body = $(this).closest(".modal").find(".modal-body")
@@ -1046,13 +1048,40 @@
     });
 
     $(document).on("change", "#myRange", function() {
-        var value = $(this).val();
-        if (value < 5) {
-            var model_body = $("#pm_setup").html();
+        var value = $('#myRange').val();
+        // console.log(value)
+        if (setAction == '2' && value == 1) {
+            getBadReviewDiv('1')
+        } else {
+            getBadReviewDiv($('#setAction').val())
+        }
+    });
+
+    function orderEva(seting) {
+
+        getBadReviewDiv(setAction)
+    }
+
+    function getBadReviewDiv(setAction) {
+        var value = $('#myRange').val();
+        // console.log(value)
+        // console.log(setAction)
+        document.getElementById("emoji").innerHTML = emojis[value].emoji;
+        document.getElementById("emoji-text").innerHTML = emojis[value].text;
+        // if (setAction == '1') {
+        //     if (value <= 1) {
+        //         var model_body = $("#pm_setup").html();
+        //         $(".bad_review").html(model_body);
+        //     } else {
+        //         $(".bad_review").html('');
+        //     }
+        // } else if (setAction == '2') {
+        if (value <= 1) {
+            var model_body = $("#pm_setup_edit").html();
             $(".bad_review").html(model_body);
         } else {
             $(".bad_review").html('');
         }
-
-    });
+        // }
+    }
 </script>

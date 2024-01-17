@@ -503,7 +503,7 @@
 					},
 				},
 				columnDefs: [{
-					className: 'details-control main-table noExport',
+					className: 'details-control main-table noExport noVis',
 					orderable: false,
 					data: null,
 					defaultContent: '',
@@ -519,7 +519,7 @@
 				columns: [{
 						data: null,
 						orderable: false,
-						className: 'noExport noVis',
+
 					},
 					{
 						data: "id"
@@ -1046,7 +1046,11 @@
 						},
 						{
 							// title: "Total Revenue",
-							data: 'jobTotal'
+							data: 'jobTotal',
+							// render: function(row) {
+							// 	return parseFloat(row.jobTotal).toFixed(3);
+							// }
+
 						},
 						{
 							// title: "Status",
@@ -1103,7 +1107,7 @@
 							.column(8)
 							.data()
 							.reduce((a, b) => intVal(a) + intVal(b), 0);
-						$('#jobTotal').html('<b>Project Total Revenue:   </b><u>' + total + '</u>');
+						$('#jobTotal').html('<b>Project Total Revenue:   </b><u>' + parseFloat(total).toFixed(3) + '</u>');
 					}
 				});
 

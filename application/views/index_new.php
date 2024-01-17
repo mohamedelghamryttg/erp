@@ -65,7 +65,7 @@
 										</span>
 										<span class="nav-text font-size-lg py-2 font-weight-bolder text-center">Remote Access</span>
 									</a>
-								</li>                                                               
+								</li>
 								<!--end::Item-->
 								<!--begin::Item-->
 								<li class="nav-item d-flex col-sm flex-grow-1 flex-shrink-0 mr-3 mb-3 mb-lg-0">

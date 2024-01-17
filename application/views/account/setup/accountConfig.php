@@ -322,6 +322,88 @@
                                         </span>
                                     </span>
                                 </a>
+
+                                <hr width="100%" color="darkgray" size="50px" />
+
+                                <a class='btn nav-link font-weight-bold font-size-h5 text-dark-75 text-hover-primary  text-left' id='job_rev_calc'>
+                                    <span class="text-nowrap">
+                                        <span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width: 3%;"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                                                <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z" />
+                                            </svg>
+                                        </span>
+                                        <span>
+                                            Calculate Jobs Revenue and Revenue Local
+                                        </span>
+                                    </span>
+                                </a>
+
+                                <a class='btn nav-link font-weight-bold font-size-h5 text-dark-75 text-hover-primary text-left' id='job_cost_tr_calc'>
+                                    <span class="text-nowrap">
+                                        <span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width: 3%;"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                                                <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z" />
+                                            </svg>
+                                        </span>
+                                        <span>
+                                            Calculate Jobs Translation Cost
+                                        </span>
+                                    </span>
+                                </a>
+
+                                <a class='btn nav-link font-weight-bold font-size-h5 text-dark-75 text-hover-primary text-left' id='job_cost_le_calc'>
+                                    <span class="text-nowrap">
+                                        <span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width: 3%;"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                                                <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z" />
+                                            </svg>
+                                        </span>
+                                        <span>
+                                            Calculate Jobs LE Cost
+                                        </span>
+                                    </span>
+                                </a>
+
+                                <a class='btn nav-link font-weight-bold font-size-h5 text-dark-75 text-hover-primary text-left' id='job_cost_dtp_calc'>
+                                    <span class="text-nowrap">
+                                        <span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width: 3%;"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                                                <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z" />
+                                            </svg>
+                                        </span>
+                                        <span>
+                                            Calculate Jobs DTP Cost
+                                        </span>
+                                    </span>
+                                </a>
+
+
+                                <a class='btn nav-link font-weight-bold font-size-h5 text-dark-75 text-hover-primary text-left' id='job_cost_ext_calc'>
+                                    <span class="text-nowrap">
+                                        <span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width: 3%;"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                                                <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z" />
+                                            </svg>
+                                        </span>
+                                        <span>
+                                            Calculate Jobs Venfor Cost
+                                        </span>
+                                    </span>
+                                </a>
+
+                                <a class='btn nav-link font-weight-bold font-size-h5 text-dark-75 text-hover-primary text-left' id='job_cost_all_calc'>
+                                    <span class="text-nowrap">
+                                        <span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width: 3%;"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                                                <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z" />
+                                            </svg>
+                                        </span>
+                                        <span>
+                                            Calculate Jobs Total Cost
+                                        </span>
+                                    </span>
+                                </a>
+
                             </nav>
                         </div>
                     </div>
@@ -334,7 +416,7 @@
                     <div class="col-lg-3"></div>
                     <div class="col-lg-6">
                         <button type="text" class="btn btn-success mr-2" id="submit">Submit</button>
-                        <a class="btn btn-secondary" href="<?php echo base_url() ?>account/accountList" type="button">Cancel</a>
+                        <a class="btn btn-secondary" href="<?php echo base_url() ?>admin" type="button">Cancel</a>
                     </div>
                 </div>
             </div>
@@ -441,8 +523,8 @@
         var conf = confirm('Are you sure you want to Import Payment Method Data  ?');
         if (conf) {
             $.ajax({
-                url: "<?php echo base_url(); ?>account/importPaymentMethod",
-                // url: "<?php echo base_url(); ?>account/importhr",
+                // url: "<?php echo base_url(); ?>account/importPaymentMethod",
+                url: "<?php echo base_url(); ?>account/importhr",
                 method: "POST",
                 data: new FormData(formdata),
                 contentType: false,
@@ -456,6 +538,109 @@
         }
     })
 
+    $("#job_rev_calc").on('click', function() {
+        var conf = confirm('Are you sure you want to Calculate Jobs Revenue and Revenue Local ?');
+        if (conf) {
+            $.ajax({
+                url: "<?php echo base_url(); ?>account/job_rev_calc",
+                method: "POST",
+                beforeSend: function() {
+                    $('#loading').show();
+                },
+                success: function(data) {
+                    $('#loading').hide();
+                    alert(data);
+                }
+            })
+
+        }
+    })
+
+    $("#job_cost_tr_calc").on('click', function() {
+        var conf = confirm('Are you sure you want to Calculate Jobs Translation Cost ?');
+        if (conf) {
+            $.ajax({
+                url: "<?php echo base_url(); ?>account/job_cost_tr_calc",
+                method: "POST",
+                beforeSend: function() {
+                    $('#loading').show();
+                },
+                success: function(data) {
+                    $('#loading').hide();
+                    alert(data);
+                }
+            })
+
+        }
+    })
+    $("#job_cost_le_calc").on('click', function() {
+        var conf = confirm('Are you sure you want to Calculate Jobs LE Cost ?');
+        if (conf) {
+            $.ajax({
+                url: "<?php echo base_url(); ?>account/job_cost_le_calc",
+                method: "POST",
+                beforeSend: function() {
+                    $('#loading').show();
+                },
+                success: function(data) {
+                    $('#loading').hide();
+                    alert(data);
+                }
+            })
+
+        }
+    })
+    $("#job_cost_dtp_calc").on('click', function() {
+        var conf = confirm('Are you sure you want to Calculate Jobs DTP Cost ?');
+        if (conf) {
+            $.ajax({
+                url: "<?php echo base_url(); ?>account/job_cost_dtp_calc",
+                method: "POST",
+                beforeSend: function() {
+                    $('#loading').show();
+                },
+                success: function(data) {
+                    $('#loading').hide();
+                    alert(data);
+                }
+            })
+
+        }
+    });
+    $("#job_cost_ext_calc").on('click', function() {
+        var conf = confirm('Are you sure you want to Calculate Jobs Vendor Cost ?');
+        if (conf) {
+            $.ajax({
+                url: "<?php echo base_url(); ?>account/job_cost_ext_calc",
+                method: "POST",
+                beforeSend: function() {
+                    $('#loading').show();
+                },
+                success: function(data) {
+                    $('#loading').hide();
+                    alert(data);
+                }
+            })
+
+        }
+    });
+    $("#job_cost_all_calc").on('click', function() {
+        var conf = confirm('Are you sure you want to Total Cost ?');
+        if (conf) {
+            $.ajax({
+                url: "<?php echo base_url(); ?>account/job_cost_all_calc",
+                method: "POST",
+                beforeSend: function() {
+                    $('#loading').show();
+                },
+                success: function(data) {
+                    $('#loading').hide();
+                    alert(data);
+                }
+            })
+
+        }
+    })
     $("#c_cust_pay_calc").on('click', function() {
         event.preventDefault();
         var conf = confirm('Are you sure you want to Recreate Customer Payment Entry Data  ?');

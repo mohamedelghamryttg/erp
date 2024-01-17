@@ -124,14 +124,15 @@
                               <!--if type = 1 file-->
                               <?php if ($qcData->qc_type == 1 || $qcData->qc_type == 3) { ?>
                                   <div class="form-group row">
-                                      <label class="col-lg-3 col-form-label text-right">File</label>
+                                      <label class="col-lg-1 col-form-label text-right">File</label>
                                       <div class="col-lg-9">
                                           <input type="file" class=" form-control mt-10" name="file" accept='application/zip'>
 
                                       </div>
                                       <?php if (strlen($qcData->file) > 1) { ?>
-                                          <a href="<?= base_url() ?>assets/uploads/jobQc/<?= $qcData->file ?>" target="_blank" class='text-dark text-bold'>View File</a>
-
+                                          <div class="col-lg-1">
+                                              <a class='btn btn-dark' href="<?= base_url() ?>assets/uploads/jobQc/<?= $qcData->file ?>" target="_blank">View File</a>
+                                          </div>
                                       <?php } ?>
                                   </div>
                               <?php }

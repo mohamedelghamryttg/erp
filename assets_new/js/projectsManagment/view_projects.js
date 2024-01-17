@@ -60,9 +60,14 @@ $(document).ready(function (e) {
             paging: true,
             select: false,
             searching: false,
-            dom: "<'row'<'col-12 col-md-5'l><'col-sm-12 col-md-7 text-right'CB>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            dom:
+                "<'row'<'col-12 col-md-5'l><'col-sm-12 col-md-7 text-right'CB>>" +
+                "<'row'<'col-sm-12'ftr>>" +
+                "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'ip>>",
+            // 'Bfrtip',
+            // "<'row'<'col-12 col-md-5'l><'col-sm-12 col-md-7 text-right'CB>>" +
+            // "<'row'<'col-sm-12'tr>>" +
+            // "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             lengthMenu: [5, 10, 25, 50],
             pageLength: 10,
             pagingType: "full_numbers",
@@ -155,10 +160,18 @@ $(document).ready(function (e) {
                         extend: 'pdfHtml5',
                         text: '<i class="far fa-file-pdf"></i>',
                         titleAttr: 'PDF',
+                        title: 'Projects List',
+                        filename: 'Projects List',
+
                         exportOptions: {
                             columns: ':visible',
-                            orientation: 'landscape',
+                            footer: false,
+                            header: false,
                             columns: "thead th:not(.noExport)",
+                            modifier: {
+                                page: 'current'
+
+                            },
                         },
 
                     },
@@ -166,10 +179,14 @@ $(document).ready(function (e) {
                         extend: 'print',
                         text: '<i class="fas fa-print"></i>',
                         titleAttr: 'Print',
-
+                        orientation: 'landscape',
+                        autoPrint: false,
+                        footer: false,
+                        header: false,
+                        download: 'download',
                         exportOptions: {
                             columns: ':visible',
-                            orientation: 'landscape',
+
                             columns: "thead th:not(.noExport)",
                         },
                         customize: function (win) {

@@ -2335,9 +2335,9 @@ class Accounting extends CI_Controller
 
         $sql = "select j.*,p.id as pricelist,p.rate as rate
         ,(case 
-        when j.type = 1 then (p.rate * j.volume)
+        when j.type = 1 then ROUND((p.rate * j.volume),3)
         when j.type = 2 then (
-        (select sum(ifnull(unit_number,0)*ifnull(`value`,0)* p.rate) from project_fuzzy where job = j.id))
+        (select ROUND(sum(ifnull(unit_number,0)*ifnull(`value`,0)* p.rate),3) from project_fuzzy where job = j.id))
         else 0
         end ) as jobTotal
         ,(select name from services where id = p.service) as service

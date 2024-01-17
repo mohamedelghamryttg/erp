@@ -98,6 +98,7 @@
               <th>ID</th>
               <th>Screen</th>
               <th>Role</th>
+              <th>Menu Order</th>
               <th>Follow-Up</th>
               <th>Can View</th>
               <th>Can Add</th>
@@ -226,6 +227,9 @@
             data: 'role',
           },
           {
+            data: 'menu_order',
+          },
+          {
             data: null,
             render: function(row) {
               if (row.follow == 1) {
@@ -289,21 +293,23 @@
               var action_btn = '<div>';
               if (permissions && permissions.edit == '1') {
                 // action_btn += '<a class="btn btn-dark mr-2" href="<?php echo base_url() ?>admin/editPermission?t=' + btoa(row.id) + '"><i class="fa fa-pen "></i> Edit</a>';
-                action_btn += '<a href="<?php echo base_url() ?>admin/editPermission/' + btoa(row.id) + '" class=""><i class="fa fa-pencil"></i> Edit</a>'
+                action_btn += '<a href="<?php echo base_url() ?>admin/editPermission/' + btoa(row.id) + '" ><i class="fa fa-edit text"></i> Edit</a>'
               }
               action_btn += '</div>';
               return action_btn
             }
           },
           {
-            data: 'null',
-            className: 'noExport noVis',
+            data: '',
+            className: 'noExport noVis dt-center',
             orderable: false,
             render: function(data, type, row) {
               var action_btn = '<div>';
               if (permissions && permissions.delete == '1') {
                 var conf_text = 'Are you sure you want to delete this Permission ? ';
-                action_btn += '<a href="<?php echo base_url() ?>admin/deletePermission/' + btoa(row.id) + ' title="delete" class="" onclick="return confirm("' + conf_text + '");"> <i class = "fa fa-times text-danger text"> </i> Delete </a>';
+                // '<a href = "url_to_delete" onclick = "return confirm('Are you sure you want to delete this item?');" > Delete < /a>''
+                // action_btn += '<a href="<?php echo base_url() ?>admin/deletePermission/' + btoa(row.id) + ' title="delete" class="delete-btn" onclick="return confirm("' + 'conf_text' + '");"> <i class = "fa fa-times text-danger text"> </i> Delete </a>';
+                action_btn += `<a class='btn text-danger delete' id='delete'><i class = "fa fa-trash text"> </i>delete</a>`;
               }
 
               action_btn += '</div>';
@@ -418,6 +424,8 @@
         }
       });
     }
+
+
     //////////////////////////////
     $('#search').on('click', function(e) {
       e.preventDefault();
@@ -425,5 +433,53 @@
       $('#filter11Modal').modal('toggle');
     });
     //////////////////////////////
-  });
+    $('#kt_datatable2').on('click', '#delete', function(e) {
+      var dataRow = $(this).parents('tr');
+      var rowId = dataRow.find('td:eq(0)')[0].innerHTML; // Find the mongodb record ID.  Note, for the purpose of this exercise the ID as been added to the row, but would not be done in reality. 
+      e.stopPropagation();
+      Swal.fire({
+        title: 'Are you sure you want to delete this Permission ? ',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+        closeOnConfirm: false,
+        closeOnCancel: false
+      }).then((result) => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url: "<?php echo base_url() ?>admin/deletePermission/",
+            type: 'POST',
+            dataType: 'json',
+            data: {
+              "id": btoa(rowId)
+            },
+
+            success: function(data) {
+              if (data.records == 1) {
+                // var i = row_index.parentNode.parentNode.rowIndex;
+                // document.getElementById("table1").deleteRow(i);
+                bTable.row(dataRow).remove().draw();
+                Swal.fire(
+                  'Deleted!',
+                  'this Permission has been deleted.',
+                  'success'
+                )
+
+              } else {
+                Swal.fire(
+                  'Error!',
+                  'Data Error to delet.',
+                  'error'
+                )
+              }
+            }
+          });
+        }
+      });
+
+    });
+  })
 </script>

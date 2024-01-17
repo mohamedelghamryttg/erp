@@ -838,7 +838,9 @@ class ProjectManagment extends CI_Controller
             $data['job_type'] = $_POST['job_type'];
             $data['client_pm_id'] = $_POST['client_pm_id'];
             if ($_FILES['file']['size'] != 0) {
-                //$config['file']['upload_path']          = './assets/uploads/vendors/';
+                if (!is_dir('./assets/uploads/jobFile/')) {
+                    mkdir('./assets/uploads/jobFile/', 0777, TRUE);
+                }
                 $config['file']['upload_path'] = './assets/uploads/jobFile/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
@@ -857,7 +859,9 @@ class ProjectManagment extends CI_Controller
                 }
             }
             if ($_FILES['attached_email']['size'] != 0 && $_POST['job_type'] == 1) {
-                //$config['file']['upload_path']          = './assets/uploads/vendors/';
+                if (!is_dir('./assets/uploads/jobFile/')) {
+                    mkdir('./assets/uploads/jobFile/', 0777, TRUE);
+                }
                 $config['file']['upload_path'] = './assets/uploads/jobFile/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
@@ -1050,7 +1054,9 @@ class ProjectManagment extends CI_Controller
                 $this->admin_model->addToLoggerUpdate('job', 67, 'id', $id, 0, 0, $this->user);
 
                 if ($_FILES['attached_email']['size'] != 0 && $_POST['job_type'] == 1) {
-                    //$config['file']['upload_path']          = './assets/uploads/vendors/';
+                    if (!is_dir('./assets/uploads/jobFile/')) {
+                        mkdir('./assets/uploads/jobFile/', 0777, TRUE);
+                    }
                     $config['file']['upload_path'] = './assets/uploads/jobFile/';
                     $config['file']['encrypt_name'] = TRUE;
                     $config['file']['allowed_types'] = 'zip|rar';
@@ -1113,6 +1119,9 @@ class ProjectManagment extends CI_Controller
             $checkPo = $this->projects_model->checkProjectPo($poData['number'], $jobIds);
             if ($checkPo) {
                 if ($_FILES['cpo_file']['size'] != 0) {
+                    if (!is_dir('./assets/uploads/cpo/')) {
+                        mkdir('./assets/uploads/cpo/', 0777, TRUE);
+                    }
                     $config['cpo_file']['upload_path'] = './assets/uploads/cpo/';
                     $config['cpo_file']['encrypt_name'] = TRUE;
                     $config['cpo_file']['allowed_types'] = 'zip|rar';
@@ -1280,7 +1289,9 @@ class ProjectManagment extends CI_Controller
             $checkPer = $this->projects_model->checkProjectProfitPercentageForTasks($project_id, 1, $task_id, $data);
             if ($checkPer == True) {
                 if ($_FILES['file']['size'] != 0) {
-                    //$config['file']['upload_path']          = './assets/uploads/vendors/';
+                    if (!is_dir('./assets/uploads/taskFile/')) {
+                        mkdir('./assets/uploads/taskFile/', 0777, TRUE);
+                    }
                     $config['file']['upload_path'] = './assets/uploads/taskFile/';
                     $config['file']['encrypt_name'] = TRUE;
                     $config['file']['allowed_types'] = 'zip|rar';
@@ -1422,6 +1433,9 @@ class ProjectManagment extends CI_Controller
             $data['insrtuctions'] = $_POST['insrtuctions'];
             $data['status'] = 1;
             if ($_FILES['file']['size'] != 0) {
+                if (!is_dir('./assets/uploads/translationRequest/')) {
+                    mkdir('./assets/uploads/translationRequest/', 0777, TRUE);
+                }
                 $config['file']['upload_path'] = './assets/uploads/translationRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
@@ -1913,6 +1927,9 @@ class ProjectManagment extends CI_Controller
         $checkPo = $this->projects_model->checkPoExists($poData['number']);
         if ($checkPo) {
             if ($_FILES['cpo_file']['size'] != 0) {
+                if (!is_dir('./assets/uploads/cpo/')) {
+                    mkdir('./assets/uploads/cpo/', 0777, TRUE);
+                }
                 $config['cpo_file']['upload_path'] = './assets/uploads/cpo/';
                 // $config['cpo_file']['upload_path']          = './assets/uploads/cpo/';
                 $config['cpo_file']['encrypt_name'] = TRUE;
@@ -2030,6 +2047,9 @@ class ProjectManagment extends CI_Controller
             $checkPer = $this->projects_model->checkProjectProfitPercentageForTasks($project_id, 2, $task, $data);
             if ($checkPer == True) {
                 if ($_FILES['file']['size'] != 0) {
+                    if (!is_dir('./assets/uploads/translationRequest/')) {
+                        mkdir('./assets/uploads/translationRequest/', 0777, TRUE);
+                    }
                     $config['file']['upload_path'] = './assets/uploads/translationRequest/';
                     $config['file']['encrypt_name'] = TRUE;
                     $config['file']['allowed_types'] = 'zip|rar';
@@ -2387,7 +2407,9 @@ class ProjectManagment extends CI_Controller
         $data['closed_by'] = $this->user;
         // vendorTaskFile
         if ($_FILES['vendor_task_file']['size'] != 0) {
-            //$config['vendor_task_file']['upload_path']          = './assets/uploads/vendorTaskFile/';
+            if (!is_dir('./assets/uploads/vendorTaskFile/')) {
+                mkdir('./assets/uploads/vendorTaskFile/', 0777, TRUE);
+            }
             $config['vendor_task_file']['upload_path'] = './assets/uploads/vendorTaskFile/';
             $config['vendor_task_file']['encrypt_name'] = TRUE;
             $config['vendor_task_file']['allowed_types'] = 'zip|rar';
@@ -2550,7 +2572,9 @@ class ProjectManagment extends CI_Controller
             $checkPO = $this->projects_model->checkProjectPo($data['po'], $id);
             if ($checkPO) {
                 if ($_FILES['cpo_file']['size'] != 0) {
-                    //$config['cpo_file']['upload_path']          = './assets/uploads/vendors/';
+                    if (!is_dir('./assets/uploads/cpo/')) {
+                        mkdir('./assets/uploads/cpo/', 0777, TRUE);
+                    }
                     $config['cpo_file']['upload_path'] = './assets/uploads/cpo/';
                     $config['cpo_file']['encrypt_name'] = TRUE;
                     $config['cpo_file']['allowed_types'] = 'zip|rar';
@@ -3761,6 +3785,9 @@ class ProjectManagment extends CI_Controller
             $data['created_at'] = date("Y-m-d H:i:s");
             $data['comment'] = $_POST['comment'];
             if ($_FILES['file']['size'] != 0) {
+                if (!is_dir('./assets/uploads/dtpRequest/')) {
+                    mkdir('./assets/uploads/dtpRequest/', 0777, TRUE);
+                }
                 $config['file']['upload_path'] = './assets/uploads/dtpRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
@@ -3844,6 +3871,9 @@ class ProjectManagment extends CI_Controller
             $checkPer = $this->projects_model->checkProjectProfitPercentageForTasks($project_id, 3, $task, $data);
             if ($checkPer == True) {
                 if ($_FILES['file']['size'] != 0) {
+                    if (!is_dir('./assets/uploads/dtpRequest/')) {
+                        mkdir('./assets/uploads/dtpRequest/', 0777, TRUE);
+                    }
                     $config['file']['upload_path'] = './assets/uploads/dtpRequest/';
                     $config['file']['encrypt_name'] = TRUE;
                     $config['file']['allowed_types'] = 'zip|rar';
@@ -3924,6 +3954,9 @@ class ProjectManagment extends CI_Controller
             $data['created_at'] = date("Y-m-d H:i:s");
             $data['comment'] = $_POST['comment'];
             if ($_FILES['file']['size'] != 0) {
+                if (!is_dir('./assets/uploads/translationRequest/')) {
+                    mkdir('./assets/uploads/translationRequest/', 0777, TRUE);
+                }
                 $config['file']['upload_path'] = './assets/uploads/translationRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
@@ -3987,6 +4020,9 @@ class ProjectManagment extends CI_Controller
             $data['created_at'] = date("Y-m-d H:i:s");
             $data['comment'] = $_POST['comment'];
             if ($_FILES['file']['size'] != 0) {
+                if (!is_dir('./assets/uploads/leRequest/')) {
+                    mkdir('./assets/uploads/leRequest/', 0777, TRUE);
+                }
                 $config['file']['upload_path'] = './assets/uploads/leRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
@@ -4070,6 +4106,9 @@ class ProjectManagment extends CI_Controller
             $checkPer = $this->projects_model->checkProjectProfitPercentageForTasks($project_id, 4, $task, $data);
             if ($checkPer == True) {
                 if ($_FILES['file']['size'] != 0) {
+                    if (!is_dir('./assets/uploads/leRequest/')) {
+                        mkdir('./assets/uploads/leRequest/', 0777, TRUE);
+                    }
                     $config['file']['upload_path'] = './assets/uploads/leRequest/';
                     $config['file']['encrypt_name'] = TRUE;
                     $config['file']['allowed_types'] = 'zip|rar';
@@ -4358,7 +4397,9 @@ class ProjectManagment extends CI_Controller
             $data['insrtuctions'] = $_POST['insrtuctions'];
             $data['status'] = 1;
             if ($_FILES['file']['size'] != 0) {
-                // $config['file']['upload_path']          = './assets/uploads/leRequest/';
+                if (!is_dir('./assets/uploads/leRequest/')) {
+                    mkdir('./assets/uploads/leRequest/', 0777, TRUE);
+                }
                 $config['file']['upload_path'] = './assets/uploads/leRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
@@ -4439,6 +4480,9 @@ class ProjectManagment extends CI_Controller
             $data['insrtuctions'] = $_POST['insrtuctions'];
             $data['status'] = 1;
             if ($_FILES['file']['size'] != 0) {
+                if (!is_dir('./assets/uploads/leRequest/')) {
+                    mkdir('./assets/uploads/leRequest/', 0777, TRUE);
+                }
                 $config['file']['upload_path'] = './assets/uploads/leRequest/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
@@ -5397,6 +5441,9 @@ class ProjectManagment extends CI_Controller
             ///    
             if ($data['attachment_type'] == 1) {
                 if ($_FILES['file']['size'] != 0) {
+                    if (!is_dir('./assets/uploads/pmConversionRequestDocument/')) {
+                        mkdir('./assets/uploads/pmConversionRequestDocument/', 0777, TRUE);
+                    }
                     $config['file']['upload_path'] = './assets/uploads/pmConversionRequestDocument/';
                     $config['file']['encrypt_name'] = TRUE;
                     $config['file']['allowed_types'] = 'zip|rar';
@@ -5476,6 +5523,9 @@ class ProjectManagment extends CI_Controller
             ///   
             if ($data['attachment_type'] == 1) {
                 if ($_FILES['file']['size'] != 0) {
+                    if (!is_dir('./assets/uploads/pmConversionRequestDocument/')) {
+                        mkdir('./assets/uploads/pmConversionRequestDocument/', 0777, TRUE);
+                    }
                     $config['file']['upload_path'] = './assets/uploads/pmConversionRequestDocument/';
                     $config['file']['encrypt_name'] = TRUE;
                     $config['file']['allowed_types'] = 'zip|rar';
@@ -6288,7 +6338,9 @@ class ProjectManagment extends CI_Controller
             $data['time_zone'] = $_POST['time_zone'];
             $data['insrtuctions'] = $_POST['insrtuctions'];
             if ($_FILES['file']['size'] != 0) {
-                //$config['file']['upload_path']          = './assets/uploads/vendors/';
+                if (!is_dir('./assets/uploads/taskFile/')) {
+                    mkdir('./assets/uploads/taskFile/', 0777, TRUE);
+                }
                 $config['file']['upload_path'] = './assets/uploads/taskFile/';
                 $config['file']['encrypt_name'] = TRUE;
                 $config['file']['allowed_types'] = 'zip|rar';
@@ -6688,6 +6740,9 @@ class ProjectManagment extends CI_Controller
                 $qc_type = $data['qc_type'] = $_POST['qc_type'];
                 if ($qc_type == 1 || $qc_type == 3) {
                     if ($_FILES['file']['size'] != 0) {
+                        if (!is_dir('./assets/uploads/jobQc/')) {
+                            mkdir('./assets/uploads/jobQc/', 0777, TRUE);
+                        }
                         //$config['file']['upload_path']          = './assets/uploads/jobQc/';
                         $config['file']['upload_path'] = './assets/uploads/jobQc/';
                         $config['file']['encrypt_name'] = TRUE;
@@ -6734,7 +6789,9 @@ class ProjectManagment extends CI_Controller
             } else {
                 // do edit 
                 if ($_FILES['file']['size'] != 0) {
-                    //$config['file']['upload_path']          = './assets/uploads/jobQc/';
+                    if (!is_dir('./assets/uploads/jobQc/')) {
+                        mkdir('./assets/uploads/jobQc/', 0777, TRUE);
+                    }
                     $config['file']['upload_path'] = './assets/uploads/jobQc/';
                     $config['file']['encrypt_name'] = TRUE;
                     $config['file']['allowed_types'] = 'zip|rar';
@@ -6825,7 +6882,7 @@ class ProjectManagment extends CI_Controller
             $data['job_id'] = $_POST['job_id'];
             $data['vendor_id'] = $_POST['vendor_id'];
             $data['pm_ev_select'] = $_POST['pm_ev_select'];
-            $data['pm_ev_type'] = ($_POST['pm_ev_select'] < 5) ? 2 : 1;
+            $data['pm_ev_type'] = $_POST['pm_ev_select'];
             $data['pm_note'] = $_POST['pm_note'];
             for ($i = 1; $i <= 6; $i++) {
                 $data["pm_ev_text$i"] = $_POST["pm_ev_text$i"] ?? null;
@@ -6837,7 +6894,7 @@ class ProjectManagment extends CI_Controller
             }
             $task_ev = $this->db->get_where('task_evaluation', array('task_id' => $_POST['task_id']))->row();
 
-            if (empty($task_ev)) {
+            if (!($task_ev)) {
                 $data['pm_ev_created_at'] = date("Y-m-d H:i:s");
                 if ($this->db->insert('task_evaluation', $data)) {
                     // vendor

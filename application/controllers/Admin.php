@@ -552,6 +552,7 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
         $sql = "SELECT p.id,p.follow,p.add,p.edit,p.delete,p.view,(select name from `group` where id = p.groups) as ngroups 
         ,(select name from `screen` where id = p.screen) as screen 
         ,(select name from `role` where id = p.role) as `role` 
+        ,menu_order
         from permission p";
         if ($arr_1_cnt > 0) {
             $sql .= ' WHERE ' .  $arr4;
@@ -591,10 +592,17 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
             $data['add'] = $_POST['add'];
             $data['edit'] = $_POST['edit'];
             $data['delete'] = $_POST['delete'];
+            $data['menu_order'] = $_POST['menu_order'];
             $data['groups'] = $this->admin_model->getGroupByScreen($data['screen']);
             $checkRoles = $this->db->get_where('permission', array('role' => $data['role'], 'screen' => $data['screen']))->num_rows();
             if ($checkRoles == 0) {
+
                 if ($this->db->insert('permission', $data)) {
+                    if ($_POST['menu_order'] || $_POST['menu_order'] == '') {
+                        $id = $this->db->insert_id();
+                        $this->db->where('id', $id);
+                        $this->db->update('permission', array('menu_order' => $id));
+                    }
                     $true = "Permission Added Successfully ...";
                     $this->session->set_flashdata('true', $true);
                     redirect(base_url() . "admin/permission");
@@ -678,22 +686,25 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
             echo "You have no permission to access this page";
         }
     }
-    public function deletePermission($id)
+    public function deletePermission()
     {
         // Check Permission ..
         $check = $this->admin_model->checkPermission($this->role, 9);
         if ($check) {
+            $id = $this->input->post('id');
             $id = base64_decode($id);
             $this->admin_model->addToLoggerDelete('permission', 122, 'id', $id, 0, 0, $this->user);
-
             if ($this->db->delete('permission', array('id' => $id))) {
-                $true = "permission Deleted Successfully ...";
-                $this->session->set_flashdata('true', $true);
-                redirect(base_url() . "admin/permission");
+                // $true = "permission Deleted Successfully ...";
+                // $this->session->set_flashdata('true', $true);
+
+                echo json_encode(['records' => 1]);
+                // redirect(base_url() . "admin/permission");
             } else {
-                $error = "Failed To Delete permission ...";
-                $this->session->set_flashdata('error', $error);
-                redirect(base_url() . "admin/permission");
+                // $error = "Failed To Delete permission ...";
+                // $this->session->set_flashdata('error', $error);
+                echo json_encode(['records' => 0]);
+                // redirect(base_url() . "admin/permission");
             }
         } else {
             echo "You have no permission to access this page";

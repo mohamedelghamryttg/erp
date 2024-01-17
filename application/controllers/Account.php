@@ -10,7 +10,6 @@ class Account extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        // $this->load->library('Excelfile');
         $this->load->helper('form');
         $this->load->helper('html');
         $this->admin_model->verfiyLogin();
@@ -18,6 +17,7 @@ class Account extends CI_Controller
         $this->load->model('CreateDatabase');
         $this->load->library('form_validation');
         $this->load->library('Excelfile');
+
         $this->role = $this->session->userdata('role');
         $this->user = $this->session->userdata('id');
         $this->brand = $this->session->userdata('brand');
@@ -541,10 +541,10 @@ class Account extends CI_Controller
     public function bankCode()
     {
 
-        $check = $this->admin_model->checkPermission($this->role, 223);
+        $check = $this->admin_model->checkPermission($this->role, 219);
         if ($check) {
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
-            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 223);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 219);
 
             $limit = 9;
             $offset = $this->uri->segment(3);
@@ -630,8 +630,6 @@ class Account extends CI_Controller
         }
     }
 
-
-
     public function exportBanks()
     {
         $file_type = "vnd.ms-excel";
@@ -640,7 +638,7 @@ class Account extends CI_Controller
         header("Content-Disposition: attachment; filename=Banks.$file_ending");
         header("Pragma: no-cache");
         header("Expires: 0");
-        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 223);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 219);
         //body ..
         $data['user'] = $this->user;
         $arr2 = array();
@@ -680,14 +678,10 @@ class Account extends CI_Controller
         $this->load->view('account/bank/exportAllBanks', $data);
     }
 
-    public function allBanks($update = "")
-    {
-    }
-
     public function addBank()
     {
         // Check Permission ..
-        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 223);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 219);
         if ($data['permission']->add == 1) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
@@ -703,7 +697,7 @@ class Account extends CI_Controller
     public function doAddBank()
     {
         // Check Permission ..
-        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 223);
+        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 219);
         if ($permission->add == 1) {
             if (isset($_POST['name'])) {
                 $records = $this->db->select('*')->from('bank')->where('name=', $_POST['name'])->order_by('id')->get()->num_rows();
@@ -734,11 +728,11 @@ class Account extends CI_Controller
     public function editBank()
     {
         // Check Permission ..
-        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 223);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 219);
         if ($data['permission']->edit == 1) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
-            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 223);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 219);
             //body ..
             $id = base64_decode($_GET['t']);
             $data['banks'] = $this->db->get_where('bank', array('id' => $id))->row();
@@ -754,7 +748,7 @@ class Account extends CI_Controller
     public function doEditBank($id)
     {
         // Check Permission ..
-        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 223);
+        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 219);
         if ($permission->edit == 1) {
             if (isset($_POST['name'])) {
                 $records = $this->db->select('*')->from('bank')->where('name=', $_POST['name'])->order_by('id')->get();
@@ -767,7 +761,7 @@ class Account extends CI_Controller
             $data['name'] = $_POST['name'];
             $data['account_id'] = $_POST['account_id'];
             echo json_encode(['records' => 0]);
-            $this->admin_model->addToLoggerUpdate('bank', 223, 'id', $id, 0, 0, $this->user);
+            $this->admin_model->addToLoggerUpdate('bank', 219, 'id', $id, 0, 0, $this->user);
             if ($this->db->update('bank', $data, array('id' => $id))) {
                 $true = "Bank Edited Successfully ...";
                 $this->session->set_flashdata('true', $true);
@@ -783,9 +777,9 @@ class Account extends CI_Controller
     public function deleteBank($id)
     {
         // Check Permission ..
-        $check = $this->admin_model->checkPermission($this->role, 223);
+        $check = $this->admin_model->checkPermission($this->role, 219);
         if ($check) {
-            $this->admin_model->addToLoggerDelete('bank', 223, 'id', $id, 0, 0, $this->user);
+            $this->admin_model->addToLoggerDelete('bank', 219, 'id', $id, 0, 0, $this->user);
             if ($this->db->delete('bank', array('id' => $id))) {
                 $true = "Bank Deleted Successfully ...";
                 $this->session->set_flashdata('true', $true);
@@ -1547,7 +1541,8 @@ class Account extends CI_Controller
         $filter_data = $this->input->post('filter_data');
         parse_str($filter_data, $params);
         $arr2 = array();
-        // var_dump($this->input->post('searchCash'));
+
+
         if ($filter_data) {
 
             if (isset($params['searchCash'])) {
@@ -1612,7 +1607,7 @@ class Account extends CI_Controller
             $date_to = "";
         }
 
-        $cond1 = "bank_id = '$searchCash'";
+        $cond1 = "cash_id = '$searchCash'";
         $cond2 = "date BETWEEN '$date_from' AND '$date_to' ";
         $cond3 = "ccode like '%$searchSer%'";
         $cond4 = "trn_id = '$searchRevenue'";
@@ -1627,7 +1622,7 @@ class Account extends CI_Controller
         }
         $arr4 = implode(" and ", $arr3);
         // ************//
-        // var_dump($arr2);
+        // var_dump($arr4);
         if ($arr_1_cnt > 0) {
             $data['cash_trn'] = $this->AccountModel->AllCashPages($this->brand, $type, $arr4)->result_array();;
         } else {
@@ -5433,41 +5428,7 @@ class Account extends CI_Controller
 
         echo $new_auto_num;
     }
-    // function importhr()
-    // {
-    //     if (isset($_FILES["file"]["name"])) {
-    //         $path = $_FILES["file"]["tmp_name"];
-    //         $object = PHPExcel_IOFactory::load($path);
-    //         $inputFileType = PHPExcel_IOFactory::identify($path);
-    //         $objReader = PHPExcel_IOFactory::createReader($inputFileType);
-    //         $objPHPExcel = $objReader->load($path);
-    //         $allDataInSheet = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
-    //         $flag = true;
-    //         $i = 0;
-    //         $setup = $this->AccountModel->getSetup();
-    //         $data['setup'] = $setup;
-    //         $succ = 0;
 
-    //         foreach ($allDataInSheet as $value) {
-    //             if ($flag) {
-    //                 $flag = false;
-    //                 continue;
-    //             }
-    //             $id = $value['A'] . trim();
-    //             $inserdata['time_zone'] = $value['K'] . trim();
-    //             if ($id <> '') {
-    //                 if ($this->db->update('employees', $inserdata, array('id' => $id))) {
-    //                     $succ++;
-    //                 }
-    //             }
-    //         }
-    //         if ($succ > 0) {
-    //             echo "Payment Method Imported successfully";
-    //         } else {
-    //             echo "ERROR !";
-    //         }
-    //     }
-    // }
     function fileToDelete()
     {
         $id = base64_decode($_POST['id']);
@@ -5485,6 +5446,253 @@ class Account extends CI_Controller
             }
         } else {
             echo 'error';
+        }
+    }
+    function importhr()
+    {
+        if (isset($_FILES["file"]["name"])) {
+            $path = $_FILES["file"]["tmp_name"];
+            $object = PHPExcel_IOFactory::load($path);
+            $inputFileType = PHPExcel_IOFactory::identify($path);
+            $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+            $objPHPExcel = $objReader->load($path);
+            $allDataInSheet = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+            $flag = true;
+            $i = 0;
+            $succ = 0;
+
+            foreach ($allDataInSheet as $value) {
+                if ($flag) {
+                    $flag = false;
+                    continue;
+                }
+                $id = $value['A'];
+
+                $inserdata['payment'] = $value['C'];
+                // var_dump($inserdata['payment']);
+                // die;
+                // if ($value['C'] != '') {
+                //     $this->db->like('name', $value['I'], 'before');
+                //     $query = $this->db->get('account_chart');
+                //     if ($query->num_rows() != 0) {
+                //         $inserdata['account_id'] = $query->row()->id;
+                //     } else {
+                //         $inserdata['account_id'] = '';
+                //     }
+                // } else {
+                //     $inserdata['account_id'] = '';
+                // }
+                // query("select * from account_chart where name like '%" . $value['I'] . "'")->id;
+                // $this->AccountModel->getByNAME('account_chart', $value['I']);
+
+                if ($id <> '') {
+                    if ($this->db->update('customer', $inserdata, array('id' => $id))) {
+                        $succ++;
+                    }
+                }
+            }
+            if ($succ > 0) {
+                echo "Payment Method Imported successfully";
+            } else {
+                echo "ERROR !";
+            }
+        }
+    }
+    function job_rev_calc()
+    {
+        $sql = "update job as j 
+        LEFT JOIN  job_price_list AS p ON j.price_list = p.id
+        LEFT JOIN  (SELECT job,SUM(IFNULL(unit_number, 0) * IFNULL(`value`, 0)) as volume FROM project_fuzzy group by job) as z on z.job = j.id
+        LEFT JOIN  currenies_rate as cu on p.currency = cu.currency and cu.currency_to = 2 and year(j.created_at) = cu.year and month(j.created_at) = cu.month
+        set j.revenue = 
+            ifnull( (CASE WHEN j.type = 1 THEN (p.rate * j.volume)
+                          WHEN j.type = 2 THEN (z.volume * p.rate) 
+                          ELSE 0 END) ,0)
+           ,j.revenue_local = 
+            ifnull(( CASE WHEN j.type = 1 THEN (p.rate * j.volume) * cu.rate
+                          WHEN j.type = 2 THEN (z.volume * p.rate) * cu.rate
+                          ELSE 0 END) ,0)               
+            ";
+        $this->db->query($sql);
+        if ($this->db->affected_rows() > 0) {
+            echo "Task Finished";
+        } else {
+            echo " No Record Updated";
+        }
+    }
+    function job_cost_tr_calc()
+    {
+        $sql = "update job as j set j.cost_tr = 0";
+        $this->db->query($sql);
+
+        $sql = "UPDATE      job AS j
+                INNER JOIN
+                            (select     jj.id as job_id,(sum((IFNULL(tr.count, 0)-IFNULL(tr.tm, 0))*IFNULL(cu.rate, 0)*IFNULL(ptc.rate,0) )) as total 
+                             from       translation_request as tr        
+                             LEFT JOIN job as jj on jj.id = tr.job_id
+                             LEFT JOIN production_team_cost AS ptc ON tr.task_type = ptc.task_type       
+                                        AND tr.unit = ptc.unit
+                                        AND YEAR(jj.created_at) = ptc.year
+                                        AND ptc.team = 1
+       
+                             LEFT JOIN currenies_rate AS cu ON cu.currency = 1 AND cu.currency_to = 2
+                                        AND YEAR(tr.created_at) = cu.year
+                                        AND MONTH(tr.created_at) = cu.month 
+        
+                             where     tr.status = 3 and count <> 0
+                             group by  jj.id) as trr on  j.id = trr.job_id
+   
+                SET          j.cost_tr = ROUND(IFNULL(trr.total, 0),2)";
+
+        $this->db->query($sql);
+        if ($this->db->affected_rows() > 0) {
+            echo "Task Finished";
+        } else {
+            echo " No Record Updated";
+        }
+    }
+    function job_cost_le_calc()
+    {
+        $sql = "update job as j set j.cost_le = 0";
+        $this->db->query($sql);
+
+        $sql = "UPDATE job AS j
+                INNER JOIN
+                            (select jj.id as job_id,(sum(
+                            case when (ler.unit = 5 and (ler.volume < 15 and ler.volume > 0))  then 15
+                            else ifnull(ler.volume,0)    
+                            end
+        
+                            * IFNULL(cu.rate, 0)*IFNULL(ptc.rate,0) )) as total 
+                            from le_request_job as ler
+        
+                            inner join le_request as le on ler.request_id = le.id
+                            LEFT JOIN job as jj on jj.id = le.job_id
+                            LEFT JOIN production_team_cost AS ptc ON ler.unit = ptc.unit
+                                      AND YEAR(jj.created_at) = ptc.year
+                                      AND ptc.team = 2
+       
+                            LEFT JOIN currenies_rate AS cu ON cu.currency = 1 
+                                      AND cu.currency_to = 2
+                                      AND YEAR(ler.created_at) = cu.year
+                                      AND MONTH(ler.created_at) = cu.month 
+                                    where le.status = 3 
+
+                            group by jj.id) as ler on  j.id = ler.job_id
+   
+                SET         j.cost_le = ROUND(IFNULL(ler.total, 0),2)";
+
+        $this->db->query($sql);
+        if ($this->db->affected_rows() > 0) {
+            echo "Task Finished";
+        } else {
+            echo " No Record Updated";
+        }
+    }
+    function job_cost_dtp_calc()
+    {
+        $sql = "update job as j set j.cost_dtp = 0";
+        $this->db->query($sql);
+
+        $sql = "UPDATE      job AS j
+        INNER JOIN
+                    (select     jj.id as job_id,(sum((IFNULL(tr.volume, 0))*IFNULL(cu.rate, 0)*IFNULL(ptc.rate,0) )) as total 
+                     from       dtp_request as tr        
+                     
+                     LEFT JOIN job as jj on jj.id = tr.job_id
+
+                     LEFT JOIN users as us on jj.created_by = us.id  
+
+                     LEFT JOIN production_team_cost AS ptc ON us.brand = ptc.brand      
+                                AND tr.unit = ptc.unit
+                                AND YEAR(jj.created_at) = ptc.year
+                                AND ptc.team = 3
+
+                     LEFT JOIN currenies_rate AS cu ON cu.currency = 1 AND cu.currency_to = 2
+                                AND YEAR(tr.created_at) = cu.year
+                                AND MONTH(tr.created_at) = cu.month 
+
+                
+                   
+                   
+                     group by  jj.id ) as trr on  j.id = trr.job_id
+
+        SET          j.cost_dtp = ROUND(IFNULL(trr.total, 0),2)
+";
+
+        $this->db->query($sql);
+        if ($this->db->affected_rows() > 0) {
+            echo "Task Finished";
+        } else {
+            echo " No Record Updated";
+        }
+    }
+
+    function job_cost_ext_calc()
+    {
+        $sql = "update job as j set j.cost_ex = 0";
+        $this->db->query($sql);
+
+        $sql = "UPDATE job AS j
+        INNER JOIN
+                    (select     jj.id as job_id,(sum(
+                    case when tr.currency = 2 then (tr.rate * tr.count)
+                    else (tr.rate * tr.count * cu.rate)
+                    end
+                    )) as total 
+                     from       job_task as tr        
+                     
+                     LEFT JOIN job as jj on jj.id = tr.job_id
+                           left join users as us on jj.created_by = us.id
+                     
+                     LEFT JOIN production_team_cost AS ptc ON us.brand = ptc.brand      
+                                AND tr.unit = ptc.unit
+                                AND YEAR(jj.created_at) = ptc.year
+                                AND ptc.team = 3
+
+                     LEFT JOIN currenies_rate AS cu ON cu.currency = tr.currency 
+                                AND cu.currency_to = 2
+                                AND YEAR(tr.delivery_date) = cu.year
+                                AND MONTH(tr.delivery_date) = cu.month 
+
+                where (tr.status = 0 OR tr.status = 1 OR tr.status = 4 OR tr.status = 5)
+                   
+                   
+                     group by  jj.id ) as trr on  j.id = trr.job_id
+
+        SET          j.cost_ex = ROUND(IFNULL(trr.total, 0),2)";
+
+        $this->db->query($sql);
+        if ($this->db->affected_rows() > 0) {
+            echo "Task Finished";
+        } else {
+            echo " No Record Updated";
+        }
+    }
+    function job_cost_all_calc()
+    {
+        $sql = "update job as j set j.cost = 0";
+        $this->db->query($sql);
+
+        $sql = "update job as j set 
+        j.cost = ifnull(cost_tr,0) + ifnull(cost_le,0) + ifnull(cost_dtp,0) + ifnull(cost_ex,0)";
+
+        $this->db->query($sql);
+        //*******************/
+        $sql = "update job as j set 
+        revenue_local= round( revenue_local,2)  ";
+
+        $this->db->query($sql);
+        //*******************/  
+        $sql = "update job as j set 
+        j.profit = ifnull(revenue_local,0) - ifnull(cost,0) ";
+
+        $this->db->query($sql);
+        //*******************/    
+        if ($this->db->affected_rows() > 0) {
+            echo "Task Finished";
+        } else {
+            echo " No Record Updated";
         }
     }
 }

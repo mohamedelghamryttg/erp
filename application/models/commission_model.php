@@ -14,7 +14,9 @@ class Commission_model extends CI_Model
     public function AllRules($permission, $filter)
     {
         if ($permission->view == 1) {
-            $data = $this->db->query("SELECT * FROM `commission_setting` WHERE " . $filter . "  Order By `year` ASC,`month` DESC");
+            $sql = "SELECT * FROM `commission_setting` WHERE " . $filter . "  Order By `year` ASC,`month` DESC";
+
+            $data = $this->db->query($sql);
         }
         return $data;
     }

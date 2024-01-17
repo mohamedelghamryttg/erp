@@ -116,7 +116,7 @@ class Admin_model extends CI_Model
 
 	public function getGroupByRole($role)
 	{
-		$sql = "SELECT DISTINCT `groups` FROM `permission` WHERE `role` = '$role' AND `groups` <> '0' ";
+		$sql = "SELECT DISTINCT `groups` FROM `permission` WHERE `role` = '$role' AND `groups` <> '0' order by `groups`,menu_order";
 
 		$result = $this->db->query($sql)->result();
 		return $result;

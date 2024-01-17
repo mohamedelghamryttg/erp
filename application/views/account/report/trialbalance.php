@@ -194,7 +194,7 @@
                         </table>
                     </div>
                 </div>
-                </section>
+
                 <nav class="text-center">
                     <?= $this->pagination->create_links() ?>
                 </nav>
@@ -327,8 +327,8 @@
         let trn_balance = 0.0;
 
         $.each(data.trns_ledger, function(index, value) {
-
-            if (parseFloat(value.beg_debit) != 0 || parseFloat(value.beg_credit) != 0 || parseFloat(value.debit) != 0 || parseFloat(value.credit) != 0) {
+                // console.log(value.beg_debit)
+                // if (parseFloat(value.beg_debit) != 0 || parseFloat(value.beg_credit) != 0 || parseFloat(value.debit) != 0 || parseFloat(value.credit) != 0) {
                 ix++;
                 beg_balance = parseFloat(value.beg_debit) - parseFloat(value.beg_credit);
 
@@ -339,21 +339,10 @@
 
                     beg_deb_total += parseFloat(value.beg_debit, 7);
                     beg_crd_total += parseFloat(value.beg_credit, 7);
-                    // beg_deb_balance += +value.beg_debit - value.beg_credit;
-                    // if (balance > 0) {
-                    //     g_deb_total += +balance;
-                    // } else {
-                    //     g_crd_total += Math.abs(balance);
-                    // }
-                    // g_balance += +g_deb_total - g_crd_total;
+
                     d_trn += parseFloat(value.debit, 7) - parseFloat(value.credit, 7);
                     d_beg_balance += beg_balance;
-                    // console.log(value.acode)
-                    // console.log(value.beg_debit + "-" + value.beg_credit)
 
-                    // console.log(beg_balance)
-
-                    // console.log('--')
 
                     d_balance += balance;
 
@@ -387,6 +376,8 @@
                 html += '<td class="text-nowrap" style="text-align: right;width: 120px;' + styl_color + '">' + (Number(value.beg_debit) != 0 ? parseFloat(value.beg_debit).toFixed(2) : '') + '</td>';
                 html += '<td class="text-nowrap" style="text-align: right;width: 120px;' + styl_color + '">' + (Number(value.beg_credit) != 0 ? parseFloat(value.beg_credit).toFixed(2) : '') + '</td>';
 
+                // html += '<td class="text-nowrap" style="text-align: right;width: 120px;' + styl_color + '">' + (Number(value.debit) > 0 ? parseFloat(value.debit).toFixed(2) : '') + '</td>';
+                // html += '<td class="text-nowrap" style="text-align: right;width: 120px;' + styl_color + '">' + (Number(value.credit) > 0 ? parseFloat(value.credit).toFixed(2) : '') + '</td>';
 
                 html += '<td class="text-nowrap" style="text-align: right;width: 120px;' + styl_color + '">' + (Number(value.debit) > 0 ? parseFloat(value.debit).toFixed(2) : '') + '</td>';
                 html += '<td class="text-nowrap" style="text-align: right;width: 120px;' + styl_color + '">' + (Number(value.credit) > 0 ? parseFloat(value.credit).toFixed(2) : '') + '</td>';
@@ -396,7 +387,8 @@
 
             }
 
-        })
+            // }
+        )
 
         html += '       <tr>';
         html += '        <td class="text-nowrap"></td>';

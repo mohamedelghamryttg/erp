@@ -754,11 +754,6 @@ class Accounting_model extends CI_Model
 
     public function costOfSales($permission, $user, $brand, $filter)
     {
-        $sql = "SELECT j.*,p.number,i.id AS invoiceId,i.issue_date,i.lead,i.customer,(SELECT brand FROM `users` WHERE users.id = i.created_by) AS brand  FROM job AS j
-        LEFT OUTER JOIN po AS p ON p.id = j.po
-        LEFT OUTER JOIN invoices AS i ON FIND_IN_SET(p.id, i.po_ids) > 0
-        WHERE " . $filter . " HAVING brand = '$brand' order by issue_date desc ";
-        var_dump($sql);
         $data = $this->db->query("SELECT j.*,p.number,i.id AS invoiceId,i.issue_date,i.lead,i.customer,(SELECT brand FROM `users` WHERE users.id = i.created_by) AS brand  FROM job AS j
 									LEFT OUTER JOIN po AS p ON p.id = j.po
 									LEFT OUTER JOIN invoices AS i ON FIND_IN_SET(p.id, i.po_ids) > 0

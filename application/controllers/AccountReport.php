@@ -1080,6 +1080,7 @@ class AccountReport extends CI_Controller
     }
     public function trialbalance_calc()
     {
+        set_time_limit(0);
         $data['brand'] = $this->brand;
         $data['user'] = $this->user;
         $curr_type = $this->input->post('currency_type');
@@ -1096,17 +1097,408 @@ class AccountReport extends CI_Controller
             $rate = 1;
 
         if ($curr_type === '1') {
-            $sql1 = "call trialbalance(" . $this->brand . ",'" . $trns_date1 . "','" . $trns_date2 . "'," . $currency_id . ",999999999,0," . $local_currency . ")";
+            // $sql1 = "call trialbalance(" . $this->brand . ",'" . $trns_date1 . "','" . $trns_date2 . "'," . $currency_id . ",999999999,0," . $local_currency . ")";
+            $sql1 =         "SELECT 
+                a.id AS id,
+                a.ccode AS ccode,
+                a.acode AS acode,
+                a.name AS name,
+                a.acc AS acc,
+                a.parent_id AS parent_id,
+                a.level as level,
+
+
+                ((SELECT 
+                        IFNULL(SUM(IFNULL(ed.deb_amount, 0)), 0)
+                    FROM
+                        entry_data ed
+                    WHERE
+                        ( ed.deb_acc_acode like CONCAT(a.acode,'%') )                     
+                        and (ed.brand = " . $this->brand . " ) and (ed.trns_date < '" . $trns_date1 . "' ) and (ed.trns_type <> 'Begin Entry') 
+                        and (ed.currency_id =" . $currency_id . " )) + (SELECT 
+                        IFNULL(SUM(IFNULL(ed.deb_amount, 0)), 0)
+                    FROM
+                        entry_data ed
+                    WHERE
+                        ( ed.deb_acc_acode like CONCAT(a.acode,'%') )                     
+                        and (ed.brand = " . $this->brand . " ) and (ed.trns_type = 'Begin Entry') 
+                        and (ed.currency_id =" . $currency_id . "))
+
+                        )  AS beg_debit
+                        ,
+                ((SELECT 
+                        IFNULL(SUM(IFNULL(ed.crd_amount, 0)), 0) 
+                    FROM
+                        entry_data ed
+                    WHERE
+                        (ed.crd_acc_acode like CONCAT(a.acode,'%') )
+                        and (ed.brand = " . $this->brand . " ) and (ed.trns_date <   '" . $trns_date1 . "' ) and (ed.trns_type <> 'Begin Entry') 
+                        and (ed.currency_id = " . $currency_id . " )) + (SELECT 
+                        IFNULL(SUM(IFNULL(ed.crd_amount, 0)), 0) 
+                    FROM
+                        entry_data ed
+                    WHERE
+                        (ed.crd_acc_acode like CONCAT(a.acode,'%') )
+                        and (ed.brand = " . $this->brand . " ) and  (ed.trns_type = 'Begin Entry') 
+                        and (ed.currency_id = " . $currency_id . " ))
+
+                        ) AS beg_credit
+
+                ,
+                (SELECT 
+                        IFNULL(SUM(IFNULL(ed.deb_amount, 0)), 0)
+                    FROM
+                        entry_data ed
+                    WHERE
+                        ( ed.deb_acc_acode like CONCAT(a.acode,'%') )                     
+                        and (ed.brand = " . $this->brand . ") and (ed.trns_date BETWEEN   '" . $trns_date1 . "'  and '" . $trns_date2 . "' ) and (ed.trns_type <> 'Begin Entry') 
+                        and (ed.currency_id = " . $currency_id . " )
+
+                        )  AS debit
+                        ,
+                (SELECT 
+                        IFNULL(SUM(IFNULL(ed.crd_amount, 0)), 0) 
+                    FROM
+                        entry_data ed
+                    WHERE
+                        (ed.crd_acc_acode like CONCAT(a.acode,'%') )
+                        and (ed.brand = " . $this->brand . ") and (ed.trns_date BETWEEN  '" . $trns_date1 . "'  and '" . $trns_date2 . "' ) and (ed.trns_type <> 'Begin Entry') 
+                        and (ed.currency_id = " . $currency_id . " )
+
+                        ) AS credit
+            FROM
+                account_chart a , entry_data e 
+                where a.brand = " . $this->brand . "
+
+                group by a.id
+                ORDER BY a.acode";
         } else {
-            $sql1 = "call trialbalance_ev(" . $this->brand . ",'" . $trns_date1 . "','" . $trns_date2 . "'," . $currency_id . ",999999999,0," . $local_currency . ")";;
+            //     // $sql1 = "call trialbalance_ev(" . $this->brand . ",'" . $trns_date1 . "','" . $trns_date2 . "'," . $currency_id . ",999999999,0," . $local_currency . ")";;
+            //     $sql1 = "SELECT
+            //     a.id AS id,
+            //     a.ccode AS ccode,
+            //     a.acode AS acode,
+            //     a.name AS name,
+            //     a.acc AS acc,
+            //     a.parent_id AS parent_id,
+            //     a.level AS level,
+            //     (
+            //       (
+            //           SELECT IFNULL(
+            //           SUM(
+            //               IFNULL(ed.deb_amount,0) 
+            //               * 
+            //               IFNULL((SELECT rate FROM currenies_rate WHERE currency = ed.currency_id AND currency_to = " . $local_currency . " AND MONTH = MONTH(ed.trns_date) AND YEAR = YEAR(ed.trns_date) LIMIT 1 ),1) 
+            //               * 
+            //               IFNULL((SELECT rate FROM currenies_rate WHERE currency = " . $currency_id . "    AND currency_to = " . $local_currency . " AND MONTH = MONTH(ed.trns_date) AND YEAR = YEAR(ed.trns_date) LIMIT 1),1)
+            //           )
+
+            //           ,0) 
+            //           FROM
+            //             entry_data ed
+            //           WHERE
+            //             (
+            //               ed.deb_acc_acode LIKE CONCAT(a.acode,
+            //               '%')
+            //             ) AND(ed.brand = " . $this->brand . ") AND (ed.trns_date < '" . $trns_date1 . "') AND (ed.trns_type <> 'Begin Entry')
+            //       ) 
+            //     +
+            //     (
+            //     SELECT IFNULL(
+            //     SUM(
+            //         IFNULL(ed.deb_amount,0)
+            //         * 
+            //         IFNULL((SELECT rate FROM currenies_rate WHERE currency = ed.currency_id AND currency_to = " . $local_currency . " AND MONTH = MONTH(ed.trns_date) AND YEAR = YEAR(ed.trns_date) LIMIT 1),1) 
+            //         * 
+            //         IFNULL((SELECT rate FROM currenies_rate WHERE currency = " . $currency_id . "    AND currency_to = " . $local_currency . " AND MONTH = MONTH(ed.trns_date) AND YEAR = YEAR(ed.trns_date) LIMIT 1),1)
+            //       )
+            //       ,0)
+            //     FROM
+            //       entry_data ed
+            //     WHERE
+            //       (
+            //         ed.deb_acc_acode LIKE CONCAT(a.acode,
+            //         '%')
+            //       ) AND(ed.brand = " . $this->brand . ") AND(ed.trns_type = 'Begin Entry')
+            //   )
+            //     ) AS beg_debit,
+            //     (
+            //       (
+            //       SELECT IFNULL(
+            //           SUM(
+            //               IFNULL(ed.crd_amount,0)
+            //               * 
+            //               IFNULL((SELECT rate FROM currenies_rate WHERE currency = ed.currency_id AND currency_to = " . $local_currency . " AND MONTH = MONTH(ed.trns_date) AND YEAR = YEAR(ed.trns_date) LIMIT 1),1) 
+            //               * 
+            //               IFNULL((SELECT rate FROM currenies_rate WHERE currency = " . $currency_id . " AND currency_to = " . $local_currency . " AND MONTH = MONTH(ed.trns_date) AND YEAR = YEAR(ed.trns_date) LIMIT 1),1)
+            //               ),
+            //         0)
+            //       FROM
+            //         entry_data ed
+            //       WHERE
+            //         (
+            //           ed.crd_acc_acode LIKE CONCAT(a.acode,
+            //           '%')
+            //         ) AND(ed.brand = " . $this->brand . ") AND(ed.trns_date < '" . $trns_date1 . "') AND(ed.trns_type <> 'Begin Entry')
+            //     ) +(
+            //     SELECT IFNULL
+            //       (SUM(IFNULL(ed.crd_amount,
+            //       0) * IFNULL(
+            //         (
+            //         SELECT
+            //           rate
+            //         FROM
+            //           currenies_rate
+            //         WHERE
+            //           currency = ed.currency_id AND currency_to = " . $local_currency . " AND MONTH = MONTH(ed.trns_date) AND YEAR = YEAR(ed.trns_date)
+            //         LIMIT 1
+            //       ),
+            //       1
+            //       ) * IFNULL(
+            //         (
+            //         SELECT
+            //           rate
+            //         FROM
+            //           currenies_rate
+            //         WHERE
+            //     currency = " . $currency_id . " AND currency_to = " . $local_currency . " AND MONTH = MONTH(ed.trns_date) AND YEAR = YEAR(ed.trns_date)     LIMIT 1
+            //       ),
+            //       1
+            //       )
+            //       ),
+            //       0)
+            //     FROM
+            //       entry_data ed
+            //     WHERE
+            //       (
+            //         ed.crd_acc_acode LIKE CONCAT(a.acode,
+            //         '%')
+            //       ) AND(ed.brand = " . $this->brand . ") AND(ed.trns_type = 'Begin Entry')
+            //   )
+            //     ) AS beg_credit,
+            //     (
+            //     SELECT IFNULL
+            //       (
+            //         SUM(IFNULL(ed.deb_amount,0) * IFNULL(
+            //             (
+            //             SELECT
+            //               rate
+            //             FROM
+            //               currenies_rate
+            //             WHERE
+            //               currency = ed.currency_id AND currency_to = " . $local_currency . " AND MONTH = MONTH(ed.trns_date) AND YEAR = YEAR(ed.trns_date)
+            //             LIMIT 1
+            //           ),
+            //           1
+            //           ) * IFNULL(
+            //             (
+            //             SELECT
+            //               rate
+            //             FROM
+            //               currenies_rate
+            //             WHERE
+            //    currency = " . $currency_id . " AND currency_to = " . $local_currency . " AND MONTH = MONTH(ed.trns_date) AND YEAR = YEAR(ed.trns_date)          LIMIT 1
+            //           ),
+            //           1
+            //           )
+            //         ),
+            //         0
+            //       )
+            //     FROM
+            //       entry_data ed
+            //     WHERE
+            //       (
+            //         ed.deb_acc_acode LIKE CONCAT(a.acode,
+            //         '%')
+            //       ) AND(ed.brand = " . $this->brand . ") AND(
+            //         ed.trns_date >= '" . $trns_date1 . "' AND ed.trns_date <= '" . $trns_date2 . "'
+            //       ) AND(ed.trns_type <> 'Begin Entry')
+            //   ) AS debit,
+            //   (
+            //   SELECT IFNULL
+            //     (
+            //       SUM(
+            //         IFNULL(ed.crd_amount,
+            //         0) * IFNULL(
+            //           (
+            //           SELECT
+            //             rate
+            //           FROM
+            //             currenies_rate
+            //           WHERE
+            //             currency = ed.currency_id AND currency_to = " . $local_currency . " AND MONTH = MONTH(ed.trns_date) AND YEAR = YEAR(ed.trns_date)
+            //           LIMIT 1
+            //         ),
+            //         1
+            //         ) * IFNULL(
+            //           (
+            //           SELECT
+            //             rate
+            //           FROM
+            //             currenies_rate
+            //           WHERE
+            //    currency = " . $currency_id . " AND currency_to = " . $local_currency . " AND MONTH = MONTH(ed.trns_date) AND YEAR = YEAR(ed.trns_date)        LIMIT 1
+            //         ),
+            //         1
+            //         )
+            //       ),
+            //       0
+            //     )
+            //   FROM
+            //     entry_data ed
+            //   WHERE
+            //     (
+            //       ed.crd_acc_acode LIKE CONCAT(a.acode,
+            //       '%')
+            //     ) AND(ed.brand = " . $this->brand . ") AND(
+            //       ed.trns_date >= '" . $trns_date1 . "' AND ed.trns_date <= '" . $trns_date2 . "'
+            //     ) AND(ed.trns_type <> 'Begin Entry')
+            //   ) AS credit
+            //   FROM
+            //     account_chart a,
+            //     entry_data e
+            //   WHERE
+            //     a.brand = " . $this->brand . "
+            //   GROUP BY
+            //     a.id
+            //   ORDER BY
+            //     a.acode";
+
+            $sql1 = " select *,sum(beg_deb)as t_beg_deb,sum(beg_crd) as t_beg_crd,sum(b_beg_deb) as t_b_beg_deb,sum(b_beg_crd) as t_b_beg_crd,sum(deb) as t_deb,sum(crd) as t_crd
+            from
+            (
+                SELECT ed.*,
+            CASE
+               WHEN (ed.trns_date < '" . $trns_date1 . "') AND (ed.trns_type = 'Begin Entry') AND ed.currency_id = " . $local_currency . "  AND ed.brand = " . $this->brand . "
+               THEN ed.deb_amount * r1.rate
+               WHEN (ed.trns_date < '" . $trns_date1 . "') AND (ed.trns_type = 'Begin Entry') AND ed.currency_id <> " . $local_currency . " AND ed.brand = " . $this->brand . "
+               THEN ed.ev_deb * r1.rate
+               ELSE 0
+           END AS beg_deb,
+            CASE
+               WHEN (ed.trns_date < '" . $trns_date1 . "') AND (ed.trns_type = 'Begin Entry') AND ed.currency_id = " . $local_currency . " AND ed.brand = " . $this->brand . "
+               THEN ed.crd_amount  * r1.rate
+               WHEN (ed.trns_date < '" . $trns_date1 . "') AND (ed.trns_type = 'Begin Entry') AND ed.currency_id <> " . $local_currency . " AND ed.brand = " . $this->brand . "
+               THEN ed.ev_crd  * r1.rate
+               ELSE 0
+           END AS beg_crd,
+           CASE
+               WHEN (ed.trns_date < '" . $trns_date1 . "') AND (ed.trns_type <> 'Begin Entry') AND ed.currency_id = " . $local_currency . " AND ed.brand = " . $this->brand . "
+               THEN ed.deb_amount * r1.rate
+               WHEN (ed.trns_date < '" . $trns_date1 . "') AND (ed.trns_type <> 'Begin Entry') AND ed.currency_id <> " . $local_currency . " AND ed.brand = " . $this->brand . "
+               THEN ed.ev_deb  * r1.rate
+               ELSE 0
+           END AS b_beg_deb,
+            CASE
+               WHEN (ed.trns_date < '" . $trns_date1 . "') AND (ed.trns_type <> 'Begin Entry') AND ed.currency_id = " . $local_currency . " AND ed.brand = " . $this->brand . "
+               THEN ed.crd_amount * r1.rate
+               WHEN (ed.trns_date < '" . $trns_date1 . "') AND (ed.trns_type <> 'Begin Entry') AND ed.currency_id <> " . $local_currency . " AND ed.brand = " . $this->brand . "
+               THEN ed.ev_crd  * r1.rate
+               ELSE 0
+           END AS b_beg_crd,
+             CASE
+               WHEN (ed.trns_date >= '" . $trns_date1 . "'  AND ed.trns_date <= '" . $trns_date2 . "') AND (ed.trns_type <> 'Begin Entry') AND ed.currency_id = " . $local_currency . " AND ed.brand = " . $this->brand . "
+               THEN ed.deb_amount * r1.rate
+               WHEN (ed.trns_date >= '" . $trns_date1 . "' AND ed.trns_date <= '" . $trns_date2 . "')  AND (ed.trns_type <> 'Begin Entry') AND ed.currency_id <> " . $local_currency . " AND ed.brand = " . $this->brand . "
+               THEN ed.ev_deb * r1.rate
+               ELSE 0
+           END AS deb,
+            CASE
+               WHEN (ed.trns_date >= '" . $trns_date1 . "' AND ed.trns_date <= '" . $trns_date2 . "') AND (ed.trns_type <> 'Begin Entry') AND ed.currency_id = " . $local_currency . " AND ed.brand = " . $this->brand . "
+               THEN ed.crd_amount * r1.rate
+               WHEN (ed.trns_date >= '" . $trns_date1 . "' AND ed.trns_date <= '" . $trns_date2 . "') AND (ed.trns_type <> 'Begin Entry') AND ed.currency_id <> " . $local_currency . " AND ed.brand = " . $this->brand . "
+               THEN ed.ev_crd * r1.rate
+               ELSE 0
+           END AS crd
+           , r1.rate as curr_rate_from
+       FROM
+           entry_data ed
+           left join currenies_rate as r1 on  r1.currency = " . $local_currency . " and year(ed.trns_date) = r1.year  and month(ed.trns_date) = r1.month and r1.currency_to =" . $currency_id . "
+           
+           ) as entry
+           group by crd_acc_id,deb_acc_id";
         }
         // print_r($sql1);
         // die;
+        $entry_data = $this->db->query($sql1)->result_array();
+        $acc_chart = $this->db->query(" SELECT  a.id AS id,
+        a.ccode AS ccode,
+        a.acode AS acode,
+        a.name AS name,
+        a.acc AS acc,
+        a.parent_id AS parent_id,
+        a.level AS level
+        , 0 as beg_debit
+        , 0 as beg_credit 
+        , 0 as debit 
+        , 0 as credit
+        , 0 as bala_deb 
+        , 0 as bala_crd 
+    from account_chart as a where brand = " . $this->brand . " order by acode")->result_array();
 
-        $data['trns_ledger'] = $this->db->query($sql1)->result();
+        foreach ($entry_data as $row) {
+            $acc_id = 0;
+            if ($row['deb_acc_id'] && $row['deb_acc_id'] != '') {
+                $acc_id = array_search($row['deb_acc_id'],  array_column($acc_chart, 'id'));
+            }
+            if ($row['crd_acc_id'] && $row['crd_acc_id'] != '') {
+                $acc_id = array_search($row['crd_acc_id'], array_column($acc_chart, 'id'));
+            }
+            // print_r($row['deb_acc_id']);
+            // print_r($row['crd_acc_id']);
+            // print_r($acc_chart);
+            // die;
+            if ($acc_id && $acc_id != 0) {
+                $parent_id = 0;
+                for ($i = $acc_chart[$acc_id]['level']; $i >= 0; $i--) {
+
+                    if ($i == $acc_chart[$acc_id]['level'] || $acc_chart[$acc_id]['level'] == 0) {
+                        $result = $acc_id;
+                        $parent_id = $acc_chart[$result]['parent_id'];
+                    } else {
+
+                        $result = array_search($parent_id, array_column($acc_chart, 'id'));
+                        $parent_id = $acc_chart[$result]['parent_id'];
+                    }
+                    // print_r($result);
+                    if ($result) {
+                        $b_bala = ($row['t_beg_deb'] + $row['t_b_beg_deb']) - ($row['t_beg_crd'] + $row['t_b_beg_crd']);
+                        if ($b_bala >= 0) {
+                            $acc_chart[$result]['beg_debit'] += $b_bala;;
+                        } else {
+                            $acc_chart[$result]['beg_credit'] += 0 - $b_bala;
+                        }
+
+                        $tran = ($row['t_deb'] - $row['t_crd']);
+                        if ($tran >= 0) {
+                            $acc_chart[$result]['debit'] +=  $tran;
+                        } else {
+                            $acc_chart[$result]['credit'] += 0 - $tran;
+                        }
+
+                        $bala = $b_bala + $tran;
+                        if ($bala >= 0) {
+                            $acc_chart[$result]['bala_deb'] +=  $bala;
+                        } else {
+                            $acc_chart[$result]['bala_crd'] += 0 - $bala;
+                        }
+                    }
+                }
+            }
+        }
+
+        for ($i = 0; $i < count($acc_chart); $i++) {
+            if ($acc_chart[$i]['beg_debit'] == 0 && $acc_chart[$i]['beg_credit'] == 0 && $acc_chart[$i]['debit'] == 0 && $acc_chart[$i]['credit'] == 0) {
+                unset($i);
+            }
+        }
         // echo '<pre>';
-        // print_r($data['trns_ledger']);
+        // print_r($acc_chart);
         // die;
+
+        $data['trns_ledger'] = $acc_chart;
+        // $this->db->query($sql1)->result();
+
         echo json_encode($data);
     }
 
