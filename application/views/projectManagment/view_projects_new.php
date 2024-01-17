@@ -336,11 +336,12 @@
               <h3 class="text-uppercase border-bottom mb-4">Projects List</h3>
             </div>
           </div>
-
+          <input type='hidden' id="brand_id" value="<?= $this->brand ?>">
+          <input type='hidden' id="brand_name" value="<?= $this->admin_model->getBrand($brand) ?>">
           <div class="card-body row py-0 px-0">
             <div class="col-sm-12 px-5">
 
-              <table id="user_data" class="table table-striped row-bordered display nowrap table-hover " cellspacing="0" width="100%">
+              <table id="user_data" class="table table-striped row-bordered display nowrap table-hover table-bordered" cellspacing="0" width="100%">
 
               </table>
             </div>
