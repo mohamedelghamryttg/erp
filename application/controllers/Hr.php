@@ -864,22 +864,20 @@ class Hr extends CI_Controller
                     $department = "";
                 }
                 if (isset($_REQUEST['status'])) {
-                    $status = $_REQUEST['status'];
-                    if ($status != NULL) {
-                        array_push($arr2, 4);
-                    }
+                    $status = $_REQUEST['status'];                    
+                        array_push($arr2, 4);                    
                 } else {
                     $status = "";
-                }
-                if (isset($_REQUEST['resigned_from']) && isset($_REQUEST['resigned_to'])) {
-                    $resigned_from = date("Y-m-d", strtotime($_REQUEST['resigned_from']));
-                    $resigned_to = date("Y-m-d", strtotime($_REQUEST['resigned_to']));
-                    if (!empty($_REQUEST['resigned_from']) && !empty($_REQUEST['resigned_to'])) {
+                }               
+                if (isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])) {
+                    $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
+                    $date_to = date("Y-m-d", strtotime($_REQUEST['date_to']));
+                    if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
                         array_push($arr2, 5);
                     }
                 } else {
-                    $resigned_from = "";
-                    $resigned_to = "";
+                    $date_from = "";
+                    $date_to = "";
                 }
                 $idsArray = array();
                 if (isset($_REQUEST['social_ins']) && $_REQUEST['social_ins'] != NULL) {
@@ -902,9 +900,15 @@ class Hr extends CI_Controller
                 $cond1 = "name LIKE '%$name%'";
                 $cond2 = "title = '$title'";
                 $cond3 = "division = '$division'";
-                $cond4 = "department = '$department'";
+                $cond4 = "department = '$department'";    
                 $cond5 = "status = '$status'";
-                $cond6 = "resignation_date BETWEEN '$resigned_from' AND '$resigned_to'";
+                if(!empty($_REQUEST['date_to'])&& !empty($_REQUEST['date_from']) && $status == 0){ 
+                    $cond5 = "1";
+                    $cond6 = "(status = 0 AND (`hiring_date` <= '$date_from' || `hiring_date` <= '$date_to')) OR (status = 1 AND resignation_date >= '$date_to')";
+                }else{
+                    $cond5 = "status = '$status'";
+                    $cond6 = "resignation_date BETWEEN '$date_from' AND '$date_to'";
+                }
                 if (count($idsArray) != 0) {
                     if ($social_ins == 1) {
                         $cond7 = "id IN ($idsArray)";
@@ -942,22 +946,24 @@ class Hr extends CI_Controller
                 $config['display_pages'] = TRUE;
                 $config['per_page'] = $limit;
                 $config['total_rows'] = $count;
-                $config['full_tag_open'] = "<ul class='pagination'>";
+               $config['full_tag_open'] = "<ul class='d-flex flex-wrap py-2 mr-3'>";
                 $config['full_tag_close'] = "</ul>";
-                $config['num_tag_open'] = '<li>';
+                $config['num_tag_open'] = '<li class="btn btn-icon btn-sm border-0 btn-hover-primary mr-2 my-1">';
                 $config['num_tag_close'] = '</li>';
-                $config['cur_tag_open'] = "<li class='active'><a href='#'>";
-                $config['cur_tag_close'] = "<span class='sr-only'(current)></span></a></li>";
-                $config['next_tag_open'] = "<li><span aria-hidden='true'>";
+                $config['cur_tag_open'] = "<li class='btn btn-icon btn-sm border-0 btn-hover-primary active mr-2 my-1'>";
+                $config['cur_tag_close'] = "</li>";
+                $config['next_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
                 $config['next_tagl_close'] = "</span></li>";
-                $config['prev_tag_open'] = "<li><span aria-hidden='true'>";
+                $config['prev_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'><span aria-hidden='true'>";
                 $config['prev_tagl_close'] = "</span></li>";
-                $config['first_tag_open'] = "<li>";
+                $config['first_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
                 $config['first_tagl_close'] = "</li>";
-                $config['last_tag_open'] = "<li>";
+                $config['last_tag_open'] = "<li class='btn btn-icon btn-sm btn-light-primary mr-2 my-1'>";
                 $config['last_tagl_close'] = "</li>";
-                $config['next_link'] = '»';
-                $config['prev_link'] = '«';
+                $config['next_link'] = '<i class="ki ki-bold-arrow-next icon-xs"></i>';
+                $config['prev_link'] = '<i class="ki ki-bold-arrow-back icon-xs"></i>';
+                $config['first_link'] = '<i class="ki ki-bold-double-arrow-back icon-xs"></i>';
+                $config['last_link'] = '<i class="ki ki-bold-double-arrow-next icon-xs"></i>';
                 $config['num_links'] = 5;
                 $config['show_count'] = TRUE;
                 $this->pagination->initialize($config);
@@ -970,9 +976,9 @@ class Hr extends CI_Controller
             //contract notifaction 10 days
             $data['contractData'] = $this->db->query("SELECT *,DATEDIFF(contract_date,CURRENT_TIMESTAMP)AS days FROM `employees` where DATEDIFF(contract_date,CURRENT_TIMESTAMP)>=0 AND DATEDIFF(contract_date,CURRENT_TIMESTAMP) <=10 AND status = 0");
 
-            $this->load->view('includes/header.php', $data);
-            $this->load->view('hr/employees.php');
-            $this->load->view('includes/footer.php');
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('hr_new/employees/employees.php');
+            $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";
         }
@@ -1036,23 +1042,21 @@ class Hr extends CI_Controller
                 $department = "";
             }
             if (isset($_REQUEST['status'])) {
-                $status = $_REQUEST['status'];
-                if ($status != NULL) {
-                    array_push($arr2, 4);
-                }
+                $status = $_REQUEST['status'];                
+                    array_push($arr2, 4);                
             } else {
                 $status = "";
             }
-            if (isset($_REQUEST['resigned_from']) && isset($_REQUEST['resigned_to'])) {
-                $resigned_from = date("Y-m-d", strtotime($_REQUEST['resigned_from']));
-                $resigned_to = date("Y-m-d", strtotime($_REQUEST['resigned_to']));
-                if (!empty($_REQUEST['resigned_from']) && !empty($_REQUEST['resigned_to'])) {
-                    array_push($arr2, 5);
+             if (isset($_REQUEST['date_from']) && isset($_REQUEST['date_to'])) {
+                    $date_from = date("Y-m-d", strtotime($_REQUEST['date_from']));
+                    $date_to = date("Y-m-d", strtotime($_REQUEST['date_to']));
+                    if (!empty($_REQUEST['date_from']) && !empty($_REQUEST['date_to'])) {
+                        array_push($arr2, 5);
+                    }
+                } else {
+                    $date_from = "";
+                    $date_to = "";
                 }
-            } else {
-                $resigned_from = "";
-                $resigned_to = "";
-            }
             // social Ins.
             $idsArray = array();
             if (isset($_REQUEST['social_ins']) && $_REQUEST['social_ins'] != NULL) {
@@ -1075,8 +1079,13 @@ class Hr extends CI_Controller
             $cond2 = "title = '$title'";
             $cond3 = "division = '$division'";
             $cond4 = "department = '$department'";
-            $cond5 = "status = '$status'";
-            $cond6 = "resignation_date BETWEEN '$resigned_from' AND '$resigned_to'";
+            if(!empty($_REQUEST['date_to'])&& !empty($_REQUEST['date_from']) && $status == 0){ 
+                    $cond5 = "1";
+                    $cond6 = "(status = 0 AND (`hiring_date` <= '$date_from' || `hiring_date` <= '$date_to')) OR (status = 1 AND resignation_date >= '$date_to')";
+                }else{
+                    $cond5 = "status = '$status'";
+                    $cond6 = "resignation_date BETWEEN '$date_from' AND '$date_to'";
+                }
             if (count($idsArray) != 0) {
                 if ($social_ins == 1) {
                     $cond7 = "id IN ($idsArray)";
@@ -1119,9 +1128,9 @@ class Hr extends CI_Controller
             //body ..
 
             //Pages ..
-            $this->load->view('includes/header.php', $data);
-            $this->load->view('hr/addEmployees.php');
-            $this->load->view('includes/footer.php');
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('hr_new/employees/addEmployees.php');
+            $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";
         }
@@ -1131,6 +1140,8 @@ class Hr extends CI_Controller
     {
         // Check Permission ..
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 140);
+        
+
         if ($permission->add == 1) {
             $data['name'] = $_POST['name'];
             $data['gender'] = $_POST['gender'];
@@ -1146,19 +1157,26 @@ class Hr extends CI_Controller
             $data['hiring_date'] = $_POST['hiring_date'];
             $data['contract_date'] = $_POST['contract_date'];
             $data['contract_type'] = $_POST['contract_type'];
-            $data['status'] = $_POST['status'];
-            $data['resignation_date'] = $_POST['resignation_date'];
-            $data['email'] = $_POST['email'];
-            $data['emergency'] = $_POST['emergency'];
-            $data['brand'] = $_POST['brand'];
+            $data['status'] = 0;           
+            $data['email'] = $_POST['email'];           
+            $data['emergency'] = $_POST['emergency'];           
             $data['phone'] = $_POST['phone'];
             $data['position_comment'] = $_POST['position_comment'];
             $data['workplace_model'] = $_POST['workplace_model'] ?? '';
             $data['created_by'] = $this->user;
             $data['created_at'] = date("Y-m-d H:i:s");
+            if(empty($_POST['brand'])){
+                 $data['emp_brands'] = "1,";
+            }else{
+                foreach ($_POST['brand'] as $brand){
+                    $emp_brands .= $brand .', ';
+                }
+                $data['emp_brands'] = $emp_brands;
+            }
+            $data['brand'] = explode(',', $data['emp_brands'])[0]; 
             if (isset($_POST['other_emails'])) {
                 $other_emails = implode(" ; ", $_POST['other_emails']);
-                $data['other_emails'] = $other_emails;
+                $data['other_emails'] = rtrim($other_emails,' ; ');
             }
             if (isset($_POST['salary'])) {               
                 $salary['salary'] = $_POST['salary'];
@@ -1197,9 +1215,9 @@ class Hr extends CI_Controller
             $data['employees'] = $this->db->get_where('employees', array('id' => $data['id']))->row();
 
             //Pages ..
-            $this->load->view('includes/header.php', $data);
-            $this->load->view('hr/editEmployees.php');
-            $this->load->view('includes/footer.php');
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('hr_new/employees/editEmployees.php');
+            $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";
         }
@@ -1209,7 +1227,7 @@ class Hr extends CI_Controller
     {
         // Check Permission ..
         $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 140);
-        if ($permission->edit == 1) {
+        if ($permission->edit == 1) {           
             $referer = $this->input->post('referer');
             $id = base64_decode($this->input->post('id'));
             $data['name'] = $this->input->post('name');
@@ -1228,20 +1246,29 @@ class Hr extends CI_Controller
             $data['contract_type'] = $this->input->post('contract_type');
             $data['status'] = $this->input->post('status');
             if ($data['status'] == 1) {
-                $data['resignation_date'] = $this->input->post('resignation_date');
+                $data['resignation_date'] = !empty($this->input->post('resignation_date'))?$this->input->post('resignation_date'):date("Y-m-d");
+                $data['resignation_reason'] = $this->input->post('resignation_reason');
+                $data['resignation_comment'] = $this->input->post('resignation_comment');
             } else {
-                $data['resignation_date'] = NULL;
-            }
-            $data['resignation_reason'] = $this->input->post('resignation_reason');
-            $data['resignation_comment'] = $this->input->post('resignation_comment');
+                $data['resignation_date'] =  $data['resignation_reason'] = $data['resignation_comment'] = NULL;
+            }           
             $data['email'] = $this->input->post('email');
             $data['emergency'] = $this->input->post('emergency');
-            $data['brand'] = $this->input->post('brand');
             $data['phone'] = $this->input->post('phone');
             $data['position_comment'] = $this->input->post('position_comment');
             $other_emails = ($this->input->post('other_emails') ? implode(' ; ', $this->input->post('other_emails')) : '');
-            $data['other_emails'] = $other_emails;
+            $data['other_emails'] = rtrim($other_emails,' ; ');
             $data['workplace_model'] = $_POST['workplace_model'] ?? '';
+            if(empty($_POST['brand'])){
+                 $data['emp_brands'] = "1,";
+            }else{
+                foreach ($_POST['brand'] as $brand){
+                    $emp_brands .= $brand .', ';
+                }
+                $data['emp_brands'] = $emp_brands;
+            }
+            $data['brand'] = explode(',', $data['emp_brands'])[0];
+            
              if (isset($_POST['salary'])) { 
                  $checkSalary = $this->db->get_where('emp_finance', array('emp_id' => $id))->row();
                  if(!empty($checkSalary)){

@@ -140,6 +140,12 @@ ALTER TABLE `cashout` ADD `audit_by`   int(11) NULL AFTER `audit_chk`;
 ALTER TABLE `cashout` ADD `audit_date`   datetime NULL AFTER `audit_by`;
 ALTER TABLE `cashout` ADD `audit_comment`   TEXT NULL AFTER `audit_date`;
 
+
+INSERT INTO `screen` (`id`, `groups`, `name`, `url`, `menu`) VALUES (NULL, '1', 'Cash In Audit', 'admin/audit', '0'); 
+
+ALTER TABLE `employees` ADD `emp_brands` varchar(50)  NULL DEFAULT Null AFTER `workplace_model`; 
+UPDATE `employees` SET `emp_brands`= CONCAT(brand, ', ') ; 
+
 ALTER TABLE `bankin` ADD `audit_chk`   tinyint(1)  NULL AFTER `desc_file`;
 ALTER TABLE `bankin` ADD `audit_by`   int(11) NULL AFTER `audit_chk`;
 ALTER TABLE `bankin` ADD `audit_date`   datetime NULL AFTER `audit_by`;
@@ -172,6 +178,12 @@ ALTER TABLE `job` ADD `profit`   DECIMAL(18,5) DEFAULT 0   AFTER `cost_dtp` ;
 
 
 ALTER TABLE `commission_setting` CHANGE  rev_target_6  rev_target_from_6 double DEFAULT NULL;
+ALTER TABLE `commission_setting` ADD  fixed_emp1  int after cogs_per_m6 DEFAULT NULL;
+ALTER TABLE `commission_setting` ADD  fixed_emp1  int after cogs_per_m6 DEFAULT NULL;
+ALTER TABLE `commission_setting` ADD  fixed_emp1  int after cogs_per_m6 DEFAULT NULL;
+ALTER TABLE `commission_setting` ADD  fixed_emp1  int after cogs_per_m6 DEFAULT NULL;
+ALTER TABLE `commission_setting` ADD  fixed_emp1  int after cogs_per_m6 DEFAULT NULL;
 
 
 
+ALTER TABLE `payroll` ADD `num_month` TINYINT(1) NULL AFTER `comment`, ADD `monthly_installment` DOUBLE NULL AFTER `num_month`; 

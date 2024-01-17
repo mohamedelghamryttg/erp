@@ -89,6 +89,7 @@
                     </div>
                   </div>
                   <div class="card-body">
+                      <div class="table-responsive">
                     <!--begin: Datatable-->
                     <table class="table  table-head-custom table-hover" >
                          <thead>
@@ -151,6 +152,7 @@
             ?>    
             </tbody>
                     </table>
+                      </div>
                     <!--end: Datatable-->
                     <!--begin::Pagination-->
                   <div class="d-flex justify-content-between align-items-center flex-wrap">

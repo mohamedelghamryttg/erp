@@ -199,7 +199,7 @@
                                             <th>Payroll Month</th>
                                             <th>Till</th>
                                             <th>action</th>
-                                            <th>amount</th>
+                                            <th>amount / Monthly Installment</th>
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -216,11 +216,23 @@
                                                 <td>
                                                     <?= $row->end_date ? date_format(date_create($row->end_date), 'F Y') : '-'; ?>
                                                 </td>
-                                                <td>
+                                                <td><p>
                                                     <?= $this->hr_model->getPayrollActions($row->action); ?>
+                                                     <?php if($row->action == 2){?>
+                                                    <br/>
+                                                    <span class="label label-square label-light-info font-size-xs text-dark w-auto p-1">
+                                                          <?=  "Total Amount: " . $row->amount ?> 
+                                                    </span>                                                  
+                                                     <?php }?>
+                                                    </p>
                                                 </td>
                                                 <td>
+                                                    <?php if(!empty($row->monthly_installment)){?>
+                                                    <?= $row->monthly_installment . ' ' . $this->hr_model->getPayrollUnits($row->unit) ?>
+                                                    <?php }else{?>
                                                     <?= $row->amount . ' ' . $this->hr_model->getPayrollUnits($row->unit) ?>
+                                                   
+                                                     <?php }?>
                                                 </td>
                                                 <td>
                                                     <a href="<?= base_url() ?>payroll/viewCard/<?= $row->id ?>"

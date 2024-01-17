@@ -1619,7 +1619,7 @@ class Customer extends CI_Controller
     public function doAddBulkPriceList()
     {
         //file upload ...
-        $config['file']['upload_path']          = './assets/uploads/PriceList/';
+        $config['file']['upload_path']          = './assets/uploads/priceList/';
         //$config['file']['upload_path'] = '/var/www/html/assets/uploads/priceList/';
         $config['file']['encrypt_name'] = TRUE;
         $config['file']['allowed_types'] = 'xlsx';

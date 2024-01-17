@@ -134,8 +134,8 @@
                                         <span class="navi-text font-size-lg">Job Information</span>                                       
                                     </a>
                                 </div>
-                                <div class="navi-item mb-2 nav-item">
-                                    <a data-toggle="tab" href="#vacation_balance" id="vacation-tab" class="navi-link py-4 nav-link">
+                                <div class="navi-item mb-2">
+                                    <a data-toggle="tab" href="#vacation_balance" class="navi-link py-4">
                                         <span class="navi-icon mr-2">
                                             <span class="svg-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
@@ -380,7 +380,8 @@
                                                 <div class="font-size-h6 font-weight-bolder ml-8"><?= $vacationBalance->sick_leave ?></div>
                                             </div>
                                         </div>
-                                        <table class="table table-bordered mt-5" style="overflow:scroll;">
+                                         <div class="table-responsive">
+                                        <table class="table table-bordered mt-5">
                                             <thead>
                                                 <tr>
                                                     <th class="total"> Total <?= $vacationBalance->year ?> Balance</th>
@@ -405,7 +406,7 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-
+                                         </div>
                                     </div>
                                     <!--end::Body-->  
                                 </div>
@@ -428,5 +429,7 @@
 <script>
     $("a.navi-link").click(function () {
         $("a.navi-link").removeClass('active');
+        $(".offcanvas-mobile-overlay").trigger("click");
+       
     });
 </script>
