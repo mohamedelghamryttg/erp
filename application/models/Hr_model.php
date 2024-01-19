@@ -2013,7 +2013,8 @@ class Hr_model extends CI_Model
 
     public function selectYearANDMonth($yearVal = "", $monthVal = "")
     {
-        $years = $this->db->get('years')->result();
+        $years = $this->db->get_where('years', array('name >' => '2023'))->result();
+        $years_old =$this->db->get_where('years', array('name =' => '2023'))->result();
         $months = $this->db->get('months')->result();
         $data = "";
         foreach ($years as $year) {
@@ -2026,6 +2027,15 @@ class Hr_model extends CI_Model
                     }
                 }
             }
+        }
+        foreach ($years_old as $year) {           
+            foreach ($months as $month) {
+                if ($year->id == $yearVal && $month->value == $monthVal) {
+                    $data .= "<option value='" . $month->value . "-" . $year->id . "' selected='selected'>" . $month->name . " , " . $year->name . "</option>";
+                } else {
+                    $data .= "<option value='" . $month->value . "-" . $year->id . "'>" . $month->name . " , " . $year->name . "</option>";
+                }
+            }            
         }
         return $data;
     }

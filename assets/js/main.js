@@ -1640,7 +1640,10 @@ function getCommissionRate() {
 }
 //holidays plan 
 function validateHolidayDate(x) {
+    if(x !=0)
     var holiday_date = $("#holiday_date_" + x).val();
+    else
+    var holiday_date = $("#holiday_date").val();
     $.ajaxSetup({
         beforeSend: function () {
             $('#loading').show();
@@ -1650,6 +1653,7 @@ function validateHolidayDate(x) {
         $('#loading').hide();
         if (data > 0) {
             $("#holiday_date_" + x).val("");
+            $("#holiday_date").val("");
             alert(" This day already a holiday .Please choose another day ");
         }
     });
