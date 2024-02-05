@@ -985,6 +985,19 @@ function showAndHide(div, button) {
         $("#" + button).html("<i class='fa fa-chevron-down'></i>");
     }
 }
+function showAndHide2(div, button) {
+    //alert("here");
+    //alert(div);
+    //alert(button);
+    var check = $("#" + div).is(":visible");
+    if (check == false) {
+        $("#" + div).show();
+        $("#" + button).html("<i class='far fa-arrow-alt-circle-up'></i>");
+    } else {
+        $("#" + div).hide();
+        $("#" + button).html("<i class='far fa-arrow-alt-circle-down'></i>");
+    }
+}
 
 function clearJobs() {
     $("#new_job_div").html("");
