@@ -1163,6 +1163,7 @@ class Hr extends CI_Controller
             $data['phone'] = $_POST['phone'];
             $data['position_comment'] = $_POST['position_comment'];
             $data['workplace_model'] = $_POST['workplace_model'] ?? '';
+            $data['region_id'] = $_POST['region_id'] ?? null;
             $data['created_by'] = $this->user;
             $data['created_at'] = date("Y-m-d H:i:s");
             if(empty($_POST['brand'])){
@@ -1259,6 +1260,7 @@ class Hr extends CI_Controller
             $other_emails = ($this->input->post('other_emails') ? implode(' ; ', $this->input->post('other_emails')) : '');
             $data['other_emails'] = rtrim($other_emails,' ; ');
             $data['workplace_model'] = $_POST['workplace_model'] ?? '';
+            $data['region_id'] = $_POST['region_id'] ?? null;
             if(empty($_POST['brand'])){
                  $data['emp_brands'] = "1,";
             }else{

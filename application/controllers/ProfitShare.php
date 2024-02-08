@@ -28,16 +28,10 @@ class ProfitShare extends CI_Controller
 
     public function index()
     {
-           //  
-            // view profit record page 
-            // bouns
-            
-            //  sam & pm    waiting asmaa    
-            // profit share per. for team leaders
-            
-            
-        
-         //// wait employees brands & salary & teamleaders Coeffiecient??
+                             
+         //  sam & pm   -- brand contr. ???
+         //  stand alone pm title ??
+         // wait employees brands & region & salary & teamleaders Coefficient??
          
         // Check Permission ..
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 244);
@@ -64,33 +58,21 @@ class ProfitShare extends CI_Controller
                 $data['type'] = $type = $profit_type['type'];
                 // start
                 $employees =  $this->db->query("SELECT id,hiring_date,name FROM employees WHERE status = 0 AND department = $department ")->result(); 
-                foreach($employees as $row){ 
-                    // check if team leader
-                    $teamlaeder = $this->profitShare_model->checkIfEmpIsSuperTeamLeader($row->id);
-                     // EmployeePerformanceMatrix  
-                    if($teamlaeder){
-                       $employeePerformance = $this->profitShare_model->getTeamLeaderperformance($row->id,$half,$year);
-                    }else{          
-                      $employeePerformance = $this->profitShare_model->getEmployeePerformanceMatrix ($row->id,$startMonth,$endMonth,$year);
-                    }
+                foreach($employees as $row){                 
                     
-                    
-                    
-                    $hiring_data = $this->profitShare_model->getPerOfHiringDate($row->id,$endDate);
-                    $records[$row->id]['brands_num'] = $brands_num = $this->profitShare_model->getNumOfBrandsServed($row->id);
-                    
-                    $isTeamLeader = $this->profitShare_model->checkIfManager($row->id);
-                    $brands_Coeffiecient = $records[$row->id]['brands_Coeffiecient'] = $isTeamLeader ? $this->profitShare_model->getTeamLeaderBrandsCoeffiecient($type):$this->profitShare_model->getBrandsCoeffiecient($brands_num,$type);
+                    $profitShareData = $this->profitShare_model->getEmployeeProfitShareAmount($row->id,$year,$half,$type);
                    
-                    
-                    $records[$row->id]['hiring_date'] = $row->hiring_date;
-                    $records[$row->id]['hiring_months'] = $hiring_data['numOfMonths'];
-                    $hiring_per = $records[$row->id]['hiring_per'] = $hiring_data['perOfHiring'];
-                    $records[$row->id]['avg_score'] = $employeePerformance['score'];
-                    $records[$row->id]['num_score_months'] = $employeePerformance['num_score_months'];
-                    $records[$row->id]['empPerformance'] = $employeePerformance['empPerformance'];
                     $records[$row->id]['name'] = $row->name;
-                    $records[$row->id]['profit_amount'] = $this->profitShare_model->getEmployeeProfitShareAmount($row->id,$year,$half,$type);
+                    $records[$row->id]['hiring_date'] = $row->hiring_date;
+                    $records[$row->id]['brands_num'] = $profitShareData['brands_num'];                  
+                    $records[$row->id]['brands_Coefficient'] = $profitShareData['brandCoefficient']??0 ;
+                    $records[$row->id]['hiring_months'] = $profitShareData['hiringData']['numOfMonths'];
+                    $records[$row->id]['hiring_per'] = $profitShareData['hiringData']['perOfHiring'];
+                    $records[$row->id]['avg_score'] = $profitShareData['employeePerformanceData']['score'];
+                    $records[$row->id]['num_score_months'] = $profitShareData['employeePerformanceData']['num_score_months'];
+                    $records[$row->id]['empPerformance'] = $profitShareData['employeePerformanceData']['empPerformance'];
+                    $records[$row->id]['profit_amount'] = $profitShareData['total'];
+                    $records[$row->id]['bonus_amount'] = $this->profitShare_model->getEmployeeBonusAmount($row->id,$year,$half);
 
                 }
                 $data['brands'] = $this->db->get_where('brand',array('id !='=>4))->result();
@@ -99,50 +81,12 @@ class ProfitShare extends CI_Controller
                 if(count($employees)>0)
                     $data['records'] = $records;
             }
-            // this will deleted
-            else{               
-                    
-                $startMonth = "01";
-                $endMonth = "06";
-                $year = '2023';
-                $half = '1';
-                $endDate = "2023-12-31";
-                $data['equation'] = "(( Salary * Due vs. Hir * Brand Contrib * Emp Per * Brand Per )+ (Salary * Due vs. Hir * Brand Contrib * Emp Per * Brand Per )+ (Salary * Due vs. Hir * Brand Contrib * Emp Per * Brand Per )+ (Salary * Due vs. Hir * Brand Contrib * Emp Per * Brand Per )) * Coefficient";
-                $type = 1;
-                $employees =  $this->db->query("SELECT id,hiring_date,name FROM employees WHERE status = 0 AND (department = 5 || department = 6 || department = 7 || department = 14 ||department = 24)")->result(); 
-                foreach($employees as $row){ 
-
-                    $isTeamLeader = $this->profitShare_model->checkIfManager($row->id);
-                    $hiring_data = $this->profitShare_model->getPerOfHiringDate($row->id,$endDate);
-                    $employeePerformance = $this->profitShare_model->getEmployeePerformanceMatrix ($row->id,$startMonth,$endMonth,$year);
-
-                    $records[$row->id]['brands_num'] = $brands_num = $this->profitShare_model->getNumOfBrandsServed($row->id);
-                    $brands_Coeffiecient = $records[$row->id]['brands_Coeffiecient'] = $isTeamLeader ? $this->profitShare_model->getTeamLeaderBrandsCoeffiecient($type):$this->profitShare_model->getBrandsCoeffiecient($brands_num,$type);
-                    $records[$row->id]['hiring_date'] = $row->hiring_date;
-                    $records[$row->id]['hiring_months'] = $hiring_data['numOfMonths'];
-                    $hiring_per = $records[$row->id]['hiring_per'] = $hiring_data['perOfHiring'];
-                    $records[$row->id]['avg_score'] = $employeePerformance['score'];
-                    $records[$row->id]['num_score_months'] = $employeePerformance['num_score_months'];
-                    $empPerformance = $records[$row->id]['empPerformance'] = $employeePerformance['empPerformance'];
-                    $records[$row->id]['name'] = $row->name;
-                    $records[$row->id]['profit_amount'] = $this->profitShare_model->getEmployeeProfitShareAmount($row->id,$year,$half,$type);
-
-                 } 
-                 $data['records'] = $records;
-            }
-        
-       
+           
         // pages
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('profitShare/index.php');
             $this->load->view('includes_new/footer.php');
-            
-        //echo $this->profitShare_model->getNumOfBrandsServed(155)."<br/>";
-//       
-//        echo "<pre>";
-//        print_r( $records);
-//        echo "</pre>";
-            
+               
         } else {
             echo "You have no permission to access this page";
         }
@@ -399,7 +343,8 @@ class ProfitShare extends CI_Controller
         } else {
             echo "You have no permission to access this page";
         }
-    }    
+    }   
+    
     public function addTeamLeadersKpis()
     {
         // Check Permission ..
@@ -420,8 +365,7 @@ class ProfitShare extends CI_Controller
         } else {
             echo "You have no permission to access this page";
         }
-    }
-    
+    }    
     public function updateTeamLeadersKpis()
     {
         // Check Permission ..
@@ -469,16 +413,84 @@ class ProfitShare extends CI_Controller
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
             //body ..     
+            $data['year'] = $year = base64_decode($_GET['y']);
+            $data['half'] = $half = base64_decode($_GET['h']);
+            if($half == '1'){
+                $startMonth = "01";
+                $endMonth = "06";        
+                $endDate = "$year-06-30";
+            }elseif ($half == '2') {
+                $startMonth = "07";
+                $endMonth = "12";        
+                $endDate = "$year-12-31";
+            }  
+                
+            $data['emp_id'] = $emp_id = base64_decode($_GET['t']);
+            
+            $data['brands'] = $this->db->get_where('brand',array('id !='=>4))->result();
+            $data['regions'] = $this->db->order_by("id", "desc")->get_where('regions',array('id !='=>4))->result();
            
-            $data['id']  = $_GET['t'];
-            $id = base64_decode($_GET['t']);
-            $data['row'] = $this->db->get_where('company_target', array('id' => $id))->row();
+            $row =  $this->db->query("SELECT id,hiring_date,name,department,emp_brands FROM employees WHERE status = 0 AND id = $emp_id ")->row();     
+            $data['emp_brands'] =  $row->emp_brands;
+            $data['department'] = $department = $row->department;
+            $profit_type = $this->profitShare_model->getDepartmentProfitType($department);
+            $data['equation'] = $profit_type['equation'];
+            $data['type'] = $type = $profit_type['type'];
+                
+            $profitShareData = $this->profitShare_model->getEmployeeProfitShareAmount($emp_id,$year,$half,$type);                   
+            $record['name'] = $row->name;
+            $record['hiring_date'] = $row->hiring_date;
+            $record['brands_num'] = $profitShareData['brands_num'];                  
+            $record['brands_Coefficient'] = $profitShareData['brandCoefficient'] ;
+            $record['hiring_months'] = $profitShareData['hiringData']['numOfMonths'];
+            $record['hiring_per'] = $profitShareData['hiringData']['perOfHiring'];
+            $record['avg_score'] = $profitShareData['employeePerformanceData']['score'];
+            $record['num_score_months'] = $profitShareData['employeePerformanceData']['num_score_months'];
+            $record['empPerformance'] = $profitShareData['employeePerformanceData']['empPerformance'];
+            $record['salary'] = $profitShareData['salary'];
+            $record['profit_amount'] = $profitShareData['total'];
+            $data['bonus_amount'] = $this->profitShare_model->getEmployeeBonusAmount($emp_id,$year,$half);
+
+            $data['record'] = $record;
             //Pages ..
-//            $this->load->view('includes_new/header.php', $data);
-//            $this->load->view('profitShare/viewRecord.php');
-//            $this->load->view('includes_new/footer.php');
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('profitShare/viewRecord.php');
+            $this->load->view('includes_new/footer.php');
         } else {
             echo "You have no permission to access this page";
         }
-    }  
+    } 
+    
+    
+    public function addEmpBonus(){
+     // Check Permission ..
+        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 244);
+        if ($permission->add == 1) {            
+            $data['year'] = $year = base64_decode($_POST['year']);
+            $data['half'] = $half = base64_decode($_POST['half']);
+            $data['emp_id'] = $emp_id = base64_decode($_POST['emp_id']); 
+            $data['amount'] = $_POST['amount']; 
+            //check
+            $check = $this->db->get_where('profitshare_bonus', array('year' => $year,'half'=>$half,'emp_id'=>$emp_id))->num_rows();
+            if(!empty($check)){
+                $data['updated_by'] = $this->user;
+                $data['updated_at'] = date("Y-m-d H:i:s");
+                if($this->db->update('profitshare_bonus', $data, array('year' => $year,'half'=>$half,'emp_id'=>$emp_id))){
+                     $true = "Data Updated Successfully ...";
+                    $this->session->set_flashdata('true', $true);
+                }
+            }else{
+                $data['created_by'] = $this->user;
+                $data['created_at'] = date("Y-m-d H:i:s");
+                if ($this->db->insert('profitshare_bonus', $data)) {
+                    $true = "Data Updated Successfully ...";
+                    $this->session->set_flashdata('true', $true);                    
+                } 
+            }
+            redirect($_SERVER['HTTP_REFERER']);
+           
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
 }

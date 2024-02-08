@@ -15,18 +15,17 @@ class ProfitShare_model extends CI_Model
         $this->load->database();        
     }
 
-    // IF Team Leader
-    public function checkIfManager ($emp_id)
+    // brands
+    public function getEmpRegion($emp_id)
     {
-        $data = false;
-        $rows = $this->db->get_where('employees', array('manager' => $emp_id))->num_rows();
-        if ($rows > 0) {
-                $data = True;
-        }
+        $data =  0;
+        $result = $this->db->get_where('employees', array('id' => $emp_id))->row();       
+        if(!empty($result)){ 
+            $data = $result->region_id; 
+        }        
         return $data;
     }  
     
-    // brands
     public function getNumOfBrandsServed ($emp_id)
     {
         $result = $this->db->get_where('employees', array('id' => $emp_id))->row();       
@@ -57,43 +56,61 @@ class ProfitShare_model extends CI_Model
         return $data;
     }  
     
-    public function getBrandsCoeffiecient ($value,$type = 1)
+      // IF 
+    public function checkIfPmStandAlone ($emp_id)
     {
-        $data = 0;
-        // if $type = 1 (support) / 2 = pm stand alone
-        if($type == 1){
-            if($value == 1)
-                    $data = 1.0;
-            elseif($value == 2)
-                    $data = 1.2;
-            if($value == 3)
-                    $data = 1.3;
-            if($value == 4)
-                    $data = 1.4;
-        }
-        elseif($type == 2){
-            if($value == 1)
-                    $data = 1.3;
-            elseif($value == 2)
-                    $data = 1.5;
-            if($value == 3)
-                    $data = 1.7;
-            if($value == 4)
-                    $data = 2;
+        $data = false;
+        $rows = $this->db->get_where('employees', array('manager' => $emp_id,'status'=>0,'department'=>12))->num_rows();
+        if ($rows > 0) {
+                $data = True;
         }
         return $data;
     } 
     
-    public function getTeamLeaderBrandsCoeffiecient ($type = 1)
+    public function getBrandsCoefficient ($emp_id,$value,$type)
     {
         $data = 0;
-        // if $type = 1 (support) 
-        if($type == 1){            
-            $data = 1.6;
+        $isTeamLeader = $this->profitShare_model->checkIfEmpIsSuperTeamLeader($emp_id);
+        // if $type = 1 (support) / 2 = pm stand alone
+        if($type == 1){
+            if($isTeamLeader){
+                $data = 1.6;
+            }else{
+                if($value == 1)
+                        $data = 1.0;
+                elseif($value == 2)
+                        $data = 1.2;
+                if($value == 3)
+                        $data = 1.3;
+                if($value == 4)
+                        $data = 1.4;
+            }
         }
-
+        elseif($type == 2){
+            $seniorPm = $this->profitShare_model->checkIfPmStandAlone($emp_id);
+            if($isTeamLeader || $seniorPm ){
+                if($value == 1)
+                    $data = 1.3;
+                elseif($value == 2)
+                        $data = 1.5;
+                if($value == 3)
+                        $data = 1.7;
+                if($value == 4)
+                        $data = 2;
+            }else{
+                if($value == 1)
+                        $data = 1.0;
+                elseif($value == 2)
+                        $data = 1.2;
+                if($value == 3)
+                        $data = 1.3;
+                if($value == 4)
+                        $data = 1.4;
+            }
+            
+        }
         return $data;
-    }    
+    } 
     
     // hiring_date
     public function getPerOfHiringDate ($emp_id,$endDate)
@@ -244,11 +261,13 @@ class ProfitShare_model extends CI_Model
         $target = $this->db->get_where('company_target', array('year' => $year))->row();
         if(!empty($target)){
             $row = $this->db->get_where('company_target_details', array('target_id' => $target->id,'brand_id'=>$brand_id,'region_id'=>$region_id))->row();
-            $name = "acheived_".$half;
-            $target = ($row->target)/2;
-            $achieved = $row->$name;
-            if($target != 0)
-                $result = round(($achieved/$target)*100,2);;
+            if(!empty($row)){
+                $name = "acheived_".$half;           
+                $target = ($row->target)/2;
+                $achieved = $row->$name;
+                if($target != 0)
+                    $result = round(($achieved/$target)*100,2);;
+            }
         }
         return $result;
     }  
@@ -287,17 +306,20 @@ class ProfitShare_model extends CI_Model
     // calculate employee net profit
     public function getDepartmentProfitType($department){
         // if support or production
-        if($department = 5 || $department = 6 || $department = 7 || $department = 8 || $department = 9
-                || $department = 10 || $department = 13 || $department = 14 ||$department = 24){
+        if($department == 5 || $department == 6 || $department == 7 || $department == 8 || $department == 9
+                || $department == 10 || $department == 13 || $department == 14 ||$department == 24){
             $data['type'] = 1;
             $data['equation']  = "(( Salary * Due vs. Hir * Emp Performance *  Brand Contribution * Brand Performance )+"
                     . "(Salary * Due vs. Hir * Emp Performance *  Brand Contribution * Brand Performance )+ "
                     . "(Salary * Due vs. Hir * Emp Performance *  Brand Contribution * Brand Performance  )+ "
                     . "(Salary * Due vs. Hir * Emp Performance *  Brand Contribution * Brand Performance  )) * Coefficient";
         }// pm & sam
-        elseif($department = 11 || $department = 12 || $department = 16 || $department = 19){
+        elseif($department == 11 || $department == 12 || $department == 16 || $department == 19){
             $data['type'] = 2;
-            $data['equation']  = "(( Salary * Due vs. Hir * Emp Performance * Brand Region Performance )";
+            $data['equation']  = "(( Salary * Due vs. Hir * Emp Performance *  Brand Contribution * Brand Region Performance )* Coefficient";
+        }else{
+            $data['type'] = 0;
+            $data['equation']  =""; 
         }
         return $data;
     }
@@ -318,33 +340,43 @@ class ProfitShare_model extends CI_Model
         $teamlaeder = self::checkIfEmpIsSuperTeamLeader($emp_id);
          // EmployeePerformanceMatrix  
         if($teamlaeder){
-           $employeePerformance = self::getTeamLeaderperformance($emp_id,$half,$year)['empPerformance'];
+           $data['employeePerformanceData'] = $employeePerformanceData = self::getTeamLeaderperformance($emp_id,$half,$year);
+           $employeePerformance = $employeePerformanceData['empPerformance'];
         }else{          
-          $employeePerformance = self::getEmployeePerformanceMatrix ($emp_id,$startMonth,$endMonth,$year)['empPerformance'];
+          $data['employeePerformanceData'] = $employeePerformanceData = self::getEmployeePerformanceMatrix ($emp_id,$startMonth,$endMonth,$year);
+           $employeePerformance = $employeePerformanceData['empPerformance'];
         }        
         // salary
-        $salary = self::getEmpSalaryByYear($emp_id,$year);
+        $data['salary'] = $salary = self::getEmpSalaryByYear($emp_id,$year);
         // hiring date
-        $hiring_data = self::getPerOfHiringDate($emp_id,$endDate)['perOfHiring'];
-        if($profit_type == 1){ 
-            // get num. of brands
-            $brands_num = self::getNumOfBrandsServed($emp_id);
-            $brands = self::getIdsOfBrandsServed($emp_id);        
+        $data['hiringData'] = $hiringData = self::getPerOfHiringDate($emp_id,$endDate);
+        $hiring_data = $hiringData['perOfHiring'];
+         // get num. of brands
+        $data['brands_num'] = $brands_num = self::getNumOfBrandsServed($emp_id);
+        $brands = self::getIdsOfBrandsServed($emp_id); 
+            
+        if($profit_type == 1){                   
             foreach ($brands as $val){            
                 $brandContribution = self::getBrandTargetContribution($year,$val)/100;
-                $brandPerformance = self::getBrandAchievedMatrix($year,$val,$half)/100;
-              //  ((10000*125*75)+(10000*90*10)+(10000*80*10)+(10000*100*5))*1.4
+                $brandPerformance = self::getBrandAchievedMatrix($year,$val,$half)/100;             
                 $total += ($salary * $hiring_data * $employeePerformance  * $brandPerformance * $brandContribution); 
             }                  
             $team = $profit_type;
-            $total = $total * $this->profitShare_model->getBrandsCoeffiecient($brands_num,$team);
+            $data['brandCoefficient'] = $brandCoefficient = $this->profitShare_model->getBrandsCoefficient($emp_id,$brands_num,$team);
+            $total = $total * $brandCoefficient;
         }
-        elseif($profit_type == 2){ 
-            // get emp region
-            $brandRegionPerformance = 0;
-            $total = ($salary * $hiring_data * $employeePerformance  * $brandRegionPerformance );            
+        elseif($profit_type == 2){            
+            $emp_region = self::getEmpRegion($emp_id);
+            foreach ($brands as $val){ 
+                $brandRegionPerformance = self::getBrandRegionAchievedMatrix($year,$val,$emp_region,$half);
+                $total += ($salary * $hiring_data * $employeePerformance  * $brandRegionPerformance );    
+            }
+            $team = $profit_type;
+            $data['brandCoefficient'] = $brandCoefficient = $this->profitShare_model->getBrandsCoefficient($emp_id,$brands_num,$team);
+            $total = $total * $brandCoefficient;
         }
-        return $total;
+        $data['total'] = $total;
+        return $data;
         
     }
     
@@ -365,8 +397,7 @@ class ProfitShare_model extends CI_Model
     {  
         $employees = $this->db->query("SELECT id FROM `employees` WHERE status = 0 AND (manager = 13 ||  manager = 14 )")->result();
         return $employees;
-    }
-    
+    }    
     
      public function performanceMatrixArray()
     {
@@ -398,4 +429,15 @@ class ProfitShare_model extends CI_Model
         }
         return $data ;
     }
+    
+    public function getEmployeeBonusAmount($emp_id,$year,$half){
+        $result = 0;
+        $row = $this->db->get_where('profitshare_bonus', array('year' => $year,'half'=>$half,'emp_id'=>$emp_id))->row();
+        if(!empty($row)){
+            $result = $row->amount;                    
+        }
+        return $result;
+        
+    }
+    
 }

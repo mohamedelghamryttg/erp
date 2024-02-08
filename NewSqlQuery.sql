@@ -323,3 +323,18 @@ ALTER TABLE `kpi_teamleaders`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 ALTER TABLE `employees` ADD `region_id` INT(11) NULL DEFAULT NULL AFTER `emp_brands`; 
+
+CREATE TABLE `profitshare_bonus` (
+  `id` int(11) NOT NULL,
+  `emp_id` int(11) DEFAULT NULL,
+  `half` tinyint(1) NOT NULL,
+  `year` varchar(50) NOT NULL,
+  `amount` int(11) NOT NULL,
+  `created_by` int(10) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `profitshare_bonus`
+  ADD PRIMARY KEY (`id`);

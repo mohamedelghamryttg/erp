@@ -33,31 +33,29 @@
                 <div class="card-body pb-2" id="filter11" style="display:block">                                                               
                     <div class="form-group row">
                         <label class="col-lg-1 col-form-label text-lg-right">Year:</label>
-                        <div class="col-lg-3 ">
+                        <div class="col-lg-2 ">
                             <select name="year" class="form-control " id="year" required>
                                 <option value="" selected="" disabled="">-- Select year --</option>
                             <?= $this->accounting_model->selectYear($year ? $year : ''); ?>
                             </select>
-                        </div>                                       
-                        <label class="col-lg-2 col-form-label text-lg-right" for="role name">Function</label>
-                        <div class="col-lg-4">
-                            <select name="department" class="form-control m-b" id="department" required="">
-                            <option value="" selected="" disabled>-- Select Department --</option>
-                            <?= $this->hr_model->selectDepartmentKpi($department??'') ?>
-                            </select>
-                        </div>
-                    </div>                                    
-                    <div class="form-group row">
-                        <label class="col-lg-1 col-form-label text-lg-right">Half:</label>
-                        <div class="col-lg-3">
+                        </div>   
+                         <label class="col-lg-1 col-form-label text-lg-right">Half:</label>
+                        <div class="col-lg-2">
                             <select name="half" class="form-control " id="half" required="">
                                 <option value="" disabled="" selected>-- Select --</option>
                                 <option value="1" <?=(isset($half) && $half == 1) ? 'selected' : ''?>>The First Half</option>
                                 <option value="2" <?=(isset($half) && $half == 2) ? 'selected' : ''?>>The Second Half</option>
 
                             </select>
-                        </div>                                       
-                    </div>
+                        </div>       
+                        <label class="col-lg-1 col-form-label text-lg-right" for="role name">Function</label>
+                        <div class="col-lg-4">
+                            <select name="department" class="form-control m-b" id="department" required="">
+                            <option value="" selected="" disabled>-- Select Department --</option>
+                            <?= $this->hr_model->selectDepartmentKpi($department??'') ?>
+                            </select>
+                        </div>
+                    </div> 
                 </div>
                 <div class="card-footer">
                     <div class="row">
@@ -74,7 +72,7 @@
     <div class="card">
        <div class="card-header border-0 card-header-right ribbon ribbon-clip ribbon-left">
   <div class="ribbon-target font-size-h3" style="top: 12px;">
-   <span class="ribbon-inner bg-warning"></span>Test Data <small> support & production teams only</small>
+   <span class="ribbon-inner bg-warning"></span>Test Data
   </div>
                       
 
@@ -132,8 +130,7 @@
                                                   
                     
                  </div>
-             </div>
-            <?php }?>
+             </div>           
             <!--begin: Datatable-->
             <hr/>
             <hr class="mb-10"/>
@@ -142,8 +139,8 @@
                     <tr>
                         <th no-sort>#</th>
                         <th>name</th>
-                        <th>brands num.</th>
-                        <th>Coeffiecient</th>
+                        <th>brands</th>
+                        <th>coefficient</th>
                         <th>hiring date</th>
                         <th>num. of hiring
                             months</th>
@@ -151,6 +148,7 @@
                         <th>avg. Score</th>
                         <th>Emp. Performance</th>
                         <th>Net Profit Share Amount</th>
+                        <th>Bonus Amount</th>
                         <th></th>
                         
                     </tr>
@@ -169,7 +167,7 @@
                                 <?= $row['brands_num'] ?>
                             </td>                           
                             <td>
-                                <?= $row['brands_Coeffiecient'] ?>
+                                <?= $row['brands_Coefficient'] ?>
                             </td>
                             <td>
                                 <?= $row['hiring_date'] ?>
@@ -194,9 +192,12 @@
                                 <?= number_format($row['profit_amount']) ?>
                             </td>
                             <td>
-                                  <a title="Team Leaders Kpis" href="<?= base_url() . 'profitShare/viewRecord?t=' . base64_encode($k); ?>" class="btn btn-sm btn-default mr-2  btn-hover-primary text-danger font-weight-bold">
+                                <?=  number_format($row['bonus_amount']) ?>
+                            </td>
+                            <td>
+                                <a title="VIEW & EDIT" href="<?= base_url() . 'profitShare/viewRecord?t=' . base64_encode($k).'&h='.base64_encode($half).'&y='.base64_encode($year) ?>" class="btn btn-sm btn-default mr-2  btn-hover-primary text-danger font-weight-bold">
                                         <i class="fab fa-buffer text-danger"></i>
-                                            VIEW & EDIT
+                                            
                                     </a>
                             </td>
                            
@@ -209,7 +210,7 @@
                 </tbody>
             </table>
             <!--end: Datatable-->
-
+             <?php }?>
         </div>
     </div>
 </div>
@@ -246,6 +247,7 @@
 				'copyHtml5',
 				'excelHtml5',
 				'pdfHtml5',
+				'colvis',
 			],
                         colReorder: true,
                         paging: false,
@@ -258,11 +260,11 @@
 		const apexChart = "#chart";
                 const labels = [];
                 const series = [];
-                <?php foreach ($brands as $val){
+                <?php if(isset($_GET['search'])) { foreach ($brands as $val){
                     $brandTargetContribution = $this->profitShare_model->getBrandTargetContribution($year, $val->id);?>
                         labels.push("<?=$val->abbreviations?>");
                         series.push(<?=$brandTargetContribution?>);
-                <?php }?>
+                <?php }}?>
 		var options = { 
 			series: series,
                         labels: labels,

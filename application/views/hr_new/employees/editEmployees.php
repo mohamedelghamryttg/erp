@@ -248,7 +248,16 @@
                                                                         <?= $this->hr_model->selectBrand($employees->emp_brands) ?>
                                                                     </select>
                                                                 </div>
-                                                            </div>    
+                                                            </div>   
+                                                           <div class="form-group row">
+                                                            <label class="col-lg-3 control-label">Region </label>
+                                                            <div class="col-lg-12">
+                                                                <select name="region_id" class="form-control form-control-solid" >
+                                                                    <option>-- Select Region --</option>
+                                                                    <?= $this->admin_model->selectRegion($employees->region_id) ?>
+                                                                </select>
+                                                            </div>
+                                                        </div> 
                                                                  <div class="form-group row"id="position_comment">    
                                                                     <label class="col-xl-3 col-lg-3 col-form-label">Comment </label>
 
