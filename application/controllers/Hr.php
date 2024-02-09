@@ -864,7 +864,8 @@ class Hr extends CI_Controller
                     $department = "";
                 }
                 if (isset($_REQUEST['status'])) {
-                    $status = $_REQUEST['status'];                    
+                    $status = $_REQUEST['status']; 
+                    if($_REQUEST['status'] != NULL) 
                         array_push($arr2, 4);                    
                 } else {
                     $status = "";
@@ -931,6 +932,7 @@ class Hr extends CI_Controller
                 } else {
                     $data['employees'] = $this->hr_model->AllEmployeesPages(9, 0);
                 }
+                
                 $data['total_rows'] = $data['employees']->num_rows();
             } else {
                 $limit = 10;

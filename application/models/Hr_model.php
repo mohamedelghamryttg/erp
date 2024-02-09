@@ -252,7 +252,7 @@ class Hr_model extends CI_Model
 
         // $data = $this->db->query(" SELECT * FROM `employees` WHERE ".$filter." AND brand = '$brand' ORDER BY id ASC , id DESC ");
         $data = $this->db->query(" SELECT * FROM `employees` WHERE " . $filter . " ORDER BY id ASC , id DESC ");
-        return $data;
+         return $data;
     }
 
     public function AllEmployeesPages($limit, $offset)

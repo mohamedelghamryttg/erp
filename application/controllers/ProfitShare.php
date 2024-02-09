@@ -32,7 +32,7 @@ class ProfitShare extends CI_Controller
          //  sam & pm   -- brand contr. ???
          //  stand alone pm title ??
          // wait employees brands & region & salary & teamleaders Coefficient??
-         
+         // employees with 0 status but date between 7 - 12 
         // Check Permission ..
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 244);
         if ($data['permission']->add == 1) {

@@ -76,7 +76,7 @@
                     <div class="row">
                         <div class="col-lg-12 text-center">
                             <button type="submit" class="btn btn-success btn-sm mr-2">Submit</button>
-                            <a class="btn btn-secondary btn-sm" href="<?php echo base_url() ?>profitShare/ProfitShareSettings" class="btn btn-default" type="button">Cancel</a>
+                            <a class="btn btn-secondary btn-sm" href="<?php echo base_url() ?>profitShare/settings" class="btn btn-default" type="button">Cancel</a>
                         </div>
                     </div>
                 </div>

@@ -8,8 +8,6 @@
         letter-spacing: 0.1rem;
     }
     .label {
-        width: auto;
-        padding: 4px;
         height: 100%;
     }
     
@@ -64,13 +62,13 @@
                                     <p class="custom">Name</p>
                                 </td>
                                 <td colspan="3"><?= $this->automation_model->getEmpName($emp_id); ?>
-                                    <br /><span class="label label-square label-light-info text-dark font-size-sm">
+                                    <br /><span class="label label-square label-dark label-inline font-weight-bold">
                                 <?= $this->automation_model->getEmpDep($emp_id); ?></span>
                                     </td>
                             </tr>
                             <tr>
                                 <td> <p class="custom">Year</p></td>
-                                <td colspan="3"><?=$year?> <span class="label label-square label-light-info text-dark font-size-sm"> Half : <?=$half?></span></td>
+                                <td colspan="3"><?=$year?> <span class="label label-primary label-inline font-weight-bold"> Half : <?=$half?></span></td>
                             </tr> 
                             <tr>
                                 <td>
@@ -109,7 +107,7 @@
                                     <p class="custom">Num. Of Brands</p>
                                 </td>
                                 <td><b><?= $record['brands_num'] ?></b>
-                                 <br/><span class="label label-square label-light-success text-dark font-size-sm">
+                                <span class="label label-square label-dark label-inline font-weight-bold">
                                 <?= $this->hr_model->getBrand($emp_brands); ?></span></td>
                                 <td>
                                     <p class="custom">Coefficient </p>

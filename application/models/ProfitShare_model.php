@@ -199,21 +199,21 @@ class ProfitShare_model extends CI_Model
     public function brandPerformanceMatrix($score)
     {
         $result = 0;
-        if ($score >= 0 && $score <= 50) {
+        if ($score >= 0 && $score < 50) {
             $result = 0;
-        } elseif ($score > 50 && $score <= 65) {
+        } elseif ($score >= 50 && $score < 65) {
             $result = 40;
-        } elseif ($score > 65 && $score <= 75) {
+        } elseif ($score >= 65 && $score < 75) {
             $result = 60;
-        } elseif ($score > 75 && $score <= 80) {
+        } elseif ($score >= 75 && $score < 80) {
             $result = 75;
-        } elseif ($score > 80 && $score <= 90) {
+        } elseif ($score >= 80 && $score < 90) {
             $result = 90;
-        } elseif ($score > 90 && $score <= 100) {
+        } elseif ($score >= 90 && $score < 100) {
             $result = 100;
-        } elseif ($score > 100 && $score <= 150) {
+        } elseif ($score >= 100 && $score < 150) {
             $result = 125;
-        } elseif ($score > 150) {
+        } elseif ($score >= 150) {
             $result = 150;
         }
         return $result;
@@ -238,7 +238,7 @@ class ProfitShare_model extends CI_Model
             $brand_target = $this->db->query("SELECT sum(target) as brand_target FROM `company_target_details` WHERE target_id = $target->id AND brand_id = $brand_id")->row()->brand_target;
             $company_target = $this->db->query("SELECT sum(target) as company_target FROM `company_target_details` WHERE target_id = $target->id ")->row()->company_target;
             if($company_target != 0)
-                $result = round(($brand_target/$company_target)*100,2);
+                $result = round(($brand_target/$company_target)*100);
         }
         return $result;
     }
@@ -266,7 +266,7 @@ class ProfitShare_model extends CI_Model
                 $target = ($row->target)/2;
                 $achieved = $row->$name;
                 if($target != 0)
-                    $result = round(($achieved/$target)*100,2);;
+                    $result = round(($achieved/$target)*100);;
             }
         }
         return $result;
@@ -281,7 +281,7 @@ class ProfitShare_model extends CI_Model
             $brand_acheived = $this->db->query("SELECT sum(acheived_$half) as brand_acheived FROM `company_target_details` WHERE target_id = $target->id AND brand_id = $brand_id")->row()->brand_acheived;
             if($brand_target != 0){
                 $target = $brand_target/2;
-                $result = round(($brand_acheived/$target)*100,2);
+                $result = round(($brand_acheived/$target)*100);
             }            
             
         }
