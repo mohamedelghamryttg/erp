@@ -142,6 +142,7 @@
                         <th>brands</th>
                         <th>coefficient</th>
                         <th>hiring date</th>
+                        <th>resignation date</th>
                         <th>num. of hiring
                             months</th>
                         <th>Due vs. Hir </th>
@@ -171,6 +172,9 @@
                             </td>
                             <td>
                                 <?= $row['hiring_date'] ?>
+                            </td>
+                            <td>
+                                <?= $row['resignation_date'] ?>
                             </td>
                             <td>
                                 <?= $row['hiring_months'] ?>

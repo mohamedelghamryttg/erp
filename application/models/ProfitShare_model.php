@@ -113,30 +113,61 @@ class ProfitShare_model extends CI_Model
     } 
     
     // hiring_date
-    public function getPerOfHiringDate ($emp_id,$endDate)
+    public function getPerOfHiringDate ($emp_id,$startDate,$endDate)
     {
         $result = $this->db->get_where('employees', array('id' => $emp_id))->row();       
         if(!empty($result)){ 
-            $hiring_date = $result->hiring_date;
-            
-            // get months
-            $date1 = $hiring_date;
-            $date2 = $endDate;
-            $d1=new DateTime($date2); 
-            $d2=new DateTime($date1);                                  
-            $Months = $d2->diff($d1);
-            if($date1 > $date2)
-                $data['numOfMonths'] = $NumOfMonths = 0;
-            else
-                $data['numOfMonths'] = $NumOfMonths = (($Months->y) * 12) + ($Months->m)+ round((($Months->d)/30),1);
-            //$data['numOfMonths'] = $Months->d;
-            $NumOfMonthsAfterProb = $NumOfMonths - 3 ;
-            if($NumOfMonthsAfterProb < 0)
-                $data['perOfHiring'] = 0;
-            elseif($NumOfMonthsAfterProb > 6)
-                $data['perOfHiring'] = 1;
-            else{
-                $data['perOfHiring'] = round(($NumOfMonthsAfterProb / 6),2) ;
+            if($result->status == 0){
+                $hiring_date = $result->hiring_date;
+
+                // get months
+                $date1 = $hiring_date;
+                $date2 = $endDate;
+                $d1=new DateTime($date2); 
+                $d2=new DateTime($date1);                                  
+                $Months = $d2->diff($d1);
+                if($date1 > $date2)
+                    $data['numOfMonths'] = $NumOfMonths = 0;
+                else
+                    $data['numOfMonths'] = $NumOfMonths = (($Months->y) * 12) + ($Months->m)+ round((($Months->d)/30),1);
+                //$data['numOfMonths'] = $Months->d;
+                $NumOfMonthsAfterProb = $NumOfMonths - 3 ;
+                if($NumOfMonthsAfterProb < 0)
+                    $data['perOfHiring'] = 0;
+                elseif($NumOfMonthsAfterProb > 6)
+                    $data['perOfHiring'] = 1;
+                else{
+                    $data['perOfHiring'] = round(($NumOfMonthsAfterProb / 6),2) ;
+                }
+            }else{
+                $resignation_date = $result->resignation_date; 
+             
+                // num of months
+                $d11 = new DateTime($hiring_date); 
+                $d12 = new DateTime($resignation_date);                                  
+                $Months1 = $d12->diff($d11); 
+                $NumOfMonths1 = (($Months1->y) * 12) + ($Months1->m)+ round((($Months1->d)/30),1);              
+                if($NumOfMonths1 > 3){
+                 // get months
+                $date1 = $startDate;
+                $date2 = $resignation_date;
+                $d1=new DateTime($date2); 
+                $d2=new DateTime($date1);                                  
+                $Months = $d2->diff($d1);
+                if($date1 > $date2)
+                    $data['numOfMonths'] = $NumOfMonths = 0;
+                else
+                    $data['numOfMonths'] = $NumOfMonths = (($Months->y) * 12) + ($Months->m)+ round((($Months->d)/30),1);
+               
+                if($NumOfMonths > 6)
+                    $data['perOfHiring'] = 1;
+                else
+                    $data['perOfHiring'] = round(($NumOfMonths / 6),2) ;
+                }else{
+                    $data['numOfMonths'] = $NumOfMonths = 0;
+                    $data['perOfHiring'] = 0 ;
+                }
+                
             }
             
             return $data;
@@ -330,10 +361,13 @@ class ProfitShare_model extends CI_Model
             $startMonth = "01";
             $endMonth = "06";        
             $endDate = "$year-06-30";
+            $startDate = "$year-01-01";
         }elseif ($half == '2') {
             $startMonth = "07";
-            $endMonth = "12";        
+            $endMonth = "12"; 
+            $startDate = "$year-07-01";
             $endDate = "$year-12-31";
+            
         }    
         
         // check if team leader
@@ -349,7 +383,7 @@ class ProfitShare_model extends CI_Model
         // salary
         $data['salary'] = $salary = self::getEmpSalaryByYear($emp_id,$year);
         // hiring date
-        $data['hiringData'] = $hiringData = self::getPerOfHiringDate($emp_id,$endDate);
+        $data['hiringData'] = $hiringData = self::getPerOfHiringDate($emp_id,$startDate,$endDate);
         $hiring_data = $hiringData['perOfHiring'];
          // get num. of brands
         $data['brands_num'] = $brands_num = self::getNumOfBrandsServed($emp_id);

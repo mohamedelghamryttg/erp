@@ -57,13 +57,14 @@ class ProfitShare extends CI_Controller
                 $data['equation'] = $profit_type['equation'];
                 $data['type'] = $type = $profit_type['type'];
                 // start
-                $employees =  $this->db->query("SELECT id,hiring_date,name FROM employees WHERE status = 0 AND department = $department ")->result(); 
+                $employees =  $this->db->query("SELECT id,hiring_date,name,resignation_date FROM employees WHERE (status = 0 || (status = 1 AND `resignation_date` BETWEEN '$year-$startMonth-01' AND '$endDate')) AND department = $department ")->result(); 
                 foreach($employees as $row){                 
                     
                     $profitShareData = $this->profitShare_model->getEmployeeProfitShareAmount($row->id,$year,$half,$type);
                    
                     $records[$row->id]['name'] = $row->name;
                     $records[$row->id]['hiring_date'] = $row->hiring_date;
+                    $records[$row->id]['resignation_date'] = $row->resignation_date;
                     $records[$row->id]['brands_num'] = $profitShareData['brands_num'];                  
                     $records[$row->id]['brands_Coefficient'] = $profitShareData['brandCoefficient']??0 ;
                     $records[$row->id]['hiring_months'] = $profitShareData['hiringData']['numOfMonths'];
