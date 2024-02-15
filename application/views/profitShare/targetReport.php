@@ -132,7 +132,7 @@
                     </div>
                 <hr/>
                 <hr/>
-                 <p class="font-weight-bolder font-size-lg mt-10"> <i class="flaticon-graphic-2 mr-2 text-danger"></i>Achieved % Per Region / Per Brand vs the matrix 
+                 <p class="font-weight-bolder font-size-lg mt-10"> <i class="flaticon-graphic-2 mr-2 text-danger"></i>Brand Region Achieved vs performance Matrix ( corporate profitability share ) 
                   
                 </p>
                       <div class="row mt-2">
@@ -218,15 +218,26 @@
 				type: 'bar',
 				height: 350
 			},
-			plotOptions: {
+                        plotOptions: {
 				bar: {
-					horizontal: false,
-					columnWidth: '55%',
-					endingShape: 'rounded'
-				},
+                                    horizontal: false,
+                                    columnWidth: '55%',
+                                    endingShape: 'rounded',
+                                    dataLabels: {
+                                       orientation: 'vertical',
+                                       position: 'center' // top, center, bottom
+                                     },
+                            },
 			},
 			dataLabels: {
-				enabled: false
+				enabled: true,
+                                 formatter: function (val) {
+                                    return val + "%";
+                                  },                                   
+                                style: {
+                                    fontSize: '10px',
+                                    colors: ["#fff"]
+                                }
 			},
 			stroke: {
 				show: true,
@@ -273,13 +284,24 @@
 			},
 			plotOptions: {
 				bar: {
-					horizontal: false,
-					columnWidth: '55%',
-					endingShape: 'rounded'
-				},
+                                    horizontal: false,
+                                    columnWidth: '55%',
+                                    endingShape: 'rounded',
+                                    dataLabels: {
+                                       orientation: 'vertical',
+                                       position: 'center' // top, center, bottom
+                                     },
+                            },
 			},
 			dataLabels: {
-				enabled: false
+				enabled: true,
+                                 formatter: function (val) {
+                                    return val + "%";
+                                  },                                   
+                                style: {
+                                    fontSize: '10px',
+                                    colors: ["#fff"]
+                                }
 			},
 			stroke: {
 				show: true,

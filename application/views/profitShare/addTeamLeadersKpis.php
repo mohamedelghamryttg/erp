@@ -26,7 +26,7 @@
             <form class="form" action="<?= base_url().'profitShare/updateTeamLeadersKpis'?>" method="post" enctype="multipart/form-data">
                 <div class="card-body">
                   <input type='hidden' name="target_id" value="<?= $id ?>" />
-                    <table class="table table-head-custom table-bordered table-dark" width="100%" id="kt_datatable2">
+                    <table class="table table-head-custom table-bordered " width="100%" id="kt_datatable2">
                         <thead>
                             <tr>
                                 <th colspan="4"><i class="flaticon-calendar-2 mr-2 text-danger"></i>Year : <?=$row->year?></th>
@@ -35,7 +35,7 @@
                         <tbody>
                             <?php foreach($employees as $k => $emp){
                                 ?>
-                            <tr class="<?=$k%2==0?' bg-light-o-50':''?>">                              
+                            <tr class="<?=$k%2==0?' bg-light-o-70':''?>">                              
                                 <td rowspan='3' >
                                     <p class="font-weight-bolder">                                        
                                         <?= ++$k?>
@@ -51,12 +51,12 @@
                             </tr>
                             <?php for($i=1;$i<=2;$i++){
                                 $score = $this->profitShare_model->getTeamLeaderperformance($emp->id,$i,$row->year)['score_val'];?>
-                            <tr class="<?=($k+1)%2==0?' bg-light-o-50':''?>">                                
+                            <tr class="<?=($k+1)%2==0?' bg-light-o-70':''?>">                                
                                 <td >H<?=$i?></td>
                                 <td >
                                     <div class="radio-inline">
                                         <?php foreach($performanceMatrixArray as $x =>$y){?>
-                                       <label class="radio radio-square mr-7 <?=$x==3?'ml-20':''?> ">
+                                       <label class="radio radio-square mr-7">
                                             <input type="radio" name="score<?=$i?>_<?=$emp->id?>" value="<?=$x?>" <?=(isset($score)&&$score==$x)?'checked':''?>/>
                                             <span></span>
                                            <?= $y?>

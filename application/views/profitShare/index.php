@@ -85,7 +85,7 @@
                  <div class="card-body">                     
                     <div class="row">  
                         <div class="col-xl-6">
-                            <p class="font-weight-bolder font-size-lg"> <i class="flaticon-graphic-2 mr-2 text-danger"></i>Achieved % Per Region / Per Brand vs the matrix </p>
+                            <p class="font-weight-bolder font-size-lg"> <i class="flaticon-graphic-2 mr-2 text-danger"></i>Brand Region Achieved vs performance Matrix /corporate profitability share</p>
                                 <table class="table table-head-custom table-bordered text-center ml-5" >
                                 <thead>
                                     <tr>
@@ -143,8 +143,8 @@
                         <th>coefficient</th>
                         <th>hiring date</th>
                         <th>resignation date</th>
-                        <th>num. of hiring
-                            months</th>
+                        <!--<th>num. of hiring
+                            months</th>-->
                         <th>Due vs. Hir </th>
                         <th>avg. Score</th>
                         <th>Emp. Performance</th>
@@ -176,9 +176,9 @@
                             <td>
                                 <?= $row['resignation_date'] ?>
                             </td>
-                            <td>
+<!--                            <td>
                                 <?= $row['hiring_months'] ?>
-                            </td>
+                            </td>-->
                             <td>
                                 <?= $row['hiring_per'] ?>
                             </td>

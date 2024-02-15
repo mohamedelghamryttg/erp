@@ -435,7 +435,7 @@ class ProfitShare_model extends CI_Model
     
      public function performanceMatrixArray()
     {
-        $array =  ["Week Performance","Below Average Performance","Average Performance","Solid Performance","Exceeding Performance"];
+        $array =  ["Week","Below Average","Average","Solid","Exceeding"];
        return $array ;
     }
     

@@ -126,7 +126,7 @@
                                     <table class="table table-head-custom table-bordered text-center" >
                                         <thead>
                                             <tr>
-                                                <td colspan="5" class="font-weight-bolder text-danger"><i class="flaticon-graphic-2 mr-2 text-danger"></i>Achieved % Per Region / Per Brand vs the matrix ( H<?= $half?> )</td>   
+                                                <td colspan="5" class="font-weight-bolder text-danger"><i class="flaticon-graphic-2 mr-2 text-danger"></i>Brand Region Achieved vs performance Matrix / corporate profitability share ( H<?= $half?> )</td>   
                                             </tr>
                                         </thead>
                                         <thead>
