@@ -2765,4 +2765,83 @@ background-color: #FFFFCC;
             echo "You have no permission to access this page";
         }
     }
+    
+    // Rate Indicator 
+      public function rateIndicator()
+    {
+        // Check Permission ..
+        $check = $this->admin_model->checkPermission($this->role, 18);
+        if ($check) {
+            //header ..
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 18);
+            //body ..
+            $data['user'] = $this->user;
+            if (isset($_GET['search'])) {
+                $arr2 = array();
+                if (isset($_REQUEST['product_line'])) {
+                    $product_line = $_REQUEST['product_line'];
+                    if (!empty($product_line)) {
+                        array_push($arr2, 0);
+                    }
+                } else {
+                    $product_line = "";
+                }              
+                if (isset($_REQUEST['source'])) {
+                    $source = $_REQUEST['source'];
+                    if ($source != '-1') {
+                        array_push($arr2, 1);
+                    }
+                } else {
+                    $source = "";
+                }
+                if (isset($_REQUEST['target'])) {
+                    $target = $_REQUEST['target'];
+                    if ($target != '-1') {
+                        array_push($arr2, 2);
+                    }
+                } else {
+                    $target = "";
+                }
+                if (isset($_REQUEST['unit'])) {
+                    $unit = $_REQUEST['unit'];
+                    if (!empty($unit)) {
+                        array_push($arr2, 3);
+                    }
+                } else {
+                    $unit = "";
+                }
+              
+                
+                // print_r($arr2);
+                $cond1 = "`job_price_list`.product_line = '$product_line'";               
+                $cond2 = "`job_price_list`.source = '$source'";
+                $cond3 = "`job_price_list`.target = '$target'";
+                $cond4 = "`job_price_list`.unit = '$unit'";
+               
+                $arr1 = array($cond1, $cond2, $cond3, $cond4);
+                $arr_1_cnt = count($arr2);
+                $arr3 = array();
+                for ($i = 0; $i < $arr_1_cnt; $i++) {
+                    array_push($arr3, $arr1[$arr2[$i]]);
+                }
+                $arr4 = implode(" and ", $arr3);
+                // print_r($arr4);     
+                if ($arr_1_cnt > 0) {
+                    $data['priceList'] = $this->sales_model->getAllRateIndicatorPages($this->brand, $arr4);
+                } else {
+                    $data['priceList'] = $this->sales_model->getAllRateIndicatorPages($this->brand, 1);
+                }
+            } else {
+               
+               $data['priceList'] = $this->sales_model->getAllRateIndicatorPages($this->brand, 1);
+            }
+            //Pages ..
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('sales_new/rateIndicator/rateList.php');
+            $this->load->view('includes_new/footer.php');
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
 }
