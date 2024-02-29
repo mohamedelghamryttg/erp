@@ -338,3 +338,7 @@ CREATE TABLE `profitshare_bonus` (
 
 ALTER TABLE `profitshare_bonus`
   ADD PRIMARY KEY (`id`);
+
+INSERT INTO `screen` (`id`, `groups`, `name`, `url`, `menu`) VALUES ('247', '3', 'Rate Indicator', 'sales/rateIndicator', '1');
+INSERT INTO `permission` (`id`, `groups`, `screen`, `role`, `follow`, `add`, `edit`, `delete`, `view`, `menu_order`) VALUES (NULL, '3', '247', '1', '0', '1', '1', '1', '1', '3035');
+INSERT INTO `permission` (`id`, `groups`, `screen`, `role`, `follow`, `add`, `edit`, `delete`, `view`, `menu_order`) VALUES (NULL, '3', '247', '21', '0', '1', '1', '1', '1', '3035');

@@ -2770,11 +2770,11 @@ background-color: #FFFFCC;
       public function rateIndicator()
     {
         // Check Permission ..
-        $check = $this->admin_model->checkPermission($this->role, 18);
+        $check = $this->admin_model->checkPermission($this->role, 247);
         if ($check) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
-            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 18);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 247);
             //body ..
             $data['user'] = $this->user;
             if (isset($_GET['search'])) {
@@ -2811,15 +2811,33 @@ background-color: #FFFFCC;
                 } else {
                     $unit = "";
                 }
-              
+                if (isset($_REQUEST['date_from'])) {
+                    $date_from = $_REQUEST['date_from'];
+                    if (!empty($date_from)) {
+                        array_push($arr2, 4);
+                    }
+                } else {
+                    $date_from = "";
+                }
+                if (isset($_REQUEST['date_to'])) {
+                    $date_to = $_REQUEST['date_to'];
+                    if (!empty($date_to)) {
+                        array_push($arr2, 5);
+                    }
+                } else {
+                    $date_to = "";
+                }
+               
                 
                 // print_r($arr2);
                 $cond1 = "`job_price_list`.product_line = '$product_line'";               
                 $cond2 = "`job_price_list`.source = '$source'";
                 $cond3 = "`job_price_list`.target = '$target'";
                 $cond4 = "`job_price_list`.unit = '$unit'";
+                $cond5 = "`job`.created_at >= '$date_from'";
+                $cond6 = "`job`.created_at <= '$date_to'";
                
-                $arr1 = array($cond1, $cond2, $cond3, $cond4);
+                $arr1 = array($cond1, $cond2, $cond3, $cond4,$cond5,$cond6);
                 $arr_1_cnt = count($arr2);
                 $arr3 = array();
                 for ($i = 0; $i < $arr_1_cnt; $i++) {
@@ -2834,7 +2852,7 @@ background-color: #FFFFCC;
                 }
             } else {
                
-               $data['priceList'] = $this->sales_model->getAllRateIndicatorPages($this->brand, 1);
+                 $data['priceList'] = $this->sales_model->getAllRateIndicatorPages($this->brand, 1);                          
             }
             //Pages ..
             $this->load->view('includes_new/header.php', $data);

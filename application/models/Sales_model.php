@@ -1361,10 +1361,17 @@ class Sales_model extends CI_Model
      
       public function getAllRateIndicatorPages($brand, $filter)
     {
-        $data = $this->db->query("SELECT `job`.id,`job_price_list`.product_line,`job_price_list`.source,`job_price_list`.target,`job_price_list`.unit,`job_price_list`.rate,`job_price_list`.currency,customer,(SELECT brand FROM customer WHERE customer.id = `customer_price_list`.customer) AS brand FROM `job` LEFT JOIN `job_price_list` on `job_price_list`.id = `job`.price_list LEFT JOIN `customer_price_list` on `customer_price_list`.id = `job_price_list`.price_list_id where project_id != 0  AND " . $filter . " GROUP BY product_line, source , target , unit HAVING brand = '$brand';");
+        $data = $this->db->query("SELECT GROUP_CONCAT(`job`.id) as job_ids,`job_price_list`.product_line,`job_price_list`.source,`job_price_list`.target,`job_price_list`.unit,`job_price_list`.rate,`job_price_list`.currency,customer,(SELECT brand FROM customer WHERE customer.id = `customer_price_list`.customer) AS brand FROM `job` LEFT JOIN `job_price_list` on `job_price_list`.id = `job`.price_list LEFT JOIN `customer_price_list` on `customer_price_list`.id = `job_price_list`.price_list_id where project_id != 0  AND " . $filter . " GROUP BY product_line, source , target , unit HAVING brand = '$brand';");
         
         return $data;
     }
-
-    // SELECT job.id,job.project_id,job_price_list.id,product_line,source,target,unit,rate FROM `job` LEFT JOIN `job_price_list` on `job_price_list`.id = `job`.price_list where project_id != 0;
+    
+    public function getjobTasks($job_ids)
+    {
+        $job_ids = rtrim($job_ids, ',');
+        $data = $this->db->query("SELECT unit,currency,max(rate) as max_rate,min(rate) as min_rate, ROUND(avg(rate), 2) as avg_rate FROM `job_task` WHERE `job_id` IN ($job_ids)")->row();
+        
+        return $data;
+    }
+   
 }

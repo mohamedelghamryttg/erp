@@ -29,7 +29,7 @@
 
 
       <!-- start search form card -->
-      <div class="card card-custom gutter-b example example-compact">
+      <div class="card card-custom gutter-b example example-compact mt-10">
         <div class="card-header">
           <h3 class="card-title">Search </h3>
         </div>
@@ -57,6 +57,18 @@
 
         } else {
           $unit = "";
+        }
+        if (!empty($_REQUEST['date_from'])) {
+          $date_from = $_REQUEST['date_from'];
+
+        } else {
+          $date_from = "";
+        }
+        if (!empty($_REQUEST['date_to'])) {
+          $date_to = $_REQUEST['date_to'];
+
+        } else {
+          $date_to = "";
         }
 
         ?>
@@ -98,24 +110,27 @@
                 </select>
               </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group row date_row">
+                   <label class="col-lg-2 col-form-label text-lg-right" for="role date">Date From</label>
+                   <div class="col-lg-3">
+                       <input class="form-control date_sheet" type="text" name="date_from" autocomplete="off" required="" value="<?=$date_from?>">
+                   </div>
 
-            
-
+                   <label class="col-lg-2 col-form-label text-lg-right" for="role date">Date To</label>
+                   <div class="col-lg-3">
+                       <input class="form-control date_sheet" type="text" name="date_to" autocomplete="off" required="" value="<?=$date_to?>">
+                   </div>
             </div>
-        </div>
+            </div>
             <div class="card-footer">
               <div class="row">
-                <div class="col-lg-2"></div>
-                <div class="col-lg-10">
+               
+                <div class="col-lg-12 text-center">
                   <button class="btn btn-success mr-2" name="search"
                     onclick="var e2 = document.getElementById('rateIndicatorForm'); e2.action='<?= base_url() ?>sales/rateIndicator'; e2.submit();"
                     type="submit">Search</button>
                   <a href="<?= base_url() ?>sales/rateIndicator" class="btn btn-warning"><i class="la la-trash"></i>Clear
                     Filter</a>
-
-               
-
                 </div>
               </div>
             </div>
@@ -135,26 +150,31 @@
       </div>
       <div class="card-body">
         <!--begin: Datatable-->
-        <table class="table table-head-custom table-bordered" id="datatable1">
-          <thead>
-            <tr>              
-             
-                <th rowspan="2">Product Line</th>
-                <th rowspan="2">Source</th>
-                <th rowspan="2">Target</th>
-                <th colspan="3">Customer Rate indicator</th>
-             
-            </tr>
-            <tr>              
-              <th>Customer Name</th>             
-              <th>Rate</th>
-              <th>Unit</th> 
-            </tr>
-          </thead>
+        <table class="table table-head-custom table-bordered" id="ratetable">
+            <thead>
+                <tr class="text-center"> 
+                    <th rowspan="2">Product Line</th>
+                    <th rowspan="2">Source</th>
+                    <th rowspan="2">Target</th>
+                    <th colspan="3">Customer Rate indicator</th>
+                    <th colspan="4">Vendor Rate indicator</th>
+                </tr>
+                <tr>              
+                    <th>Customer Name</th>             
+                    <th>Rate</th>
+                    <th>Unit</th> 
+                    <th>The high Rate </th>
+                    <th>The low Rate </th>           
+                    <th>The Avg Rate</th>
+                    <th>Unit</th> 
+                </tr>
+            </thead>
           <tbody>
             <?php
-            foreach ($priceList->result() as $row) {
-                           ?>
+            foreach ($priceList->result() as $row) { 
+                
+                $vendor_rate = $this->sales_model->getjobTasks($row->job_ids);                
+                ?>
               <tr class="">
                 <td>
                   <?php echo $this->customer_model->getProductLine($row->product_line); ?>
@@ -175,8 +195,23 @@
                 <td>
                   <?php echo $this->admin_model->getUnit($row->unit); ?>
                 </td>
-             
-              
+                
+                <td>
+                  <?php echo $vendor_rate->max_rate; ?>
+                  <?php echo $this->admin_model->getCurrency($vendor_rate->currency); ?>
+                </td>
+                <td>
+                  <?php echo $vendor_rate->min_rate; ?>
+                  <?php echo $this->admin_model->getCurrency($vendor_rate->currency); ?>
+                </td>
+                <td>
+                  <?php echo $vendor_rate->avg_rate ; ?>
+                  <?php echo $this->admin_model->getCurrency($vendor_rate->currency); ?>
+                </td>
+                <td>
+                  <?php echo $this->admin_model->getUnit($vendor_rate->unit); ?>
+                </td>
+                           
                 
          
               </tr>
@@ -202,12 +237,12 @@
 <script>
     var initTable1 = function() {
 		// begin first table
-		var table = $('#datatable1').DataTable({
+		var table = $('#ratetable').DataTable({
 			responsive: true,
 			// Pagination settings
-			dom: `<'row'<'col-sm-6 text-left'f><'col-sm-6 text-right'B>>
+			dom: `<'row'<'col-sm-6 text-left'f><'col-sm-6 text-right'lB>>
 			<'row'<'col-sm-12'tr>>
-			<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 dataTables_pager'lp>>`,
+			<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 dataTables_pager'p>>`,
 
 			buttons: [
 				'print',
@@ -217,8 +252,7 @@
 				'colvis',
 			],
                         colReorder: true,
-                        paging: false,
-			
+                        paging: true,		
 		});
 
 	};
