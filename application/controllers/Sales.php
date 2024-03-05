@@ -2847,13 +2847,14 @@ background-color: #FFFFCC;
                 // print_r($arr4);     
                 if ($arr_1_cnt > 0) {
                     $data['priceList'] = $this->sales_model->getAllRateIndicatorPages($this->brand, $arr4);
+                    $data['vendor_rate'] = $this->sales_model->getjobTasks($arr4); 
+
                 } else {
                     $data['priceList'] = $this->sales_model->getAllRateIndicatorPages($this->brand, 1);
-                }
-            } else {
-               
-                 $data['priceList'] = $this->sales_model->getAllRateIndicatorPages($this->brand, 1);                          
-            }
+                    $data['vendor_rate'] = '';
+                }               
+            } 
+      
             //Pages ..
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('sales_new/rateIndicator/rateList.php');
