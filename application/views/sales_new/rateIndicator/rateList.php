@@ -158,7 +158,7 @@
             </thead>
           <tbody>
             <?php
-            if(isset($vendor_rate) && !empty($vendor_rate->max_rate)){ ?>
+                if(isset($vendor_rate) && !empty($vendor_rate->max_rate)){ ?>
                 <tr class="">              
                   <td>
                     <?php echo $vendor_rate->max_rate; ?>

@@ -2846,8 +2846,12 @@ background-color: #FFFFCC;
                 $arr4 = implode(" and ", $arr3);
                 // print_r($arr4);     
                 if ($arr_1_cnt > 0) {
-                    $data['priceList'] = $this->sales_model->getAllRateIndicatorPages($this->brand, $arr4);
-                    $data['vendor_rate'] = $this->sales_model->getjobTasks($arr4); 
+                    $job_ids = '0';
+                    $data['priceList'] = $priceList = $this->sales_model->getAllRateIndicatorPages($this->brand, $arr4);
+                    foreach ($priceList->result() as $rows){
+                        $job_ids .= ', '.$rows->job_ids;
+                    }
+                    $data['vendor_rate'] = $this->sales_model->getjobTasks($job_ids); 
 
                 } else {
                     $data['priceList'] = $this->sales_model->getAllRateIndicatorPages($this->brand, 1);
@@ -2863,4 +2867,4 @@ background-color: #FFFFCC;
             echo "You have no permission to access this page";
         }
     }
-}
+                    }

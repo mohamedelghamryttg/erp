@@ -1366,10 +1366,11 @@ class Sales_model extends CI_Model
         return $data;
     }
     
-    public function getjobTasks($filter)  
-    {        
-        $data = $this->db->query("SELECT unit,currency,max(rate) as max_rate,min(rate) as min_rate, ROUND(avg(rate), 2) as avg_rate FROM `job_task` WHERE `job_id` IN (SELECT GROUP_CONCAT(`job`.id) as job_ids FROM `job` LEFT JOIN `job_price_list` on `job_price_list`.id = `job`.price_list where " . $filter . " GROUP BY product_line, source , target )")->row();
-        
+    public function getjobTasks($job_ids)
+    {
+        $job_ids = rtrim($job_ids, ',');
+        $data = $this->db->query("SELECT unit,currency,max(rate) as max_rate,min(rate) as min_rate, ROUND(avg(rate), 2) as avg_rate FROM `job_task` WHERE `job_id` IN ($job_ids)")->row();
+    
         return $data;
     }
    
