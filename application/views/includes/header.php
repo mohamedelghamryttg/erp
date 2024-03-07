@@ -95,6 +95,14 @@
       margin-left: 8px;
       margin-right: 8px;
     }
+
+    .cke_chrome {
+      border: 1px solid #c7c7c7 !important;
+    }
+
+    #cke_notifications_area_comment {
+      display: none;
+    }
   </style>
   <!--Core js-->
 

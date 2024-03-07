@@ -188,13 +188,13 @@
 		<!--begin::Header-->
 		<div class="d-flex align-items-center mt-5">
 			<div class="symbol symbol-90 mr-5">
-                            <?php $employee = $this->db->get_where('employees', array('id' => $this->session->userdata('emp_id')))->row();
-                                    if (!empty($employee->employee_image)) { ?>
-                                <div class="symbol-label" style="background-image: url(<?= base_url() ?>assets/uploads/employeesImages/<?= $employee->employee_image ?>)"></div>
-                            <?php } else { ?>
-                                <div class="symbol-label" style="background-image: url(<?= base_url() ?>/assets_new/media/users/blank.png)"></div>
-                            <?php } ?> 
-                            <i class="symbol-badge bg-success"></i>
+				<?php $employee = $this->db->get_where('employees', array('id' => $this->session->userdata('emp_id')))->row();
+				if (!empty($employee->employee_image)) { ?>
+					<div class="symbol-label" style="background-image: url(<?= base_url() ?>assets/uploads/employeesImages/<?= $employee->employee_image ?>)"></div>
+				<?php } else { ?>
+					<div class="symbol-label" style="background-image: url(<?= base_url() ?>/assets_new/media/users/blank.png)"></div>
+				<?php } ?>
+				<i class="symbol-badge bg-success"></i>
 			</div>
 			<div class="d-flex flex-column">
 				<?php $fUserData = $this->db->get_where('employees', array('id' => $this->session->userdata('emp_id')))->row(); ?>
@@ -251,9 +251,9 @@
 					</div>
 					<div class="navi-text">
 						<div class="font-weight-bold">My Profile</div>
-						<div class="text-muted">Account settings 
-						<!--<span class="label label-light-danger label-inline font-weight-bold">update</span>-->
-                                                </div>
+						<div class="text-muted">Account settings
+							<!--<span class="label label-light-danger label-inline font-weight-bold">update</span>-->
+						</div>
 					</div>
 				</div>
 			</a>
@@ -1081,6 +1081,8 @@
 
 
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+
+<script src="<?php echo base_url(); ?>assets_new/js/ckeditor/ckeditor.js"></script>
 <script type="text/javascript">
 	// $("#filter").hide();
 	$('.table-filter').DataTable({

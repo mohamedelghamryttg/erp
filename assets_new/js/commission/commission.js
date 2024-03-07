@@ -5,7 +5,6 @@ let commissionData;
 let permissions;
 
 function openTab(evt, tabName) {
-    console.log(tabName)
     var i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tabcontent");
     for (i = 0; i < tabcontent.length; i++) {
@@ -67,15 +66,17 @@ $(document).ready(function () {
                 return
             },
             error: function (jqXHR, exception) {
+                swal.close();
+                console.log(jqXHR)
                 commissionData = array();
                 permissions = array();
-                swal.close();
+
             }
         });
     }
 
     function createTables(commissionData, permissions) {
-
+        // console.log(commissionData)
         bTable = $("#kt_datatable2").DataTable({
             data: commissionData,
 
@@ -95,7 +96,7 @@ $(document).ready(function () {
             scrollY: "50vh",
             scrollCollapse: true,
             pageResize: true,
-            responsive: true,
+            responsive: false,
             // bProcessing: true,
             language: {
                 lengthMenu: "_MENU_ Rows per page",
@@ -116,12 +117,12 @@ $(document).ready(function () {
                 // processing: '<i class="fas fa-asterisk fa-spin fa-6x fa-fw"></i> < br > PROCESSING < br > Please wait...',
 
             },
-            responsive: {
-                details: {
-                    type: 'column',
-                    target: 0
-                }
-            },
+            // responsive: {
+            //     details: {
+            //         type: 'column',
+            //         target: 0
+            //     }
+            // },
             order: [1, 'desc'],
             autoWidth: true,
             orderCellsTop: true,
@@ -132,32 +133,65 @@ $(document).ready(function () {
                 className: 'noExport'
             },
             {
+                data: 'emp_id'
+            },
+            {
                 data: 'pm_name'
             },
             {
                 data: 'region_name'
             },
             {
-                data: 'months',
+                data: 'months'
             },
             {
-                data: 'years',
+                data: 'years'
             },
             {
-                data: 'revenue_local',
+                data: 'revenue_local'
             },
             {
-                data: 'cost',
-            }, {
-                data: 'profit',
-            }, {
-                data: 'commission',
+                data: 'cost'
             },
+            {
+                data: 'profit'
+            },
+            {
+                data: 'commission'
+            },
+            {
+                data: 'stn_commission'
+            },
+            {
+                data: 'man_commission'
+            }
             ],
             fnRowCallback: function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(0)', nRow).html('<span>' + (iDisplayIndexFull + 1) + '</span>');
             },
             order: [],
+            columnDefs: [
+                {
+                    targets: [6, 7, 8, 9, 10],
+                    className: 'text-right',
+
+                    render: function (data, type, row, meta) {
+                        if (type === 'export') {
+                            if (data == 0) {
+                                return ' '
+                            } else {
+                                // return $.fn.dataTable.render.number('', '.', 3, '', '').display(data)
+                            }
+                        } else {
+                            if (data == 0) {
+                                return ''
+                            } else {
+                                return $.fn.dataTable.render.number(',', '.', 3, '', '').display(data)
+                            }
+                        }
+                    }
+                },
+            ],
             buttons: [
                 {
                     text: 'Search Conditions',
