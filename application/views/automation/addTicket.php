@@ -1,5 +1,5 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="https://cloud.tinymce.com/stable/tinymce.min.js"></script>
+<!-- <script src="https://cloud.tinymce.com/stable/tinymce.min.js"></script> -->
 <!--begin::Content-->
 <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
     <?php if ($this->session->flashdata('true')) { ?>
@@ -39,7 +39,7 @@
                                             <div class="form-group row">
                                                 <label class="col-lg-3 control-label" for="comment">Ticket Description</label>
                                                 <div class="col-lg-6">
-                                                    <textarea name="description" class="form-control" rows="6"></textarea>
+                                                    <textarea name="description" class="form-control ckeditor" rows="6"></textarea>
                                                 </div>
                                             </div>
 
@@ -68,8 +68,8 @@
         </div>
     </div>
 </div>
-<script>
+<!-- <script>
     tinymce.init({
         selector: 'textarea'
     });
-</script>
+</script> -->
