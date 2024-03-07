@@ -46,7 +46,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<link href="<?php echo base_url(); ?>assets_new/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
 	<link href="<?php echo base_url(); ?>assets_new/css/style.bundle.css" rel="stylesheet" type="text/css" />
-	<!-- <link href="<?php echo base_url(); ?>assets_new/css/dataTables.bootstrap.min.css" rel="stylesheet" type="text/css" /> -->
+	<link href="<?php echo base_url(); ?>assets_new/css/dataTableNew.css" rel="stylesheet" type="text/css" />
 </head>
 <!--end::Head-->
 <!--begin::Body-->
@@ -58,8 +58,15 @@ License: You must have a valid license purchased only from themeforest(the above
 	.table-separate>thead {
 		white-space: normal;
 	}
-</style>
 
+	.cke_chrome {
+		border: 1px solid #c7c7c7 !important;
+	}
+
+	#cke_notifications_area_comment {
+		display: none;
+	}
+</style>
 <style>
 	#loading {
 		width: 100%;
@@ -84,7 +91,12 @@ License: You must have a valid license purchased only from themeforest(the above
 	.swal2-content .select2 {
 		display: none;
 	}
+
+	.datepicker {
+		z-index: 10052;
+	}
 </style>
+<script type="text/javascript" src="<?php echo base_url(); ?>assets_new/js/images.js"></script>
 
 <body id="kt_body" class="quick-panel-right demo-panel-right offcanvas-right header-fixed header-mobile-fixed aside-enabled aside-static page-loading">
 	<!--begin::Main-->

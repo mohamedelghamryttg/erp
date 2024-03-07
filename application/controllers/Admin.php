@@ -3765,38 +3765,51 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
         $data['employee'] = "";
         $data['user_det'] = "";
         $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['userss'] = array();
         $this->load->view('includes_new/header.php', $data);
         $this->load->view('admin_new/whos.php');
         $this->load->view('includes_new/footer.php');
     }
-    function whos_data()
+    function whos_data($searchmanager = '')
     {
+        $search_name = $this->input->post('search_name');
+        $search_email = $this->input->post('search_email');
+        $searchmanager = $this->input->post('searchmanager');
+        // var_dump($searchmanager);
+        // die;
+        // parse_str($filter_data, $params);
         $arr2 = array();
-        if ($this->input->post("search_name")) {
-            $search_name = $this->input->post("search_name");
+        // if ($filter_data) {
+        if (isset($search_name)) {
+            // $search_name = $search_name;
             if (!empty($search_name)) {
                 array_push($arr2, 0);
             }
         } else {
             $search_name = "";
         }
-        if ($this->input->post("search_email")) {
-            $search_email = $this->input->post("search_email");
+        if (isset($search_email)) {
+            // $search_email = $params['search_email'];
             if (!empty($search_email)) {
                 array_push($arr2, 1);
             }
         } else {
             $search_email = "";
         }
-        if ($this->input->post("searchmanager")) {
-            $searchmanager = $this->input->post("searchmanager");
+        if (isset($searchmanager)) {
+            // $searchmanager = $params['searchmanager'];
             if (!empty($searchmanager)) {
                 array_push($arr2, 2);
             }
         } else {
             $searchmanager = "";
         }
-        $cond1 = "(u.first_name LIKE '%$search_name%' or u.last_name LIKE '%$search_name%' or u.user_name LIKE '%$search_name%')";
+        // } else {
+        //     $search_name = "";
+        //     $search_email = "";
+        //     $searchmanager = "";
+        // }
+        $cond1 = "(e1.name LIKE '%$search_name%' or u.last_name LIKE '%$search_name%' or u.user_name LIKE '%$search_name%')";
         $cond2 = "u.email LIKE '%$search_email%'";
         $cond3 = "e.department = '$searchmanager'";
         $arr1 = array($cond1, $cond2, $cond3);
@@ -3806,21 +3819,92 @@ OR t.job_id = '44581' OR t.job_id = '44582'");
             array_push($arr3, $arr1[$arr2[$i]]);
         }
         $arr4 = implode(" and ", $arr3);
-        // var_dump($arr4);
-        // die;
+
+        // if ($arr_1_cnt > 0) {
+        //     if ($searchmanager != '') {
+        //         $sql = "select u.id,u.first_name,u.last_name,u.user_name,u.email from users u inner join employees e on e.id = u.employees_id where ($arr4  and u.status ='1') order by e.title asc";
+        //     } else {
+        //         $sql = "select u.id,u.first_name,u.last_name,u.user_name,u.email from users u inner join employees e on e.id = u.employees_id where ($arr4  and u.status ='1')  order by e.title asc";
+        //     }
+        //     $query = $this->db->query($sql);
+        //     $data['userss'] = $query->result();
+        // } else {
+        //     $data['userss'] = array();
+        // }
+
+
+
+
+
+        $sql = "SELECT e1.id,e1.name,e1.manager,e1.department,e2.name as managername,e1.email 
+
+        FROM employees  as e1
+        left join employees as e2 on e2.id = e1.manager
+         WHERE  e1.status = 0 ";
         if ($arr_1_cnt > 0) {
-            if ($searchmanager != '') {
-                $sql = "select u.id,u.first_name,u.last_name,u.user_name,u.email from users u inner join employees e on e.id = u.employees_id where ($arr4  and u.status ='1') order by e.title asc";
-            } else {
-                $sql = "select u.id,u.first_name,u.last_name,u.user_name,u.email from users u inner join employees e on e.id = u.employees_id where ($arr4  and u.status ='1')  order by e.title asc";
-            }
-            $query = $this->db->query($sql);
-            $data['userss'] = $query->result();
+            $sql .=  " and " . $arr4;
         } else {
-            $data['userss'] = "";
         }
-        echo json_encode($data);
+
+        $sql .= " or e1.id IN (SELECT 
+                            manager
+                        FROM
+                            employees
+                        WHERE
+                            department = '" . $searchmanager . "')
+                    ORDER BY e1.id asc";
+
+
+        $sql = "SELECT 
+        e1.id,
+        e1.name,
+        e1.manager,
+        e1.department,
+        e2.name AS managername,
+        e1.email,
+        u.first_name,
+        u.last_name,
+        u.user_name
+    FROM
+        employees AS e1
+            LEFT JOIN
+        employees AS e2 ON e2.id = e1.manager
+            LEFT JOIN
+        users AS u ON e1.id = u.employees_id
+    WHERE
+        e1.department = '" . $searchmanager . "' AND e1.status = 0
+            OR e1.id IN (SELECT 
+                manager
+            FROM
+                employees
+            WHERE
+                department = '" . $searchmanager . "')
+    ORDER BY e1.id ASC";
+        var_dump($sql);
+        die;
+        $data_c  = $this->db->query($sql)->result_array();
+        $ss = $this->buildTree($data_c);
+        echo json_encode($ss);
     }
+
+    function buildTree(array &$elements, $parentId = 0)
+    {
+        $branch = array();
+
+        foreach ($elements as $element) {
+
+            if ($element['manager'] == $parentId) {
+                $children = $this->buildTree($elements, $element['id']);
+                if ($children) {
+                    $element['_children'] = $children;
+                }
+                $branch[$element['id']] = $element;
+                unset($elements[$element['id']]);
+            }
+        }
+        return $branch;
+    }
+
     function whos_data_det()
     {
         if ($this->input->post("user_id")) {
