@@ -22,6 +22,7 @@ class Account extends CI_Controller
         $this->user = $this->session->userdata('id');
         $this->brand = $this->session->userdata('brand');
     }
+
     public function createDataBase()
     {
         try {

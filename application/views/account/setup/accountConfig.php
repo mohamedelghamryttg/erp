@@ -399,7 +399,7 @@
                                             </svg>
                                         </span>
                                         <span>
-                                            Calculate Jobs Total Cost
+                                            Calculate Jobs Total Cost/Revenue/Profit
                                         </span>
                                     </span>
                                 </a>

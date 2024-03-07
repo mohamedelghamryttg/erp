@@ -52,6 +52,7 @@ class Accounting_model extends CI_Model
                             <th>PO Number</th>
                             <th>Currency</th>
                             <th>Total Revenue</th>
+                            <th>CPO File</th>
                         </tr>
                     </thead>
                     <tbody>';
@@ -67,6 +68,8 @@ class Accounting_model extends CI_Model
                             <td>' . $row->number . '</td>
                             <td>' . $this->admin_model->getCurrency($job_data['currency']) . '</td>
                             <td>' . $job_data['total'] . '</td>
+                            <td><a href="<?= base_url() ?>assets/uploads/cpo/' . $row->cpo_file .
+                ' target="_blank">Click Here</a>  </td>
                         </tr>';
         }
         $data .= '</tbody></table>';
@@ -614,24 +617,65 @@ class Accounting_model extends CI_Model
             HAVING brand = '$brand' ORDER BY t.id DESC LIMIT $limit OFFSET $offset ");
         return $data;
     }
+    public function get_data_cpo_job($job_po)
+    {
+        $sql = " select j.code,j.type,j.volume,j.status,j.closed_date,p.id as pricelist,p.rate as rate
+    ,(case 
+    when j.type = 1 then ROUND((p.rate * j.volume),3)
+    when j.type = 2 then (
+    (select ROUND(sum(ifnull(unit_number,0)*ifnull(`value`,0)* p.rate),3) from project_fuzzy where job = j.id))
+    else 0
+    end ) as jobTotal
+    ,(select name from services where id = p.service) as service
+    ,(select name from languages where id = p.source) as `source`
+    ,(select name from languages where id = p.target) as target
+    ,(select name from currency where id = p.currency) as currency
+    ,(select user_name from `users` where id = j.created_by) as user_name
+    
+    from job as j
+    left join job_price_list as p on j.price_list = p.id
+    where j.po = '$job_po'";
+        $datajobs  = $this->db->query($sql)->result_array();
+        if ($datajobs) {
+            return $datajobs;
+        } else {
+            return array();
+        }
+    }
 
-    public function cpoStatus($brand, $filter)
+    public function cpoStatus($filter, $order, $dir, $length, $start)
     {
         // $sql = " SELECT p.*,(SELECT brand FROM customer WHERE customer.id = p.customer) AS brand FROM `po` AS p WHERE " . $filter . " HAVING brand = '$brand' ORDER BY p.created_by DESC ";
 
 
-        $sql = "SELECT p.*,c.name as customer_name ,u.user_name as pm
-        ,(select GROUP_CONCAT(name)  from has_error as h where FIND_IN_SET( h.id,p.has_error)
-        )
+        $sql = "SELECT p.id,p.number,p.cpo_file,p.created_at,p.verified_at
+		,c.name as customer_name ,u.user_name as pm,u.brand
+        ,ifnull((select GROUP_CONCAT(name)  from has_error as h where FIND_IN_SET( h.id,p.has_error)
+        ),'')
         as error_name
-        ,j.job_count
+       
+        , case when p.verified = 1 then 'Verified' 
+			   when p.verified = 2 then 'Has Error'
+               else 'Not Verified'
+               end as verified
+         ,case when p.invoiced = 1 then 'Invoiced'
+               else 'Not Invoiced'
+               end as invoiced
+          ,case when p.paid = 1 then 'Paid'
+               else 'Not Paid'
+               end as paid            
         FROM `po` AS p 
         left join customer as c on p.customer = c.id
-        left join users as u on p.created_by = u.id
-        left join (select po,count(id) as job_count from job group by po ) as j on p.id = j.po
-         where " . $filter . " ORDER BY p.created_by DESC  ";
+        left join users as u on p.created_by = u.id ";
 
-        $data = $this->db->query($sql)->result_array();
+        $sql .= " where " . implode(" and ", $filter);
+        if ($order != null) {
+            $sql .= " ORDER BY " . $order . " " . $dir;
+        }
+        if ($length >= 0) {
+            $sql .= " limit " . $start . "," . $length;
+        }
+        $data = $this->db->query($sql);
 
         return $data;
     }
@@ -1267,8 +1311,20 @@ class Accounting_model extends CI_Model
 									WHERE t.verified = '1' AND p.payment_date IS NULL HAVING brand = '$this->brand' ");
         return $data;
     }
+    public function vpoStatus_count($filter)
+    {
+        $query = $this->db->select(" t.id
+        ")->from('job_task As t')
+            ->join('vendor_payment as p', 'p.task = t.id', 'left')
+            ->join('vendor As v', 't.vendor=v.id', 'left');
 
-    public function vpoStatus_added($filter)
+        $this->db->where($filter);
+        // $query->count_all_results();
+        // var_dump($this->db->last_query());
+        // die;
+        return $query->count_all_results();
+    }
+    public function vpoStatus_added_old($filter)
     {
         $filter['t.added_vpo ='] = 1;
         // added in vpo
@@ -1282,12 +1338,66 @@ class Accounting_model extends CI_Model
             ->join('languages As tlang', 'jo.target=tlang.id', 'left')->join('po', 'j.po=po.id', 'left')->where($filter);
 
 
+        return $query->get();
+    }
+    public function vpoStatus_added($filter)
+    {
+        // $filter['t.added_vpo ='] = 1;
+        // // added in vpo
+        // $query = $this->db->select('t.*,p.payment_method,p.status AS payment_status,p.payment_date AS payment_date,v.brand,
+        //                           u.user_name,v.name as vendor_name,tp.name as task_type_name,un.name as unit_name,
+        //                           c.name as currency_name,j.price_list,pm.name as payment_method_name,
+        //                           j.po,slang.name as source_lang,tlang.name as target_lang,po.verified as po_verified,po.verified_at as po_verified_at')->from('job_task As t')
+        //     ->join('vendor_payment as p', 'p.task = t.id')->join('payment_method As pm', 'pm.id=p.payment_method')->join('users AS u', 't.created_by = u.id', 'left')->join('vendor As v', 't.vendor=v.id', 'left')
+        //     ->join('task_type tp', 't.task_type=tp.id', 'left')->join('unit As un', 't.unit=un.id', 'left')->join('currency As c', 't.currency=c.id', 'left')
+        //     ->join('job As j', 't.job_id=j.id', 'left')->join('job_price_list AS jo', 'j.price_list=jo.id', 'left')->join('languages As slang', 'jo.source=slang.id', 'left')
+        //     ->join('languages As tlang', 'jo.target=tlang.id', 'left')->join('po', 'j.po=po.id', 'left')->where($filter);
+        // return $query->get();
 
+        // added in vpo
+        $query = $this->db->select(" t.code,t.status,t.closed_date,t.vpo_file,t.job_portal,t.count,t.rate,p.payment_method,p.status AS payment_status,ifnull(p.payment_date,'') AS payment_date,v.brand,
+        u.user_name,v.name as vendor_name,tp.name as task_type_name,un.name as unit_name,
+        c.name as currency_name,j.price_list,ifnull(pm.name,'') as payment_method_name,
+        j.po,slang.name as source_lang,tlang.name as target_lang,po.verified_at as po_verified_at,(ifnull(t.rate,0) * ifnull(t.count,0)) as totalamount,
+        case when (t.invoice_date <> '' and t.invoice_date is not null) then DATE_ADD(STR_TO_DATE(t.invoice_date,\"%m/%d/%Y\"), INTERVAL 45 DAY) else '' end as date45,
+        case when (t.invoice_date <> '' and t.invoice_date is not null) then DATE_ADD(STR_TO_DATE(t.invoice_date,\"%m/%d/%Y\"), INTERVAL 60 DAY) else '' end as date60,
+        STR_TO_DATE(t.invoice_date,\"%m/%d/%Y\") as invoice_dated
+        
+        ,CASE WHEN (po.verified = '1') THEN 'Verified' ELSE '' END AS po_verified,
+        ,case when (t.verified = '1' and t.verified is not null) then 'Verified' 
+             when (t.verified = '2' and t.verified is not null) then 'Has Error' 
+        else '' end as verifiedStat,
+
+        ,case when (t.job_portal = '1' and t.job_portal is not null) then 'Nexus System'  
+        else '' end as portalStat,
+        
+        ,case when (p.status = '1' and p.status is not null) then 'Paid'  
+        else '' end as PaidStat
+
+        ")->from('job_task As t')
+            ->join('vendor_payment as p', 'p.task = t.id', 'left')
+            ->join('payment_method As pm', 'pm.id=p.payment_method', 'left')
+            ->join('users AS u', 't.created_by = u.id', 'left')
+            ->join('vendor As v', 't.vendor=v.id', 'left')
+            ->join('task_type tp', 't.task_type=tp.id', 'left')
+            ->join('unit As un', 't.unit=un.id', 'left')
+            ->join('currency As c', 't.currency=c.id', 'left')
+            ->join('job As j', 't.job_id=j.id', 'left')
+            ->join('job_price_list AS jo', 'j.price_list=jo.id', 'left')
+            ->join('languages As slang', 'jo.source=slang.id', 'left')
+            ->join('languages As tlang', 'jo.target=tlang.id', 'left')
+            ->join('po as po', 'j.po=po.id', 'left');
+
+        $this->db->where($filter);
+
+        // $query->get();
+        // var_dump($this->db->last_query());
+        // die;
         return $query->get();
     }
     public function vpoStatus_not_added($filter)
     {
-        $filter['t.added_vpo ='] = 0;
+        // $filter['t.added_vpo ='] = 0;
         // not added in vpo
         $query = $this->db->select('t.*,v.brand,
                                     u.user_name,v.name as vendor_name,tp.name as task_type_name,un.name as unit_name,

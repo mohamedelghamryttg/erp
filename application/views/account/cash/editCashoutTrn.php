@@ -61,7 +61,7 @@
                     <div class="col-lg-6">
                         <select name='cash_id' class='form-control m-b' id="cash_id" required value="<?= $cashout->cash_id ?>">
                             <option value="" selected='' disabled>-- Select Cash --</option>
-                            <?= $this->AccountModel->selectPaymentCombo('payment_method', $cashout->cash_id, $brand, '2'); ?>
+                            <?= $this->AccountModel->selectPaymentCombo('payment_method', $cashout->cash_id, $brand, '1'); ?>
                         </select>
                     </div>
                     <input type="hidden" name="cash_acc" id="cash_acc" value="<?= $cash_acc ?>">
