@@ -1369,7 +1369,7 @@ class Sales_model extends CI_Model
     public function getjobTasks($job_ids)
     {
         $job_ids = rtrim($job_ids, ',');
-        $data = $this->db->query("SELECT unit,currency,max(rate) as max_rate,min(rate) as min_rate, ROUND(avg(rate), 2) as avg_rate FROM `job_task` WHERE `job_id` IN ($job_ids)")->row();
+        $data = $this->db->query("SELECT currency,max(rate) as max_rate,min(rate) as min_rate, ROUND(avg(rate), 2) as avg_rate FROM `job_task` WHERE `job_id` IN ($job_ids)")->row();
     
         return $data;
     }
