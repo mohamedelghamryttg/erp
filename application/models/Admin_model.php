@@ -116,9 +116,13 @@ class Admin_model extends CI_Model
 
 	public function getGroupByRole($role)
 	{
-		$sql = "SELECT DISTINCT `groups` FROM `permission` WHERE `role` = '$role' AND `groups` <> '0' order by `groups`,menu_order";
-
-		$result = $this->db->query($sql)->result();
+		$this->db->distinct();
+		$this->db->select('groups');
+		$this->db->where('role', $role);
+		$this->db->where('groups !=', '0');
+		$this->db->order_by("groups asc");
+		$query = $this->db->get('permission');
+		$result = $query->result();
 		return $result;
 	}
 
@@ -229,7 +233,8 @@ class Admin_model extends CI_Model
 
 	public function getScreenByGroupAndRole($groups, $role)
 	{
-		$result = $this->db->query(" SELECT p.* FROM `permission` AS p INNER JOIN screen AS s ON p.screen = s.id WHERE s.menu = '1' and p.groups = '$groups' and p.role = '$role' ")->result();
+		$result = $this->db->query(" SELECT p.* FROM `permission` AS p INNER JOIN screen AS s ON p.screen = s.id WHERE s.menu = '1' and p.groups = '$groups' and p.role = '$role' order by p.menu_order ")->result();
+
 		return $result;
 	}
 
@@ -671,6 +676,7 @@ class Admin_model extends CI_Model
 	public function getCurrency($currency)
 	{
 		$result = $this->db->get_where('currency', array('id' => $currency))->row();
+
 		if (isset($result->name)) {
 			return $result->name;
 		} else {
@@ -1304,12 +1310,6 @@ class Admin_model extends CI_Model
 		$title = 'Operational Report By PM / USD From:' . date('Y_m_d', strtotime($start_date)) . '  To:' . date('Y_m_d', strtotime($end_date));
 		$file = $filename  . '.xlsx'; //save our workbook as this file name
 
-		// header('Content-Type: application/vnd.ms-excel'); //mime type
-		// header('Content-Disposition: attachment;filename="' . $filename . '"'); //tell browser what's the file name
-		// header("Pragma: no-cache");
-		// header("Expires: 0");
-
-
 		$objPHPExcel = new PHPExcel();
 		$objPHPExcel->getProperties()->setTitle("title")->setDescription($filename);
 		$objPHPExcel->setActiveSheetIndex(0);
@@ -1328,19 +1328,7 @@ class Admin_model extends CI_Model
 		$objPHPExcel->getActiveSheet()->getCell('F2')->setValue('Revenue Of Running Jobs');
 		$objPHPExcel->getActiveSheet()->getCell('G2')->setValue('Number Of Closed Jobs');
 		$objPHPExcel->getActiveSheet()->getCell('H2')->setValue('Revenue Of Closed Jobs');
-		// $objPHPExcel->getActiveSheet()->getCell('E3')->setValue('Old Running Jobs');
-		// $objPHPExcel->getActiveSheet()->getCell('I3')->setValue('Current Running Jobs');
-		// $objPHPExcel->getActiveSheet()->getCell('G3')->setValue('Old Running Jobs');
-		// $objPHPExcel->getActiveSheet()->getCell('J3')->setValue('Current Running Jobs');
 
-		// $objPHPExcel->getActiveSheet()->mergeCells('A2:A3');
-		// $objPHPExcel->getActiveSheet()->mergeCells('B2:B3');
-		// $objPHPExcel->getActiveSheet()->mergeCells('C2:C3');
-		// $objPHPExcel->getActiveSheet()->mergeCells('D2:D3');
-		// $objPHPExcel->getActiveSheet()->mergeCells('E2:F2');
-		// $objPHPExcel->getActiveSheet()->mergeCells('G2:H2');
-		// $objPHPExcel->getActiveSheet()->mergeCells('I2:I3');
-		// $objPHPExcel->getActiveSheet()->mergeCells('J2:J3');
 		$rows = 3;
 		$total_old_count = 0;
 		$total_curr_count = 0;

@@ -332,7 +332,7 @@
                 render: function(data, type, row, meta) {
                     if (type === 'export') {
                         if (data == 0) {
-                            return ' '
+                            return ''
                         } else {
                             return data
                             // $.fn.dataTable.render.number('', '.', 3, '', '').display(data)
@@ -613,7 +613,7 @@
         function num_formats(xlsx, formatID, formatCode) {
             var sSh = xlsx.xl['styles.xml'];
             var styleSheet = sSh.childNodes[0];
-            numFmts = styleSheet.childNodes[0];
+            var numFmts = styleSheet.childNodes[0];
             cellXfs = styleSheet.childNodes[5];
             var formatID = formatID;
 

@@ -82,17 +82,18 @@
             </style>
             <div class="tab">
                 <button class="tablinks" onclick="openTab(event, 'Tab 1')">PM Commission List</button>
-                <button class="tablinks" onclick="openTab(event, 'Tab 2')">Jobs Revenue / Cost</button>
+                <button class="tablinks" onclick="openTab(event, 'Tab 2')">PM Monthly Revenue / Cost</button>
 
             </div>
 
             <div id="Tab 1" class="tabcontent">
                 <!--begin: Datatable-->
-                <table class="table table-separate table-head-custom" id="kt_datatable2">
+                <table class="table table-separate table-head-custom " id="kt_datatable2">
 
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>PM ID</th>
                             <th>PM Name</th>
                             <th>Region</th>
                             <th>month</th>
@@ -100,8 +101,9 @@
                             <th>Revenue</th>
                             <th>Cost</th>
                             <th>Profit</th>
-                            <th>commission</th>
-
+                            <th>Member Commission</th>
+                            <th>Stand Commission</th>
+                            <th>TeamL Commission</th>
                         </tr>
                     </thead>
 

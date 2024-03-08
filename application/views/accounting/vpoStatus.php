@@ -7,8 +7,7 @@
       </header>
 
       <div class="panel-body">
-        <form class="cmxform form-horizontal " id="vpoStatus" action="<?php echo base_url() ?>accounting/vpoStatus"
-          method="post" enctype="multipart/form-data">
+        <form class="cmxform form-horizontal " id="vpoStatus" action="<?php echo base_url() ?>accounting/vpoStatus" method="post" enctype="multipart/form-data">
           <div class="form-group">
 
             <label class="col-lg-2 control-label" for="role date">PO Number</label>
@@ -77,9 +76,7 @@
           <div class="form-group">
             <div class="col-lg-offset-3 col-lg-6">
               <button class="btn btn-primary" name="search" type="submit">Search</button>
-              <button class="btn btn-success"
-                onclick="var e2 = document.getElementById('vpoStatus'); e2.action='<?= base_url() ?>accounting/exportvpoStatus'; e2.submit();"
-                name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export To Excel</button>
+              <button class="btn btn-success" onclick="var e2 = document.getElementById('vpoStatus'); e2.action='<?= base_url() ?>accounting/exportvpoStatus'; e2.submit();" name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export To Excel</button>
             </div>
           </div>
         </form>
@@ -148,7 +145,7 @@
                   $job = $this->db->get_where('job', array('id' => $row->job_id))->row();
                   $priceList = $this->projects_model->getJobPriceListData($job->price_list);
                   $po = $this->db->get_where('po', array('id' => $job->po))->row()
-                    ?>
+              ?>
                   <tr>
                     <td>
                       <?php echo $this->admin_model->getAdmin($row->created_by); ?>
@@ -230,7 +227,7 @@
                       <?php } ?>
                     </td>
                   </tr>
-                <?php }
+              <?php }
               } ?>
             </tbody>
           </table>

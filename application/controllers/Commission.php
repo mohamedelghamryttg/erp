@@ -23,10 +23,10 @@ class Commission extends CI_Controller
 
     public function index()
     {
-        $check = $this->admin_model->checkPermission($this->role, 236);
+        $check = $this->admin_model->checkPermission($this->role, 246);
         if ($check) {
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
-            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 246);
             $data['emp_id'] = $this->emp_id;
             if (isset($_GET['search'])) {
                 $arr2 = array();
@@ -96,7 +96,7 @@ class Commission extends CI_Controller
     public function addRule()
     {
         // Check Permission ..
-        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 246);
         if ($data['permission']->add == 1) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
@@ -114,7 +114,7 @@ class Commission extends CI_Controller
     public function doAddRule()
     {
         // Check Permission ..
-        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
+        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 246);
         if ($permission->add == 1) {
             // check if alredy exists 
             $check = $this->db->get_where('commission_setting', array('brand_id' => $_POST['brand_id'], 'region_id ' => $_POST['region'], 'month' => $_POST['month'], 'year' => $_POST['year']))->num_rows();
@@ -161,7 +161,7 @@ class Commission extends CI_Controller
     public function editRule()
     {
         // Check Permission ..
-        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 246);
         if ($data['permission']->edit == 1) {
             //header ..
             $data['group'] = $this->admin_model->getGroupByRole($this->role);
@@ -181,7 +181,7 @@ class Commission extends CI_Controller
     public function doEditRule()
     {
         // Check Permission ..
-        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
+        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 246);
         if ($permission->edit == 1) {
             // check if alredy exists 
             $id = base64_decode($_POST['id']);
@@ -228,7 +228,7 @@ class Commission extends CI_Controller
 
     public function exportCommission($data)
     {
-        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
+        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 246);
         if ($permission == 1) {
             $file_type = "vnd.ms-excel";
             $file_ending = "xls";
@@ -246,10 +246,10 @@ class Commission extends CI_Controller
     public function deleteRule()
     {
         // Check Permission ..
-        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
+        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 246);
         if ($permission->delete == 1) {
             $id = base64_decode($_GET['t']);
-            $this->admin_model->addToLoggerDelete('commission_setting', 236, 'id', $id, 0, 0, $this->user);
+            $this->admin_model->addToLoggerDelete('commission_setting', 246, 'id', $id, 0, 0, $this->user);
             if ($this->db->delete('commission_setting', array('id' => $id))) {
                 $true = "Rule Deleted Successfully ...";
                 $this->session->set_flashdata('true', $true);
@@ -267,7 +267,7 @@ class Commission extends CI_Controller
     public function copyRule()
     {
         // Check Permission ..
-        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
+        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 246);
         if ($permission->edit == 1) {
             $count = 0;
             $error = "";
@@ -462,120 +462,289 @@ class Commission extends CI_Controller
 
         $data['rules'] = $this->db->get_where('commission_setting', array('year' => $rules->year, 'month' => $rules->month, 'brand_id' => $rules->brand_id))->result_array();
 
+
         $sql = "SELECT 
-                created_by,
-                pm_name,
-                region,
-                region_name,
-                issue_date,
-                MONTH(issue_date) AS months,
-                YEAR(issue_date) AS years,
-                SUM(profit) AS profit,
-                SUM(cost) AS cost,
-                SUM(revenue_local) AS revenue_local,
-                0 AS commission
-            FROM
-                (SELECT 
-                    j.*, cl.region, i.issue_date,emp.name as pm_name,re.name as region_name
-                FROM
-                    job AS j
-                LEFT  JOIN invoices AS i ON FIND_IN_SET(j.po, i.po_ids) > 0
-                LEFT  JOIN users AS u ON j.created_by = u.id
-                LEFT JOIN job_price_list AS jp ON j.price_list = jp.id
-                LEFT JOIN customer_price_list AS cp ON jp.price_list_id = cp.id
-                LEFT JOIN customer_leads AS cl ON cp.lead = cl.id
-                left join employees as emp on u.employees_id = emp.id
-                left join regions as re on cl.region = re.id
-                    where i.issue_date >= '$rules->date_from' and i.issue_date <= '$rules->date_to' and   u.brand = $rules->brand_id                       
+        created_by,
+        pm_name,
+        region,
+        region_name,
+        issue_date,
+        MONTH(issue_date) AS months,
+        YEAR(issue_date) AS years,
+        SUM(profit) AS profit,
+        SUM(cost) AS cost,
+        SUM(revenue_local) AS revenue_local,
+        0 AS commission,
+        0 AS man_commission,
+        0 AS stn_commission,
+        title,
+        emp_id,
+        manager
+    FROM
+        (SELECT 
+            j.created_by,
+                j.profit,
+                j.cost,
+                j.revenue_local,
+                cl.region,
+                i.issue_date,
+                emp.name AS pm_name,
+                re.name AS region_name,
+                emp.title AS title,
+                emp.id as emp_id,
+                emp.manager as manager
+        FROM
+            job AS j
+        LEFT JOIN invoices AS i ON FIND_IN_SET(j.po, i.po_ids) > 0
+        LEFT JOIN users AS u ON j.created_by = u.id
+        LEFT JOIN job_price_list AS jp ON j.price_list = jp.id
+        LEFT JOIN customer_price_list AS cp ON jp.price_list_id = cp.id
+        LEFT JOIN customer_leads AS cl ON cp.lead = cl.id
+        LEFT JOIN employees AS emp ON u.employees_id = emp.id
+        LEFT JOIN regions AS re ON cl.region = re.id
+        LEFT JOIN users AS u1 ON u1.employees_id = emp.manager
+        
+        where i.issue_date >= '$rules->date_from' and i.issue_date <= '$rules->date_to' and   u.brand = $rules->brand_id                       
                     ) as jobs        
-                    group by created_by,region,month(issue_date),year(issue_date)
+                    group by created_by,";
+        if ($rules->region_id != null && $rules->region_id != '') {
+            $sql .= "region,";
+        }
+        $sql .= "month(issue_date),year(issue_date)
                     order by created_by";
-
+        // var_dump($sql);
         $jobData = $this->db->query($sql)->result_array();
+        $st_array = [
+            '12', '28', '29', '65', '73', '99', '153', '211', '213', '230', '240', '32', '98'
+        ];
+        $tl_array = [
+            '28', '73', '99', '32'
+        ];
+        $mn_arry = ['211', '213'];
         foreach ($jobData as &$row) {
+            $man_commission = 0;
+            $stn_commission = 0;
+            if (in_array($row['emp_id'], $st_array)) {
+                $stn_commission  = $row['profit'] * ($rules->standalone_per ?? 0) / 100;
+                $row['stn_commission'] =  round($stn_commission, 3);
+            } else {
+                if ($rules->region_id != null && $rules->region_id != '') { // brnad rules with regions
+                    if ($row['region'] != null && $row['region'] != '') {
+                        $com_index = 0;
+                        foreach ($data['rules'] as $rulesRow) {
+                            if ($rulesRow['region_id'] == $row['region']) {
+                                break;
+                            }
+                            $com_index++;
+                        }
+                        if ($com_index > (count($data['rules']) - 1)) {
+                            $comm_arry = null;
+                        } else {
+                            $comm_arry = $data['rules'][$com_index];
+                        }
+                    }
+                } else { // brnad rules without regions
+                    $comm_arry = $data['rules'][0];
+                }
 
-            if ($row['region'] && $row['region'] != '') {
-                $com_index = 0;
-                foreach ($data['rules'] as $rulesRow) {
-                    if ($rulesRow['region_id'] == $row['region']) {
+                if (!$comm_arry) {
+                    continue;
+                }
+                if ($row['revenue_local'] > 0) {
+                    $profit_per = ($row['cost'] / $row['revenue_local']);
+                } else {
+                    $profit_per = 0;
+                }
+                $per_sym = "";
+                if ($profit_per <= $comm_arry['cogs_per']) {
+                    $per_sym = "cogs_per_l";
+                } else {
+                    $per_sym = "cogs_per_m";
+                }
+                $temp_rev = $row['revenue_local'];
+                $commission = 0;
+                $target_val = 0;
+                $comm_val = 0;
+                $row['commission'] = 0;
+
+                for ($i = 1; $i < 7; $i++) {
+                    if ($i == 6) {
+                        $flt = '$temp_rev > $comm_arry["rev_target_from_' . strval($i) . '"]';
+                    } else {
+                        $flt = '$temp_rev > $comm_arry["rev_target_to_' . strval($i) . '"]';
+                        // '$temp_rev >= $comm_arry["rev_target_from_' . $i . '"] && $temp_rev < $comm_arry["rev_target_to_' . $i . '"]';
+                    }
+
+                    if ($comm_arry['rev_target_from_' . strval($i)] && $comm_arry['rev_target_from_' . strval($i)] != 0) {
+                        if (eval("return $flt;")) {
+                            if ($i != 6) {
+                                $target_val = $comm_arry['rev_target_to_' . strval($i)] - $target_val;
+                            } else {
+                                $target_val = $temp_rev;
+                            }
+                            $comm_val =  ($target_val * $comm_arry[$per_sym . strval($i)] / 100);
+                            $commission =  $commission + $comm_val;
+                            $temp_rev = $temp_rev - $target_val;
+                        } else {
+                            if ($i != 6) {
+                                $target_val =  $target_val;
+                            } else {
+                                $target_val = $temp_rev;
+                            }
+                            $comm_val =  ($target_val * $comm_arry[$per_sym . strval($i)] / 100);
+                            $commission =  $commission + $comm_val;
+                            $temp_rev = $temp_rev - $target_val;
+                            // if ($comm_val < 0) {
+                            //     print_r('<pre>');
+                            //     var_dump($target_val);
+                            //     var_dump($comm_val);
+                            //     var_dump($temp_rev);
+                            //     die;
+                            // }
+                        }
+                    }
+                }
+                $row['commission'] =  round($commission, 3);
+            }
+        }
+        // teamleader commission
+        $clon_arry = $jobData;
+        foreach ($clon_arry as &$row) {
+            $man_commission = 0;
+
+            if (in_array($row['manager'], $tl_array)) {
+                $man_commission  = $row['profit'] * ($rules->teamleader_per ?? 0) / 100;
+                foreach ($jobData as &$row_man) {
+                    if ($row_man['emp_id'] == $row['manager']) {
+                        $row_man['man_commission'] = $row_man['man_commission'] + round($man_commission, 3);
+                        // var_dump($row_man['man_commission']);
+
                         break;
                     }
-                    $com_index++;
-                }
-                if ($com_index > (count($data['rules']) - 1)) {
-                    $comm_arry = null;
-                } else {
-                    $comm_arry = $data['rules'][$com_index];
-                }
-            } else {
-            }
-
-            if (!$comm_arry) {
-                continue;
-            }
-
-
-            $profit_per = ($row['cost'] / $row['revenue_local']);
-            $per_sym = "";
-            if ($profit_per <= $comm_arry['cogs_per']) {
-                $per_sym = "cogs_per_l";
-            } else {
-                $per_sym = "cogs_per_m";
-            }
-            $temp_rev = $row['revenue_local'];
-            $commission = 0;
-            $target_val = 0;
-            $comm_val = 0;
-            $row['commission'] = 0;
-
-            for ($i = 1; $i < 7; $i++) {
-                if ($i == 6) {
-                    $flt = '$temp_rev > $comm_arry["rev_target_from_' . strval($i) . '"]';
-                } else {
-                    $flt = '$temp_rev > $comm_arry["rev_target_to_' . strval($i) . '"]';
-                    // '$temp_rev >= $comm_arry["rev_target_from_' . $i . '"] && $temp_rev < $comm_arry["rev_target_to_' . $i . '"]';
-                }
-
-                if ($comm_arry['rev_target_from_' . strval($i)] && $comm_arry['rev_target_from_' . strval($i)] != 0) {
-                    if (eval("return $flt;")) {
-                        if ($i != 6) {
-                            $target_val = $comm_arry['rev_target_to_' . strval($i)] - $target_val;
-                        } else {
-                            $target_val = $temp_rev;
-                        }
-                        $comm_val =  ($target_val * $comm_arry[$per_sym . strval($i)] / 100);
-                        $commission =  $commission + $comm_val;
-                        $temp_rev = $temp_rev - $target_val;
-                    } else {
-                        if ($i != 6) {
-                            $target_val =  $target_val;
-                        } else {
-                            $target_val = $temp_rev;
-                        }
-                        $comm_val =  ($target_val * $comm_arry[$per_sym . strval($i)] / 100);
-                        $commission =  $commission + $comm_val;
-                        $temp_rev = $temp_rev - $target_val;
-                        // if ($comm_val < 0) {
-                        //     print_r('<pre>');
-                        //     var_dump($target_val);
-                        //     var_dump($comm_val);
-                        //     var_dump($temp_rev);
-                        //     die;
-                        // }
-                    }
                 }
             }
-            $row['commission'] =  round($commission, 3);
-
-            // print_r('<pre>');
-            // var_dump($row['revenue_local']);
-            // var_dump($jobData);
-            // die;
         }
+
+
+        $result = array_reduce($jobData, function ($carry, $item) {
+            if (!isset($carry[$item['emp_id']])) {
+                $carry[$item['emp_id']] = $item;
+            } else {
+                $carry[$item['emp_id']]['revenue_local'] += $item['revenue_local'];
+                $carry[$item['emp_id']]['cost'] += $item['cost'];
+                $carry[$item['emp_id']]['profit'] += $item['profit'];
+                $carry[$item['emp_id']]['commission'] += $item['commission'];
+                $carry[$item['emp_id']]['stn_commission'] += $item['stn_commission'];
+                $carry[$item['emp_id']]['man_commission'] += $item['man_commission'];
+            }
+            return $carry;
+        });
+
+        $arrays = $result;
+
+        $jobData = array();
+        $i = 0;
+        foreach ($arrays as $k => $item) {
+            $jobData[$i] = $item;
+            unset($arrays[$k]);
+            $i++;
+        }
+
+
+        // $jobData = $result;
+
         $data['jobData'] = $jobData;
         // print_r('<pre>');
-        // var_dump($data['jobData']);
+        // var_dump($data);
         // die;
         echo json_encode($data);
+    }
+    public function commissionRules()
+    {
+        $check = $this->admin_model->checkPermission($this->role, 236);
+        if ($check) {
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
+            $data['emp_id'] = $this->emp_id;
+            if (isset($_GET['search'])) {
+                $arr2 = array();
+                if (isset($_REQUEST['month'])) {
+                    $month = $_REQUEST['month'];
+                    if (!empty($month)) {
+                        array_push($arr2, 0);
+                        $data['month'] = $month;
+                    }
+                } else {
+                    $month = "";
+                }
+                if (isset($_REQUEST['year'])) {
+                    $year = $_REQUEST['year'];
+                    if (!empty($year)) {
+                        array_push($arr2, 1);
+                        $data['year'] = $year;
+                    }
+                } else {
+                    $year = "";
+                }
+                if (isset($_REQUEST['brand'])) {
+                    $brand = $_REQUEST['brand'];
+                    if (!empty($brand)) {
+                        array_push($arr2, 2);
+                        $data['brand'] = $brand;
+                    }
+                } else {
+                    $brand = "";
+                }
+                $cond1 = "month = '$month'";
+                $cond2 = "year = '$year'";
+                $cond3 = "brand_id = '$brand'";
+
+                $arr1 = array($cond1, $cond2, $cond3);
+                $arr_1_cnt = count($arr2);
+                $arr3 = array();
+                for ($i = 0; $i < $arr_1_cnt; $i++) {
+                    array_push($arr3, $arr1[$arr2[$i]]);
+                }
+                $arr4 = implode(" and ", $arr3);
+
+                if ($arr_1_cnt > 0) {
+                    $data['rules'] = $this->Commission_model->AllPmRules($data['permission'], $arr4);
+                } else {
+                    $data['rules'] = $this->Commission_model->AllPmRules($data['permission'], 1);
+                }
+            } else {
+                $data['rules'] = $this->Commission_model->AllPmRules($data['permission'], 1);
+            }
+
+            if (isset($_REQUEST['export'])) {
+
+                // $this->exportCommission($data);
+            } else {
+                //Pages ..
+                $data['total_rows'] = $this->Commission_model->AllPmRules($data['permission'], 1)->num_rows();
+                $this->load->view('includes_new/header.php', $data);
+                $this->load->view('commission/pmRulesList.php');
+                $this->load->view('includes_new/footer.php');
+            }
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
+    public function addPmRule()
+    {
+        // Check Permission ..
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 236);
+        if ($data['permission']->add == 1) {
+            //header ..
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            //body ..
+            $data['pm_all'] = $this->db->query("select * from employees where department =12 and status = 0");
+            //Pages ..
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('commission/addPmRule.php');
+            $this->load->view('includes_new/footer.php');
+        } else {
+            echo "You have no permission to access this page";
+        }
     }
 }

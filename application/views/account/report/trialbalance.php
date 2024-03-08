@@ -1,4 +1,4 @@
-<script src="<?php echo base_url(); ?>assets_new/js/table2excel.js"></script>
+<!-- <script src="<?php echo base_url(); ?>assets_new/js/table2excel.js"></script> -->
 <div class="content d-flex flex-column flex-column" id="kt_content" style="padding:0;">
     <div class="d-flex flex-column">
         <!--begin::Entry-->
@@ -205,15 +205,15 @@
 </div>
 
 <script>
-    $('#export').on('click', function(e) {
-        var table2excel = new table2excel({
+    // $('#export').on('click', function(e) {
+    //     var table2excel = new table2excel({
 
-            defaultFileName: "Trial Balance",
-            preserveColors: true
+    //         defaultFileName: "Trial Balance",
+    //         preserveColors: true
 
-        });
-        table2excel.export(document.querySelectorAll("table.table", "Trial Balance"));
-    });
+    //     });
+    //     table2excel.export(document.querySelectorAll("table.table", "Trial Balance"));
+    // });
 
 
     $(document).ready(function() {

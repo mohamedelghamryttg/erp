@@ -1,9 +1,9 @@
-<script src="https://cloud.tinymce.com/stable/tinymce.min.js"></script>
-<script>
+<!-- <script src="https://cloud.tinymce.com/stable/tinymce.min.js"></script> -->
+<!-- <script>
 	tinymce.init({
 		selector: 'textarea'
 	});
-</script>
+</script> -->
 <div class="d-flex flex-column-fluid">
 	<!--begin::Container-->
 	<div class="container">
@@ -48,7 +48,7 @@
 					<div class="form-group row">
 						<label class="col-lg-3 col-form-label text-right">Additional Information</label>
 						<div class="col-lg-6">
-							<textarea name="additional_info" class="form-control" rows="6"></textarea>
+							<textarea name="additional_info" class="form-control ckeditor" rows="6"></textarea>
 
 						</div>
 					</div>
@@ -63,7 +63,7 @@
 						<div class="form-group row">
 							<label class="col-lg-3 col-form-label text-right">Customer Profile Notes</label>
 							<div class="col-lg-6">
-								<textarea name="notes" class="form-control" rows="7"></textarea>
+								<textarea name="notes" class="form-control  ckeditor" rows="7"></textarea>
 
 							</div>
 						</div>

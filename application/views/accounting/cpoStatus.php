@@ -52,12 +52,12 @@
 						<label class="col-lg-2 control-label" for="role date">Po Status</label>
 
 						<div class="col-lg-3">
-							<select name="verified" class="form-control m-b" id="verified">
-								<option value="" disabled="disabled" selected="selected">-- Select Status --</option>
+							<select name="verified" class="form-control m-b" id="verified" />
+							<option disabled="disabled" selected="selected">-- Select Status --</option>
 
-								<option value="1" <?= $verified == 1 ? " selected" : "" ?>>Verified</option>
-								<option value="3" <?= $verified == 3 ? " selected" : "" ?>>Not Verified</option>
-								<option value="2" <?= $verified == 2 ? " selected" : "" ?>>Has Error</option>
+							<option value="1" <?= $_REQUEST['verified'] == '1' ? " selected" : "" ?>>Verified</option>
+							<option value="3" <?= $_REQUEST['verified'] == '3' ? " selected" : "" ?>>Not Verified</option>
+							<option value="2" <?= $_REQUEST['verified'] == '2' ? " selected" : "" ?>>Has Error</option>
 
 							</select>
 						</div>
@@ -85,7 +85,8 @@
 					<div class="form-group">
 						<div class="col-lg-offset-3 col-lg-6">
 							<button class="btn btn-primary" name="search" type="submit">Search</button>
-							<!-- <button class="btn btn-success" onclick="var e2 = document.getElementById('poList'); e2.action='<?= base_url() ?>accounting/exportPOList'; e2.submit();" name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export To Excel</button> -->
+							<button class="btn btn-success" onclick="var e2 = document.getElementById('poList'); e2.action='<?= base_url() ?>accounting/exportPOList'; e2.submit();" name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export Jobs To Excel</button>
+							<button class="btn btn-success" onclick="var e2 = document.getElementById('poList'); e2.action='<?= base_url() ?>accounting/exportcpoStatus1'; e2.submit();" name="export" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Export POs To Excel</button>
 							<a href="<?= base_url() ?>accounting/cpoStatus" class="btn btn-warning">(x) Clear Filter</a>
 
 						</div>
@@ -136,7 +137,6 @@
 									<th>Verified At</th>
 									<th>Has Error</th>
 									<th>Invoiced</th>
-									<th>Paid</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -179,11 +179,6 @@
 											} else {
 												echo "Not Invoiced";
 											} ?></td>
-										<td><?php if ($row->paid == 1) {
-												echo "paid";
-											} else {
-												echo "Not paid";
-											} ?></td>
 									</tr>
 									<tr>
 										<td colspan="4">
@@ -217,7 +212,14 @@
 															<?php if ($job->type == 1) { ?>
 																<td><?php echo $job->volume; ?></td>
 															<?php } elseif ($job->type == 2) { ?>
-																<td><?php echo $jobTotal / $priceList->rate; ?></td>
+																<td><?php
+																	if ($priceList->rate > 0) {
+																		echo $jobTotal / $priceList->rate;
+																	} else {
+																		echo '';
+																	}
+
+																	?></td>
 															<?php } ?>
 															<td><?php echo $priceList->rate; ?></td>
 															<td><?php echo $this->admin_model->getCurrency($priceList->currency); ?></td>

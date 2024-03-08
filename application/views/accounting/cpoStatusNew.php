@@ -74,8 +74,14 @@
 		padding-top: 0.25rem !important;
 	}
 
-	.mb-xl-8 {
-		/* margin-right: 1rem; */
+	.dataTables_wrapper .dataTable {
+
+		border-radius: 0;
+	}
+
+	.table-bordered th,
+	.table-bordered td {
+		border-bottom: 1px solid #828AA0 !important;
 	}
 </style>
 
@@ -97,9 +103,10 @@
 		<!--begin::Col-->
 		<div class="col-12" style="display: flex;">
 			<div class="col-sm-6 col-lg-3 d-flex align-items-stretch">
-				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: linear-gradient(180deg, rgb(71, 71, 204) 90%, rgb(0, 212, 255) 100%);">
+				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: #385898;">
+					<!-- linear-gradient(180deg, rgb(71, 71, 204) 90%, rgb(0, 212, 255) 100%);"> -->
 					<div class="card-body  p-0" style="float:left;">
-						<span class="fs-3hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="AllCount">...</span>
+						<span class="fs-3hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="AllCount"><?= $rec_all ?></span>
 						<span class="card-text fs-0hx text-right">All Client PO </span>
 
 					</div>
@@ -107,36 +114,40 @@
 			</div>
 
 			<div class="col-sm-6 col-lg-2 d-flex align-items-stretch">
-				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: linear-gradient(180deg,  rgba(28,173,17,.8) 90%, rgba(0,212,255,.5) 100%);">
+				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: #2abba7;">
+					<!-- linear-gradient(180deg,  rgba(28,173,17,.8) 90%, rgba(0,212,255,.5) 100%);"> -->
 					<div class="card-body p-0" style="float:left;">
 
-						<span class="fs-4hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="VerifiedCount">...</span>
+						<span class="fs-4hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="VerifiedCount"><?= $rec_v ?></span>
 						<span class="card-text fs-0hx text-right"><br>Verified </span>
 					</div>
 				</div>
 			</div>
 
 			<div class="col-sm-6 col-lg-2 d-flex align-items-stretch">
-				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background:linear-gradient(180deg,  rgba(248,40,90,.8) 90%, rgba(0,212,255,.5) 100%); ">
+				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: #f0284a;">
+					<!-- linear-gradient(180deg,  rgba(248,40,90,.8) 90%, rgba(0,212,255,.5) 100%); "> -->
 					<div class="card-body p-0" style="float:left;">
-						<span class="fs-4hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="ErrorCount">...</span>
+						<span class="fs-4hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="ErrorCount"><?= $rec_e ?></span>
 						<span class="card-text fs-0hx text-right"><br>Has Error </span>
 					</div>
 				</div>
 			</div>
 
 			<div class="col-sm-6 col-lg-2 d-flex align-items-stretch">
-				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: linear-gradient(180deg,  rgba(63,66,84,.8) 90%, rgba(0,212,255,.5) 100%);">
+				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: #1877F2;">
+					<!-- linear-gradient(180deg,  rgba(63,66,84,.8) 90%, rgba(0,212,255,.5) 100%);"> -->
 					<div class="card-body p-0" style="float:left;">
-						<span class="fs-4hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="InvoicedCount">...</span>
+						<span class="fs-4hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="InvoicedCount"><?= $rec_i ?></span>
 						<span class="card-text fs-0hx text-right"><br>Invoiced </span>
 					</div>
 				</div>
 			</div>
 			<div class="col-sm-6 col-lg-2 d-flex align-items-stretch">
-				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: linear-gradient(180deg,  rgba(63,66,84,.8) 90%, rgba(0,212,255,.5) 100%);">
+				<div class="card-body flex-fill btn-primary shadow-lg rounded p-3 w-100 h-100" style="background: #7E8299;">
+					<!-- linear-gradient(180deg,  rgba(63,66,84,.8) 90%, rgba(0,212,255,.5) 100%);"> -->
 					<div class="card-body p-0" style="float:left;">
-						<span class="fs-4hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="PaidCount">...</span>
+						<span class="fs-4hx fw-bold text-gray-900 me-2 lh-1 ls-n2" id="PaidCount"><?= $rec_p ?></span>
 						<span class="card-text fs-0hx text-right"><br>Paid </span>
 					</div>
 				</div>
@@ -278,11 +289,10 @@
 							<div class="form-group row">
 
 								<label class="col-lg-2  control-label text-right" style="margin: auto;">
-									<!-- <div class="col-lg1 col-md-1 col-sm-1 mx-0" style="margin: auto;"> -->
+
 									<div class="dropdown dropdown-inline" data-bs-theme="light">
-										<!-- <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonLight" data-bs-toggle="dropdown" aria-expanded="false"> -->
-										<button class="btn btn-secondary  btn-icon btn-sm " type="button" id="dropdownMenuButtonLight" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-											<i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+										<button class="btn btn-secondary  btn-icon btn-sm " type="button" id="dropdownMenuButtonLight" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: transparent;border: none;height: 100%;">
+											<i class="fa fa-ellipsis-v text-primary" aria-hidden="true"></i>
 										</button>
 										<ul class="dropdown-menu" aria-labelledby="dropdownMenuButtonLight">
 											<li><a class="dropdown-item " onclick="changeValue('today')" href="javascript:void(0);">Today</a></li>
@@ -329,14 +339,14 @@
 		</div>
 	</div>
 </div>
-<div class="content d-flex flex-column flex-column-fluid" id="kt_content">
+<div class="content d-flex flex-column flex-column-fluid  pt-2" id="kt_content">
 
 	<div class="container-fluid">
 		<!--begin::Card-->
-		<div class="card">
-			<div class="card-header flex-wrap border-0 pt-6 pb-0">
+		<div class="card  pt-2 mb-2 pb-0">
+			<div class="card-header flex-wrap border-0 py-0">
 				<div class="card-title">
-					<h3 class="card-label">POs List</h3>
+					<h3 class="card-label">Customer Purchase Order List (CPO)</h3>
 				</div>
 			</div>
 		</div>
@@ -354,7 +364,7 @@
 						<th>Client Name</th>
 						<th>PO Number</th>
 						<th>CPO File</th>
-						<th>Jobs Count</th>
+						<!-- <th>Jobs Count</th> -->
 						<th>Closed Date</th>
 						<th>PM Name</th>
 						<th>Verified</th>
@@ -362,6 +372,8 @@
 						<th>Has Error</th>
 						<th>Invoiced</th>
 						<th>Paid</th>
+						<th>Currency</th>
+						<th>Total Revenue</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -370,663 +382,185 @@
 		</div>
 	</div>
 </div>
-<style>
-	td.details-control {
-		background: url('https://www.datatables.net/examples/resources/details_open.png') no-repeat center center;
-		cursor: pointer;
-	}
+<input type='hidden' id="brand_id" value="<?= $this->brand ?>">
+<input type='hidden' id="brand_name" value="<?= $this->admin_model->getBrand($brand) ?>">
 
-	tr.shown td.details-control {
-		background: url('https://www.datatables.net/examples/resources/details_close.png') no-repeat center center;
-	}
-
-	#detalis_div {
-		padding-left: 20px;
-		padding-right: 10px;
-		border-bottom: 1px solid #3d3d3d !important;
-		border-style: double solid !important;
-		border-color: #e5e5e5;
-	}
-
-	#detalis_dev .dataTables_scroll {
-		border: 1px solid #a19d9d;
-	}
-
-	table {
-		border-collapse: collapse;
-	}
-
-	#detalis_dev tr {
-		border-bottom: 1pt solid black;
-	}
-
-	#detalis_dev table thead th {
-		background-color: #fff;
-	}
-
-	.dataTables_wrapper th,
-	td {
-		white-space: normal;
-
-	}
-</style>
-<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script> -->
-
+<!-- <script type="text/javascript" src="<?php echo base_url(); ?>assets_new/js/images.js"></script> -->
 
 <script>
 	var table
 	let cpoData;
 	let permissions;
+	// var brand_id = $('#brand_id').val()
+	// logo_def(brand_id)
 
 	var childEditors = {};
 	$(document).ready(function() {
 		$.fn.dataTableExt.sErrMode = "console";
-		$.fn.DataTable.ext.pager.numbers_length = 15;
-		loadAjaxData();
 
-		function loadAjaxData() {
-			$.ajax({
-				url: base_url + 'Accounting/cpoStatus_data',
-				type: "POST",
-				async: true,
+		table = $('#kt_datatable2').DataTable({
+			// data: cpoData,
+			processing: true,
+			serverSide: true,
+			order: [],
+			destroy: true,
+			paging: true,
+			select: false,
+			searching: false,
+			lengthMenu: [
+				[10, 25, 50, -1],
+				[10, 25, 50, "All"]
+			],
+			pageLength: 10,
+			pagingType: "full_numbers",
+			scrollX: true,
+			scrollY: "60vh",
+			scrollCollapse: true,
+			pageResize: true,
+			responsive: false,
+
+			rowReorder: false,
+			orderMulti: true,
+			fixedHeader: true,
+
+			autoWidth: false,
+			orderCellsTop: true,
+			deferRender: true,
+			stateSave: false,
+
+			dom: "<'row'<'col-12 col-md-5'l><'col-sm-12 col-md-7 text-right'CB>>" +
+				"<'row'<'col-sm-12'frt>>" +
+				"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+			language: {
+				lengthMenu: "_MENU_ Rows per page",
+				info: "Showing <b>_START_ to _END_</b> of _TOTAL_ entries",
+				paginate: {
+					next: '<i class="fas fa-angle-right"></i>',
+					previous: '<i class="fas fa-angle-left"></i>',
+					first: '<i class="fas fa-angle-double-left"></i>',
+					last: '<i class="fas fa-angle-double-right"></i>'
+				},
+			},
+			'ajax': {
+
+				url: base_url + 'accounting/cpoStatus_data',
+				type: 'POST',
 				data: {
 					filter_data: function() {
 						return $('#searchform').serialize();
 					}
 				},
 				beforeSend: function() {
-
 					Swal.fire({
 						title: 'Please Wait !',
 						text: 'Data Loading ....',
 						allowEscapeKey: false,
 						allowOutsideClick: false,
-						didOpen: function() {
+						onOpen: function() {
 							Swal.showLoading()
 						}
 					});
-
 				},
 
-				success: function(data) {
-					var data = JSON.parse(atob(data));
-					cpoData = data['cpo'];
-					permissions = data['permission'];
+				dataSrc: function(json) {
+					// console.log(json)
 					swal.close();
-					createTables(cpoData, permissions);
-					return
-				},
-				error: function(jqXHR, exception) {
-					swal.close();
+					return (json.data);
+					// }
 				}
-			});
-		}
-
-		function createTables(cpoData, permissions) {
-			// Main table
-			table = $('#kt_datatable2').DataTable({
-				data: cpoData,
-
-				processing: true,
-				serverSide: false,
-				bDestroy: true,
-				paging: true,
-				select: false,
-				searching: false,
-				dom: "<'row'<'col-12 col-md-5'l><'col-sm-12 col-md-7 text-right'CB>>" +
-					"<'row'<'col-sm-12'tr>>" +
-					"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-				lengthMenu: [5, 10, 25, 50],
-				pageLength: 10,
-				pagingType: "full_numbers",
-				scrollX: true,
-				// scrollY: "50vh",
-				scrollCollapse: true,
-
-				responsive: false,
-				// bProcessing: true,
-				language: {
-					lengthMenu: "_MENU_ Rows per page",
-					info: "Showing <b>_START_ to _END_</b> of _TOTAL_ entries",
-					// sSearch: "_INPUT_",
-					// sSearchPlaceholder: "Search table",
-					paginate: {
-						next: '<i class="fas fa-angle-right"></i>',
-						previous: '<i class="fas fa-angle-left"></i>',
-						first: '<i class="fas fa-angle-double-left"></i>',
-						last: '<i class="fas fa-angle-double-right"></i>'
-					},
-					aria: {
-						sortAscending: ": activate to sort column ascending",
-						sortDescending: ": activate to sort column descending"
-					},
+			},
+			columnDefs: [{
+					targets: 4,
+					orderable: false,
+					className: 'noExport'
 				},
-				columnDefs: [{
-					className: 'details-control main-table noExport noVis',
+				{
+					targets: 0,
+					width: 1,
+					className: 'details-control noExport noVis',
 					orderable: false,
 					data: null,
-					defaultContent: '',
-					targets: 0
-				}, ],
-				order: [
-					[6, 'asc']
-				],
-				pageResize: true,
-				autoWidth: true,
-				orderCellsTop: true,
-				deferRender: true,
-				columns: [{
-						data: null,
-						orderable: false,
+					defaultContent: ''
 
-					},
-					{
-						data: "id"
-					},
-					{
-						data: "customer_name"
-					},
-					{
-						data: null,
-						className: 'text-wrap',
-						render: function(row) {
-							return '\u200C' + row.number
-						}
-					},
-					{
-						data: null,
-						className: 'noExport',
-						render: function(row) {
-							return '<a href="<?= base_url() ?>assets/uploads/cpo/' + row.cpo_file +
-								' target="_blank">Click Here</a></td>'
-						}
-					},
-					{
-						data: 'job_count',
-						className: 'noExport'
-					},
-					{
-						data: "created_at"
-					},
-					{
-						data: "pm"
-					},
-					{
-						data: null,
-						render: function(row) {
-							if (row.verified == 1) {
-								return "Verified";
-							} else if (row.verified == 2) {
-								return "Has Error";
-							} else {
-								return "Not Verified";
-							}
-						}
-					},
-					{
-						data: "verified_at"
-					},
-					{
-						data: "error_name",
-						className: 'text-wrap'
-					},
-					{
-						data: null,
-						render: function(row) {
-							if (row.invoiced == 1) {
-								return "Invoiced";
-							} else {
-								return "Not Invoiced";
-							}
-						}
-					},
-					{
-						data: null,
-						render: function(row) {
-							if (row.paid == 1) {
-								return "Paid";
-							} else {
-								return "Not Paid";
-							}
-						}
-					}
-				],
-				buttons: [{
-						text: 'Search Conditions',
-						className: 'btn btn-success btn-sm text-center font-monospace fw-bold text-uppercase',
-						action: function(e, dt, node, config) {
-							$('#filter11Modal').modal('show')
-						}
-					},
-					{
-						extend: 'collection',
-						className: 'btn btn-primary btn-sm text-center font-monospace fw-bold text-uppercase',
-
-						text: 'Export',
-						buttons: [{
-								extend: 'excelHtml5',
-								text: '<i class="far fa-file-excel"></i>',
-								className: 'btn btn-primary btn-sm text-center font-monospace fw-bold text-uppercase',
-
-								titleAttr: 'Excel',
-								autoFilter: true,
-								title: 'CPO Status List',
-								filename: 'CPO Status List',
-								sheetName: 'CPO Status List',
-								exportOptions: {
-									columns: "thead th:not(.noExport)",
-									extension: 'xlsx',
-									modifier: {
-										page: 'current'
-									}
-
-								},
-								excelStyles: {
-									template: "blue_medium"
-								},
-								init: function(api, node, config) {
-									$(node).removeClass('btn-secondary')
-								},
-								// customize: function(xlsx) {
-								// 	var table = $('#kt_datatable2').DataTable();
-								// 	// Get number of columns to remove last hidden index column.
-								// 	var numColumns = table.columns().header().count();
-
-								// 	// Get sheet.
-								// 	var sheet = xlsx.xl.worksheets['sheet1.xml'];
-
-								// 	var col = $('col', sheet);
-								// 	// Set the column width.
-								// 	$(col[1]).attr('width', 20);
-
-								// 	// Get a clone of the sheet data.        
-								// 	var sheetData = $('sheetData', sheet).clone();
-
-								// 	// Clear the current sheet data for appending rows.
-								// 	$('sheetData', sheet).empty();
-
-								// 	// Row count in Excel sheet.
-								// 	var rowCount = 1;
-
-								// 	// Itereate each row in the sheet data.
-								// 	$(sheetData).children().each(function(index) {
-
-								// 		// Used for DT row() API to get child data.
-								// 		var rowIndex = index - 1;
-
-								// 		// Don't process row if its the header row.
-								// 		if (index > 0) {
-
-								// 			// Get row
-								// 			var row = $(this.outerHTML);
-
-								// 			// Set the Excel row attr to the current Excel row count.
-								// 			row.attr('r', rowCount);
-
-								// 			var colCount = 1;
-
-								// 			// Iterate each cell in the row to change the rwo number.
-								// 			row.children().each(function(index) {
-								// 				var cell = $(this);
-
-								// 				// Set each cell's row value.
-								// 				var rc = cell.attr('r');
-								// 				rc = rc.replace(/\d+$/, "") + rowCount;
-								// 				cell.attr('r', rc);
-
-								// 				if (colCount === numColumns) {
-								// 					cell.html('');
-								// 				}
-
-								// 				colCount++;
-								// 			});
-
-								// 			// Get the row HTML and append to sheetData.
-								// 			row = row[0].outerHTML;
-								// 			$('sheetData', sheet).append(row);
-								// 			rowCount++;
-
-								// 			// Get the child data - could be any data attached to the row.
-								// 			var table1 = table.row(':eq(' + rowIndex + ')').data()).DataTable();
-								// 			var childData = table1.row(':eq(' + rowIndex + ')').data().job_count;
-
-								// 			if (childData.length > 0) {
-								// 				// Prepare Excel formated row
-								// 				headerRow = '<row r="' + rowCount +
-								// 					'" s="2"><c t="inlineStr" r="A' + rowCount +
-								// 					'"><is><t>' +
-								// 					'</t></is></c><c t="inlineStr" r="B' + rowCount +
-								// 					'" s="2"><is><t>Result' +
-								// 					'</t></is></c><c t="inlineStr" r="C' + rowCount +
-								// 					'" s="2"><is><t>Notes' +
-								// 					'</t></is></c></row>';
-
-								// 				// Append header row to sheetData.
-								// 				$('sheetData', sheet).append(headerRow);
-								// 				rowCount++; // Inc excelt row counter.
-
-								// 			}
-
-								// 			// The child data is an array of rows
-								// 			for (c = 0; c < childData.length; c++) {
-
-								// 				// Get row data.
-								// 				child = childData[c];
-
-								// 				// Prepare Excel formated row
-								// 				childRow = '<row r="' + rowCount +
-								// 					'"><c t="inlineStr" r="A' + rowCount +
-								// 					'"><is><t>' +
-								// 					'</t></is></c><c t="inlineStr" r="B' + rowCount +
-								// 					'"><is><t>' + child.code +
-								// 					'</t></is></c><c t="inlineStr" r="C' + rowCount +
-								// 					'"><is><t>' + child.note +
-								// 					'</t></is></c></row>';
-
-								// 				// Append row to sheetData.
-								// 				$('sheetData', sheet).append(childRow);
-								// 				rowCount++; // Inc excelt row counter.
-
-								// 			}
-								// 			// Just append the header row and increment the excel row counter.
-								// 		} else {
-								// 			var row = $(this.outerHTML);
-
-								// 			var colCount = 1;
-
-								// 			// Remove the last header cell.
-								// 			row.children().each(function(index) {
-								// 				var cell = $(this);
-
-								// 				if (colCount === numColumns) {
-								// 					cell.html('');
-								// 				}
-
-								// 				colCount++;
-								// 			});
-								// 			row = row[0].outerHTML;
-								// 			$('sheetData', sheet).append(row);
-								// 			rowCount++;
-								// 		}
-								// 	});
-								// }
-							},
-							{
-								extend: 'pdfHtml5',
-								className: 'btn btn-primary btn-sm text-center font-monospace fw-bold text-uppercase',
-
-								text: '<i class="far fa-file-pdf"></i>',
-								titleAttr: 'PDF',
-								exportOptions: {
-									columns: ':visible',
-									orientation: 'landscape',
-									columns: "thead th:not(.noExport)",
-									modifier: {
-										page: 'current'
-									}
-								},
-								// customize: function(doc) {
-
-								// 	// Get the row data in in table order and search applied
-								// 	var table = $('#kt_datatable2').DataTable();
-								// 	var rowData = table.rows({
-								// 		order: 'applied',
-								// 		search: 'applied'
-								// 	}).data();
-								// 	var headerLines = 0; // Offset for accessing rowData array
-
-								// 	var newBody = []; // this will become our new body (an array of arrays(lines))
-								// 	//Loop over all lines in the table
-								// 	doc.content[1].table.body.forEach(function(line, i) {
-
-								// 		// Remove detail-control column
-								// 		newBody.push(
-								// 			[line[1], line[2], line[3], line[4]]
-								// 		);
-
-
-								// 		if (line[0].style !== 'tableHeader' && line[0].style !== 'tableFooter') {
-								// 			var table1 = document.getElementById(table.row(':eq(' + rowIndex + ')').data().id).DataTable();
-								// 			var childData = table1.row(':eq(' + rowIndex + ')').data().job_count;
-
-								// 			// var childTable = $('#' + line[0].text).DataTable();
-								// 			// var childdata = childTable.rows({
-								// 			// 	order: 'applied',
-								// 			// 	search: 'applied'
-								// 			// }).data();
-								// 			console.log(childdata)
-								// 			//rowData[i - headerLines];
-
-								// 			// Append child data, matching number of columns in table
-								// 			newBody.push(
-								// 				[{
-								// 						text: '** Child data:',
-								// 						style: 'defaultStyle'
-								// 					},
-								// 					{
-								// 						text: childdata.code,
-								// 						style: 'defaultStyle'
-								// 					},
-								// 					{
-								// 						text: childdata.id,
-								// 						style: 'defaultStyle'
-								// 					},
-								// 					{
-								// 						text: '',
-								// 						style: 'defaultStyle'
-								// 					},
-								// 				]
-								// 			);
-
-								// 		} else {
-								// 			headerLines++;
-								// 		}
-								// 	});
-
-								// 	//Overwrite the old table body with the new one.
-								// 	doc.content[1].table.headerRows = 1;
-								// 	//doc.content[1].table.widths = [50, 50, 50, 50, 50, 50];
-								// 	doc.content[1].table.body = newBody;
-								// 	doc.content[1].layout = 'lightHorizontalLines';
-
-								// 	doc.styles = {
-								// 		subheader: {
-								// 			fontSize: 10,
-								// 			bold: true,
-								// 			color: 'black'
-								// 		},
-								// 		tableHeader: {
-								// 			bold: true,
-								// 			fontSize: 10.5,
-								// 			color: 'black'
-								// 		},
-								// 		lastLine: {
-								// 			bold: true,
-								// 			fontSize: 11,
-								// 			color: 'blue'
-								// 		},
-								// 		defaultStyle: {
-								// 			fontSize: 10,
-								// 			color: 'black',
-								// 			text: 'center'
-								// 		}
-								// 	};
-								// }
-							},
-							{
-								extend: 'print',
-								className: 'btn btn-primary btn-sm text-center font-monospace fw-bold text-uppercase',
-
-								text: '<i class="fas fa-print"></i>',
-								titleAttr: 'Print',
-
-								exportOptions: {
-									columns: ':visible',
-									orientation: 'landscape',
-									columns: "thead th:not(.noExport)",
-								},
-								customize: function(win) {
-									$(win.document.body).addClass('white-bg');
-									$(win.document.body).css('font-size', '10px');
-									$(win.document.body).find('table')
-										.addClass('compact')
-										.css('font-size', 'inherit');
-								}
-							}
-						]
-					},
-					{
-						extend: 'colvis',
-						className: 'btn btn-primary btn-sm text-center font-monospace fw-bold text-uppercase',
-
-						postfixButtons: ['colvisRestore'],
-						text: '<i class="fa fa-bars"></i>',
-						collectionLayout: 'fixed two-column',
-						collectionTitle: 'Column visibility control',
-						columns: ':not(.noVis)',
-						columnText: function(dt, idx, title) {
-							return (idx + 1) + ': ' + title;
-						},
-					}
-				],
-				initComplete: function() {
-
-					// projectData, samData, permissions
-					var allCount = (cpoData) ? cpoData.length : 0;
-					var rowToCount = cpoData;
-
-					// console.log(json.projects)
-					document.getElementById("AllCount").innerHTML = allCount;
-					document.getElementById("VerifiedCount").innerHTML = Array.isArray(rowToCount) ? rowToCount.reduce(function(a, b) {
-						return ((b.verified == 1) ? a + 1 : a);
-					}, 0) : 0;
-					document.getElementById("ErrorCount").innerHTML = Array.isArray(rowToCount) ? rowToCount.reduce(function(a, b) {
-						return (b.error_name && b.error_name != '') ? a + 1 : a;
-					}, 0) : 0;
-					document.getElementById("InvoicedCount").innerHTML = Array.isArray(rowToCount) ? rowToCount.reduce(function(a, b) {
-						return (b.invoiced == 1) ? a + 1 : a;
-					}, 0) : 0;
-					document.getElementById("PaidCount").innerHTML = Array.isArray(rowToCount) ? rowToCount.reduce(function(a, b) {
-						return (b.paid == 1) ? a + 1 : a;
-					}, 0) : 0;
 				},
-			}).on('buttons-processing', function(e, indicator) {
-				if (indicator) {
-					Swal.fire({
-						title: 'Please Wait !',
-						html: 'Descargar excel', // add html attribute if you want or remove
-						allowEscapeKey: false,
-						allowOutsideClick: false,
-						didOpen: () => {
-							Swal.showLoading()
-						}
-					});
-				} else {
-					swal.close();
-				}
-			});
-		}
 
-		function getTableId(level, uniqueData) {
-			return level + '-' + uniqueData.replace(' ', '-');
-		}
+			],
+			initComplete: function(data) {
 
-		// function format(rowData, tableId) {
+				// var allCount = (cpoData) ? cpoData.length : 0;
+				// var rowToCount = data;
 
-		function format(rowData, tableId) {
-			return '<div id="detalis_div"><table id="' + tableId + '" class="table table-striped table-bordered" style="border: 1px solid #bdbdbd;border-radius: 0;background-color: #fff;" cellpadding="5" cellspacing="0">' +
-				'<thead style="white-space: normal;">' +
-				'<th style="color: #787676 ;">#</th>' +
-				'<th style="color: #787676 ;">Job Code</th>' +
-				'<th style="color: #787676 ;">Service</th>' +
-				'<th style="color: #787676 ;">Source</th>' +
-				'<th style="color: #787676 ;">Target</th>' +
-				'<th style="color: #787676 ;">Volume</th>' +
-				'<th style="color: #787676 ;">Rate</th>' +
-				'<th style="color: #787676 ;">Currency</th>' +
-				'<th style="color: #787676 ;">Total Revenue</th>' +
-				'<th style="color: #787676 ;">Status</th>' +
-				'<th style="color: #787676 ;">Closed Date</th>' +
-				'<th style="color: #787676 ;">Created By</th>' +
-				'</thead>' +
+				// document.getElementById("AllCount").innerHTML = table.page.info().recordsTotal;
+				// document.getElementById("VerifiedCount").innerHTML = data['json']['v_records'];
 
-				'</table>' +
-				'<div><span id="jobTotal"></span></div>' +
-				'</div>';
-		}
+				// document.getElementById("ErrorCount").innerHTML = data['json']['e_records'];
+
+				// document.getElementById("InvoicedCount").innerHTML = data['json']['i_records'];
+				// document.getElementById("PaidCount").innerHTML = data['json']['p_records'];
+			},
+		}).on('buttons-processing', function(e, indicator) {
+			if (indicator) {
+				Swal.fire({
+					title: 'Please Wait !',
+					html: 'Descargar excel', // add html attribute if you want or remove
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onBeforeOpen: () => {
+						Swal.showLoading()
+					}
+				});
+			} else {
+				swal.close();
+			}
+		});
 
 
-		// Add event listener for for main talbe to open and close first level child details
 		$('#kt_datatable2 tbody').on('click', 'td.details-control', function() {
-			var tr = $(this).closest('tr');
 
-			var row = table.row(tr);
-			var rowData = row.data();
-			// if (row.child.isShown()) {
-			// 	row.child.hide();
-			// 	tr.removeClass('shown');
-			// } else {
-			// 	row.child(format(row.data())).show();
-			// 	tr.addClass('shown');
-			// }
+			let tr = $(this).closest('tr');
+			let row = $('#kt_datatable2').DataTable().row(tr);
+			let rowData = row.data();
+			// let rowData = rowData1['jobs_' + rowData1[0]]
+			let tbId = `#tb-${'jobs_' + rowData[0]}`;
 			if (row.child.isShown()) {
 				// This row is already open - close it
 				row.child.hide();
 				tr.removeClass('shown');
 
-				// Destroy the Child Datatable
-				$('#' + rowData.id.replace(' ', '-')).DataTable().destroy();
+				$(tbId).DataTable().destroy();
 			} else {
-
-				var id = getTableId("1", rowData.id);
-
 				// Open this row
-				row.child(format(rowData, id)).show();
+				row.child(format1(rowData)).show();
+				let jod_id = 'jobs_' + rowData[0]
+				// console.log(rowData)
+				let jod_data = rowData[jod_id]
 
-				table1 = $('#' + id).DataTable({
-					dom: "t",
-					pageResize: true,
-					autoWidth: true,
-					scrollY: '50vh',
+				$(tbId).DataTable({
+					data: jod_data,
+					searching: false,
+					bPaginate: false,
+					info: false,
 					scrollX: true,
-					scroller: true,
+					scrollY: "60vh",
 					scrollCollapse: true,
-					ajax: {
-						url: base_url + 'Accounting/get_data_cpo_job',
-						type: "POST",
-						datatype: "json",
-						data: {
-							'id': rowData.id
-						},
-						dataSrc: 'jobs'
-					},
-					// data: data,
-					columns: [{
-							data: null,
-							render: function(data, type, row, meta) {
-								return meta.row + meta.settings._iDisplayStart + 1;
-							},
-							className: "text-right"
-						},
+					pageResize: true,
+					responsive: false,
+
+					columns: [
+
 						{
-							// title: "Job Code",
 							data: 'code'
 						},
 						{
-							// title: "Service",
 							data: 'service'
 						},
 						{
-							// title: "Source",
-							title: 'source'
+							data: 'source'
 						},
 						{
-							// title: "Target",
 							data: 'target'
 						},
 						{
-							// title: "Volume",
 							data: null,
 							render: function(row) {
 								if (row.type == 1) {
@@ -1037,23 +571,15 @@
 							}
 						},
 						{
-							// title: "Rate",
 							data: 'rate'
 						},
 						{
-							// title: "Currency",
 							data: 'currency'
 						},
 						{
-							// title: "Total Revenue",
-							data: 'jobTotal',
-							// render: function(row) {
-							// 	return parseFloat(row.jobTotal).toFixed(3);
-							// }
-
+							data: 'jobTotal'
 						},
 						{
-							// title: "Status",
 							data: null,
 							render: function(row) {
 								if (row.status == 0) {
@@ -1080,413 +606,72 @@
 							}
 						},
 						{
-							// title: "Closed Date",
 							data: 'closed_date'
 						},
 						{
-							// title: "Created By",
 							data: 'user_name'
-						},
+						}
+
 					],
-					// scrollX: true,
-					// scrollY: "10vh",
-					// select: true,
-					footerCallback: function(row, data, start, end, display) {
-						let api = this.api();
-
-						// Remove the formatting to get integer data for summation
-						let intVal = function(i) {
-							return typeof i === 'string' ?
-								i.replace(/[\$,]/g, '') * 1 :
-								typeof i === 'number' ?
-								i :
-								0;
-						};
-						// Total over all pages
-						total = api
-							.column(8)
-							.data()
-							.reduce((a, b) => intVal(a) + intVal(b), 0);
-						$('#jobTotal').html('<b>Project Total Revenue:   </b><u>' + parseFloat(total).toFixed(3) + '</u>');
-					}
+					rowCallback: function(row, data, dataIndex) {
+						$(row).css("background-color", "#fff");
+						$(row).css("border-bottom", "1px solid #000");
+						$(row).css("white-space", "normal");
+						// $(row).addClass('red');white-space: normal!important;
+					},
 				});
 
-
-
-
-				var iFrameID = document.getElementById(id);
-				$('#' + id).on("load", function() {
-					if (iFrameID) {
-						iFrameID.height = "";
-						iFrameID.height = iFrameID.contentWindow.document.body.scrollHeight + "px";
-					}
-				});
 				tr.addClass('shown');
 			}
+
 		});
-		//////////////////////////////
-		$('#search').on('click', function(e) {
-			e.preventDefault();
-			table.destroy();
-			loadAjaxData();
-			$('#filter11Modal').modal('toggle');
-		});
-		////
 
 	});
 
-	function changeValue(o) {
+	function format1(d) {
+		// `d` is the original data object for the row
 
-		switch (o) {
-			case 'today':
-				var starDay = moment().format('YYYY-MM-DD');
-				$('#from_date').val(starDay);
-				$('#to_date').val(starDay);
+		let jod_id = 'jobs_' + d[0]
+		let jod_data = d[jod_id]
+		// console.log(jod_data);
+		let tabla = `<div class="border mx-5" style="border-color: #c7c7c7 !important;"><table class="table table-bordered compact  table-responsive" id="tb-${jod_id}" cellpadding="5" cellspacing="0" style="border-collapse: separate; border-spacing: 1px 1px;" >
+                    <thead>
+                        <tr>
+							
+							<th class="border border-secondary bg-white" style="color: #3f4254  !important;border-color: #b7b7b7 !important;">Job Code</th>
+							<th class="border border-secondary bg-white" style="color: #3f4254  !important;border-color: #b7b7b7 !important;">Service</th>
+							<th class="border border-secondary bg-white" style="color: #3f4254  !important;border-color: #b7b7b7 !important;">Source</th>
+							<th class="border border-secondary bg-white" style="color: #3f4254  !important;border-color: #b7b7b7 !important;">Target</th>
+							<th class="border border-secondary bg-white" style="color: #3f4254  !important;border-color: #b7b7b7 !important;">Volume</th>
+							<th class="border border-secondary bg-white" style="color: #3f4254  !important;border-color: #b7b7b7 !important;">Rate</th>
+							<th class="border border-secondary bg-white" style="color: #3f4254  !important;border-color: #b7b7b7 !important;">Currency</th>
+							<th class="border border-secondary bg-white" style="color: #3f4254  !important;border-color: #b7b7b7 !important;">Total Revenue</th>
+							<th class="border border-secondary bg-white" style="color: #3f4254  !important;border-color: #b7b7b7 !important;">Status</th>
+							<th class="border border-secondary bg-white" style="color: #3f4254  !important;border-color: #b7b7b7 !important;">Closed Date</th>
+							<th class="border border-secondary bg-white" style="color: #3f4254  !important;border-color: #b7b7b7 !important;">Created By</th>
+						</tr> 
+					</thead> 
+					<tbody>`
+		for (i = 0; i < jod_data.length; i++) {
+			tabla += `<tr>`
+			tabla += `<td class="">` + jod_data[i]['code'] + `</td>`
+			tabla += `<td class="border border-secondary" style="border-color: #b7b7b7 !important;white-space: normal!important;">` + jod_data[i]['name'] + `</td>`
+			tabla += `<td class="border border-secondary" style="border-color: #b7b7b7 !important;white-space: normal!important;">` + jod_data[i]['name'] + `</td>`
+			tabla += `<td class="border border-secondary" style="border-color: #b7b7b7 !important;white-space: normal!important;">` + jod_data[i]['name'] + `</td>`
+			tabla += `<td class="border border-secondary" style="border-color: #b7b7b7 !important;white-space: normal!important;">` + jod_data[i]['name'] + `</td>`
+			tabla += `<td class="border border-secondary" style="border-color: #b7b7b7 !important;white-space: normal!important;">` + jod_data[i]['name'] + `</td>`
+			tabla += `<td class="border border-secondary" style="border-color: #b7b7b7 !important;white-space: normal!important;">` + jod_data[i]['name'] + `</td>`
+			tabla += `<td class="border border-secondary" style="border-color: #b7b7b7 !important;white-space: normal!important;">` + jod_data[i]['name'] + `</td>`
+			tabla += `<td class="border border-secondary" style="border-color: #b7b7b7 !important;white-space: normal!important;">` + jod_data[i]['name'] + `</td>`
+			tabla += `<td class="border border-secondary" style="border-color: #b7b7b7 !important;white-space: normal!important;">` + jod_data[i]['name'] + `</td>`
+			tabla += `<td class="border border-secondary" style="border-color: #b7b7b7 !important;white-space: normal!important;">` + jod_data[i]['name'] + `</td>`
+			tabla += `</tr>`
+		};
 
-				break;
-			case '7today':
+		tabla += `</tbody>
+                </table></div>`;
 
-				var startOfMonth = moment().subtract(6, 'days').format('YYYY-MM-DD');
-				var endOfMonth = moment().format('YYYY-MM-DD');
-
-				$('#from_date').val(startOfMonth);
-				$('#to_date').val(endOfMonth);
-				break;
-			case '30today':
-				var startOfMonth = moment().subtract(1, 'months').subtract(-1, 'days').format('YYYY-MM-DD');
-				var endOfMonth = moment().format('YYYY-MM-DD');
-
-				$('#from_date').val(startOfMonth);
-				$('#to_date').val(endOfMonth);
-				break;
-			case 'month':
-				var startOfMonth = moment().startOf('month').format('YYYY-MM-DD');
-				var endOfMonth = moment().endOf('month').format('YYYY-MM-DD');
-
-				$('#from_date').val(startOfMonth);
-				$('#to_date').val(endOfMonth);
-				break;
-			case 'lmonth':
-
-				var startOfMonth = moment().subtract(1, 'months').startOf('month').format('YYYY-MM-DD');
-				var endOfMonth = moment().subtract(1, 'months').endOf('month').format('YYYY-MM-DD');
-
-				$('#from_date').val(startOfMonth);
-				$('#to_date').val(endOfMonth);
-				break;
-
-			case 'year':
-				var startOfMonth = moment().startOf('year').format('YYYY-MM-DD');
-				var endOfMonth = moment().endOf('year').format('YYYY-MM-DD');
-
-				$('#from_date').val(startOfMonth);
-				$('#to_date').val(endOfMonth);
-				break;
-			case 'fyear':
-				var startOfMonth = $('#vs_date1').val();
-				var endOfMonth = $('#vs_date2').val();
-
-				$('#from_date').val(startOfMonth);
-				$('#to_date').val(endOfMonth);
-				break;
-			case 'fyear1':
-				var startOfMonth = moment().quarter(1).startOf('quarter').format('YYYY-MM-DD');
-				var endOfMonth = moment().quarter(1).endOf('quarter').format('YYYY-MM-DD');
-
-				$('#from_date').val(startOfMonth);
-				$('#to_date').val(endOfMonth);
-				break;
-				break;
-			case 'fyear2':
-				var startOfMonth = moment().quarter(2).startOf('quarter').format('YYYY-MM-DD');
-				var endOfMonth = moment().quarter(2).endOf('quarter').format('YYYY-MM-DD');
-
-				$('#from_date').val(startOfMonth);
-				$('#to_date').val(endOfMonth);
-				break;
-			case 'fyear3':
-				var startOfMonth = moment().quarter(3).startOf('quarter').format('YYYY-MM-DD');
-				var endOfMonth = moment().quarter(3).endOf('quarter').format('YYYY-MM-DD');
-
-				$('#from_date').val(startOfMonth);
-				$('#to_date').val(endOfMonth);
-				break;
-			case 'fyear4':
-				var startOfMonth = moment().quarter(4).startOf('quarter').format('YYYY-MM-DD');
-				var endOfMonth = moment().quarter(4).endOf('quarter').format('YYYY-MM-DD');
-
-				$('#from_date').val(startOfMonth);
-				$('#to_date').val(endOfMonth);
-				break;
-			default:
-				$('#from_date').val('');
-				$('#to_date').val('');
-				break;
-		}
-		return
+		// console.log(tabla)
+		return $(tabla).toArray();
 	}
 </script>
-<!-- 
-<script>
-	var bTable;
-	let cpoData;
-	let permissions;
-	$(document).ready(function() {
-		$.fn.dataTableExt.sErrMode = "console";
-		$.fn.DataTable.ext.pager.numbers_length = 15;
-
-		loadAjaxData();
-
-		function loadAjaxData() {
-			$.ajax({
-				url: base_url + 'Accounting/cpoStatus_data',
-				type: "POST",
-				async: true,
-				// dataType: 'json',
-				data: {
-					filter_data: function() {
-						return $('#searchform').serialize();
-					}
-				},
-				beforeSend: function() {
-
-					Swal.fire({
-						title: 'Please Wait !',
-						text: 'Data Loading ....',
-						allowEscapeKey: false,
-						allowOutsideClick: false,
-						didOpen: function() {
-							Swal.showLoading()
-						}
-					});
-
-				},
-
-				success: function(data) {
-					var data = JSON.parse(atob(data));
-					cpoData = data['cpo'];
-					permissions = data['permission'];
-					swal.close();
-					createTables(cpoData, permissions);
-					return
-				},
-				error: function(jqXHR, exception) {
-					swal.close();
-				}
-			});
-		}
-
-		function createTables(cpoData, permissions) {
-
-			bTable = $("#kt_datatable2").DataTable({
-				data: cpoData,
-
-				processing: true,
-				serverSide: false,
-				bDestroy: true,
-				paging: true,
-				select: false,
-				searching: false,
-				dom: "<'row'<'col-12 col-md-5'l><'col-sm-12 col-md-7 text-right'CB>>" +
-					"<'row'<'col-sm-12'tr>>" +
-					"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-				lengthMenu: [5, 10, 25, 50],
-				pageLength: 10,
-				pagingType: "full_numbers",
-				scrollX: true,
-				scrollY: "50vh",
-				scrollCollapse: true,
-				pageResize: true,
-				responsive: true,
-				// bProcessing: true,
-				language: {
-					lengthMenu: "_MENU_ Rows per page",
-					info: "Showing <b>_START_ to _END_</b> of _TOTAL_ entries",
-					// sSearch: "_INPUT_",
-					// sSearchPlaceholder: "Search table",
-					paginate: {
-						next: '<i class="fas fa-angle-right"></i>',
-						previous: '<i class="fas fa-angle-left"></i>',
-						first: '<i class="fas fa-angle-double-left"></i>',
-						last: '<i class="fas fa-angle-double-right"></i>'
-					},
-					aria: {
-						sortAscending: ": activate to sort column ascending",
-						sortDescending: ": activate to sort column descending"
-					},
-
-					// processing: '<i class="fas fa-asterisk fa-spin fa-6x fa-fw"></i> < br > PROCESSING < br > Please wait...',
-
-				},
-				responsive: {
-					details: {
-						type: 'column',
-						target: 0
-					}
-				},
-				order: [1, 'desc'],
-				autoWidth: true,
-				orderCellsTop: true,
-				deferRender: false,
-				columns: [{
-						data: 'id'
-					},
-					{
-						data: 'group'
-					},
-					{
-						data: 'name'
-					},
-					{
-						data: 'url'
-					},
-					{
-						data: 'menu'
-					},
-
-					{
-						data: 'null',
-						className: 'noExport noVis',
-						orderable: false,
-						render: function(data, type, row) {
-							var action_btn = '<div>';
-							if (permissions && permissions.edit == '1') {
-								// action_btn += '<a class="btn btn-dark mr-2" href="<?php echo base_url() ?>admin/editPermission?t=' + btoa(row.id) + '"><i class="fa fa-pen "></i> Edit</a>';
-								action_btn += '<a href="<?php echo base_url() ?>admin/editScreen/' + btoa(row.id) + '" class=""><i class="fa fa-pencil"></i> Edit</a>'
-							}
-							action_btn += '</div>';
-							return action_btn
-						}
-					},
-					{
-						data: 'null',
-						className: 'noExport noVis',
-						orderable: false,
-						render: function(data, type, row) {
-							var action_btn = '<div>';
-							if (permissions && permissions.delete == '1') {
-								var conf_text = 'Are you sure you want to delete this Screen ? ';
-								action_btn += '<a href="<?php echo base_url() ?>admin/deleteScreen/' + btoa(row.id) + ' title="delete" class="" onclick="return confirm("' + conf_text + '");"> <i class = "fa fa-times text-danger text"> </i> Delete </a>';
-							}
-
-							action_btn += '</div>';
-							return action_btn
-						}
-					}
-				],
-				order: [],
-				buttons: [
-
-					{
-						text: 'Add New Screen',
-						className: 'btn btn-danger btn-sm text-center font-monospace  fw-bold text-uppercase',
-						action: function(e, dt, node, config) {
-							if (permissions && permissions.add == '1') {
-								window.location.href = "<?= base_url() ?>admin/addScreen";
-							}
-						}
-					},
-					{
-						text: 'Search Conditions',
-						className: 'btn btn-success btn-sm text-center font-monospace fw-bold text-uppercase',
-						action: function(e, dt, node, config) {
-							$('#filter11Modal').modal('show')
-						}
-					},
-					{
-						extend: 'collection',
-						// className: 'btn btn-success btn-sm text-center font-monospace fw-bold text-uppercase',
-
-						text: 'Export',
-						buttons: [{
-								extend: 'excelHtml5',
-								text: '<i class="far fa-file-excel"></i>',
-								titleAttr: 'Excel',
-								autoFilter: true,
-								title: 'Permission List',
-								filename: 'Permission List',
-								sheetName: 'Permission List',
-								exportOptions: {
-									columns: "thead th:not(.noExport)",
-									extension: 'xlsx',
-									modifier: {
-										// page: 'current'
-									}
-
-								},
-								excelStyles: {
-									template: "blue_medium"
-								},
-								init: function(api, node, config) {
-									$(node).removeClass('btn-secondary')
-								}
-							},
-							{
-								extend: 'pdfHtml5',
-								text: '<i class="far fa-file-pdf"></i>',
-								titleAttr: 'PDF',
-								exportOptions: {
-									columns: ':visible',
-									orientation: 'landscape',
-									columns: "thead th:not(.noExport)",
-								},
-
-							},
-							{
-								extend: 'print',
-								text: '<i class="fas fa-print"></i>',
-								titleAttr: 'Print',
-
-								exportOptions: {
-									columns: ':visible',
-									orientation: 'landscape',
-									columns: "thead th:not(.noExport)",
-								},
-								customize: function(win) {
-									$(win.document.body).addClass('white-bg');
-									$(win.document.body).css('font-size', '10px');
-									$(win.document.body).find('table')
-										.addClass('compact')
-										.css('font-size', 'inherit');
-								}
-							}
-						]
-					},
-					{
-						extend: 'colvis',
-						postfixButtons: ['colvisRestore'],
-						text: '<i class="fa fa-bars"></i>',
-						collectionLayout: 'fixed two-column',
-						collectionTitle: 'Column visibility control',
-						columns: ':not(.noVis)',
-						columnText: function(dt, idx, title) {
-							return (idx + 1) + ': ' + title;
-						},
-					}
-				],
-
-			}).on('buttons-processing', function(e, indicator) {
-				if (indicator) {
-					Swal.fire({
-						title: 'Please Wait !',
-						html: 'Descargar excel', // add html attribute if you want or remove
-						allowEscapeKey: false,
-						allowOutsideClick: false,
-						onBeforeOpen: () => {
-							Swal.showLoading()
-						}
-					});
-				} else {
-					swal.close();
-				}
-			});
-		}
-		//////////////////////////////
-		$('#search').on('click', function(e) {
-			e.preventDefault();
-			loadAjaxData();
-			$('#filter11Modal').modal('toggle');
-		});
-		//////////////////////////////
-	});
-</script> -->

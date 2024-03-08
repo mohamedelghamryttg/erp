@@ -97,8 +97,4 @@ class Login extends CI_Controller
         print_r($data['attendance']);
         // $this->load->view('hr/attendanceTest.php',$data);
     }
-
-
-
 }
-?>

@@ -20,4 +20,13 @@ class Commission_model extends CI_Model
         }
         return $data;
     }
+    public function AllPmRules($permission, $filter)
+    {
+        if ($permission->view == 1) {
+            $sql = "SELECT * FROM `pmcommission_rules` WHERE " . $filter . " group by brand_id,year,month  Order By `year` ASC,`month` DESC";
+
+            $data = $this->db->query($sql);
+        }
+        return $data;
+    }
 }

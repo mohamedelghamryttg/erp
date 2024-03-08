@@ -1,6 +1,6 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="https://cloud.tinymce.com/stable/tinymce.min.js"></script>
-<script>tinymce.init({ selector: 'textarea' });</script>
+<!-- <script src="https://cloud.tinymce.com/stable/tinymce.min.js"></script> -->
+<!-- <script>tinymce.init({ selector: 'textarea' });</script> -->
 <div class="row">
     <div class="col-lg-12">
         <section class="panel">
@@ -61,12 +61,11 @@
                                         <td>File Attachment</td>
                                         <td colspan="3">
                                             <?php if (strlen($task->file) > 1) { ?>
-                                                <a href="<?= $this->projects_model->getTaskFileLink("assets/uploads/leRequest/", $task->file, $task->start_after_type) ?>"
-                                                    target="_blank">Click Here</a>
-                                            <?php } else {
+                                                <a href="<?= $this->projects_model->getTaskFileLink("assets/uploads/leRequest/", $task->file, $task->start_after_type) ?>" target="_blank">Click Here</a>
+                                                <?php } else {
                                                 if ($task->start_after_id != null && $task->start_after_type == "Vendor") { ?>
                                                     <?= $this->projects_model->getTaskVendorNotes($task->start_after_id) ?>
-                                                <?php }
+                                            <?php }
                                             } ?>
                                         </td>
                                     </tr>
@@ -172,8 +171,7 @@
 
                 <div class="panel-body">
                     <div class="form">
-                        <form class="cmxform form-horizontal " action="<?php echo base_url() ?>projects/reopenLETask"
-                            method="post" enctype="multipart/form-data">
+                        <form class="cmxform form-horizontal " action="<?php echo base_url() ?>projects/reopenLETask" method="post" enctype="multipart/form-data">
                             <input name="id" type="hidden" value="<?= base64_encode($task->id) ?>" readonly="">
 
                             <div class="form-group">
@@ -189,15 +187,14 @@
                                 <label class="col-lg-3 control-label" for="role File Attachment">File Attachment</label>
 
                                 <div class="col-lg-6">
-                                    <input type="file" class=" form-control" name="file" id="file"
-                                        accept="'application/zip'">
+                                    <input type="file" class=" form-control" name="file" id="file" accept="'application/zip'">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-lg-3 control-label" for="comment">Comment</label>
 
                                 <div class="col-lg-8">
-                                    <textarea name="comment" class="form-control" value="" rows="6"></textarea>
+                                    <textarea name="comment" class="form-control ckeditor" value="" rows="6"></textarea>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -306,14 +303,13 @@
             <?php if ($task->status != 3) { ?>
                 <div class="panel-body">
                     <div class="form">
-                        <form role="form" id="commentForm" action="<?php echo base_url() ?>le/requestRespone" method="post"
-                            enctype="multipart/form-data">
+                        <form role="form" id="commentForm" action="<?php echo base_url() ?>le/requestRespone" method="post" enctype="multipart/form-data">
                             <input name="id" type="hidden" value="<?= base64_encode($task->id) ?>" readonly="">
                             <div class="form-group">
                                 <label class="col-lg-3 control-label" for="comment">Comment</label>
 
                                 <div class="col-lg-6">
-                                    <textarea name="comment" class="form-control" value="" rows="6"></textarea>
+                                    <textarea name="comment" class="form-control ckeditor" value="" rows="6"></textarea>
                                     <input type="text" class=" form-control" name="flag" value="2" hidden="">
                                 </div>
                             </div>

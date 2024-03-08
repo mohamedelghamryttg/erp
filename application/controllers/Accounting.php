@@ -180,7 +180,78 @@ class Accounting extends CI_Controller
 
         $this->load->view('accounting/exportPOList.php', $data);
     }
+    public function exportcpoStatus1()
+    {
+        $file_type = "vnd.ms-excel";
+        $file_ending = "xls";
+        // $file_type = "msword";
+        // $file_ending = "doc";
+        header("Content-Type: application/$file_type");
+        header("Content-Disposition: attachment; filename=cpoStatus.$file_ending");
+        header("Pragma: no-cache");
+        header("Expires: 0");
 
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 74);
+        $arr2 = array();
+        if (isset($_REQUEST['customer'])) {
+            $customer = $_REQUEST['customer'];
+            if (!empty($customer)) {
+                array_push($arr2, 0);
+            }
+        } else {
+            $customer = "";
+        }
+        if (isset($_REQUEST['po'])) {
+            $po = $_REQUEST['po'];
+            if (!empty($po)) {
+                array_push($arr2, 1);
+            }
+        } else {
+            $po = "";
+        }
+        if (isset($_REQUEST['verified'])) {
+            $verified = $_REQUEST['verified'];
+            if (!empty($verified)) {
+                array_push($arr2, 2);
+            }
+        } else {
+            $verified = "";
+        }
+        if (isset($_REQUEST['invoiced'])) {
+            $invoiced = $_REQUEST['invoiced'];
+            if (!empty($invoiced)) {
+                array_push($arr2, 3);
+            }
+        } else {
+            $invoiced = "";
+        }
+        if ($verified == 3) {
+            $verified = 0;
+        }
+        if ($invoiced == 2) {
+            $invoiced = 0;
+        }
+        //print_r($arr2);
+        $cond1 = "customer = '$customer'";
+        $cond2 = "number LIKE '%$po%'";
+        $cond3 = "verified = '$verified'";
+        $cond4 = "invoiced = '$invoiced'";
+        $arr1 = array($cond1, $cond2, $cond3, $cond4);
+        $arr_1_cnt = count($arr2);
+        $arr3 = array();
+        for ($i = 0; $i < $arr_1_cnt; $i++) {
+            array_push($arr3, $arr1[$arr2[$i]]);
+        }
+        $arr4 = implode(" and ", $arr3);
+        // print_r($arr4);     
+        if ($arr_1_cnt > 0) {
+            $data['cpo'] = $this->accounting_model->cpoStatus($this->brand, $arr4);
+        } else {
+            $data['cpo'] = $this->accounting_model->cpoStatusPages($this->brand, 9, 0);
+        }
+
+        $this->load->view('accounting/exportcpoStatus1.php', $data);
+    }
     public function updateInvoices()
     {
         $invoices = $this->db->get('invoices')->result();
@@ -521,13 +592,18 @@ class Accounting extends CI_Controller
             $invoice = $this->db->get_where('invoices', array('id' => $id))->row();
             $bank = $this->db->query(" SELECT p.id,p.name,b.name,b.data,b.id AS bank FROM `payment_method` AS p LEFT OUTER JOIN bank AS b on b.id = p.bank WHERE p.id = '$invoice->payment_method'  ")->row();
             $lead = $this->db->get_where('customer_leads', array('id' => $invoice->lead))->row();
+
             if ($bank->bank == 1) {
                 $file = "assets/uploads/excel/aaib.xlsx";
             } elseif ($bank->bank == 2) {
                 $file = "assets/uploads/excel/eib.xlsx";
+            } else {
+                $file = "assets/uploads/excel/inv.xls";
             }
+            // var_dump(file_exists($file));
+            // die;
             $objReader = PHPExcel_IOFactory::createReader('Excel2007');
-            $objPHPExcel = $objReader->load($file);
+            $objPHPExcel =  $objReader->load($file);
             $objWorksheet = $objPHPExcel->getActiveSheet();
             //Company ..
             $objPHPExcel->getActiveSheet()->setCellValue('b' . '11', $this->customer_model->getCustomer($invoice->customer));
@@ -566,13 +642,17 @@ class Accounting extends CI_Controller
             }
             $newRow = $row + 1;
             $objPHPExcel->getActiveSheet()->setCellValue('i' . $newRow, $invoiceTotal);
-
+            PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);
             $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+
+
             header('Content-Type: application/vnd.ms-excel');
+            // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             header('Content-Disposition: attachment;filename="invoice_' . $id . '.xlsx"');
             header('Cache-Control: max-age=0');
             header("Pragma: no-cache");
             header("Expires: 0");
+            ob_end_clean();
             $objWriter->save('php://output');
         } else {
             echo "You have no permission to access this page";
@@ -1467,6 +1547,7 @@ class Accounting extends CI_Controller
                 $data['task'] = $task[$i];
                 $data['payment_method'] = $_POST['payment_method'];
                 $data['payment_date'] = date("Y-m-d", strtotime($_POST['payment_date']));
+
                 $data['status'] = 1;
                 $data['created_by'] = $this->user;
                 $data['created_at'] = date("Y-m-d H:i:s");
@@ -1974,10 +2055,11 @@ class Accounting extends CI_Controller
             array_push($arr3, $arr1[$arr2[$i]]);
         }
         $arr4 = implode(" and ", $arr3);
-        // print_r($arr4);     
+
         if ($arr_1_cnt > 0) {
             $data['task'] = $this->accounting_model->vpoStatus($data['permission'], $this->brand, $arr4);
         } else {
+
             $data['task'] = $this->accounting_model->vpoStatus($data['permission'], $this->brand, 1);
         }
 
@@ -2204,7 +2286,53 @@ class Accounting extends CI_Controller
             //body ..
             $data['user'] = $this->user;
             $data['brand'] = $this->brand;
-            // //Pages ..
+
+            $counts = $this->db->query("  
+            SELECT (select count(p.id) 
+            FROM
+            po AS p
+                LEFT JOIN
+            users AS u ON p.created_by = u.id
+        WHERE
+            u.brand = " . $this->brand . ") as countall , 
+            (select count(p.id) 
+            FROM
+            po AS p
+                LEFT JOIN
+            users AS u ON p.created_by = u.id
+        WHERE
+            u.brand = " . $this->brand . " and p.verified = '1') as countv, 
+            (select count(p.id) 
+            FROM
+            po AS p
+                LEFT JOIN
+            users AS u ON p.created_by = u.id
+        WHERE
+            u.brand = " . $this->brand . " and p.has_error <> '' and p.has_error IS NOT NULL) as counte
+            , 
+            (select count(p.id) 
+            FROM
+            po AS p
+                LEFT JOIN
+            users AS u ON p.created_by = u.id
+        WHERE
+            u.brand = " . $this->brand . " and p.invoiced <> '1') as counti
+            , 
+            (select count(p.id) 
+            FROM
+            po AS p
+                LEFT JOIN
+            users AS u ON p.created_by = u.id
+        WHERE
+            u.brand = " . $this->brand . " and p.paid <> '1') as countp")->result_array();
+
+            $data['rec_all'] = $counts[0]['countall'];
+            $data['rec_v'] = $counts[0]['countv'];
+            $data['rec_e'] = $counts[0]['counte'];
+            $data['rec_i'] = $counts[0]['counti'];
+            $data['rec_p'] = $counts[0]['countp'];
+
+
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('accounting/cpoStatusNew.php');
             $this->load->view('includes_new/footer.php');
@@ -2212,8 +2340,161 @@ class Accounting extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
-
     public function cpoStatus_data()
+    {
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 3);
+        $draw = intval($this->input->post('draw'));
+        $start = intval($this->input->post('start'));
+        $length = intval($this->input->post('length'));
+        $order = $this->input->post('order');
+        $col = 0;
+        $dir = "";
+        $filter_data = $this->input->post('filter_data');
+        parse_str($filter_data, $params);
+        $filter = array();
+        // $cond0 = "c.brand = '$this->brand'";
+        // $cond1 = "p.customer ='$customer'";
+        // $cond2 = "p.number like '%$po%'";
+        // $cond3 = "p.verified ='$verified'";
+        // $cond4 = "p.invoiced = '$invoiced'";
+        // $cond5 = "p.paid= '$paid'";
+        // $cond6 = "p.created_by = '$created_by'";
+        // $cond7 = "p.created_at >= '$from_date' and p.created_at <= '$to_date'";
+
+        $filter['brand'] =  'u.brand =' . $this->brand;
+        if ($filter_data) {
+            if (!empty($customer)) {
+                $filter['customer'] = 'p.customer =' . $params['customer'];
+            }
+            $po = $params['po'];
+            if (!empty($po)) {
+                $filter['po'] = 'p.number =' . $params['po'];
+            }
+
+            if (!empty($verified)) {
+                $filter['verified'] = 'p.verified =' . $params['verified'];
+            }
+
+            if (!empty($invoiced)) {
+                $filter['invoiced'] = 'p.invoiced =' . $params['invoiced'];
+            }
+
+            if (!empty($paid)) {
+                $filter['paid'] = 'p.paid =' . $params['paid'];
+            }
+
+            if (!empty($created_by)) {
+                $filter['created_by'] = 'p.created_by =' . $params['created_by'];
+            }
+            if (!empty($params['date_from'])) {
+                $filter['created_at'] = 'p.created_at >=' . date("Y-m-d", strtotime($params['date_from']));
+            }
+            if (!empty($params['date_to'])) {
+                $filter['created_at'] = 'p.created_at <=' . date("Y-m-d", strtotime($params['date_to']));
+            }
+        }
+        //************************ */
+        $data['filter'] = $filter;
+        if (!empty($order)) {
+            foreach ($order as $o) {
+                $col = $o['column'];
+                $dir = $o['dir'];
+            }
+        }
+        if ($dir != 'asc' && $dir != 'desc') {
+            $dir = 'desc';
+        }
+        $valid_columns = array(
+            0 => '',
+            1 => 'id',
+            2 => 'customer_name',
+            3 => 'number',
+            4 => 'cpo_file',
+
+            5 => 'created_at',
+            6 => 'pm',
+            7 => 'verified',
+            8 => 'verified_at',
+            9 => 'error_name',
+            10 => 'invoiced',
+            11 => 'paid',
+
+
+        );
+        if ($col > 0 && $col <= 12) {
+            $order = $valid_columns[$col];
+        } else {
+            $order = null;
+        }
+        // if ($order != null) {
+        //     $this->db->order_by($order, $dir);
+        // }
+        // if ($length >= 0) {
+        //     $this->db->limit($length, $start);
+        // }
+
+        $cpo  = $this->accounting_model->cpoStatus($filter, $order, $dir, $length, $start);
+        if ($cpo->num_rows() > 0) {
+            foreach ($cpo->result() as $rows) {
+                $jobs = $this->accounting_model->get_data_cpo_job($rows->id);
+                $jobTotal = 0;
+                $currency = '';
+                if (count($jobs) > 0) {
+                    $jobTotal = array_sum(array_column($jobs, 'jobTotal'));
+                    $currency = $jobs[0]['currency'];
+                }
+                //$this->db->get_where('job', array('po' => $rows->id))->result_array();
+                $json[] = array(
+                    $rows->id,
+                    $rows->id,
+                    $rows->customer_name,
+                    $rows->number,
+
+                    $rows->created_at,
+                    $rows->pm,
+                    $rows->verified,
+                    $rows->verified_at,
+                    $rows->error_name,
+                    $rows->invoiced,
+                    $rows->paid,
+                    $currency,
+                    $jobTotal,
+                    'jobs_' . $rows->id => $jobs,
+                    '<a href="' . base_url() . 'assets/uploads/cpo/' .  $rows->cpo_file . ' target="_blank">Click Here</a>',
+
+                );
+            }
+            // print_r('<pre>');
+            // var_dump($json);
+            // $sql = "select p.id from po as p  left join users as u on p.created_by = u.id where " . implode(" and ", $filter);
+
+            $this->db->select('id');
+            $this->db->from('po as p');
+            $this->db->join('users AS u', 'p.created_by = u.id', 'left');
+            $this->db->where(implode(" and ", $filter));
+            $total_records = $this->db->count_all_results();
+
+
+            // var_dump($counts);
+
+            $response = array(
+                'draw' => $draw,
+                'recordsTotal' => $total_records,
+                'recordsFiltered' => $total_records,
+                'data' => $json,
+            );
+        } else {
+            $response = array(
+                'draw' => $draw,
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => array()
+            );
+        }
+        echo (json_encode($response));
+    }
+    public function cpoStatus_data_old()
     {
         $data['group'] = $this->admin_model->getGroupByRole($this->role);
         $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 3);
@@ -3425,63 +3706,8 @@ class Accounting extends CI_Controller
             $data['user'] = $this->user;
             $data['brand'] = $this->brand;
             $filter['v.brand ='] = $this->brand;
-            if (isset($_POST['search'])) {
-                if (!empty($_REQUEST['date_from'])) {
-                    $filter['t.created_at >='] = date("Y-m-d", strtotime($_REQUEST['date_from']));
-                }
-                if (!empty($_REQUEST['date_to'])) {
-                    $filter['t.created_at <='] = date("Y-m-d", strtotime($_REQUEST['date_to']));
-                }
-                if (!empty($_REQUEST['created_by'])) {
-                    $filter['t.created_by ='] = $_REQUEST['created_by'];
-                }
-                if (!empty($_REQUEST['vendor'])) {
-                    $filter['t.vendor ='] = $_REQUEST['vendor'];
-                }
-                if (isset($_REQUEST['status']) && $_REQUEST['status'] != -1) {
-                    $filter['t.status ='] = $_REQUEST['status'];
-                }
-                if (!empty($_REQUEST['invoice_status'])) {
-                    if ($_REQUEST['invoice_status'] == 1) {
-                        $filter['t.verified ='] = 1;
-                    } else {
-                        $filter['t.verified <>'] = 1;
-                    }
-                }
-                if (!empty($_REQUEST['code'])) {
-                    $filter['t.code LIKE'] = "%" . $_REQUEST['code'] . "%";
-                }
-                $not_added_filter = $filter;
-                if (!empty($_REQUEST['payment_status'])) {
-                    if ($_REQUEST['payment_status'] == 1) {
-                        $filter['p.status ='] = 1;
-                        $data['payment_method'] = 1;
-                        $task_not_added = array();
-                    } else {
-                        $filter['(p.status !=1 OR p.status IS NULL)'] = NULL;
-                        $data['payment_method'] = 2;
-                    }
-                }
 
-                $task_added = $this->accounting_model->vpoStatus_added($filter);
-                if (!isset($task_not_added)) {
-                    $task_not_added = $this->accounting_model->vpoStatus_not_added($not_added_filter);
-                    $data_task = array_merge($task_added->result(), $task_not_added->result());
-                } else {
-                    $data_task = $task_added->result();
-                }
-
-                // to sort them by id desc
-                $id = array_column($data_task, 'id');
-                array_multisort($id, SORT_DESC, $data_task);
-                $data['task'] = $data_task;
-            }
-
-
-            $data['filter'] = $filter;
-
-
-            // //Pages ..
+            $data['brand_id'] = $this->brand;
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('accounting_new/vpoStatus.php');
             $this->load->view('includes_new/footer.php');
@@ -3489,71 +3715,559 @@ class Accounting extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
+    function get_task1()
+    {
+        $draw = intval($this->input->post('draw'));
+        $start = intval($this->input->post('start'));
+        $length = intval($this->input->post('length'));
+        $order = $this->input->post('order');
+        $col = 0;
+        $dir = "";
+        $filter_data = $this->input->post('filter_data');
+        parse_str($filter_data, $params);
+
+        $filter['v.brand ='] = $this->brand;
+        if ($filter_data) {
+            if (!empty($params['searchEmpty'])) {
+                if (!empty($params['date_from'])) {
+                    $filter['t.created_at >='] = date("Y-m-d", strtotime($params['date_from']));
+                }
+                if (!empty($params['date_to'])) {
+                    $filter['t.created_at <='] =  date("Y-m-d", strtotime($params['date_to']));
+                }
+                if (!empty($params['created_by'])) {
+                    $filter['t.created_by ='] = $params['created_by'];
+                }
+                if (!empty($params['vendor'])) {
+                    $filter['t.vendor ='] = $params['vendor'];
+                }
+                if (isset($params['status']) && $params['status'] != -1) {
+                    $filter['t.status ='] = $params['status'];
+                }
+                if (!empty($params['invoice_status'])) {
+                    if ($params['invoice_status'] == 1) {
+                        $filter['t.verified ='] = 1;
+                    } else {
+                        $filter['t.verified <>'] = 1;
+                    }
+                }
+                if (!empty($params['code'])) {
+                    $filter['t.code LIKE'] = "%" . $params['code'] . "%";
+                }
+                if (!empty($params['payment_status'])) {
+                    if ($params['payment_status'] == 1) {
+                        $filter['p.status ='] = 1;
+                        $data['payment_method'] = '1';
+                    } else {
+                        $filter['(p.status != 1 OR p.status IS NULL)'] = NULL;
+                        $data['payment_method'] = '2';
+                    }
+                }
+            }
+        }
+
+        //************************ */
+        $data['filter'] = $filter;
+        if (!empty($order)) {
+            foreach ($order as $o) {
+                $col = $o['column'];
+                $dir = $o['dir'];
+            }
+        }
+        if ($dir != 'asc' && $dir != 'desc') {
+            $dir = 'desc';
+        }
+        $valid_columns = array(
+            0 => '',
+            1 => 'user_name',
+            2 => 'code',
+            3 => 'status',
+            4 => 'closed_date',
+            5 => 'vpo_file',
+            6 => 'po_verified',
+            7 => 'po_verified_at',
+            8 => 'vendor_name',
+            9 => 'source_lang',
+            10 => 'target_lang',
+            11 => 'task_type_name',
+            12 => 'count',
+            13 => 'unit_name',
+            14 => 'rate',
+            15 => 'currency_name',
+            16 => 'totalamount',
+            17 => 'verifiedStat',
+            18 => 'invoice_dated',
+            19 => 'date45',
+            20 => 'date60',
+            21 => 'PaidStat',
+            22 => 'payment_date',
+            23 => 'payment_method_name',
+            24 => 'portalStat'
+        );
+        if ($col > 0 && $col <= 24) {
+            $order = $valid_columns[$col];
+        } else {
+            $order = null;
+        }
+        if ($order != null) {
+            $this->db->order_by($order, $dir);
+        }
+        if ($length >= 0) {
+            $this->db->limit($length, $start);
+        }
+        $filter['v.brand ='] = $this->brand;
+
+        $task_added = $this->accounting_model->vpoStatus_added($filter);
+        $vpo_status = ["Running", "Delivered", "Cancelled", "Rejected", "Waiting Vendor Acceptance", "Waiting PM Confirmation", "Not Started Yet", "Heads Up", "Heads Up ( Marked as Available )", "Heads Up ( Marked as Not Available )"];
+        $brand_link = $this->projects_model->getNexusLinkByBrand($this->brand);
+
+        if ($task_added->num_rows() > 0) {
+            $ix = $start;
+            foreach ($task_added->result() as $rows) {
+                $link = '';
+                if (strlen($rows->vpo_file) > 1 && $rows->job_portal == 1) {
+                    $link = '<a href="' . $brand_link  . '/assets/uploads/invoiceVendorFiles/' . $rows->vpo_file . '" target="_blank">Click Here</a>';
+                } elseif (strlen($rows->vpo_file) > 1 && $rows->job_portal == 0) {
+                    $link = '<a href="' . base_url() . 'assets/uploads/vpo/' . $rows->vpo_file . '" target="_blank">Click Here</a>';
+                };
+
+                $json[] = array(
+
+                    (($rows->payment_status && $rows->payment_status == 1) ?
+                        "<div><img src='" . base_url() . "assets/images/check.png' /></div>"
+                        : '<div></div>'),
+
+                    $rows->user_name,
+                    $rows->code,
+                    (($rows->status != null) ? $vpo_status[$rows->status] : ''),
+                    $rows->closed_date,
+                    $link,
+                    $rows->po_verified,
+                    (($rows->po_verified != '') ? $rows->po_verified_at : ''),
+
+                    $rows->vendor_name,
+                    $rows->source_lang,
+                    $rows->target_lang,
+                    $rows->task_type_name,
+                    $rows->count,
+                    $rows->unit_name,
+                    $rows->rate,
+                    $rows->currency_name,
+                    $rows->totalamount,
+                    $rows->verifiedStat,
+                    (($rows->invoice_dated) ? date("Y-m-d", strtotime($rows->invoice_dated)) : ''), $rows->date45,
+                    $rows->date60,
+                    $rows->PaidStat,
+                    $rows->payment_date,
+                    $rows->payment_method_name,
+                    $rows->portalStat
+
+                );
+            }
+            $total_records = $this->accounting_model->vpoStatus_count($filter);
+            $response = array(
+                'draw' => $draw,
+                'recordsTotal' => $total_records,
+                'recordsFiltered' => $total_records,
+                'data' => $json,
+            );
+        } else {
+            $response = array(
+                'draw' => $draw,
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => array()
+            );
+        }
+        echo json_encode($response);
+    }
+    function get_task()
+    {
+        ini_set('memory_limit', '-1');
+        // ini_set('max_execution_time', 0);
+        $data['group'] = $this->admin_model->getGroupByRole($this->role);
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 106);
+
+        $data['user'] = $this->user;
+        $data['brand'] = $this->brand;
+        $filter_data = $this->input->post('filter_data');
+        parse_str($filter_data, $params);
+
+        $filter['v.brand ='] = $this->brand;
+        if ($filter_data) {
+            if (!empty($params['searchEmpty'])) {
+                // var_dump($filter_data);
+                if (!empty($params['date_from'])) {
+                    $filter['t.created_at >='] = date("Y-m-d", strtotime($params['date_from']));
+                }
+                if (!empty($params['date_to'])) {
+                    $filter['t.created_at <='] =  date("Y-m-d", strtotime($params['date_to']));
+                }
+                if (!empty($params['created_by'])) {
+                    $filter['t.created_by ='] = $params['created_by'];
+                }
+                if (!empty($params['vendor'])) {
+                    $filter['t.vendor ='] = $params['vendor'];
+                }
+                if (isset($params['status']) && $params['status'] != -1) {
+                    $filter['t.status ='] = $params['status'];
+                }
+                if (!empty($params['invoice_status'])) {
+                    if ($params['invoice_status'] == 1) {
+                        $filter['t.verified ='] = 1;
+                    } else {
+                        $filter['t.verified <>'] = 1;
+                    }
+                }
+                if (!empty($params['code'])) {
+                    $filter['t.code LIKE'] = "%" . $params['code'] . "%";
+                }
+                if (!empty($params['payment_status'])) {
+                    if ($params['payment_status'] == 1) {
+                        $filter['p.status ='] = 1;
+                        $data['payment_method'] = '1';
+                    } else {
+                        $filter['(p.status != 1 OR p.status IS NULL)'] = NULL;
+                        $data['payment_method'] = '2';
+                    }
+                }
+
+                $task_added = $this->accounting_model->vpoStatus_added($filter);
+                $data['task'] = $task_added->result();
+            } else {
+                $data['task'] = array();
+            }
+        } else {
+            $data['task'] = array();
+        }
+        $data['brand_id'] = $this->brand;
+        // var_dump($this->db->last_query());
+        $data['filter'] = $filter;
+        echo json_encode($data);
+        // echo base64_encode(json_encode($data));
+    }
+    public function exportvpoStatus_new()
+    {
+        ini_set('memory_limit', '-1');
+        // ini_set('max_execution_time', 0);
+        // $columns[] = $this->input->post('columns');
+
+        $filter_data = $this->input->post('filter_data');
+        parse_str($filter_data, $params);
+
+        $filter['v.brand ='] = $this->brand;
+        if ($filter_data) {
+            if (!empty($params['searchEmpty'])) {
+                if (!empty($params['date_from'])) {
+                    $filter['t.created_at >='] = date("Y-m-d", strtotime($params['date_from']));
+                }
+                if (!empty($params['date_to'])) {
+                    $filter['t.created_at <='] =  date("Y-m-d", strtotime($params['date_to']));
+                }
+                if (!empty($params['created_by'])) {
+                    $filter['t.created_by ='] = $params['created_by'];
+                }
+                if (!empty($params['vendor'])) {
+                    $filter['t.vendor ='] = $params['vendor'];
+                }
+                if (isset($params['status']) && $params['status'] != -1) {
+                    $filter['t.status ='] = $params['status'];
+                }
+                if (!empty($params['invoice_status'])) {
+                    if ($params['invoice_status'] == 1) {
+                        $filter['t.verified ='] = 1;
+                    } else {
+                        $filter['t.verified <>'] = 1;
+                    }
+                }
+                if (!empty($params['code'])) {
+                    $filter['t.code LIKE'] = "%" . $params['code'] . "%";
+                }
+                if (!empty($params['payment_status'])) {
+                    if ($params['payment_status'] == 1) {
+                        $filter['p.status ='] = 1;
+                        $data['payment_method'] = '1';
+                    } else {
+                        $filter['(p.status != 1 OR p.status IS NULL)'] = NULL;
+                        $data['payment_method'] = '2';
+                    }
+                }
+            }
+        }
+
+        //************************ */
+        $data['filter'] = $filter;
+
+        $valid_columns = array(
+            0 => '',
+            1 => 'user_name',
+            2 => 'code',
+            3 => 'status',
+            4 => 'closed_date',
+            5 => 'vpo_file',
+            6 => 'po_verified',
+            7 => 'po_verified_at',
+            8 => 'vendor_name',
+            9 => 'source_lang',
+            10 => 'target_lang',
+            11 => 'task_type_name',
+            12 => 'count',
+            13 => 'unit_name',
+            14 => 'rate',
+            15 => 'currency_name',
+            16 => 'totalamount',
+            17 => 'verifiedStat',
+            18 => 'invoice_dated',
+            19 => 'date45',
+            20 => 'date60',
+            21 => 'PaidStat',
+            22 => 'payment_date',
+            23 => 'payment_method_name',
+            24 => 'portalStat'
+        );
+
+        $filter['v.brand ='] = $this->brand;
+
+        $task_added = $this->accounting_model->vpoStatus_added($filter);
+        $vpo_status = ["Running", "Delivered", "Cancelled", "Rejected", "Waiting Vendor Acceptance", "Waiting PM Confirmation", "Not Started Yet", "Heads Up", "Heads Up ( Marked as Available )", "Heads Up ( Marked as Not Available )"];
+        $brand_link = $this->projects_model->getNexusLinkByBrand($this->brand);
+
+
+        $objPHPExcel = new PHPExcel();
+
+        $title = '';
+        $file = 'vpo.xlsx'; //save our workbook as this file name
+        // $objPHPExcel = new PHPExcel();
+        // $objPHPExcel->getProperties()->setTitle("title")->setDescription($filename);
+        $filename = $file;
+        $objPHPExcel->setActiveSheetIndex(0);
+        if ($task_added->num_rows() > 0) {
+
+            // $objPHPExcel->getActiveSheet()->setCellValue('A1', $title);
+            // $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setSize(20);
+            // $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setBold(true);
+            // $objPHPExcel->getActiveSheet()->mergeCells('A1:h1');
+            $asc = 65;
+
+            // for ($i = 0; $i < count($valid_columns); $i++) {
+            //     $col = chr($asc) . '2';
+            //     $objPHPExcel->getActiveSheet()->getCell($col . '2')->setValue($valid_columns[$i]);
+            //     $asc++;
+            // }
+            $objPHPExcel->getActiveSheet()->getCell('A2')->setValue('Brand');
+            $rows = 3;
+            foreach ($task_added->result() as $value) {
+                // $objPHPExcel->getActiveSheet()->getCell('A' . $rows)->setValue($value->user_name);
+                $objPHPExcel->getActiveSheet()->getCell('A' . $rows)->setValue($value->user_name);
+
+                $rows++;
+            }
+            // ob_end_clean();
+
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+
+            // $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+            $objWriter->save('php://output');
+            // echo $objWriter->save(getcwd() . '/assets/uploads/OperationalReport/' . $fileName);
+        }
+    }
+
     public function exportvpoStatus()
     {
         ini_set('memory_limit', '-1');
+        // ini_set('max_execution_time', 0);
+        $columns[] = $this->input->post('columns');
+
+        // print_r('<pre>');
+
+        $filter_data = $this->input->post('filter_data');
+
+        parse_str($filter_data ?? '', $params);
+        $filter['v.brand ='] = $this->brand;
+        if ($filter_data) {
+            if (!empty($params['searchEmpty'])) {
+                if (!empty($params['date_from'])) {
+                    $filter['t.created_at >='] = date("Y-m-d", strtotime($params['date_from']));
+                }
+                if (!empty($params['date_to'])) {
+                    $filter['t.created_at <='] =  date("Y-m-d", strtotime($params['date_to']));
+                }
+                if (!empty($params['created_by'])) {
+                    $filter['t.created_by ='] = $params['created_by'];
+                }
+                if (!empty($params['vendor'])) {
+                    $filter['t.vendor ='] = $params['vendor'];
+                }
+                if (isset($params['status']) && $params['status'] != -1) {
+                    $filter['t.status ='] = $params['status'];
+                }
+                if (!empty($params['invoice_status'])) {
+                    if ($params['invoice_status'] == 1) {
+                        $filter['t.verified ='] = 1;
+                    } else {
+                        $filter['t.verified <>'] = 1;
+                    }
+                }
+                if (!empty($params['code'])) {
+                    $filter['t.code LIKE'] = "%" . $params['code'] . "%";
+                }
+                if (!empty($params['payment_status'])) {
+                    if ($params['payment_status'] == 1) {
+                        $filter['p.status ='] = 1;
+                        $data['payment_method'] = '1';
+                    } else {
+                        $filter['(p.status != 1 OR p.status IS NULL)'] = NULL;
+                        $data['payment_method'] = '2';
+                    }
+                }
+            }
+        }
+
+        //************************ */
+        $data['filter'] = $filter;
+
+        // $valid_columns = array(
+        //     0 => '',
+        //     1 => 'user_name',
+        //     2 => 'code',
+        //     3 => 'status',
+        //     4 => 'closed_date',
+        //     5 => 'vpo_file',
+        //     6 => 'po_verified',
+        //     7 => 'po_verified_at',
+        //     8 => 'vendor_name',
+        //     9 => 'source_lang',
+        //     10 => 'target_lang',
+        //     11 => 'task_type_name',
+        //     12 => 'count',
+        //     13 => 'unit_name',
+        //     14 => 'rate',
+        //     15 => 'currency_name',
+        //     16 => 'totalamount',
+        //     17 => 'verifiedStat',
+        //     18 => 'invoice_dated',
+        //     19 => 'date45',
+        //     20 => 'date60',
+        //     21 => 'PaidStat',
+        //     22 => 'payment_date',
+        //     23 => 'payment_method_name',
+        //     24 => 'portalStat'
+        // );
+
+        // $filter['v.brand ='] = $this->brand;
+
+        $task_added = $this->accounting_model->vpoStatus_added($filter);
+        // $vpo_status = ["Running", "Delivered", "Cancelled", "Rejected", "Waiting Vendor Acceptance", "Waiting PM Confirmation", "Not Started Yet", "Heads Up", "Heads Up ( Marked as Available )", "Heads Up ( Marked as Not Available )"];
+        // $brand_link = $this->projects_model->getNexusLinkByBrand($this->brand);
+
+        // if ($task_added->num_rows() > 0) {
+        //     $file_type = "vnd.ms-excel";
+        //     $file_ending = "xls";
+        //     // $file_type = "msword";
+        //     // $file_ending = "doc";
+        //     header("Pragma: public");
+        //     header("Expires: 0");
+        //     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        //     header("Content-Type: application/force-download");
+        //     header("Content-Type: application/octet-stream");
+        //     header("Content-Type: application/download");;
+
+        //     // header("Content-Type: application/$file_type");
+        //     header("Content-Disposition: attachment; filename=VpoList.$file_ending");
+        //     // header("Pragma: no-cache");
+        //     // header("Expires: 0");
+        //     //*********** */
+        //     $objPHPExcel = new PHPExcel();
+
+        //     $objPHPExcel->getProperties()->setCreator("");
+        //     $objPHPExcel->getProperties()->setLastModifiedBy("");
+        //     $objPHPExcel->getProperties()->setTitle("");
+        //     $objPHPExcel->getProperties()->setSubject("");
+        //     $objPHPExcel->getProperties()->setDescription("");
+
+        //     $objPHPExcel->setActiveSheetIndex(0);
+
+        //     $sheet = $objPHPExcel->getActiveSheet();
+
+
+        //     $sheet->setCellValue("A1", $valid_columns[1]);
+        //     $sheet->setCellValue("B1", $valid_columns[2]);
+        //     $sheet->setCellValue("C1", $valid_columns[3]);
+        //     $sheet->setCellValue("D1", $valid_columns[4]);
+        //     $sheet->setCellValue("E1", $valid_columns[5]);
+
+        //     $row = 1;
+
+        //     foreach ($task_added->result_array() as $key => $value) {
+
+        //         $sheet->setCellValue("A" . $row, $value[$valid_columns[1]]);
+        //         $sheet->setCellValue("B" . $row, $value[$valid_columns[2]]);
+        //         $sheet->setCellValue("C" . $row, $value[$valid_columns[3]]);
+        //         $sheet->setCellValue("D" . $row, $value[$valid_columns[4]]);
+        //         $sheet->setCellValue("E" . $row, $value[$valid_columns[5]]);
+        //         $row++;
+        //     }
+
+        //     // $filename = "Task-Exportet-on-" . date("Y-m-d-H-i-s") . ".xls";
+        //     $sheet->setTitle("Task-Overview");
+
+        //     // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); //mime type
+        //     // header('Content-Disposition: attachment;filename="' . $filename . '"'); //tell browser what's the file name
+        //     // header('Cache-Control: max-age=0');
+
+
+        //     $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        //     //force user to download the Excel file without writing it to server's HD
+        //     $objWriter->save('php://output');
+        // };
+        // exit;
+        //*********** */
+
         $file_type = "vnd.ms-excel";
         $file_ending = "xls";
-        // $file_type = "msword";
-        // $file_ending = "doc";
         header("Content-Type: application/$file_type");
-        header("Content-Disposition: attachment; filename=VpoList.$file_ending");
+        header("Content-Disposition: attachment; filename=Vendor Purchase Order (VPO).$file_ending");
         header("Pragma: no-cache");
         header("Expires: 0");
 
-        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 106);
-        $filter['v.brand ='] = $this->brand;
+        // $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        // $objWriter->save('php://output');
 
-        if (!empty($_REQUEST['date_from'])) {
-            $filter['t.created_at >='] = date("Y-m-d", strtotime($_REQUEST['date_from']));
-        }
-        if (!empty($_REQUEST['date_to'])) {
-            $filter['t.created_at <='] = date("Y-m-d", strtotime($_REQUEST['date_to']));
-        }
-        if (!empty($_REQUEST['created_by'])) {
-            $filter['t.created_by ='] = $_REQUEST['created_by'];
-        }
-        if (!empty($_REQUEST['vendor'])) {
-            $filter['t.vendor ='] = $_REQUEST['vendor'];
-        }
-        if (isset($_REQUEST['status']) && $_REQUEST['status'] != -1) {
-            $filter['t.status ='] = $_REQUEST['status'];
-        }
-        if (!empty($_REQUEST['invoice_status'])) {
-            if ($_REQUEST['invoice_status'] == 1) {
-                $filter['t.verified ='] = 1;
-            } else {
-                $filter['t.verified <>'] = 1;
-            }
-        }
-        if (!empty($_REQUEST['code'])) {
-            $filter['t.code LIKE'] = "%" . $_REQUEST['code'] . "%";
-        }
+        $data['task'] =  $task_added;
+        $this->load->view('accounting/exportvpoStatus.php', $data);
+        // $fileName = 'mobile-' . time() . '.xlsx';
+        // // load excel library
 
-        $not_added_filter = $filter;
-        if (!empty($_REQUEST['payment_status'])) {
-            if ($_REQUEST['payment_status'] == 1) {
-                $filter['p.status ='] = 1;
-                $data['payment_method'] = 1;
-                $task_not_added = array();
-            } else {
-                $filter['(p.status !=1 OR p.status IS NULL)'] = NULL;
-                $data['payment_method'] = 2;
-            }
-        }
-        $task_added = $this->accounting_model->vpoStatus_added($filter);
-        if (!isset($task_not_added)) {
-            $task_not_added = $this->accounting_model->vpoStatus_not_added($not_added_filter);
-            $data_task = array_merge($task_added->result(), $task_not_added->result());
-        } else {
-            $data_task = $task_added->result();
-        }
-        // to sort them by id desc
-        $id = array_column($data_task, 'id');
-        array_multisort($id, SORT_DESC, $data_task);
-        $data['task'] = $data_task;
+        // $mobiledata = $task_added->result_array();
+        // $objPHPExcel = new PHPExcel();
+        // $objPHPExcel->setActiveSheetIndex(0);
+        // // set Header
+        // $objPHPExcel->getActiveSheet()->SetCellValue('A1', 'Model No.');
+        // $objPHPExcel->getActiveSheet()->SetCellValue('B1', 'Mobile Name');
+        // $objPHPExcel->getActiveSheet()->SetCellValue('C1', 'Price');
+        // $objPHPExcel->getActiveSheet()->SetCellValue('D1', 'Company');
+        // $objPHPExcel->getActiveSheet()->SetCellValue('E1', 'Category');
+        // // set Row
+        // $rowCount = 2;
+        // foreach ($mobiledata as $val) {
+        //     $objPHPExcel->getActiveSheet()->SetCellValue('A' . $rowCount, $val['user_name']);
+        //     $objPHPExcel->getActiveSheet()->SetCellValue('B' . $rowCount, $val['user_name']);
+        //     $objPHPExcel->getActiveSheet()->SetCellValue('C' . $rowCount, $val['user_name']);
+        //     $objPHPExcel->getActiveSheet()->SetCellValue('D' . $rowCount, $val['user_name']);
+        //     $objPHPExcel->getActiveSheet()->SetCellValue('E' . $rowCount, $val['user_name']);
+        //     $rowCount++;
+        // }
 
-        $this->load->view('accounting_new/exportvpoStatus.php', $data);
+        // $objPHPExcel->setActiveSheetIndex(0);
+
+        // $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+
+        // // Sending headers to force the user to download the file
+        // header('Content-Type: application/vnd.ms-excel');
+        // header('Content-Disposition: attachment;filename="' . 'export_' . '.xls"');
+        // header('Cache-Control: max-age=0');
+
+        // $objWriter->save('php://output');
     }
     /* journal start*/
     //hagar & refaat
@@ -4732,7 +5446,18 @@ class Accounting extends CI_Controller
             $data['bank'] = $bank = $this->db->query(" SELECT p.id,p.name,b.name,b.data,b.id AS bank FROM `payment_method` AS p LEFT OUTER JOIN bank AS b on b.id = p.bank WHERE p.id = '$invoice->payment_method'  ")->row();
             $data['lead'] = $lead = $this->db->get_where('customer_leads', array('id' => $invoice->lead))->row();
             $data['pos'] = $pos = explode(",", $invoice->po_ids);
-            $data['image_src'] = base_url() . "assets/images/logo_ar.jpg";
+            $data['brand'] = $this->brand;
+            if ($this->brand == 1) {
+                $data['image_src'] = base_url() . "assets/images/logo_ar.png";
+            } elseif ($this->brand == 2) {
+                $data['image_src'] = base_url() . "assets/images/dtp_zone.jpg";
+            } elseif ($this->brand == 3) {
+                $data['image_src'] = base_url() . "assets/images/europe.png";
+            } elseif ($this->brand == 11) {
+                $data['image_src'] = base_url() . "assets/images/columbus_logo.jpg";
+            }
+
+            // $data['image_src'] = base_url() . "assets/images/logo_ar.jpg";
 
             $this->load->library('Pdf');
             $pdf = new Pdf('P', 'mm', 'A4', true, 'UTF-8', false);

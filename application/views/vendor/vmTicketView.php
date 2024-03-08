@@ -1,6 +1,6 @@
-<script src="https://cloud.tinymce.com/stable/tinymce.min.js"></script>
-<script>tinymce.init({ selector: "#content" });</script>
-<script>tinymce.init({ selector: "#comment" });</script>
+<!-- <script src="https://cloud.tinymce.com/stable/tinymce.min.js"></script> -->
+<!-- <script>tinymce.init({ selector: "#content" });</script> -->
+<!-- <script>tinymce.init({ selector: "#comment" });</script> -->
 <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script> -->
 <div class="row">
   <div class="col-lg-12">
@@ -112,8 +112,7 @@
                 <?= $this->sales_model->getToolName($row->software); ?>
               </td>
               <td>
-                <?php if (strlen($row->file ?? '') > 1) { ?><a
-                  href="<?= base_url() ?>assets/uploads/tickets/<?= $row->file ?>" target="_blank">Click Here ..</a>
+                <?php if (strlen($row->file ?? '') > 1) { ?><a href="<?= base_url() ?>assets/uploads/tickets/<?= $row->file ?>" target="_blank">Click Here ..</a>
                 <?php } ?>
               </td>
 
@@ -169,11 +168,11 @@
                   <?php if (strlen($response->file ?? '') > 0) { ?>
                     </br> Attachment :
                     <a target="_blank" href="<?= base_url() ?>assets/uploads/tickets/<?= $response->file ?>">Click Here</a>
-                  </td>
-                <?php } ?>
-                <td>
-                  <?= $response->created_at ?>
                 </td>
+              <?php } ?>
+              <td>
+                <?= $response->created_at ?>
+              </td>
               </tr>
             <?php } ?>
           </tbody>
@@ -184,16 +183,15 @@
 
           </div>
           <div class="form">
-            <form role="form" class="cmxform form-horizontal " id="commentForm"
-              action="<?= base_url() ?>vendor/ticketRespone" method="post" enctype="multipart/form-data">
+            <form role="form" class="cmxform form-horizontal " id="commentForm" action="<?= base_url() ?>vendor/ticketRespone" method="post" enctype="multipart/form-data">
               <input name="id" type="hidden" value="<?= base64_encode($id) ?>" readonly="">
               <div class="form-group">
               </div>
               <div class="form-group">
                 <label class="col-lg-3 control-label" for="comment" required="">Comment</label>
 
-                <div class="col-lg-6">
-                  <textarea name="comment" id="content"></textarea>
+                <div class="col-lg-6" style="border: 1px solid #c7c7c7;">
+                  <textarea name="comment" class="ckeditor" id="content"></textarea>
                 </div>
               </div>
               <div class="form-group">
@@ -230,8 +228,7 @@
         </header>
 
         <div class="panel-body">
-          <form class="cmxform form-horizontal " action="<?= base_url() ?>vendor/changeTicketStatus" method="post"
-            enctype="multipart/form-data">
+          <form class="cmxform form-horizontal " action="<?= base_url() ?>vendor/changeTicketStatus" method="post" enctype="multipart/form-data">
 
             <input name="id" type="hidden" value="<?= base64_encode($id) ?>" readonly="">
             <?php if ($row->status <= 3) { ?>
@@ -251,7 +248,7 @@
             <hr>
             <?php $ticketData = $this->db->get_where('vm_ticket_resource', array('ticket' => $row->id))->row();
             if (isset($ticketData->file)) {
-              ?>
+            ?>
               <input type="text" name="resource_row" value="<?= $ticketData->id ?>" hidden="">
               <div class="form-group">
                 <label class="col-lg-3 control-label" for="role name">Attachment</label>
@@ -291,16 +288,15 @@
           Ticket Action
         </header>
         <div class="panel-body">
-          <form class="cmxform form-horizontal " action="<?= base_url() ?>vendor/changeTicketStatus" method="post"
-            enctype="multipart/form-data">
+          <form class="cmxform form-horizontal " action="<?= base_url() ?>vendor/changeTicketStatus" method="post" enctype="multipart/form-data">
 
             <?php
             $ticketData = $this->db->get_where('vm_ticket_resource', array('ticket' => $row->id))->row();
             if (isset($ticketData->number_of_resource)) {
               $number = $ticketData->number_of_resource;
-              ?>
+            ?>
               <input type="text" name="resource_row" value="<?= $ticketData->id ?>" hidden="">
-              <?php
+            <?php
             } else {
               $number = "";
             }
@@ -326,8 +322,7 @@
               <label class="col-lg-3 control-label" for="role Product Lines">Number Of Resources</label>
 
               <div class="col-lg-3">
-                <input type="text" class=" form-control" value="<?= $number ?>" name="number_of_resource"
-                  id="number_of_resource" onkeypress="return numbersOnly(event)" required>
+                <input type="text" class=" form-control" value="<?= $number ?>" name="number_of_resource" id="number_of_resource" onkeypress="return numbersOnly(event)" required>
               </div>
             </div>
             <?php if ($row->status <= 3) { ?>
@@ -354,8 +349,7 @@
         </header>
 
         <div class="panel-body">
-          <form class="cmxform form-horizontal " action="<?= base_url() ?>vendor/changeTicketStatus" method="post"
-            enctype="multipart/form-data">
+          <form class="cmxform form-horizontal " action="<?= base_url() ?>vendor/changeTicketStatus" method="post" enctype="multipart/form-data">
 
             <?php
             $ticketData = $this->db->get_where('vm_ticket_resource', array('ticket' => $row->id))->row();
@@ -402,8 +396,7 @@
 
         <div class="panel-body">
           <div class="form">
-            <form class="cmxform form-horizontal " action="<?= base_url() ?>vendor/changeTicketStatus" method="post"
-              enctype="multipart/form-data">
+            <form class="cmxform form-horizontal " action="<?= base_url() ?>vendor/changeTicketStatus" method="post" enctype="multipart/form-data">
 
               <input name="id" type="hidden" value="<?= base64_encode($id) ?>" readonly="">
               <?php if ($row->status <= 4) { ?>
@@ -434,9 +427,7 @@
                   New
                   Resource</a></br></br>
               <?php } ?>
-              <a class="btn btn-success" target="_blank"
-                href="<?= base_url() ?>vendor/exportVendorsTicket?t=<?= base64_encode($id) ?>"><i class="fa fa-download"
-                  aria-hidden="true"></i> Export Vendors</a></br></br>
+              <a class="btn btn-success" target="_blank" href="<?= base_url() ?>vendor/exportVendorsTicket?t=<?= base64_encode($id) ?>"><i class="fa fa-download" aria-hidden="true"></i> Export Vendors</a></br></br>
 
               <?php
               $ticket_resources = $this->db->get_where('vm_ticket_resource', array('ticket' => $id));
@@ -473,7 +464,7 @@
                     foreach ($ticket_resources->result() as $ticket_resources) {
                       $resource = $this->db->get_where('vendor', array('id' => $ticket_resources->vendor))->row();
                       $sheet = $this->db->get_where('vendor_sheet', array('ticket_id' => $id, 'vendor' => $resource->id, 'i' => $ticket_resources->id))->row();
-                      ?>
+                    ?>
                       <tr>
                         <td>
                           <?php if ($ticket_resources->type == 1) {
@@ -574,17 +565,14 @@
                         </td>
                         <td>
                           <?php if ($row->status != 4) { ?>
-                            <a href="<?= base_url() ?>vendor/editTicketResource?t=<?= base64_encode($ticket_resources->id) ?>&d=<?= base64_encode($id) ?>"
-                              class="">
+                            <a href="<?= base_url() ?>vendor/editTicketResource?t=<?= base64_encode($ticket_resources->id) ?>&d=<?= base64_encode($id) ?>" class="">
                               <i class="fa fa-pencil"></i> Edit
                             </a>
                           <?php } ?>
                         </td>
                         <td>
                           <?php if ($row->status != 4) { ?>
-                            <a href="<?= base_url() ?>vendor/deleteTicketResource?t=<?= base64_encode($ticket_resources->id) ?>&d=<?= base64_encode($id) ?>"
-                              title="delete" class=""
-                              onclick="return confirm('Are you sure you want to delete this Resource ?');">
+                            <a href="<?= base_url() ?>vendor/deleteTicketResource?t=<?= base64_encode($ticket_resources->id) ?>&d=<?= base64_encode($id) ?>" title="delete" class="" onclick="return confirm('Are you sure you want to delete this Resource ?');">
                               <i class="fa fa-times text-danger text"></i> Delete
                             </a>
                           <?php } ?>
@@ -649,8 +637,7 @@
             <!-- <a href="#myModal" data-toggle="modal" class="btn btn-primary" >Reply</a> -->
           </div>
           <div class="form">
-            <form role="form" class="cmxform form-horizontal " id="commentForm"
-              action="<?= base_url() ?>vendor/ticketVMTeamRespone" method="post" enctype="multipart/form-data">
+            <form role="form" class="cmxform form-horizontal " id="commentForm" action="<?= base_url() ?>vendor/ticketVMTeamRespone" method="post" enctype="multipart/form-data">
               <input name="id" type="hidden" value="<?= base64_encode($id) ?>" readonly="">
               <div class="form-group">
               </div>
@@ -658,7 +645,7 @@
                 <label class="col-lg-3 control-label" for="comment" required="">Comment</label>
 
                 <div class="col-lg-6">
-                  <textarea name="comment" id="comment"></textarea>
+                  <textarea name="comment" class="ckeditor" id="comment"></textarea>
                 </div>
               </div>
               <div class="form-group">

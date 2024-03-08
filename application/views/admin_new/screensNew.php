@@ -310,9 +310,9 @@
                 text: '<i class="far fa-file-excel"></i>',
                 titleAttr: 'Excel',
                 autoFilter: true,
-                title: 'Permission List',
-                filename: 'Permission List',
-                sheetName: 'Permission List',
+                title: 'Screens List',
+                filename: 'Screens List',
+                sheetName: 'Screens List',
                 exportOptions: {
                   columns: "thead th:not(.noExport)",
                   extension: 'xlsx',
@@ -379,7 +379,7 @@
             html: 'Descargar excel', // add html attribute if you want or remove
             allowEscapeKey: false,
             allowOutsideClick: false,
-            onBeforeOpen: () => {
+            onOpen: () => {
               Swal.showLoading()
             }
           });

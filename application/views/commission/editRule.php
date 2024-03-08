@@ -125,7 +125,7 @@
                                 </tr>
                             <?php } ?>
                             <th scope="row">6</th>
-                            <td colspan="2"><input type="number" name="rev_target_6" value="<?= $row->rev_target_6 ?>" class="form-control form-control-sm" placeholder="more than" min="0" step=".05" required /></td>
+                            <td colspan="2"><input type="number" name="rev_target_6" value="<?= $row->rev_target_from_6 ?>" class="form-control form-control-sm" placeholder="more than" min="0" step=".05" required /></td>
 
                             <td><input type="number" name="cogs_per_l6" value="<?= $row->cogs_per_l6 ?>" class="form-control form-control-sm" placeholder="%" min="0" step=".05" required /></td>
                             <td><input type="number" name="cogs_per_m6" value="<?= $row->cogs_per_m6 ?>" class="form-control form-control-sm" placeholder="%" min="0" step=".05" required /></td>

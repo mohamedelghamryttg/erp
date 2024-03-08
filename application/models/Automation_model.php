@@ -43,9 +43,9 @@ class Automation_model extends CI_Model
     public function AllTickets($permission, $filter)
     {
         if ($permission->view == 1) {
-            $data = $this->db->query("SELECT * FROM `automation_tickets` WHERE " . $filter . " Order By `status` ASC,`created_at` DESC");
+            $data = $this->db->query("SELECT * FROM `automation_tickets` WHERE " . $filter . " Order By `created_at` DESC,`status` ASC");
         } elseif ($permission->view == 2) {
-            $data = $this->db->query("SELECT * FROM `automation_tickets` WHERE " . $filter . " AND (emp_id = $this->emp_id or emp_id IN(SELECT id FROM employees WHERE manager = $this->emp_id )) Order By `status` ASC,`created_at` DESC");
+            $data = $this->db->query("SELECT * FROM `automation_tickets` WHERE " . $filter . " AND (emp_id = $this->emp_id or emp_id IN(SELECT id FROM employees WHERE manager = $this->emp_id )) Order By `created_at` DESC,`status` ASC");
         }
         return $data;
     }
@@ -54,7 +54,7 @@ class Automation_model extends CI_Model
         if ($permission->view == 1) {
             $data = $this->db->query("SELECT * FROM `automation_tickets`  Order By `status` ASC,`created_at` DESC limit " . $limit . " offset " . $offset);
         } elseif ($permission->view == 2) {
-            $data = $this->db->query("SELECT * FROM `automation_tickets` WHERE  emp_id = $this->emp_id OR emp_id IN(SELECT id FROM employees WHERE manager = $this->emp_id ) Order By `status` ASC,`created_at` DESC limit " . $limit . " offset " . $offset);
+            $data = $this->db->query("SELECT * FROM `automation_tickets` WHERE  emp_id = $this->emp_id OR emp_id IN (SELECT id FROM employees WHERE manager = $this->emp_id ) Order By `created_at` DESC,`status` ASC limit " . $limit . " offset " . $offset);
         }
         return $data;
     }

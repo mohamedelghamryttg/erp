@@ -566,7 +566,7 @@ class Server extends CI_Controller
 						$start_date = date('Y-m', strtotime("-1 month")) . "-06";
 						$end_date = date('Y-m-d', strtotime("+1 day"));
 					}
-					$operationalReportBYPMFileName = $this->admin_model->operationalReportBYPM_new($start_date, $end_date);
+					$operationalReportBYPMFileName = $this->admin_model->operationalReportBYPM($start_date, $end_date);
 					$this->admin_model->sendOperationalReportBYPM_new($operationalReportBYPMFileName, $start_date, $end_date);
 				}
 			}
@@ -583,7 +583,7 @@ class Server extends CI_Controller
 				$end_date = date('Y-m-d', strtotime("+1 day"));
 			}
 
-			$operationalReportBYPMFileName = $this->admin_model->operationalReportBYPM_new($start_date, $end_date);
+			$operationalReportBYPMFileName = $this->admin_model->operationalReportBYPM($start_date, $end_date);
 			$this->admin_model->sendOperationalReportBYPM_new($operationalReportBYPMFileName, $start_date, $end_date);
 		}
 	}
