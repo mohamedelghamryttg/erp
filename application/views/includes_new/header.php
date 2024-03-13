@@ -298,7 +298,7 @@ License: You must have a valid license purchased only from themeforest(the above
 							</button>
 							<!--end::Aside Toggle-->
 							<!--begin::Logo-->
-							<a href="#">
+							<a href="<?= base_url(); ?>admin">
 								<?php if ($this->brand == 1) { ?>
 									<img alt="Logo" src="<?php echo base_url(); ?>assets/images/logo_ar.png" class="logo-default max-h-50px" />
 								<?php } elseif ($this->brand == 2) { ?>
