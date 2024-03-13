@@ -153,28 +153,30 @@
                     <th>The high Rate </th>
                     <th>The low Rate </th>           
                     <th>The Avg Rate</th>
-                    <th>Unit</th> 
+                   
                 </tr>
             </thead>
           <tbody>
             <?php
-                if(isset($vendor_rate) && !empty($vendor_rate->max_rate)){ ?>
+            if(isset($vendor_rate) && !empty($vendor_rate->max_rate)){ ?>
                 <tr class="">              
                   <td>
-                    <?php echo $vendor_rate->max_rate; ?>
-                    <?php echo $this->admin_model->getCurrency($vendor_rate->currency); ?>
+                    <?= $this->projects_model->convertCurrencyToDollar($vendor_rate->currency, $date,  $vendor_rate->max_rate).' USD' ?>
+                   <?php // echo $vendor_rate->max_rate; ?>                  
                   </td>
                   <td>
-                    <?php echo $vendor_rate->min_rate; ?>
-                    <?php echo $this->admin_model->getCurrency($vendor_rate->currency); ?>
+                    <?= $this->projects_model->convertCurrencyToDollar($vendor_rate->currency, $date,  $vendor_rate->min_rate).' USD' ?>
+                  
+                    <?php // echo $vendor_rate->min_rate; ?>
+                   
                   </td>
                   <td>
-                    <?php echo $vendor_rate->avg_rate ; ?>
-                    <?php echo $this->admin_model->getCurrency($vendor_rate->currency); ?>
+                    <?= $this->projects_model->convertCurrencyToDollar($vendor_rate->currency, $date,  $vendor_rate->avg_rate).' USD' ?>
+                  
+                    <?php // echo $vendor_rate->avg_rate ; ?>
+                    
                   </td>
-                  <td>
-                    <?php echo $this->admin_model->getUnit($vendor_rate->unit); ?>
-                  </td>
+                  
                 </tr>
               <?php }  else{ ?>
               <tr>
@@ -217,9 +219,12 @@
                     <td>
                       <?php echo $this->customer_model->getCustomer($row->customer); ?>
                     </td>
-                    <td>
+<!--                    <td>
                       <?php echo $row->rate; ?>
                       <?php echo $this->admin_model->getCurrency($row->currency); ?>
+                    </td>-->
+                    <td>
+                        <?= $this->projects_model->convertCurrencyToDollar($row->currency, $date,  $row->rate) . ' USD' ?>
                     </td>
                     <td>
                       <?php echo $this->admin_model->getUnit($row->unit); ?>

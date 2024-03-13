@@ -2856,7 +2856,8 @@ background-color: #FFFFCC;
                 } else {
                     $data['priceList'] = $this->sales_model->getAllRateIndicatorPages($this->brand, 1);
                     $data['vendor_rate'] = '';
-                }               
+                }        
+                $data['date'] = date("Y-m-d");
             } 
       
             //Pages ..
