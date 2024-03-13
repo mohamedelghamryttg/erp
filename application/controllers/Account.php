@@ -1185,10 +1185,11 @@ class Account extends CI_Controller
         //body ..
         $data['user'] = $this->user;
         $arr2 = array();
+        array_push($arr2, 0);
         if (isset($_REQUEST['type'])) {
             $type = $_REQUEST['type'];
             if (!empty($type)) {
-                array_push($arr2, 0);
+                array_push($arr2, 1);
             }
         } else {
             $type = "";
@@ -1196,7 +1197,7 @@ class Account extends CI_Controller
         if (isset($_REQUEST['account_id'])) {
             $account_id = $_REQUEST['account_id'];
             if (!empty($account_id)) {
-                array_push($arr2, 1);
+                array_push($arr2, 2);
             }
         } else {
             $account_id = "";
