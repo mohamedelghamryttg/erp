@@ -350,6 +350,7 @@ function getProductLineByLead() {
 
 function getCustomerDataAccounting() {
     var customer = $("#customer").val();
+    $("#VerifiedPOs").html("");
     // alert(customer);
     $.ajaxSetup({
         beforeSend: function () {
@@ -721,17 +722,17 @@ function checkPO() {
 
 function getVirifiedPoByCustomer() {
     $("#VerifiedPOs").html("");
-    var lead = $('input[type=radio][name=lead]:checked').val();
-    //  alert(lead);
-    $.ajaxSetup({
-        beforeSend: function () {
-            $('#loading').show();
-        },
+    $('input[type=checkbox][name=lead]:checked').each(function () {
+        var lead = $(this).val();
+        $.post(base_url + "accounting/getVirifiedPoByCustomer", { lead: lead }, function (data) {
+            $('#loading').hide();
+            $("#VerifiedPOs").append(data);
+        });
     });
-    $.post(base_url + "accounting/getVirifiedPoByCustomer", { lead: lead }, function (data) {
-        $('#loading').hide();
-        $("#VerifiedPOs").html(data);
-    });
+ 
+    $('#loading').show();
+
+   
 }
 
 function getPaymentData() {

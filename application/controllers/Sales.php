@@ -477,7 +477,7 @@ class Sales extends CI_Controller
                 $radio = "";
             }
             $data .= '<tr class="">
-                        <td><input type="radio" name="lead" id="lead" onclick="getVirifiedPoByCustomer();clearPaymentData();" value="' . $row->id . '" ' . $radio . '></td>
+                        <td><input type="checkbox" name="lead" id="lead" onclick="getVirifiedPoByCustomer();" value="' . $row->id . '" ' . $radio . '></td>
                             <td>' . $this->admin_model->getRegion($row->region) . '</td>
                             <td>' . $this->admin_model->getCountry($row->country) . '</td>
                             <td>' . $this->admin_model->getBrand($brand) . '</td>

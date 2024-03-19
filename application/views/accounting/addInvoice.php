@@ -38,8 +38,19 @@
 
                         <div class="form-group">
                             <label class="col-lg-3 control-label" for="role name"></label>
-                            <div class="col-lg-6" id="VerifiedPOs">
-
+                            <div class="col-lg-6" >
+                                <table class="table table-striped table-hover table-bordered" style="overflow:scroll;">
+                                    <thead>
+                                        <tr>
+                                            <th>Choose</th>
+                                            <th>PO Number</th>
+                                            <th>Currency</th>
+                                            <th>Total Revenue</th>
+                                            <th>CPO File</th>
+                                            <th>Region</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="VerifiedPOs"></tbody></table>
                             </div>
                         </div>
 

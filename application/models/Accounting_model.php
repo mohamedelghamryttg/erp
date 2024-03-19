@@ -45,19 +45,10 @@ class Accounting_model extends CI_Model
     {
         $row = $this->db->query(" SELECT * FROM `po` WHERE `lead` = '$lead' AND `verified` = '1' AND `invoiced` <> 1 ")->result();
 
-        $data = '<table class="table table-striped table-hover table-bordered" style="overflow:scroll;">
-                    <thead>
-                        <tr>
-                            <th>Choose</th>
-                            <th>PO Number</th>
-                            <th>Currency</th>
-                            <th>Total Revenue</th>
-                            <th>CPO File</th>
-                        </tr>
-                    </thead>
-                    <tbody>';
+        $data = '';
         foreach ($row as $row) {
             $job_data = $this->projects_model->totalRevenuePO($row->id);
+            $region = $this->db->get_where('customer_leads', array('id' => $lead))->row()->region;
             if ($id == $row->id) {
                 $checked = 'checked="checked"';
             } else {
@@ -70,9 +61,9 @@ class Accounting_model extends CI_Model
                             <td>' . $job_data['total'] . '</td>
                             <td><a href="<?= base_url() ?>assets/uploads/cpo/' . $row->cpo_file .
                 ' target="_blank">Click Here</a>  </td>
+                    <td>'.$this->admin_model->getRegion($region).'</td>
                         </tr>';
-        }
-        $data .= '</tbody></table>';
+        }       
         echo $data;
     }
 
