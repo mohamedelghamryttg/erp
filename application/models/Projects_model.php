@@ -15,77 +15,98 @@ class Projects_model extends CI_Model
         parent::__construct();
         $this->load->database();
     }
-    public function findall($vfilter = '', $screen_type = '')
+    public function findall_count($brand = '')
     {
+        $sql = "select 
+        (select count(p.id) from project as p
+         LEFT JOIN customer c ON (c.id = p.customer)
+            where c.brand = $brand
+        ) as countAll
+        ,
+        (select count(p.id) from project as p
+        LEFT JOIN customer c ON (c.id = p.customer)
+         where p.status = '0' and c.brand = $brand) as countRun
+        ,
+        (select count(p.id) from project as p
+        LEFT JOIN customer c ON (c.id = p.customer)
+         where p.status = '1' and c.brand = $brand) as counClose";
+
+        $query = $this->db->query($sql)->row();
+
+        return $query;
+    }
+    public function findall($vfilter = [], $screen_type = '', $order = null, $dir = null, $length = 0, $start = 0)
+    {
+        // $vfilter = implode(" and ", $vfilter);
         $sql =
             "select * from ( SELECT 
-            p.id AS id,
-            p.opportunity AS opportunity,
-            p.branch_name AS branch_name,
-            p.code AS code,
-            p.name AS name,
-            p.customer AS customer,
-            p.lead AS `lead`,
-            p.product_line AS product_line,
-           
-            p.type AS type,
-            p.status AS status,
-            p.closed_date AS closed_date,
-            p.closed_by AS closed_by,
-            p.verified AS verified,
-            p.has_error AS has_error,
-            p.verified_at AS verified_at,
-            p.verified_by AS verified_by,
-            p.created_by AS created_by,
-            p.created_at AS created_at,
-            b.id AS brand,
-            b.name AS brandname,
-          
-            c.name AS customername,
-            l.name AS productline,
-            u.user_name AS username,
-            TIMESTAMPDIFF(HOUR,
-                j1.min_start,
-                j1.max_delivery) AS total_hours,
-            TIMESTAMPDIFF(HOUR,
-                j1.min_start,
-                CURRENT_TIMESTAMP()) AS interval_hours,
-            j1.min_start AS min_start,
-            j1.max_delivery AS max_delivery,
-            CURRENT_TIMESTAMP() AS now,
-            ifnull(j1.allclosed,0) AS allclosed,
-            ifnull(j3.closedstat,0) AS closedstat
-        FROM
-            ((((((project p
-            LEFT JOIN customer c ON (c.id = p.customer))
-            LEFT JOIN brand b ON (b.id = c.brand))
-            LEFT JOIN customer_product_line l ON (l.id = p.product_line))
-            LEFT JOIN users u ON (u.id = p.created_by))           
-           
-            LEFT JOIN (SELECT 
-                job.project_id AS project_id,
-                    MIN(job.start_date) AS min_start,
-                    MAX(job.delivery_date) AS max_delivery,
-                    IFNULL(COUNT(job.id), 0) AS allclosed
-            FROM
-                job
-            GROUP BY job.project_id) j1 ON (j1.project_id = p.id))
+    p.id AS id,
+    p.po as po_number,
+    p.opportunity AS opportunity,
+    p.branch_name AS branch_name,
+    p.code AS code,
+    p.name AS name,
+    p.customer AS customer,
+    p.lead AS `lead`,
+    p.product_line AS product_line,
+   
+    p.type AS type,
+    p.status AS status,
+    p.closed_date AS closed_date,
+    p.closed_by AS closed_by,
+    p.verified AS verified,
+    p.has_error AS has_error,
+    p.verified_at AS verified_at,
+    p.verified_by AS verified_by,
+    p.created_by AS created_by,
+    p.created_at AS created_at,
+    b.id AS brand,
+    b.name AS brandname,
+  
+    c.name AS customername,
+    l.name AS productline,
+    u.user_name AS username,
+    TIMESTAMPDIFF(MINUTE,
+        j1.min_start,
+        j1.max_delivery) AS total_hours,
+    TIMESTAMPDIFF(MINUTE,
+        j1.min_start,
+        CURRENT_TIMESTAMP()) AS interval_hours,
+    j1.min_start AS min_start,
+    j1.max_delivery AS max_delivery,
+    CURRENT_TIMESTAMP() AS now,
+    ifnull(j1.allclosed,0) AS allclosed,
+    ifnull(j3.closedstat,0) AS closedstat
+FROM
+    ((((((project p
+    LEFT JOIN customer c ON (c.id = p.customer))
+    LEFT JOIN brand b ON (b.id = c.brand))
+    LEFT JOIN customer_product_line l ON (l.id = p.product_line))
+    LEFT JOIN users u ON (u.id = p.created_by))           
+   
+    LEFT JOIN (SELECT 
+        job.project_id AS project_id,
+            MIN(job.start_date) AS min_start,
+            MAX(job.delivery_date) AS max_delivery,
+            IFNULL(COUNT(job.id), 0) AS allclosed
+    FROM
+        job
+    GROUP BY job.project_id) j1 ON (j1.project_id = p.id))
 
-            
+    
 
-            LEFT JOIN (SELECT 
-                job.project_id AS project_id,
-                    IFNULL(COUNT(job.id), 0) AS closedstat
-            FROM
-                job
-            WHERE
-                job.status = 1
-            GROUP BY job.project_id) j3 ON (j3.project_id = p.id))
+    LEFT JOIN (SELECT 
+        job.project_id AS project_id,
+            IFNULL(COUNT(job.id), 0) AS closedstat
+    FROM
+        job
+    WHERE
+        job.status = 1
+    GROUP BY job.project_id) j3 ON (j3.project_id = p.id))
 
-           
-            ) as tot_pro  where 1 ";
-        // LEFT JOIN job j0 ON (p.id = j0.project_id))
-        // LEFT JOIN po pos ON (j0.po = pos.id))
+   
+    ) as tot_pro  where 1 ";
+
         if ($screen_type == 'Running') {
             $sql .= " and (allclosed <> closedstat OR closedstat = 0) ";
         }
@@ -94,9 +115,32 @@ class Projects_model extends CI_Model
         if ($vfilter != '') {
             $sql .= " and " . $vfilter;
         }
-        // var_dump($sql);
-        // die;
+
+        if ($order != null) {
+            $sql .= " order by " . $order . " "  . $dir;
+        } else {
+            $sql .= " order by created_at desc ";
+        }
+        if ($length > 0) {
+            $sql .= " limit " . $length . " offset " . $start;
+        }
+
         $query = $this->db->query($sql);
+
+        return $query;
+    }
+    public function findallCount($vfilter = [], $screen_type = '')
+    {
+        $vfilter = implode(" and ", $vfilter);
+        $sql = "select * from (select  p.*,c.brand from project as p
+        LEFT JOIN customer c ON (c.id = p.customer)) as count_t
+           where '1' ";
+
+        if ($vfilter != '') {
+            $sql .= " and " . $vfilter;
+        }
+        $query = $this->db->query($sql);
+
         return $query;
     }
 
