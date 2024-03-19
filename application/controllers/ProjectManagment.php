@@ -30,6 +30,14 @@ class ProjectManagment extends CI_Controller
             $data['brand'] = $this->brand;
             $data['screen_type'] = 'All';
             $data['opportunity'] = $this->projects_model->OpportunitiesByPm($data['permission'], $this->user, $this->brand);
+
+            $data['samCount'] = $data['opportunity']->num_rows();
+            $counts = $this->projects_model->findall_count($this->brand);
+            $data['rec_all'] = $counts->countAll;
+            $data['rec_r'] = $counts->countRun;
+            $data['rec_c'] = $counts->counClose;
+
+
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('projectManagment/view_projects_new.php');
             $this->load->view('includes_new/footer.php');

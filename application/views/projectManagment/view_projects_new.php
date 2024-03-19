@@ -20,10 +20,6 @@
             color: var(--bs-text-white) !important;
           }
 
-          /* .fs-2hx {
-            font-size: 2.5rem !important;
-          } */
-
           .ls-n2 {
             letter-spacing: -.115rem !important;
           }
@@ -77,8 +73,14 @@
             padding-top: 0.25rem !important;
           }
 
-          .mb-xl-8 {
-            /* margin-right: 1rem; */
+          .dataTables_wrapper .dataTable {
+
+            border-radius: 0;
+          }
+
+          .table-bordered th,
+          .table-bordered td {
+            border-bottom: 1px solid #828AA0 !important;
           }
         </style>
 

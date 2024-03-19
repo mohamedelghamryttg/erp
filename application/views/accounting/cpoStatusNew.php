@@ -17,10 +17,6 @@
 		color: var(--bs-text-white) !important;
 	}
 
-	/* .fs-2hx {
-            font-size: 2.5rem !important;
-          } */
-
 	.ls-n2 {
 		letter-spacing: -.115rem !important;
 	}
