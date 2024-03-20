@@ -47,8 +47,11 @@ class Accounting_model extends CI_Model
 
         $data = '';
         foreach ($row as $row) {
+
             $job_data = $this->projects_model->totalRevenuePO($row->id);
+
             $region = $this->db->get_where('customer_leads', array('id' => $lead))->row()->region;
+
             if ($id == $row->id) {
                 $checked = 'checked="checked"';
             } else {
