@@ -57,7 +57,9 @@ class Accounting_model extends CI_Model
                     </thead>
                     <tbody>';
         foreach ($row as $row) {
+
             $job_data = $this->projects_model->totalRevenuePO($row->id);
+
             if ($id == $row->id) {
                 $checked = 'checked="checked"';
             } else {

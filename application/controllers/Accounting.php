@@ -731,7 +731,7 @@ class Accounting extends CI_Controller
     public function getVirifiedPoByCustomer()
     {
         $lead = $_POST['lead'];
-        echo $this->accounting_model->getVirifiedPoByCustomer(0, $lead);
+        echo $this->accounting_model->getVirifiedPoByCustomer('0', $lead);
     }
 
     public function getPaymentData()
