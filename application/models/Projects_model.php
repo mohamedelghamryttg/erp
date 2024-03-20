@@ -37,7 +37,7 @@ class Projects_model extends CI_Model
     }
     public function findall($vfilter = [], $screen_type = '', $order = null, $dir = null, $length = 0, $start = 0)
     {
-        // $vfilter = implode(" and ", $vfilter);
+        $vfilter = implode(" and ", $vfilter);
         $sql =
             "select * from ( SELECT 
     p.id AS id,
@@ -143,7 +143,6 @@ FROM
 
         return $query;
     }
-
     function make_datatables($rowno, $rowperpage, $vfilter)
     {
         // $this->make_query();
@@ -431,6 +430,7 @@ FROM
 
     public function getJobData($id)
     {
+
         $result = $this->db->get_where('job', array('id' => $id))->row();
         return $result;
     }
@@ -2940,9 +2940,55 @@ FROM
         }
     }
 
-    public function newTranslationTasks($brand)
+    public function newTranslationTasks_old($brand)
     {
         $data = $this->db->query("SELECT *,(SELECT brand FROM `users` where id = translation_request.created_by) AS brand FROM `translation_request` WHERE status = 1 HAVING brand = '$brand' ");
+        return $data;
+    }
+    public function AllTranslation($permission, $user, $brand, $filter)
+    {
+        $sql = "SELECT 
+             t.id,t.count,t.tm,t.delivery_date,t.status,u.brand as brand,u.user_name,t.created_at,t.subject
+        FROM
+            translation_request as t
+            join users as u on u.id =t.created_by";
+
+        if ($permission->view == 1) {
+            $data = $this->db->query($sql . " WHERE " . $filter . "  HAVING `brand` = '$brand' ORDER BY  t.created_at DESC, t.status ASC");
+        } elseif ($permission->view == 2) {
+            $data = $this->db->query($sql . " WHERE " . $filter . " AND t.status_by` = '$user'  HAVING `brand` = '$brand' ORDER BY  t.created_at DESC, t.status ASC");
+        }
+        return $data;
+    }
+    public function newTranslationTasks($brand)
+    {
+        $sql = "SELECT 
+                t.id,t.count,t.subject,t.start_date,t.delivery_date,t.created_at,un.name as ttunit,tt.name as ttask_type,u.brand as brand,u.user_name
+    
+            FROM
+                translation_request as t
+                join users as u on u.id =t.created_by
+            left join task_type as tt on tt.id = t.task_type
+            left join unit as un on un.id = t.unit
+            WHERE t.status = '1' HAVING brand = '$brand'";
+
+        $data = $this->db->query($sql);
+        return $data;
+    }
+    public function TranslationRequestsPlan($brand)
+    {
+        $sql = "SELECT 
+        t.id,t.count,t.subject,t.start_date,t.delivery_date,t.created_at,u.brand as brand,u.user_name,tt.name as task_type,un.name as unit   
+    FROM
+        translation_request as t
+        join users as u on u.id =t.created_by
+        left join job as j on j.id = t.job_id
+        left join task_type as tt on tt.id = t.task_type
+        left join unit as un on un.id = t.unit
+    WHERE
+        t.status = '7' HAVING brand = '$brand'";
+        // $data = $this->db->query("SELECT *,(SELECT brand FROM `users` where id = translation_request.created_by) AS brand FROM `translation_request` WHERE status = 7 HAVING brand = '$brand' ");
+        $data = $this->db->query($sql);
         return $data;
     }
 
@@ -5926,7 +5972,7 @@ FROM
         $this->email->send();
     }
 
-    public function TranslationRequestsPlan($brand)
+    public function TranslationRequestsPlan_old($brand)
     {
         $data = $this->db->query("SELECT *,(SELECT brand FROM `users` where id = translation_request.created_by) AS brand FROM `translation_request` WHERE status = 7 HAVING brand = '$brand' ");
         return $data;

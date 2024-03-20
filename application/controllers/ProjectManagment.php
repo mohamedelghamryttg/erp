@@ -10,8 +10,8 @@ class ProjectManagment extends CI_Controller
         parent::__construct();
         $this->load->helper('url');
         $this->admin_model->verfiyLogin();
-        $this->load->library('Excelfile');
         $this->load->library('datatables');
+        $this->load->library('Excelfile');
         $this->role = $this->session->userdata('role');
         $this->user = $this->session->userdata('id');
         $this->brand = $this->session->userdata('brand');
@@ -57,6 +57,15 @@ class ProjectManagment extends CI_Controller
             $data['brand'] = $this->brand;
             $data['screen_type'] = 'Running';
             $data['opportunity'] = $this->projects_model->OpportunitiesByPm($data['permission'], $this->user, $this->brand);
+
+            // $total_records = $this->projects_model->findall_count('1', $screen_type)->num_rows();
+
+            // $data['samCount'] = $data['opportunity']>num_rows();
+            // $data['rec_v'] = $counts[0]['countv'];
+            // $data['rec_e'] = $counts[0]['counte'];
+            // $data['rec_i'] = $counts[0]['counti'];
+            // $data['rec_p'] = $counts[0]['countp'];
+
             $this->load->view('includes_new/header.php', $data);
             $this->load->view('projectManagment/view_projects_running.php');
             $this->load->view('includes_new/footer.php');
@@ -64,8 +73,370 @@ class ProjectManagment extends CI_Controller
             echo "You have no permission to access this page";
         }
     }
+    function get_sam_data()
+    {
+        $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 204);
+        //body ..
+        $data['user'] = $this->user;
+        $data['brand'] = $this->brand;
+        $data['opportunity'] = $this->projects_model->OpportunitiesByPm($data['permission'], $this->user, $this->brand)->result_array();
 
+        echo (json_encode($data));
+    }
     function findall()
+    {
+        $permission = $this->admin_model->getScreenByPermissionByRole($this->role, 204);
+        //body ..
+        // $data['user'] = $this->user;
+        // $data['brand'] = $this->brand;
+
+        $draw = intval($this->input->post('draw'));
+        $start = intval($this->input->post('start'));
+        $length = intval($this->input->post('length'));
+        $order = $this->input->post('order');
+        $col = 0;
+        $dir = "";
+        $filter_data = $this->input->post('filter_data');
+        parse_str($filter_data, $params);
+        $screen_type = "";
+
+        $having = "";
+        $filter = array();
+        $filter['brand'] =  'brand =' . $this->brand;
+        if ($filter_data) {
+            if (!empty($params['code'])) {
+                $filter['code'] = 'code =' . $params['code'];
+            }
+
+            if (!empty($params['name'])) {
+                array_push($arr2, 2);
+                $filter['name'] = 'name =' . $params['name'];
+            }
+
+
+            if (!empty($params['customer'])) {
+                array_push($arr2, 3);
+                $filter['customer'] = 'customer =' . $params['customer'];
+            }
+
+            if (!empty($params['product_line'])) {
+                $filter['product_line'] = 'product_line =' . $params['product_line'];
+            }
+
+            if (!empty($params['status'])) {
+                $filter['status'] = 'status =' . $params['status'];
+            }
+
+            if (!empty($params['created_by'])) {
+                $filter['created_by'] = 'created_by =' . $params['created_by'];
+            }
+
+            if (!empty($params['date_from']) && !empty($params['date_to'])) {
+                $date_from = date('Y-m-d', strtotime($params['date_from']));
+                $date_to = date('Y-m-d', strtotime($params['date_to']));
+                $filter['date_from'] = "created_at >='" . $date_from . "'";
+                $filter['date_to'] = "created_at <='" . $date_to . "'";
+            }
+
+            if (!empty($params['pono'])) {
+                $filter['pono'] = 'po_number =' . $params['pono'];
+            }
+        }
+
+        //************************ */
+        $data['filter'] = $filter;
+        if (!empty($order)) {
+            foreach ($order as $o) {
+                $col = $o['column'];
+                $dir = $o['dir'];
+            }
+        }
+        if ($dir != 'asc' && $dir != 'desc') {
+            $dir = 'desc';
+        }
+        $valid_columns = array(
+            0 => '',
+            1 => 'code',
+            2 => 'name',
+            3 => 'customername',
+            4 => '',
+
+            5 => 'STATUS',
+            6 => 'po_number',
+            7 => 'productline',
+            8 => 'username',
+            9 => 'created_at',
+            10 => 'max_delivery',
+            11 => 'opportunity',
+            12 => 'TICKETS',
+            13 => '',
+
+        );
+        if ($col > 0 && $col <= 12) {
+            $order = $valid_columns[$col];
+        } else {
+            $order = null;
+        }
+        if ($order != null) {
+            $this->db->order_by($order, $dir);
+        }
+        if ($length >= 0) {
+            $this->db->limit($length, $start);
+        }
+        // $filter['v.brand ='] = $this->brand;
+
+        $projectData = $this->projects_model->findall($filter, $screen_type, $order, $dir, $length, $start);
+        // var_dump($this->db->last_query());
+        // die;
+        if ($projectData->num_rows() > 0) {
+            $ix = $start;
+            foreach ($projectData->result() as $rows) {
+
+                //************** */
+                $progress = 0;
+                $progRow = '<div></div>';
+
+
+                if ($rows->allclosed != null) {
+                    $allc = $rows->allclosed;
+                } else {
+                    $allc = 0;
+                }
+
+                if ($rows->closedstat != null) {
+                    $alls = $rows->closedstat;
+                } else {
+                    $alls = 0;
+                }
+                $progress = 0;
+                if ($allc != $alls) {
+                    if ($rows->total_hours > 0) {
+                        $progress = $rows->interval_hours * 100 / $rows->total_hours;
+                        $progress = $progress >= 100 ? 100 : intval($progress);
+                    } else {
+                        $progress = 0;
+                    }
+                    $progress = intval($progress);
+                    if ($progress >= 0) {
+                        $progRow = '<div class = "progress border border-info vertical-progressbar" >';
+                        if ($progress > 100) {
+                            $progRow .= '<span style="position: absolute;margin: 6.5px 1%;color:#000"><span style="color:red">***</span></span>';
+                        } else {
+                            $progRow .= '<span style="position: absolute;margin: 6.5px 1%;color:#000"><span style="color:#000">' . (100 - $progress) . ' %</span></span>';
+                            $n_width = 0;
+                            switch (true) {
+                                case ($progress <= 15):
+                                    $n_width = (($progress <= 85) ? (100 - $progress) : 85);
+                                    $progRow .= '<div class="progress-bar bg-success progress-bar-striped  progress-bar-animated" role ="progressbar" style="width:' . $n_width . '%" value="' . $progress . '" max = "100" ></div>';
+                                    break;
+                                case ($progress <= 35):
+                                    $n_width = (($progress <= 65) ? (100 - $progress) : 65);
+                                    $progRow .= '<div class="progress-bar bg-warning progress-bar-striped  progress-bar-animated" role="progressbar" style="width: ' . $n_width . '%" value="' . $progress . '" max="100"></div>';
+                                    break;
+                                case ($progress <= 100):
+                                    $n_width = (($progress < 100) ? (100 - $progress) : 0);
+                                    $progRow .= '<div class="progress-bar bg-primary progress-bar-striped  progress-bar-animated" role="progressbar" style="width:' . $n_width . '%" value="' . $progress . '" max="100"></div>';
+                                    break;
+                                default:
+                                    $progRow .= '<div class="progress-bar bg-primary progress-bar-striped  progress-bar-animated" role="progressbar" style="width:  0%" value=0  max="100">*</div>';
+                                    break;
+                            }
+                        }
+                        $progRow .= '</div>';
+                    }
+                }
+                //************** */
+                // (($progress >= 100) ? '<div><span style="background-color: yellow;"></span></div>' : '<div ></div>'),
+                $json[] = array(
+                    (($progress >= 100) ?
+                        '<div style=" width: 100%;background-color: red;"> &nbsp;&nbsp;&nbsp;</div>'
+                        : ''),
+                    $progRow,
+                    $rows->id,
+                    '<a href="' . base_url() . 'ProjectManagment/projectJobs?t=' . base64_encode($rows->id) . '">' . $rows->code . '</a>',
+                    $rows->name,
+                    $rows->customername,
+
+
+                    (($rows->allclosed == $rows->closedstat && $rows->closedstat != 0) ? 'Closed' : 'Running'),
+
+                    $rows->productline,
+                    $rows->username,
+                    $rows->created_at,
+                    $rows->max_delivery,
+                    (($rows->closedstat != 0) ?
+                        '<a  href = "' . base_url() . 'vendor/vmPmTicket?t=' . base64_encode($rows->id) . '" ><i class="fa fa-eye "></i> View Tickets </a>'
+                        :
+                        '<a  href = "' . base_url() . 'vendor/vmPmTicket?t=' . base64_encode($rows->id) . '" ><i class="fa fa-eye "></i> View Tickets </a>'
+                    ),
+                    $rows->opportunity,
+                    '<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups" style="width: max-content;">' . (($rows->closedstat == 0) ?
+                        (($permission != null && $permission->edit == '1') ?
+                            '<div class="btn-group btn-group-sm" role="group" >' .
+                            '<a class="text-dark mb-2 mr-5" href="' . base_url() . 'projectManagment/editProject?t=' . base64_encode($rows->id) . '"><i class="fa fa-pen text-dark"></i> Edit</a>'
+                            . '</div>'
+                            : '')
+                        . (($permission != null && $permission->delete == '1') ?
+                            '<div class="btn-group btn-group-sm" role="group">' .
+                            '<a class="text-danger mb-2 ml-5" id="del_fun" title="delete" href="javascript:void(0)" data-id=' . $rows->id . '><i class="fa fa fa-trash text-danger"></i> Delete</a>'
+                            . '</div>'
+                            : '')
+                        : (($permission != null && $permission->view == '1') ?
+                            '<div class="btn-group btn-group-sm" role="group">' .
+                            '<a class="text-success" href="' . base_url() . 'projectManagment/editProject?t=' . base64_encode($rows->id) . '"><i class="fa fa-pen text-success"></i> View </a>'
+                            . '</div>'
+                            : '')
+                    ) . '</div>'
+
+                );
+            }
+            $total_records = $this->projects_model->findallCount($filter, $screen_type)->num_rows();
+            $response = array(
+                'draw' => $draw,
+                'recordsTotal' => $total_records,
+                'recordsFiltered' => $total_records,
+                'data' => $json,
+                'permissions' => $permission
+            );
+        } else {
+            $response = array(
+                'draw' => $draw,
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => array(),
+                'permissions' => $permission
+            );
+        }
+        echo (json_encode($response));
+    }
+    function exportProjects()
+    {
+        $filter_data = $this->input->post('filter_data');
+        parse_str($filter_data ?? '', $params);
+        $screen_type = "";
+
+        $having = "";
+        $filter = array();
+        $filter['brand'] =  'brand =' . $this->brand;
+        if ($filter_data) {
+            if (!empty($params['code'])) {
+                $filter['code'] = 'code =' . $params['code'];
+            }
+
+            if (!empty($params['name'])) {
+                array_push($arr2, 2);
+                $filter['name'] = 'name =' . $params['name'];
+            }
+
+
+            if (!empty($params['customer'])) {
+                array_push($arr2, 3);
+                $filter['customer'] = 'customer =' . $params['customer'];
+            }
+
+            if (!empty($params['product_line'])) {
+                $filter['product_line'] = 'product_line =' . $params['product_line'];
+            }
+
+            if (!empty($params['status'])) {
+                $filter['status'] = 'status =' . $params['status'];
+            }
+
+            if (!empty($params['created_by'])) {
+                $filter['created_by'] = 'created_by =' . $params['created_by'];
+            }
+
+            if (!empty($params['date_from']) && !empty($params['date_to'])) {
+                $date_from = date('Y-m-d', strtotime($params['date_from']));
+                $date_to = date('Y-m-d', strtotime($params['date_to']));
+                $filter['date_from'] = 'created_at >=' . $date_from;
+                $filter['date_to'] = 'created_at <=' . $date_to;
+            }
+
+            if (!empty($params['pono'])) {
+                $filter['pono'] = 'po_number =' . $params['pono'];
+            }
+        }
+
+        $projectData = $this->projects_model->findall($filter, $screen_type, null, null, 0, 0);
+        // var_dump($projectData->num_rows());
+        // die;
+        if ($projectData->num_rows() > 0) {
+            $objPHPExcel = new PHPExcel();
+            $filename = 'Projects_List';
+            $title = 'Projects_List';
+            $file = $filename  . '.xlsx'; //save our workbook as this file name
+
+            $objPHPExcel->getProperties()->setTitle("title")->setDescription($filename);
+            $objPHPExcel->setActiveSheetIndex(0);
+
+            $objPHPExcel->getActiveSheet()->setCellValue('A1', $title);
+            $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setSize(20);
+            $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->mergeCells('A1:I1');
+
+            $objPHPExcel->getActiveSheet()->getCell('A2')->setValue('PROJECT CODE');
+            $objPHPExcel->getActiveSheet()->getCell('B2')->setValue('PROJECT NAME');
+            $objPHPExcel->getActiveSheet()->getCell('C2')->setValue('CLIENT');
+            $objPHPExcel->getActiveSheet()->getCell('D2')->setValue('STATUS');
+            $objPHPExcel->getActiveSheet()->getCell('E2')->setValue('PRODUCT LINE');
+            $objPHPExcel->getActiveSheet()->getCell('F2')->setValue('CREATED BY');
+            $objPHPExcel->getActiveSheet()->getCell('G2')->setValue('CREATED AT');
+            $objPHPExcel->getActiveSheet()->getCell('H2')->setValue('DELIVERY DATE');
+            $objPHPExcel->getActiveSheet()->getCell('I2')->setValue('OPPORTUNITY');
+            $rows = 3;
+            $ix = 1;
+            foreach ($projectData->result() as $project) {
+                $objPHPExcel->getActiveSheet()->getCell('A' . $rows)->setValue($project->code ?? '');
+                $objPHPExcel->getActiveSheet()->getCell('B' . $rows)->setValue($project->name ?? '');
+                $objPHPExcel->getActiveSheet()->getCell('C' . $rows)->setValue($project->status ?? '');
+                $objPHPExcel->getActiveSheet()->getCell('D' . $rows)->setValue($project->po_number ?? '');
+                $objPHPExcel->getActiveSheet()->getCell('E' . $rows)->setValue($project->productline ?? '');
+                $objPHPExcel->getActiveSheet()->getCell('F' . $rows)->setValue($project->username ?? '');
+                $objPHPExcel->getActiveSheet()->getCell('G' . $rows)->setValue($project->created_at ?? '');
+                $objPHPExcel->getActiveSheet()->getCell('H' . $rows)->setValue($project->max_delivery ?? '');
+                $objPHPExcel->getActiveSheet()->getCell('I' . $rows)->setValue($project->opportunity ?? '');
+
+                $rows++;
+
+                if ($ix == 1) {
+                    $objPHPExcel->getActiveSheet()
+                        ->getStyle('A' . $rows . ':I' . $rows)
+                        ->getFill()
+                        ->setFillType(PHPExcel_Style_Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setRGB('e6eff8');
+                    $ix = 0;
+                } else {
+                    $ix = 1;
+                }
+            }
+            $styleArray = array(
+                'borders' => array(
+                    'allborders' => array(
+                        'style' => PHPExcel_Style_Border::BORDER_THIN
+                    )
+                )
+            );
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:I' . $rows)->applyFromArray($styleArray);
+            unset($styleArray);
+            for ($col = 'A'; $col != 'I'; $col++) { //Runs through all cells between A and E and sets to autosize
+                $objPHPExcel->getActiveSheet()->getColumnDimension($col, true)->setAutoSize(true);
+            }
+            $objPHPExcel->getActiveSheet()->freezePane('A3');
+
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+            // header('Content-Type: application/vnd.ms-excel');
+            // header('Content-Disposition: attachment;filename=' . $file);
+            // header('Cache-Control: max-age=0');
+            // header("Pragma: no-cache");
+            // header("Expires: 0");
+            ob_end_clean();
+            $objWriter->save('php://output');
+        }
+    }
+    function findall1()
     {
         ini_set('memory_limit', '-1');
         $data['group'] = $this->admin_model->getGroupByRole($this->role);

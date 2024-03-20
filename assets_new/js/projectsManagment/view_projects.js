@@ -82,16 +82,15 @@ $(document).ready(function (e) {
                 // }
             }
 
-        }, columnDefs: [
-            {
-                targets: 0,
-                width: 1,
-                className: 'details-control noExport noVis',
-                orderable: false,
-                data: null,
-                defaultContent: '',
-                width: 1
-            },
+        }, columnDefs: [{
+            targets: [0, 1, 5, 12],
+            orderable: false,
+            className: 'noExport noVis'
+        },
+        {
+            targets: [0],
+            width: 1
+        },
 
         ],
         createdRow: function (row, data, dataIndex) {
