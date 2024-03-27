@@ -81,4 +81,40 @@ class Settings extends CI_Controller
         }
         redirect(base_url() . "settings/pm_settings");
     }
+    
+    // vm settings
+    public function vm_settings()
+    {
+        $check = $this->admin_model->checkPermission($this->role, 249);
+        if ($check) {
+            $data['group'] = $this->admin_model->getGroupByRole($this->role);
+            $data['permission'] = $this->admin_model->getScreenByPermissionByRole($this->role, 249);
+            $data['brand'] = $this->brand;
+          
+            $data['vmConfig'] = $this->db->get('vm_setup')->row();
+
+            $this->load->view('includes_new/header.php', $data);
+            $this->load->view('erp_setting/vm_setting');
+            $this->load->view('includes_new/footer.php');
+        } else {
+            echo "You have no permission to access this page";
+        }
+    }
+    public function saveVmConfig()
+    {
+        $id = $this->input->post('id');
+        $data['unaccepted_offers_email'] = ($this->input->post('unaccepted_offers_email') ? $this->input->post('unaccepted_offers_email') : '');
+        $data['acceptance_offers_hours'] = ($this->input->post('acceptance_offers_hours') ? $this->input->post('acceptance_offers_hours') : '');
+      
+            $this->db->where('id', $id);
+            if ($this->db->update('vm_setup', $data)) {
+                $true = "Vendor Management Settings Update Successfully  ...";
+                $this->session->set_flashdata('true', $true);
+            } else {
+                $error = "Failed To Update Vendor Management Settings ...";
+                $this->session->set_flashdata('error', $error);
+            }
+        
+        redirect(base_url() . "settings/vm_settings");
+    }
 }

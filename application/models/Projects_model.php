@@ -5375,7 +5375,9 @@ FROM
         } elseif ($status == 2) {
             echo "Cancelled";
         } elseif ($status == 4) {
-            echo "Waiting Vendors Response";
+            echo "Waiting Vendors Response";        
+        } elseif ($status == 10) {
+            echo "No Vendor Accepted";
         }
     }
 

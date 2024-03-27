@@ -3984,4 +3984,54 @@ inner join brand as b on b.id = u.brand
         where u.status = 1
         order by b.id,em.id,s.id";
     }
+    
+      public function checkVendorOffersStaus(){
+            $config = array(
+                'protocol' => 'smtp',
+                'smtp_host' => 'email-smtp.us-west-2.amazonaws.com',
+                'smtp_port' => 25,
+                'smtp_user' => 'AKIARCWPPYXV6IPKFDTQ',
+                'smtp_pass' => 'BHAaMA9R+c6HT7kw3CF6PnlfabN+u5C99ZuouuwKm7vF',
+                'charset' => 'utf-8',
+                'validate' => TRUE,
+                'wordwrap' => TRUE,
+            );
+            $this->load->library('email', $config);
+            $this->email->set_newline("\r\n");
+            $subject = " No Vendor Acceptance ";
+            $time1 = date("Y-m-d H:i:s");
+            // start check vm settings
+            $vmConfig = $this->db->get('vm_setup')->row(); 
+            if(!empty($vmConfig)){
+               // get acceptance offers hours  & email from vm settings 
+                $acceptance_offers_hours = $vmConfig->acceptance_offers_hours;
+                $unaccepted_offers_email = $vmConfig->unaccepted_offers_email;
+                // get all offers with status : Waiting Vendors Response
+                $vendorOffers =  $this->db->get_where('job_offer_list', array('status' => 4))->result();
+                foreach ($vendorOffers as $offer){
+                   $time2 = $offer->created_at;
+                   $hourdiff = round((strtotime($time1) - strtotime($time2))/3600, 1);
+                   if($hourdiff >= $acceptance_offers_hours){
+                       $updatedData['status'] = 10;
+                       $this->db->update('job_offer_list', $updatedData, array('id' => $offer->id));
+                       // get offer data 
+                        $data['row'] = $offer;
+                        $data['job'] = $this->projects_model->getJobData($offer->job_id);
+                        $data['jobPrice'] =$this->projects_model->getJobPriceListData($data['job']->price_list);   
+                        $data['vendor_list'] = explode(', ', $data['row']->vendor_list);
+                        $message = $this->load->view("nexus/offer_details.php", $data, true);
+                        $pmMail = $this->admin_model->getUserEmail($offer->created_by);
+                        $mailTo ="$unaccepted_offers_email, $pmMail";
+                        // email 
+                         $this->email->set_mailtype('html');
+                         $this->email->subject($subject);
+                        $this->email->message($message);
+                        $this->email->from("erp@aixnexus.com");
+                        $this->email->to($mailTo);
+                        $this->email->send();                       
+                   }
+            
+               }
+           }
+      }
 }

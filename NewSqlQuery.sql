@@ -371,4 +371,20 @@ CREATE TABLE `pmcommission_rules` (
 
 
 
->>>>>>> Stashed changes
+INSERT INTO `screen` (`id`, `groups`, `name`, `url`, `menu`) VALUES (249, '25', 'VM Setting', 'settings/vm_settings', '1');
+INSERT INTO `permission` (`id`, `groups`, `screen`, `role`, `follow`, `add`, `edit`, `delete`, `view`, `menu_order`) VALUES (NULL, '25', '249', '21', '2', '1', '1', '1', '1', '2990');
+
+CREATE TABLE `vm_setup` (
+  `id` int(11) NOT NULL,
+  `acceptance_offers_hours` double DEFAULT NULL,
+  `unaccepted_offers_email` varchar(200) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+INSERT INTO `vm_setup` (`id`, `acceptance_offers_hours`, `unaccepted_offers_email`) VALUES
+(1, 1, "nehal.allam@thetranslationgate.com");
+
+ALTER TABLE `vm_setup`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `vm_setup`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
